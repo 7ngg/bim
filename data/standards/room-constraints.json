@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "id": "bim-engine/dimensional-standards/room-constraints",
+  "generated": "2026-08-17",
+  "ticket": "docs/wayfinder/tickets/05-dimensional-standards-corpus.md",
+  "findings": "docs/research/dimensional-standards.md",
+
+  "disclaimer": "Neufert-grade dimensional standards (C8). This is design data, not a building code. No legal code-compliance claim is made or implied by any value in this file. Values are cited to their source so that a Practitioner can check them; they are not a substitute for checking them.",
+
+  "units": {
+    "length": "mm",
+    "area": "m2",
+    "angle": "deg",
+    "note": "All lengths are integer millimetres. All areas are square metres to one decimal. No imperial units appear in this file; imperial-native sources are converted once, at ingest, and the original value is recorded in the source note."
+  },
+
+  "value_format": {
+    "description": "Every constrained value is an object, never a bare number, so that provenance survives.",
+    "keys": {
+      "v": "the value, in the unit declared for its field",
+      "src": "key into `sources`",
+      "ref": "clause / table / paragraph within that source",
+      "conf": "verified | reported | derived | engine_choice",
+      "note": "optional; required when conf is derived or engine_choice"
+    },
+    "conf_meanings": {
+      "verified": "read directly from the primary document named in `src`",
+      "reported": "a credible third party attributes this value to `src`; not read first-hand",
+      "derived": "computed from a verified value by a stated rule (e.g. area / width)",
+      "engine_choice": "no source dictates this; the engine picks it, and `note` says why"
+    }
+  },
+
+  "flag_semantics": {
+    "comment": "These four booleans are consumed by the acceptance validator (ticket 07) and the brief defaulting rules (ticket 10). They are DEFINITIONS, not measurements — no reference work supplies them as such. Getting them wrong silently breaks predicates, so each is defined operationally here.",
+    "is_habitable": "A room intended for sustained occupation: sleeping, living, dining, working. Drives the window requirement and the exterior-wall requirement (C6 item 4). NOT the same as any national legal definition of 'habitable room' — see the findings doc, section on the kitchen disagreement.",
+    "is_wet": "A room containing a plumbed fixture (WC, basin, bath, shower, sink, washing machine). Drives wet-room clustering (C6 item 5).",
+    "is_private": "A room that must not lie on the circulation path to any other room. Drives the reachability predicate (C6 item 1): the entry-to-room graph may not route through a room where is_private is true.",
+    "needs_window": "The room must have at least one window on an exterior wall. Set true wherever is_habitable is true. This is an ENGINE DECISION, not a universal rule — England's Building Regulations impose no daylight requirement at all (see findings). We impose one because a Homeowner judges by 'would I live here'."
+  },
+
+  "region_model": {
+    "comment": "See the findings doc for the argument. Short version: the corpus splits into a body-derived layer that does not vary by region, and a convention-derived layer that varies so much that blending it produces buildings belonging to no tradition. `region` selects the second layer only.",
+    "invariant_layer": "ergonomic",
+    "regional_layer": "profiles",
+    "regions_defined": ["UK", "DE", "US"],
+    "regions_stub_only": ["IN", "JP", "AU", "CN"],
+    "default_region": "DE",
+    "default_region_rationale": "C8 names Neufert as the posture and the primary geometry corpus (Swiss Dwellings) is DE/CH. The model proposes in a European convention (C10); the constraints it is projected onto must be in the same convention or the projection fights the proposal.",
+    "verification_region": "UK",
+    "verification_region_rationale": "Every UK number here was read first-hand from a Crown-copyright document published under the Open Government Licence v3.0. It is the only profile that is free, complete, and independently checkable end-to-end, so it is the profile the test suite asserts against.",
+    "must_match": "The region enum here MUST be the same enum as the training-data conditioning variable in ticket 06. If the model is conditioned on region and the constraints are not, the solver projects a region-A proposal onto region-B constraints, which is strictly worse than either alone."
+  },
+
+  "tier_model": {
+    "comment": "A single number per cell is not recoverable from the sources; England alone yields five different 'minimum bedroom areas' depending on which instrument you invoke. Tier disambiguates.",
+    "tiers": {
+      "statutory_floor": "The hardest number any instrument in that region imposes. Below this a plan is rejected. Deliberately permissive — it is a floor, not a goal.",
+      "market_default": "What is actually built and what a Homeowner expects. This is what unstated brief fields default to (ticket 10) and what the solver targets.",
+      "accessible": "The region's wheelchair-user tier. Not a v1 default; carried so that adopting it later is a parameter change, not a rewrite."
+    },
+    "default_tier": "market_default",
+    "default_tier_rationale": "C2 says the Homeowner judges by 'would I live here'. A plan built to the statutory floor is legal and unliveable. Defaulting to the floor would make the engine reliably produce plans nobody wants.",
+    "validator_binding": {
+      "hard_reject_below": "statutory_floor",
+      "soft_objective_target": "market_default",
+      "comment": "This is the C10 split expressed in data: statutory_floor is a hard constraint, market_default is a soft objective. Ticket 07's 'hard or soft' question is answered per-value by which tier the number came from, not by a separate flag."
+    }
+  },
+
+  "sources": {
+    "uk_ndss_2015": {
+      "title": "Technical housing standards — nationally described space standard",
+      "issuer": "UK Department for Communities and Local Government",
+      "date": "2015-03-27, amended 2016-05-19",
+      "url": "https://www.gov.uk/government/publications/technical-housing-standards-nationally-described-space-standard/technical-housing-standards-nationally-described-space-standard",
+      "licence": "Open Government Licence v3.0",
+      "force": "planning_policy_optional",
+      "force_note": "Not a building regulation. Applies only where a local planning authority has adopted it in its Local Plan. Applies to England only.",
+      "reusable": true
+    },
+    "uk_adm1_2015": {
+      "title": "Approved Document M, Volume 1: Dwellings (2015 edition with 2016 amendments)",
+      "issuer": "UK Government (Building Regulations 2010, Part M)",
+      "url": "https://assets.publishing.service.gov.uk/media/5a7f8a82ed915d74e622b17b/BR_PDF_AD_M1_2015_with_2016_amendments_V3.pdf",
+      "licence": "Open Government Licence v3.0",
+      "force": "statutory_guidance",
+      "force_note": "M4(1) is mandatory. M4(2) and M4(3) are OPTIONAL requirements that apply only when imposed as a planning condition.",
+      "reusable": true
+    },
+    "uk_adk_2013": {
+      "title": "Approved Document K: Protection from falling, collision and impact (2013 edition)",
+      "issuer": "UK Government (Building Regulations 2010, Part K)",
+      "url": "https://assets.publishing.service.gov.uk/media/60d5bdcde90e07716f516cfd/Approved_Document_K.pdf",
+      "licence": "Open Government Licence v3.0",
+      "force": "statutory_guidance",
+      "reusable": true
+    },
+    "uk_adf1_2021": {
+      "title": "Approved Document F, Volume 1: Dwellings (2021 edition)",
+      "issuer": "UK Government (Building Regulations 2010, Part F)",
+      "url": "https://assets.publishing.service.gov.uk/media/61deba42d3bf7f054fcc243d/ADF1.pdf",
+      "licence": "Open Government Licence v3.0",
+      "force": "statutory_guidance",
+      "reusable": true
+    },
+    "uk_adb1_2019": {
+      "title": "Approved Document B, Volume 1: Dwellings (2019 edition incorporating later amendments)",
+      "issuer": "UK Government (Building Regulations 2010, Part B)",
+      "url": "https://www.gov.uk/government/publications/fire-safety-approved-document-b",
+      "licence": "Open Government Licence v3.0",
+      "force": "statutory_guidance",
+      "reusable": true
+    },
+    "uk_bregs_sched1": {
+      "title": "The Building Regulations 2010, Schedule 1",
+      "issuer": "UK Parliament (SI 2010/2214)",
+      "url": "https://www.legislation.gov.uk/uksi/2010/2214/schedule/1",
+      "licence": "Open Government Licence v3.0",
+      "force": "statutory",
+      "reusable": true
+    },
+    "scot_bregs_sched5": {
+      "title": "The Building (Scotland) Regulations 2004, Schedule 5 — mandatory standards",
+      "issuer": "Scottish Government (SSI 2004/406)",
+      "url": "https://www.legislation.gov.uk/ssi/2004/406/schedule/5",
+      "licence": "Open Government Licence v3.0",
+      "force": "statutory",
+      "reusable": true
+    }
+  },
+
+  "PLACEHOLDER_NOTE": "DE and US sources, the ergonomic layer, and the room table are appended below in the completed file."
+}

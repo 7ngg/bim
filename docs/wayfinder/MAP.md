@@ -47,7 +47,7 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 | C7 | Post-generation, v1 is **edit-the-brief-and-regenerate**. Direct wall manipulation with re-solve is designed-for but deferred. |
 | C8 | **Neufert-grade dimensional standards. No legal code-compliance claim, ever.** Say so in the product copy. |
 | C9 | **Non-commercial project.** Research-only datasets and weights are available. Licence is not a gate; data quality and regional convention are. |
-| C10 | **Model proposes, solver projects.** The learned model supplies plausibility as a *soft objective*; hard rules are *constraints*. Solve for the feasible plan nearest what the model wanted. |
+| C10 | **Model proposes, solver projects** — *amended, and the amendment is load-bearing.* The Proposal must carry **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints), and exact tiling must be posted **soft, not hard**. The loose form — hand the solver boxes and let it project them — is **refuted by measurement**: it finds nothing at 24 rooms in 30 s. Amended, 6.25 s. A **two-phase fallback for infeasible Proposals is mandatory**. See *Solver formulation for layout projection*. |
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region. Combine corpora where it can be made to work. |
 
@@ -70,7 +70,30 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 
 <!-- one line per closed ticket -->
 
-_None yet — the map has just been charted._
+- [BIM and CAD export stack](tickets/03-bim-and-cad-export-stack.md) — **C3 is
+  buildable.** `ezdxf` authors genuine DXF `DIMENSION` entities (verified by
+  execution) and `ifcopenshell` authors clean IFC4; the industry-wide annotation
+  gap is a product choice, not a tooling limit. Watch `DIMLFAC=100.0`, the R2000
+  floor, and mandatory `ObjectPlacement`. Revit's IFC *import* is the weak link.
+- [Dimensional standards corpus](tickets/05-dimensional-standards-corpus.md) — a
+  **`region` parameter is required on the convention-derived half of the table,
+  and every cell also needs a tier**; England alone yields five different minimum
+  bedroom areas. Neufert prescribes no minimum room areas at all, so our defaults
+  are our own choices. Table shipped at `data/standards/room-constraints.json`.
+- [Solver formulation for layout projection](tickets/04-solver-formulation-for-layout-projection.md)
+  — **GO on C10, amended.** CP-SAT over a 250 mm integer grid, with pairwise
+  separations from the Proposal promoted to hard linear constraints and exact
+  tiling posted soft. 24 rooms in **6.25 s VALID**; the unamended form finds
+  nothing in 30 s. Circulation *is* a constraint (single-commodity flow; private
+  rooms receive but never forward), forbidden adjacency is required with the sign
+  flipped, objective is L1 corner displacement. Two-phase fallback mandatory.
+  Largest open risk: rooms tile exactly, real walls have thickness.
+- [Cross-dataset unification](tickets/06-cross-dataset-unification.md) — **do not
+  pool.** Swiss Dwellings is the backbone, ResPlan merges under a conditioning
+  tag, RPLAN is demoted to optional pre-training, MSD and ProcTHOR are out.
+  Condition on `(region, corpus, annotation_provenance)`. **ResPlan's real data
+  contradicts its own paper on two material points** — every `[DOC]` claim is
+  provisional until the corpora are opened.
 
 ## Not yet specified
 
@@ -93,9 +116,25 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
 - **Frontend architecture and rendering** — canvas vs WebGL, how the plan is drawn
   and manipulated in the browser.
 - **Persistence, accounts, hosting** — where projects live, what a session is.
-- **Revit round-trip specifics** — C2 promises the engine won't preclude it.
-  What "won't preclude" concretely requires is unknown until the export research
-  lands.
+- **Revit round-trip specifics** — C2 promises the engine won't preclude it. The
+  export research found Revit's IFC *import* is the weak link rather than the
+  authoring (`docs/research/bim-cad-export-stack.md` §4); what that costs us is
+  still unspecified.
+- **Measurement convention as a first-class attribute** — minimum areas are not
+  comparable across regions even after unit conversion, because German
+  Wohnfläche, UK GIA and the IPMS family count differently. An area value may need
+  to carry its convention everywhere it travels, which touches the geometry model,
+  the Brief and the validator at once. Too diffuse to ticket yet.
+- **The unverified solver literature.** *Solver formulation for layout projection*
+  settled the question empirically, but its survey of MIP, rectangular-dual theory
+  and `kiwisolver` died with the session and is tagged `[UNVERIFIED]` throughout.
+  Low value while CP-SAT holds; it sharpens if the wall-thickness question in
+  *Canonical geometry model* breaks the current formulation, or when C7's
+  interactive re-solve is picked up and `kiwisolver` actually matters.
+- **Whether the proposer is worth training at all** — *Cross-dataset unification*
+  demoted RPLAN to "must earn its place on an ablation". The same question applies
+  one level up: does a trained proposer beat retrieval, measured on
+  solver-projected validator-passing output? Sharpens once the solver result lands.
 
 ## Out of scope
 

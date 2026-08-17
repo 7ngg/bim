@@ -1,0 +1,9 @@
+n=8 degenerate proposal                FEASIBLE   wall= 30.04 first=0.17 obj=369 valid=True core=[]
+n=8 shuffled proposal                  INFEASIBLE wall=  0.02 first=None obj=None valid=None core=['circulation', 'coverage', 'exterior', 'required_adj', 'wet_cluster']
+n=12 degenerate proposal               FEASIBLE   wall= 30.03 first=0.59 obj=740 valid=True core=[]
+n=12 shuffled proposal                 INFEASIBLE wall=  0.05 first=None obj=None valid=None core=['circulation', 'coverage', 'exterior', 'required_adj', 'wet_cluster']
+n=24 degenerate proposal               UNKNOWN    wall= 30.05 first=None obj=None valid=None core=[]
+n=24 shuffled proposal                 INFEASIBLE wall=  0.08 first=None obj=None valid=None core=['circulation', 'coverage', 'exterior', 'required_adj', 'wet_cluster']
+n=12 contradictory Brief (hard)        INFEASIBLE wall=  0.04 first=None obj=None valid=None core=['circulation', 'coverage', 'exterior', 'required_adj', 'wet_cluster']
+n=12 contradictory Brief (soft)        FEASIBLE   wall= 30.03 first=1.27 obj=100072 valid=False core=[]
+      ! H6 required adjacency bedroom1-utility3 missing

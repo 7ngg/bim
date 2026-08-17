@@ -3,8 +3,8 @@ id: 3
 title: BIM and CAD export stack
 parent: map
 labels: [wayfinder:research]
-status: open
-assignee:
+status: closed
+assignee: wayfinder-research-agent
 blocked_by: []
 ---
 
@@ -46,3 +46,29 @@ Establish, from primary docs and by reading library source where docs are thin:
 Deliverable: a findings doc under `docs/research/`, plus an explicit list of
 **constraints this stack imposes on the canonical geometry model** — that list is
 the input to *Canonical geometry model*.
+
+## Resolution
+
+**C3 is buildable. The industry gap is a product choice, not a tooling limitation.**
+
+`ezdxf` (MIT) authors genuine DXF `DIMENSION` entities — verified by execution and
+by inspecting the raw bytes, not inferred from the API surface. `ifcopenshell`
+(LGPL core) authors IFC4 that validates clean. Both install as prebuilt wheels.
+
+Findings that bind other tickets:
+
+- **We render the dimension geometry, not the CAD app.** Our renderer's output
+  *is* the drawing; a stale geometry block will not self-heal in every viewer.
+- **`DIMLFAC` is 100.0 on every shipped `EZ_*` dimstyle** — a 4000 mm wall
+  dimensions as "400000" out of the box. Unit convention must be fixed globally.
+  Named as the single easiest way to ship a wrong drawing.
+- **DXF R2000 (AC1015) is the hard floor.** R12 rejects MTEXT, LWPOLYLINE, HATCH.
+- **IFC4 WR1 fails on any IfcProduct with a representation and no
+  `ObjectPlacement`.** Placement is not optional.
+- **Revit's IFC import is the weak link, not the authoring** (§4).
+- **ezdxf's PDF backend vectorises all text** — no selectable or searchable text.
+- `pymupdf` is AGPL-3.0 or Artifex Commercial — fine under C9, but flagged.
+
+Full findings: `docs/research/bim-cad-export-stack.md`, including the
+"constraints this stack imposes on the canonical geometry model" section that
+*Canonical geometry model* and *Dimensioning and annotation rules* consume.

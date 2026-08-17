@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.venv-*/
+
+# Solver/export experiment outputs — regenerate by running the harness
+experiments/**/out/
+experiments/**/outputs/
+*.dxf
+*.ifc

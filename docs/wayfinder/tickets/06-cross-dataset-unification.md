@@ -3,8 +3,8 @@ id: 6
 title: Cross-dataset unification
 parent: map
 labels: [wayfinder:research]
-status: open
-assignee:
+status: closed
+assignee: wayfinder-research-agent
 blocked_by: []
 ---
 
@@ -52,3 +52,32 @@ Establish:
 
 Deliverable: findings doc plus a **concrete schema proposal** with per-corpus
 conversion notes and an honest list of what each conversion destroys.
+
+## Resolution
+
+**Do not pool the five corpora. Combine two, use two as a separate pre-training
+stage, use one not at all.**
+
+| Corpus | Role | In the merged mix? |
+|---|---|---|
+| Swiss Dwellings | Primary — geometry, walls, openings, 2.5D, fixtures | **Yes, the backbone** |
+| ResPlan | Secondary — second region, typed access graph | **Yes, under a conditioning tag** |
+| RPLAN | Demoted to optional pre-training; must earn it on an ablation | No |
+| MSD | Not training data — a strict subset of Swiss Dwellings, filtered away by C5 | No |
+| ProcTHOR-10k | Take the generator idea, not the dataset | No |
+
+**Region must be an explicit conditioning variable, and region alone is not
+enough** — condition on the triple `(region, corpus, annotation_provenance)`.
+
+The finding that matters most is a warning about the rest of the document:
+**ResPlan's actual data contradicts both its own paper and the previous research
+pass on two material points.** Its 258 MB pickle was downloaded and inspected
+during this pass; it was the one corpus actually opened, and it disagreed with its
+own documentation. Every claim in the findings doc is tagged
+`[DATA]` / `[SRC]` / `[DOC]` / `[EXEC]` / `[INF]`, and every `[DOC]` claim is
+provisional until *Acquire the datasets* checks it against real files.
+
+That raises the stakes on *Acquire the datasets*: it is a verification ticket, not
+a download ticket.
+
+Full findings: `docs/research/dataset-unification.md`.

@@ -38,6 +38,16 @@ with it:
    almost nothing now and a retrofit costs a lot. Include or not?
 6. **Annotation.** Are dimension chains and room tags *part of* the model, or a
    view over it? C3 makes them a hard deliverable, so they need a home.
+7. ⚠️ **Do walls with thickness survive the solver formulation?** *Solver
+   formulation for layout projection* proved C10 works — but on rooms that **tile
+   exactly**, with zero-width boundaries. Real walls occupy space. Its own
+   conclusion names this the **largest open risk on the architecture**. Resolve it
+   here, explicitly, before anything is built on either decision. The candidates:
+   solve on room centrelines and thicken afterwards (walls eat room area, so the
+   solved minimum dimensions become wrong); solve on inner faces and let wall
+   bodies live in the gaps (changes the tiling constraint); or carry thickness in
+   the solve (grows the model). Each has a different cost, and one of them may
+   invalidate the measured 6.25 s at 24 rooms.
 
 Every choice must be checked against five consumers:
 
