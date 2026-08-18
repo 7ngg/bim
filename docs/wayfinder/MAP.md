@@ -44,7 +44,7 @@ dimension in this system has to declare):
 | C2 | **Homeowner is the v1 user**; the internal geometry model is built to Practitioner grade from day one. Homeowner just never sees that layer. |
 | C3 | Hard output floor: **dimensioned 2D vector plan** — walls with thickness, doors, windows, room tags, dimension strings — to DXF/PDF. IFC/BIM is the stated export path. |
 | C4 | Input is **prompt → LLM-parsed structured brief**, with gaps filled from standards and every assumption surfaced to the user. The brief stays editable; it is the real interface. |
-| C5 | **Single-dwelling residential, single storey.** Flats and houses. |
+| C5 | **Single-dwelling residential, single storey.** Flats and houses — *confirmed, and both ship through one code path*: dwelling type is a preset over the Envelope's edge ring, not a branch. Product copy states two limits, not one: **single storey only**, and **house layouts come from apartment priors** because every corpus is flats. See *Building scope and envelope handling*. |
 | C6 | Acceptance bar (7 items) is a **hard filter**: generate many, reject most, show survivors. See *Acceptance validator spec*. |
 | C7 | Post-generation, v1 is **edit-the-brief-and-regenerate**. Direct wall manipulation with re-solve is designed-for but deferred. |
 | C8 | **Neufert-grade dimensional standards. No legal code-compliance claim, ever.** Say so in the product copy. |
@@ -178,6 +178,28 @@ dimension in this system has to declare):
   work owed), and the corridor pinch allowance. Three rules are `conf: pending` on
   the stub above; 19 are `ENGINE_CHOICE` awaiting a corpus fit.
 
+- [Building scope and envelope handling](tickets/09-building-scope-and-envelope-handling.md)
+  — **v1 ships flats and single-storey houses through one code path**, because the
+  flat/house difference was never provenance — it is **which edges can hold a
+  window**. The Envelope becomes the **inner face** of the external wall (it *is*
+  the interior clear region, so a Homeowner's tape number needs no conversion and
+  ADR 0001's domain is `dilate(Envelope, t_int/2)` with no `t_ext` term at all) and
+  an **ordered ring of edges**, each `exterior` or `party` with an orthogonal
+  `entrance_side` flag — orthogonal because a flat's front door *does* pierce a
+  party wall. Dwelling type is a **preset over that ring**, region-invariant in
+  topology and regional only in label. Shape is rectilinear, bbox minus ≤2 notches
+  (rect/L/U/T). **Provenance is per-field and decoupled from dwelling type**, which
+  re-keys *Acceptance validator spec*'s area rule and fixes a case it got wrong.
+  The finding that costs the most: **every solver timing on this map was measured
+  at 100% exterior exposure** — `exterior_faces()` returns every boundary face
+  unfiltered — so 6.25 s at 24 rooms describes a *detached bungalow*, and
+  `flat_single_aspect` quarters the face set H8 competes for. New axis for *Solver
+  timing variance sweep*. Also: **every corpus is flats**, so houses are generated
+  from apartment priors and the corpus ranking is confirmed rather than changed;
+  and Swiss Dwellings' building hierarchy can supply the real exposure
+  distribution. ADR
+  [0003](../adr/0003-the-envelope-is-an-inner-face-ring-of-typed-edges.md).
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -191,6 +213,12 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   zero-survivor case is settled (diagnose arithmetically, never show a failing
   Plan). What stays fog is the economics — how many candidates are produced, how
   many survive, how many are shown, and how a Homeowner chooses between them.
+  *Building scope and envelope handling* hands this patch one **known asymmetry,
+  deliberately unpatched**: an invented Envelope gets 2–3 aspect ratios as a real
+  diversity axis, a stated one gets none and varies only by Proposal. So flats —
+  the corpus-backed case and the likelier v1 purchase — get *less* variety than
+  bungalows, which is backwards from where the demand is. Envelope jitter was
+  rejected as a patch here; the fix belongs to whatever settles the economics.
 - **Plan quality beyond the validator** — narrowed by *Acceptance validator
   spec*: there now *is* a ranking signal, six soft rules and two warns, including
   the aspect-ratio term added specifically because a plan can pass everything and
@@ -204,12 +232,20 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   even though no fixture is modelled; and one acceptance rule
   (`open.wc_door_outward_pan_overlap`) sits `deferred` in the registry, with its
   source and its 250 mm, waiting only for a pan to exist.
-- **Non-orthogonal geometry** — v1 presumably assumes orthogonal walls. When and
-  how angled walls enter.
+- **Non-orthogonal geometry** — no longer a presumption: *Building scope and
+  envelope handling* fixed v1's Envelope as **rectilinear, bbox minus ≤2 notches**
+  (rect/L/U/T), and ADR 0003 records why. What stays fog is when and how angled
+  walls enter, and the ≤2 cap is unevidenced in both directions — the toy ran one
+  L and two U envelopes, which shows two notches are affordable and says nothing
+  about three.
 - **Structural and services reality** — load-bearing walls, plumbing stacks,
   risers. C6 item 5 gestures at wet-room clustering; the real version is larger.
   The geometry model left the hook deliberately: a wall's `load_bearing` is
   **unknown**, not false, so nothing has to be un-asserted when this is picked up.
+  *Building scope and envelope handling* sharpens the point: **party walls now
+  exist in the model** and are the walls most obviously load-bearing in a real
+  building, and they still carry `load_bearing: None`. The hook is now paying for
+  something concrete rather than being merely prudent.
 - **Frontend rendering and manipulation** — narrowed by *Language and runtime
   split*: the stack is **Next.js/TypeScript**, it talks to the engine as a **BFF over
   JSON**, and every survivor arrives as an **eager SVG preview**, so *viewing* a plan
@@ -253,3 +289,10 @@ Ruled beyond this destination. Does not graduate; returns only as a fresh effort
 - **Practitioner-first workflow and native Revit round-trip as a v1 requirement.**
   C2 — the engine must not preclude it, but shipping it is not on this route.
 - **Commercial productisation, pricing, licensing posture.** C9.
+- **The site: plot boundaries, setbacks, and any solar or daylight model.** Ruled
+  out by *Building scope and envelope handling*. v1 never generates a footprint
+  *from* a plot — the Envelope is stated or derived from the programme, and it is
+  fixed before the solve. Nothing downstream needs a sun: the Acceptance bar's
+  window rules are topological (exterior wall run), never solar. A **north angle is
+  still stored** on the Envelope, used only for the Drawing's north arrow and as a
+  soft Brief preference, so the export does not have to lie about orientation.

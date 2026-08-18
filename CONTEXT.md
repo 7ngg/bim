@@ -23,9 +23,36 @@ consumes.
 prose. Always surfaced to the Homeowner. An invented *room* and an invented
 *area* are assumptions of different kinds.
 
-**Envelope** — the outer boundary a plan is laid out inside. **Given** for a flat,
-which sits in a building that already exists; **invented** for a house, where the
-footprint is being proposed.
+**Envelope** — the boundary a plan is laid out inside, taken at the **inner face**
+of the external wall. It *is* the interior clear region, so a Homeowner's tape
+measurement of their flat is the Envelope with nothing added or removed. Not the
+footprint and not a centreline — those are derived from it. Rectilinear in v1.
+
+An Envelope is an **ordered ring of edges**, and the order matters: a flat with
+windows on two adjacent sides and one with windows on two opposite sides carry the
+same counts and are not the same home.
+
+**Boundary condition** — what lies on the far side of one Envelope edge, as far as
+this dwelling is concerned. **Exterior**, which may hold a window, or **party**,
+which is shared, blind, and makes no claim about who is behind it. Separate from
+**entrance side**, a flag marking where the primary door may go — a house's front
+door sits in an exterior wall, a flat's in a party wall onto a common corridor, so
+the two cannot be one value.
+
+**Dwelling type** — a named ring of boundary conditions: detached, semi-detached,
+end and mid terrace, single-aspect, corner and dual-aspect flat. What separates a
+flat from a house is **which edges can hold a window**, and nothing else, so
+dwelling type is data about an Envelope rather than a kind of Plan. The ring is
+region-invariant; only its name is regional.
+
+**Footprint** — the gross outer boundary, derived by growing each Envelope edge
+outward by its own wall's thickness. Never authored, never solved against, and the
+reason the Envelope is not defined here instead: the thicknesses differ per edge.
+
+**Provenance** — whether a value was **stated** by the user or **invented** by the
+system. Held per field, not per object: someone who says "a corner flat, about 9 m
+wide" has stated an exposure and one dimension and invented the rest. An invented
+value is an **Assumption**.
 
 **Solve domain** — the region the solver actually tiles: the interior clear region
 **dilated outward by half an internal wall thickness**. Not the Envelope, and not
@@ -70,7 +97,9 @@ winding records which side is which. A Wall is the **maximal straight run** of
 same-thickness, same-class material — it does not stop where the rooms behind it
 change, and an opening does not divide it. Two classes: **External**, which comes
 from the Envelope, and **Partition**, which comes from two rooms meeting.
-Load-bearing is *unknown*, not false — v1 makes no structural claim.
+A party wall is External — its **boundary condition** selects its thickness, which
+is why two classes are still enough. Load-bearing is *unknown*, not false — v1
+makes no structural claim, on a party wall least of all.
 
 **Wall segment** — the stretch of one Wall that separates one specific pair —
 two Rooms, or a Room and the outside. Derived from the Room tiling. This is the

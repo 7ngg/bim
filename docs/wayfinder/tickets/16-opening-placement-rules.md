@@ -102,3 +102,22 @@ per-region constants and a worked example on one plan.
   rule, not by the validator.
 - **The residual risk is confirmed as accepted**: swing clearance rejects the
   Plan; it does not trigger a re-solve.
+
+---
+
+## Inherited from *Building scope and envelope handling*, now closed — do not re-derive
+
+- **The Envelope is an ordered ring of edges**, each `exterior` or `party`, with a
+  separate `entrance_side` flag (ADR 0003). Two rules in this ticket read it and
+  currently do not:
+  - **A party edge hosts no window.** The window-ratio rule needs each Space's
+    exterior run computed against **filtered** faces, not every boundary face. Today
+    a mid-block flat's bedroom can satisfy it on a wall shared with a neighbour.
+  - **A party edge hosts no primary entrance unless it is `entrance_side`.** A
+    flat's front door *does* pierce a party wall — onto a common corridor — which is
+    why the flag is orthogonal to the condition rather than a third value.
+    `entry.single_primary` must place on an `entrance_side` edge.
+- **The entrance edge is fixed before the solve**, because it is the source node of
+  the circulation flow. Opening placement receives it; it does not choose it.
+- The windowless-kitchen **warn** and the topological window rule are unaffected in
+  form, only in which faces count.

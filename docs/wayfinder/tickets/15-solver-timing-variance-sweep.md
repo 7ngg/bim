@@ -61,3 +61,28 @@ Only constants move, with **one exception that this sweep must measure**:
 Deliverable: the timing distributions appended to
 `docs/research/solver-formulation.md`, and a recommended time-limit value with the
 percentile it corresponds to.
+
+**Sharpened by *Building scope and envelope handling*, now closed. This adds an
+axis, and it is not optional.**
+
+Every timing on this map was measured with **100% exterior exposure**.
+`Envelope.exterior_faces()` (`experiments/solver-toy/geometry.py:103`) returns all
+four bbox faces plus all four faces of every notch, unfiltered, so H8 — *every
+habitable room touches an exterior wall over a window's width*
+(`experiments/solver-toy/solver.py:392`) — was posted against the largest face set
+the geometry can offer. **The quoted 0.35 / 1.35 / 6.25 s therefore describes a
+detached bungalow, and nothing else.**
+
+The Envelope is now an ordered ring of edges, each `exterior` or `party`, and only
+`exterior` edges may hold a window. So:
+
+6. **Exposure.** Sweep the dwelling-type presets, not just room counts —
+   `detached` (4 exterior), `terrace_mid` (2), `flat_corner` (2 adjacent),
+   `flat_single_aspect` (1). The last quarters the face set with the same rooms
+   competing for it, and flats are the v1 buyer's likelier case. Report separately;
+   a single blended figure hides exactly the case that matters. The change is one
+   filter on `exterior_faces()`.
+
+Expect H8 to become the binding constraint at low exposure, where today it is
+nearly free. If `flat_single_aspect` at 24 rooms does not solve, that is a product
+finding, not a tuning problem — say so plainly.

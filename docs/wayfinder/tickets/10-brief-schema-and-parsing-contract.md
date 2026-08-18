@@ -79,3 +79,34 @@ vocabulary landed in `CONTEXT.md`.
   bound on feasible GIA — arithmetic, no search. It is also exactly the diagnosis
   the Homeowner sees when no candidate survives, so the two must produce the same
   sentence.
+
+---
+
+## Inherited from *Building scope and envelope handling*, now closed — do not re-derive
+
+- **The Envelope is the inner face of the external wall**, so a stated dimension is
+  a **clear** dimension and needs no conversion. Its fields: a rectilinear shape
+  (bbox minus at most 2 notches, spanning rect/L/U/T), an **ordered ring of edges**
+  each carrying `condition` in `{exterior, party}` plus a boolean `entrance_side`,
+  and a north angle used only for the Drawing's north arrow and as a soft
+  preference. See ADR 0003.
+- **Provenance is per-field, `stated` or `invented`** — the existing **Assumption**
+  concept applied to the Envelope. Not one flag on the object, because "a corner
+  flat, about 9 m wide" states an exposure and one dimension and invents the rest.
+  This replaces *Acceptance validator spec*'s given-flat / invented-house wording:
+  the area rule keys on whether the **area-determining fields** were stated.
+- **A Homeowner never states edge conditions directly. They state a dwelling type**,
+  which is a preset resolving to a ring — `detached`, `semi_detached`,
+  `terrace_end`, `terrace_mid`, `flat_single_aspect`, `flat_corner`,
+  `flat_dual_aspect`. Parsed from prose, surfaced as an Assumption, editable per
+  edge. The preset table belongs in this ticket's schema; the ring topology is
+  region-invariant and only its label is regional.
+- **Notch edges default by dwelling type** — `exterior` for houses, `party` for
+  flats — and are always Assumptions.
+- **Unstated area is derived**: `sum(room target areas) / efficiency`, then a
+  default aspect ratio for the rectangle. Both constants are `ENGINE_CHOICE`, owned
+  by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*.
+- **Item 5's feasibility pre-check gains a second form.** With a stated Envelope
+  the ergonomic-minima lower bound is compared against **a real area**, not just a
+  room-sum — so "six bedrooms in 9 by 7 m" is refused at parse time rather than
+  after zero candidates survive. Same sentence, earlier.

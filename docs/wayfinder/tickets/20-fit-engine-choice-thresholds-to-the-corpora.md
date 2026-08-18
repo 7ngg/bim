@@ -52,3 +52,26 @@ evaluated and the rejection-rate measurement is incomplete.
 Deliverable: measured distributions, revised values in
 `data/acceptance/rules.json` with `conf` upgraded where the corpus supports it,
 and the per-rule rejection rate against real dwellings.
+
+---
+
+## Added by *Building scope and envelope handling*, now closed
+
+Two more constants land here, both shipping as `ENGINE_CHOICE` with no source:
+
+- **`efficiency`** in `envelope_clear_area = sum(room target areas) / efficiency`,
+  the factor absorbing circulation and internal wall footprint when a Homeowner
+  states no area at all. Shipping at ~0.85. Swiss Dwellings has the geometry to fit
+  it directly.
+- **The default Envelope aspect ratio** applied to that area to get a rectangle.
+  Shipping at ~1.35.
+
+And one distribution worth fitting rather than guessing:
+
+- **The exposure mix.** Swiss Dwellings is the one corpus with a building
+  hierarchy, so which edges of an apartment abut a neighbour is **derivable from
+  its own data**. That gives a real distribution over the dwelling-type presets
+  (`flat_single_aspect`, `flat_corner`, `flat_dual_aspect`) instead of an invented
+  one, and it tells *Solver timing variance sweep* which exposure case is typical
+  rather than merely possible. Confirm the hierarchy survives extraction on
+  *Acquire the datasets* first.
