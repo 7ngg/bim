@@ -53,6 +53,13 @@ and spaces. The single representation every layer reads or writes. Annotation is
 **Room** — a room as *program*: a name, a type, a target area, and an identity
 that comes from the Brief. Has no geometry of its own. Survives a regenerate.
 
+**Dependent room** — a Room the Brief says is entered *through* another Room
+rather than from circulation: an ensuite, a walk-in wardrobe, a utility off the
+kitchen. It names its host. Access-through is **program**, not geometry, so it is
+declared and never inferred — without the declaration, "every room is reachable
+without passing through a bedroom" rejects every plan with an ensuite; with it,
+an ensuite that opens onto the hall correctly fails.
+
 **Space** — a room as *geometry*: the polygon bounded by the inner faces of the
 walls around it. Derived, never authored. **Room** and **Space** are not
 interchangeable, and a sentence that uses "room" for both is the usual way a
@@ -88,6 +95,11 @@ width you can carry furniture through. Which one is meant is always stated.
 height, because the height that protects against a fall and the height that lets a
 seated person see out are in direct conflict and no single number satisfies both.
 
+**Swing footprint** — the region a door leaf sweeps, taken as the leaf-side
+square anchored at the hinge. Deliberately the bounding box of the swept
+quarter-disc rather than the disc: conservative, integer, and checkable before
+any fixture or furniture exists.
+
 **Storey** — the level a Plan's geometry sits on. Exactly one in v1, and the
 Acceptance bar says so. It exists because the model would otherwise have to
 invent it on export.
@@ -98,9 +110,28 @@ it, because annotation is a function of geometry and goes stale the moment a wal
 moves. What *is* stored is the **Annotation override** — a human's correction to a
 derived placement, which must survive a re-render.
 
-**Acceptance bar** — the set of predicates a Plan must satisfy to be shown. Used
-twice: as a hard filter on candidates, and as the constraint set the solver
-projects onto. Deliberately one definition, so the two uses cannot drift.
+**Acceptance bar** — the set of predicates a Plan must satisfy to be shown. One
+**declaration**, two consumers: a hard filter on finished candidates, and the
+constraint set the solver projects onto. Not one implementation — the solver
+posts inequalities before geometry exists, the filter evaluates finished
+geometry, and rules about Openings are unpostable because Openings are placed
+after the solve. Each predicate therefore names its **enforcement site**, and
+only those enforced at both can be asserted to agree.
+
+**Potential circulation** — reachability over the **contact graph**: which Rooms
+share enough wall for a door to be placed. What the solver constrains, because it
+runs before any Opening exists.
+
+**Realised circulation** — reachability over the **opening graph**: which Spaces
+are joined by an Opening a person can walk through. What the Acceptance bar
+checks. Named apart from potential circulation because a solve can satisfy the
+first and still be handed no door, and a system that calls both "circulation"
+cannot say so.
+
+**Plumbing group** — a maximal set of wet Spaces connected by shared Wall
+segments. Clustering is stated as a bound on the *number* of groups rather than
+as a demand for one, because a kitchen at the front and a bathroom at the back is
+a real home, not a defect.
 
 ## Measurement
 
@@ -113,6 +144,12 @@ than the clear dimension by half a wall on each side. What the solver works in.
 
 The two are never interchangeable. Every number that crosses between the solver
 and anything else says which one it is.
+
+**Ergonomic minimum** — the smallest clear rectangle a room's required fixtures
+and their body clearances occupy. Region-invariant, because bodies are. It is the
+floor the Acceptance bar rejects below, standing in for a legal minimum: most
+regions prescribe none, and the regions that do disagree with each other by
+nearly a factor of two.
 
 ## Relations
 

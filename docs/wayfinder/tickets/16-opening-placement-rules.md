@@ -68,3 +68,37 @@ the catalogue and every constant here is regional.
 
 Deliverable: the placement rule set, precise enough to implement, plus the
 per-region constants and a worked example on one plan.
+
+---
+
+## Inherited from *Acceptance validator spec*, now closed — do not re-derive
+
+- **The swing-clearance predicate is composed, and is now yours to satisfy.** A
+  **swing footprint** is the leaf-side square of side `leaf_width` anchored at the
+  hinge — the bounding box of the swept quarter-disc, chosen because it is
+  conservative, integer, and evaluable with no fixture model. Three hard rules:
+  footprint ⊆ the receiving Space; no two footprints overlap (this *generalises*
+  AD M's 1500 mm lobby rule to every arrangement, so decision 2 needs no separate
+  lobby case); and a 300 mm nib clear at the leading edge maintained 1200 mm back.
+- **Decision 2's WC rule is `deferred` in the registry, not adopted.** The outward
+  swing overlapping the pan by 250 mm needs a pan, and fixtures are still fog. Its
+  source and number are carried so adopting it later is a data change — but do not
+  design decision 2 around a predicate that cannot fire in v1.
+- **Decision 6's corridor constant has a floor: 900 mm clear, hard, VERIFIED.**
+  AD M's 750 mm pinch allowance for ≤2 m is **dropped** — a Space is a rectangle
+  and has no localised narrowing, so the relief could never fire. Pre-size above
+  900, never below.
+- **The entrance door is an Assumption you own.** `entry.exists` and
+  `entry.single_primary` require at least one `entrance_door` on an External
+  segment with exactly one flagged primary — one by default, more allowed (a house
+  may have a back door; a flat gets exactly one). **Which Room holds it and where
+  on the segment it sits are defaulted from knowledge and surfaced**, and that
+  defaulting rule is this ticket's.
+- **Decision 5's windows now carry a hard fit rule.** `open.fits_segment` —
+  structural width + 2 × 100 mm jamb return ≤ segment length — applies to windows
+  as well as doors, and `win.habitable_has_window` is hard *topology*: every Space
+  needing a window hosts one on an External segment of that Space. The glazing
+  ratio stays soft at 1/8, so realism in decision 5 is bought by the placement
+  rule, not by the validator.
+- **The residual risk is confirmed as accepted**: swing clearance rejects the
+  Plan; it does not trigger a re-solve.

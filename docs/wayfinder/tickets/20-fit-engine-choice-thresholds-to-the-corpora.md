@@ -1,0 +1,54 @@
+---
+id: 20
+title: Fit the ENGINE_CHOICE acceptance thresholds to the corpora
+parent: map
+labels: [wayfinder:task]
+status: open
+assignee:
+blocked_by: [12, 19]
+---
+
+# Fit the ENGINE_CHOICE acceptance thresholds to the corpora
+
+## Question
+
+*Acceptance validator spec* shipped 19 of 37 rules with `conf: engine_choice` —
+no source dictates them, and for several **no source in the surveyed corpus
+supplies a number at all**. They were set by judgement so that v1 could ship a
+bar rather than wait for one. Now measure them.
+
+The corpora make this cheap: Swiss Dwellings and ResPlan are real, built plans.
+Every threshold below is a distribution question about plans that people actually
+live in.
+
+Fit, and report the distribution alongside the chosen value:
+
+| Rule | Placeholder | Question |
+|---|---|---|
+| `circ.fraction_soft` | 8–18% of GIA | C6 item 7's "sane fraction". No surveyed source gives one. What is the real distribution of circulation share? |
+| `circ.fraction_hard` | ≤30% | Where does the tail actually stop? |
+| `dim.aspect_ratio_hard` | ≤3.0 | What is the worst aspect ratio a real habitable room has? A hard bound below the observed maximum rejects real homes. |
+| `dim.aspect_ratio_soft` | ≤2.2 | Is the mode where we guessed? |
+| `wet.plumbing_group_count` | ≤2 | How many disconnected wet clusters do real dwellings have? If the tail reaches 3, the hard bound is wrong. |
+| `open.fits_segment` | 100 mm jamb return | No source gives a minimum return. Measurable from plans that carry wall and opening geometry. |
+| `area.invented_envelope_hard` | 5% | Not corpus-measurable — it is a product tolerance. Decide it against the solver's observed GIA spread instead. |
+
+Two rules that matter more than their numbers:
+
+- **`dim.aspect_ratio_hard` is the one rule in the spec with no precedent
+  anywhere.** It was added because nothing in C6 catches a room that satisfies its
+  minimum area and minimum width by being long. If the corpus shows real rooms
+  above 3.0, the rule is wrong in a way that rejects good plans — the ticket's own
+  failure mode. Check it first.
+- **Every hard `engine_choice` threshold is a candidate 99%-rejection bug.** Run
+  the full registry against the corpora *as plans* and report the per-rule
+  rejection rate. Any hard rule rejecting a large share of real, built dwellings is
+  a bug in the rule, not a quality bar.
+
+Blocked on *Acquire the datasets*, and on *Ergonomic minima and the constraint
+table's missing half* — without the ergonomic layer, `dim.min_*` cannot be
+evaluated and the rejection-rate measurement is incomplete.
+
+Deliverable: measured distributions, revised values in
+`data/acceptance/rules.json` with `conf` upgraded where the corpus supports it,
+and the per-rule rejection rate against real dwellings.

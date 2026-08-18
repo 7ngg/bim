@@ -85,7 +85,13 @@ dimension in this system has to declare):
   **`region` parameter is required on the convention-derived half of the table,
   and every cell also needs a tier**; England alone yields five different minimum
   bedroom areas. Neufert prescribes no minimum room areas at all, so our defaults
-  are our own choices. Table shipped at `data/standards/room-constraints.json`.
+  are our own choices. ⚠️ Its line that the table is *shipped at*
+  `data/standards/room-constraints.json` is **false** — that file is a 9 KB stub
+  ending in a `PLACEHOLDER_NOTE`, carrying the region/tier/flag models and UK
+  sources but **no ergonomic layer, no room table, and no DE or US sources**. The
+  table exists only as prose in the findings doc §8, `DE`/`market_default` column
+  only. Found by *Acceptance validator spec*, which then made the missing
+  ergonomic layer its entire hard rule set. Ticketed.
 - [Solver formulation for layout projection](tickets/04-solver-formulation-for-layout-projection.md)
   — **GO on C10, amended.** CP-SAT over a 250 mm integer grid, with pairwise
   separations from the Proposal promoted to hard linear constraints and exact
@@ -146,6 +152,32 @@ dimension in this system has to declare):
   millimetres cross it with no float rounding. Export splits: **SVG preview eager**
   per survivor, **DXF/IFC/PDF lazy** on request.
 
+- [Acceptance validator spec](tickets/07-acceptance-validator-spec.md) — **37
+  predicates, 28 hard, and the hard set carries no region at all.** Canonical at
+  `data/acceptance/rules.json`, prose at `docs/spec/acceptance-bar.md`. Four
+  things bind harder than the rule list. **"Written once, consumed twice" is a
+  *declaration*, not an implementation** — the solver posts inequalities before
+  geometry exists, the validator evaluates finished geometry, and Opening rules are
+  unpostable by construction, so each rule names an enforcement site and drift is
+  killed by a conformance test over the 14 `both` rules. **The hard floor is the
+  ergonomic minimum, not a legal one**, because the table's own
+  `hard_reject_below: statutory_floor` is `null` in the default region and yields
+  an *empty* hard set — which makes the reject set region-free, so a region can
+  change which Plans are *preferred* but never which are *rejected*, and v1 ships
+  without settling the region list. **C6 item 1 as written rejects every plan with
+  an ensuite**, fixed in the Brief with `access_via` rather than in the predicate,
+  because access-through is program, not geometry; circulation splits into named
+  **potential** (solver, contact graph) and **realised** (validator, opening graph)
+  halves. And **two rules were loosened to survive real homes** — wet clustering
+  becomes ≤2 plumbing groups rather than one, and given-Envelope area agreement
+  becomes warn-only, since rejecting there rejects 100% of candidates for a fault
+  none caused. Adds one rule nothing asked for — **aspect ratio ≤3.0 hard** —
+  because a 2750 × 8250 bedroom passes every other test. ADR 0001's integer
+  millimetres **delete** three questions rather than answering them: slivers,
+  the bbox-vs-polygon overlap re-measurement (discharged by construction, no C11
+  work owed), and the corridor pinch allowance. Three rules are `conf: pending` on
+  the stub above; 19 are `ENGINE_CHOICE` awaiting a corpus fit.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -154,13 +186,24 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   stays pinned, how fast the re-solve must feel. The geometry model is now settled
   and gives it a wall centreline to drag and a Brief-anchored identity to pin
   against; what remains vague is the interaction itself, so it stays fog.
-- **Variant generation and ranking** — how many candidates are produced, how they
-  are scored beyond pass/fail, how many are shown, how a Homeowner chooses.
-- **Plan quality beyond the validator** — the validator gives pass/fail. What
-  tells us a passing plan is *good*? Human eval protocol, perceptual metric, or
-  held-out likelihood.
+- **Variant generation and ranking** — the *scoring* half is answered by
+  *Acceptance validator spec*: the six soft rules are the score, and the
+  zero-survivor case is settled (diagnose arithmetically, never show a failing
+  Plan). What stays fog is the economics — how many candidates are produced, how
+  many survive, how many are shown, and how a Homeowner chooses between them.
+- **Plan quality beyond the validator** — narrowed by *Acceptance validator
+  spec*: there now *is* a ranking signal, six soft rules and two warns, including
+  the aspect-ratio term added specifically because a plan can pass everything and
+  still read as generated. What stays fog is whether that score correlates with
+  human judgement at all — the eval protocol, the perceptual metric, or held-out
+  likelihood that would tell us.
 - **Fixtures and furniture** — Swiss Dwellings carries sinks, toilets, bathtubs.
   Do we place them, and does furniture-fit become a constraint or just a render?
+  Now carries two hooks. The **ergonomic minima are derived from fixture footprints
+  plus body clearances**, so fixtures are already implicit in the hard rule set
+  even though no fixture is modelled; and one acceptance rule
+  (`open.wc_door_outward_pan_overlap`) sits `deferred` in the registry, with its
+  source and its 250 mm, waiting only for a pan to exist.
 - **Non-orthogonal geometry** — v1 presumably assumes orthogonal walls. When and
   how angled walls enter.
 - **Structural and services reality** — load-bearing walls, plumbing stacks,
