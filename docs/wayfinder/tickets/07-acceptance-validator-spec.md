@@ -53,6 +53,28 @@ Also settle two things the seven items do not cover:
 - **Total-area agreement.** The brief states a target area. How far may the
   produced plan drift before that is a failure?
 
+**Inherited from *Canonical geometry model*, now closed** — do not re-derive:
+
+- **The tolerance question is deleted, not answered.** The model is **integer
+  millimetres**, so "closed junction", "coincident wall" and "zero-area sliver" are
+  integer equalities, not tolerances. Tolerance exists only at import boundaries.
+- **C6 item 2's "sub-1m corridors" placeholder resolves to 900 mm** — minimum clear
+  width of every hall or landing, AD M M4(2) ¶2.22a, with a 750 mm pinch allowed
+  for no more than 2 m (¶2.22b). VERIFIED, OGL-licensed.
+- **Two new predicates** the geometry model asks for: `len(storeys) == 1`, and
+  *Space polygon equals the centreline rect eroded by `t_int/2`* — the second is
+  what keeps a cheap derivation honest, and it fails the day internal wall
+  thickness stops being uniform.
+- **Item 3's swing clearance has no finished predicate in the corpus** — only
+  components: a 300 mm nib to the door's leading edge maintained back 1200 mm; 1500
+  mm between lobby doors and between swings; the entrance-level WC door opening
+  outwards overlapping the pan by 250 mm. Composing them is this ticket's job, and
+  *Opening placement rules* consumes the result.
+- **Areas are measured on the Space polygon** — but which measurement convention
+  that is remains open, in *Area measurement convention*. Until it closes, do not
+  assume the minimum areas in `data/standards/room-constraints.json` and the
+  computed Space areas are the same quantity.
+
 Deliverable: the predicate spec, with each number traced to its source. Note for
 the session: the sibling project measured overlap by both bounding box and true
 polygon intersection and found they agreed for a box-emitting backend — the

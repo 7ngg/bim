@@ -40,9 +40,23 @@ Run the existing harness in `experiments/solver-toy/` across:
 Then set, with evidence: **the shipped time limit**, and what the system does when
 it expires.
 
-Waits on *Canonical geometry model*, because that ticket resolves whether walls
-with thickness change the formulation. Re-running the sweep before that answer
-risks measuring a model we are about to replace.
+**Sharpened by *Canonical geometry model*, now closed.** Walls with thickness do
+**not** change the formulation's structure — the dilated solve domain keeps the
+same variables, the same `AddNoOverlap2D` and the same soft-coverage amendment.
+Only constants move, with **one exception that this sweep must measure**:
+
+- **Area constraints are now posted on eroded dimensions, in millimetres** —
+  `AddMultiplicationEquality(area_mm2, [w·grid − t_int, h·grid − t_int])`. Operands
+  move from ~10² to ~10⁴ and products to ~10⁸, against **H4, already flagged as the
+  formulation's weak spot**. Whether the measured times survive this is the single
+  most important thing the sweep now answers, and it should be measured *against*
+  the original grid-unit form so the cost is attributable.
+- **The contact threshold rose** to `structural opening width + t_int` — not leaf
+  width. Adjacency machinery is sensitive to this constant, so use the real one.
+- **The grid stays at 250 mm.** Ticket 01 retired the worry that real wall
+  thicknesses might force 100 mm: wall faces sit off-grid at `± t_int/2`, which is
+  fine because the model is millimetres and the grid only constrains the solve. The
+  resolution sweep is therefore optional curiosity here, not a prerequisite.
 
 Deliverable: the timing distributions appended to
 `docs/research/solver-formulation.md`, and a recommended time-limit value with the

@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:grilling]
 status: open
 assignee:
-blocked_by: [4, 6, 12]
+blocked_by: [4, 6, 12, 18]
 ---
 
 # What the model proposes, and how it is trained

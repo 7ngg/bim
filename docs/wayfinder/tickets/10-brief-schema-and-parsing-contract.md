@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:grilling]
 status: open
 assignee:
-blocked_by: [5, 9]
+blocked_by: [5, 9, 17]
 ---
 
 # Brief schema and parsing contract

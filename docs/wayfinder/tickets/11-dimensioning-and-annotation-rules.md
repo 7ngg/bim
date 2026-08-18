@@ -45,9 +45,26 @@ Decide:
    strings that do not sum to the overall are the classic embarrassment; whatever
    rule is chosen must guarantee they add up.
 
-Waits on *BIM and CAD export stack* because rule 1 is worthless if `ezdxf` cannot
-author real dimension entities, and on *Canonical geometry model* because rule 3
-needs to know what a wall is.
+Both blockers are now closed. What they hand over:
+
+- **Rule 3's input.** The model stores wall **centrelines**; the human-facing
+  quantity is the **clear** dimension, between finished faces. The two are never
+  interchangeable and every number that crosses a boundary says which it is. A
+  chain measured to centrelines and labelled as clear is the failure mode here.
+- **Annotation is derived, not stored** (ADR 0002). A `Drawing` is a Plan plus a
+  sheet plus resolved annotation; only human corrections persist, as
+  `AnnotationOverride`s keyed by **relation** — the wall segment between two named
+  rooms — because derived geometry has no stable id across a regenerate. Rule 2's
+  collision avoidance is therefore a *function* to be specified, with its output
+  overridable, not a set of stored positions.
+- **`ezdxf` authors genuine `DIMENSION` entities**, verified by execution — but
+  **we render the geometry block, not the CAD app**, so appearance is entirely this
+  ticket's responsibility. `DIMLFAC` is 100.0 on every shipped `EZ_*` dimstyle and
+  must be set to 1.0 against the model's 1 unit = 1 mm, or a 4000 mm wall prints as
+  "400000". R2000 is the hard floor.
+- **Rule 7's rounding problem has a free answer**: the model is integer
+  millimetres, so a chain sums exactly. The classic embarrassment is unavailable
+  unless we introduce it by rounding for display.
 
 Deliverable: the annotation rule set, precise enough to implement, plus a worked
 example on one plan.
