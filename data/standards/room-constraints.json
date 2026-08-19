@@ -1,19 +1,16 @@
 {
   "schema_version": "1.0.0",
   "id": "bim-engine/dimensional-standards/room-constraints",
-  "generated": "2026-08-17",
-  "ticket": "docs/wayfinder/tickets/05-dimensional-standards-corpus.md",
+  "generated": "2026-08-19",
+  "ticket": "docs/wayfinder/tickets/05-dimensional-standards-corpus.md; region_model and tier_model rewritten by docs/wayfinder/tickets/14-which-region-profiles-ship.md (ADR 0006)",
   "findings": "docs/research/dimensional-standards.md",
-
   "disclaimer": "Neufert-grade dimensional standards (C8). This is design data, not a building code. No legal code-compliance claim is made or implied by any value in this file. Values are cited to their source so that a Practitioner can check them; they are not a substitute for checking them.",
-
   "units": {
     "length": "mm",
     "area": "m2",
     "angle": "deg",
     "note": "All lengths are integer millimetres. All areas are square metres to one decimal. No imperial units appear in this file; imperial-native sources are converted once, at ingest, and the original value is recorded in the source note."
   },
-
   "value_format": {
     "description": "Every constrained value is an object, never a bare number, so that provenance survives.",
     "keys": {
@@ -30,7 +27,6 @@
       "engine_choice": "no source dictates this; the engine picks it, and `note` says why"
     }
   },
-
   "flag_semantics": {
     "comment": "These four booleans are consumed by the acceptance validator (ticket 07) and the brief defaulting rules (ticket 10). They are DEFINITIONS, not measurements — no reference work supplies them as such. Getting them wrong silently breaks predicates, so each is defined operationally here.",
     "is_habitable": "A room intended for sustained occupation: sleeping, living, dining, working. Drives the window requirement and the exterior-wall requirement (C6 item 4). NOT the same as any national legal definition of 'habitable room' — see the findings doc, section on the kitchen disagreement.",
@@ -38,20 +34,31 @@
     "is_private": "A room that must not lie on the circulation path to any other room. Drives the reachability predicate (C6 item 1): the entry-to-room graph may not route through a room where is_private is true.",
     "needs_window": "The room must have at least one window on an exterior wall. Set true wherever is_habitable is true. This is an ENGINE DECISION, not a universal rule — England's Building Regulations impose no daylight requirement at all (see findings). We impose one because a Homeowner judges by 'would I live here'."
   },
-
   "region_model": {
-    "comment": "See the findings doc for the argument. Short version: the corpus splits into a body-derived layer that does not vary by region, and a convention-derived layer that varies so much that blending it produces buildings belonging to no tradition. `region` selects the second layer only.",
+    "comment": "Rewritten by ticket 14, *Which region profiles ship in v1*. See ADR 0006. The corpus split argument from ticket 5 stands: body-derived clearances are region-invariant, convention-derived numbers are not. What changed is which regions exist and what a profile is FOR. After ticket 7 moved every hard dimensional floor to the region-invariant ergonomic layer, a region profile governs printed and built conventions only -- it can change which Plans are PREFERRED and which strings are PRINTED, never which Plans are REJECTED. The single exception is model.thickness_in_catalogue, which is hard.",
     "invariant_layer": "ergonomic",
     "regional_layer": "profiles",
-    "regions_defined": ["UK", "DE", "US"],
-    "regions_stub_only": ["IN", "JP", "AU", "CN"],
-    "default_region": "DE",
-    "default_region_rationale": "C8 names Neufert as the posture and the primary geometry corpus (Swiss Dwellings) is DE/CH. The model proposes in a European convention (C10); the constraints it is projected onto must be in the same convention or the projection fights the proposal.",
-    "verification_region": "UK",
-    "verification_region_rationale": "Every UK number here was read first-hand from a Crown-copyright document published under the Open Government Licence v3.0. It is the only profile that is free, complete, and independently checkable end-to-end, so it is the profile the test suite asserts against.",
-    "must_match": "The region enum here MUST be the same enum as the training-data conditioning variable in ticket 06. If the model is conditioned on region and the constraints are not, the solver projects a region-A proposal onto region-B constraints, which is strictly worse than either alone."
+    "regions_defined": [
+      "AZ",
+      "UK"
+    ],
+    "shipping_region": "AZ",
+    "shipping_region_status": "DECLARED_UNPOPULATED",
+    "shipping_region_rationale": "A profile is a construction system plus a drawing convention; country is only a proxy for it, and a poor one. UK's stud-and-cavity build-up exists in neither corpus nor deployment context. The SNiP-family residential norm AzDTN derives from is written for multi-apartment buildings, which is the only building type any corpus on this map contains. Its brick (120/250/380/510) and panel (80/140/160) series are expected to satisfy even_thickness_required where DIN 4172's octametric series (115/365/490) systematically does not. Its sources are freely published, which keeps the copyright posture of findings section 7.6 intact. And it is the place a plan would actually be built.",
+    "shipping_region_owed_by": "docs/wayfinder/tickets/25-the-azerbaijani-region-profile.md",
+    "test_fixture_region": "UK",
+    "test_fixture_rationale": "Never selectable by a user. Every UK number here was read first-hand from a Crown-copyright document under the Open Government Licence v3.0 -- the only profile that is free, complete, independently checkable end to end, and lawfully redistributable. The test suite asserts the profile MECHANISM against it: schema, tier resolution, the even-thickness rule, decimal separator, abbreviation fallback. Ticket 5 called this 'a testing decision, not a claim that UK numbers are better'; ticket 14 took it at its word and split the shipping role from the verification role.",
+    "regions_deleted": {
+      "DE": "Three independent disqualifications, any one sufficient. Its canonical internal partition is 115 mm and the whole octametric series 115/365/490 is odd, which ADR 0004 forbids. Every DE number here is REPORTED from documents the research records as not read. Building the profile would mean transcribing Neufert's tables into a data file, which findings section 7.6 item 7 names as the specific infringement this project would walk into by accident. It survived only as a default_region label that was itself a proxy for Swiss data.",
+      "US": "Never populated, no consumer, and light frame widens the divergence rather than narrowing it.",
+      "IN, JP, AU, CN": "Stubs with no sources and no consumer. Removed rather than carried."
+    },
+    "corpus_provenance_is_a_separate_field": "RegionProfile and CorpusProvenance are two fields with two enums. In v1 they hold AZ and CH and their disagreement is the normal case, not a defect. Retrieval reads Swiss Dwellings only, so the engine draws Swiss-shaped layouts to Azerbaijani conventions, permanently. That is a disclosed product limit, not a bug. At inference the model is conditioned on the CH/swiss tokens it was trained with; an AZ token that never appeared in training is undefined behaviour, not localisation.",
+    "must_match_STRUCK": "Previously: 'The region enum here MUST be the same enum as the training-data conditioning variable in ticket 06.' Struck by ticket 14. Read literally it forbids a UK profile forever, because that enum's members are fixed by corpora we hold. Its justification -- that projecting a region-A proposal onto region-B constraints is strictly worse than either alone -- predates ticket 7 removing every hard dimensional floor from the region layer. Replaced by profile_carried_for_life.",
+    "profile_carried_for_life": "A Plan carries its region profile id from Brief to export. The solver and the validator MUST read the same one: model.thickness_in_catalogue is hard, so a Plan solved under one thickness catalogue fails validation under another.",
+    "even_thickness_required": "Every wall thickness in every profile MUST be an even number of millimetres. ADR 0001 needs erode(rect, t_int/2) in integer millimetres and ADR 0004's tier-1 overall needs t_party/2. 100/120/140/200/240/300 pass; 115 and 125 do not. See ADR 0004.",
+    "thickness_catalogue_is_engine_choice": "Measured, not assumed -- experiments/corpus-smoke/wall_thickness_swiss.py over 199,210 Swiss Dwellings WALL separators. The corpus has NO module: 59.1% of walls fall within +/-2 mm of a multiple of 10 against 50% for uniform noise, the modal snapped value (80 mm) holds 5.60%, and the distribution is near-continuous from 50 to 600 mm (p25 109, p50 169, p75 267). An 8-entry catalogue covers 58.5% of real walls at +/-10 mm. So the catalogue cannot be derived from the corpus and must be an ENGINE_CHOICE bounded by that range. Corpus thickness never reaches a produced Plan in any case: retrieval supplies arrangement, and ADR 0001 re-derives geometry from our own t_int."
   },
-
   "tier_model": {
     "comment": "A single number per cell is not recoverable from the sources; England alone yields five different 'minimum bedroom areas' depending on which instrument you invoke. Tier disambiguates.",
     "tiers": {
@@ -62,12 +69,14 @@
     "default_tier": "market_default",
     "default_tier_rationale": "C2 says the Homeowner judges by 'would I live here'. A plan built to the statutory floor is legal and unliveable. Defaulting to the floor would make the engine reliably produce plans nobody wants.",
     "validator_binding": {
-      "hard_reject_below": "statutory_floor",
+      "hard_reject_below": null,
+      "hard_reject_below_note": "Was 'statutory_floor'. Ticket 7 found that binding unusable -- the tier is null in the region that was then default, which yields an empty hard set. The hard floor is the ergonomic minimum, region-invariant because bodies are. Region touches no hard dimensional rule.",
       "soft_objective_target": "market_default",
-      "comment": "This is the C10 split expressed in data: statutory_floor is a hard constraint, market_default is a soft objective. Ticket 07's 'hard or soft' question is answered per-value by which tier the number came from, not by a separate flag."
+      "statutory_floor_binding": "warn",
+      "statutory_floor_note": "Ticket 14: a warn, never a gate, and only where non-null. AZ is the first region where it is non-null at all -- SNiP-family norms prescribe minimum room areas where German law prescribes none. CRITICAL: the disclosure wording derives from the cited source's `force` field, not from the tier's name. Printing 'below statutory minimum' for a plan that breaks no law is exactly the legal claim C8 forbids; under the UK NDSS (force: planning_policy_optional) it would be wrong more often than right.",
+      "accessible_binding": "unread"
     }
   },
-
   "sources": {
     "uk_ndss_2015": {
       "title": "Technical housing standards — nationally described space standard",
@@ -129,6 +138,5 @@
       "reusable": true
     }
   },
-
-  "PLACEHOLDER_NOTE": "DE and US sources, the ergonomic layer, and the room table are appended below in the completed file."
+  "PLACEHOLDER_NOTE": "Ticket 14 deleted the DE and US profiles, so the DE room table the findings doc section 8 carries is no longer the thing owed. What is owed is the AZ profile in full plus the shared ergonomic layer. See docs/wayfinder/tickets/25-the-azerbaijani-region-profile.md and docs/wayfinder/tickets/19-ergonomic-minima-and-the-tables-missing-half.md."
 }

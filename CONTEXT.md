@@ -248,6 +248,32 @@ floor the Acceptance bar rejects below, standing in for a legal minimum: most
 regions prescribe none, and the regions that do disagree with each other by
 nearly a factor of two.
 
+**Region profile** — the set of *conventional* values a Plan is built and drawn
+to: the thickness catalogue, the decimal separator, the room-name abbreviations,
+the opening catalogue keys, the preferred room areas and the window fraction.
+Underneath it is really a **construction system plus a drawing convention**;
+country is only a proxy, and a poor one — Germany and Azerbaijan are both
+fired-brick masonry with incompatible modules, while the UK and the US are both
+frame-and-cavity. A profile can change which Plans are *preferred* and which
+strings are *printed*, never which are *rejected*, because every hard dimensional
+floor is an [[Ergonomic minimum]] and region-invariant. A Plan carries its profile
+for its whole life. v1 ships exactly one, `AZ`.
+
+**Corpus provenance** — which corpus a Proposal's arrangement came from, carried
+as the `(region, corpus, annotation_provenance)` conditioning tag. **Not the
+Region profile, and in v1 deliberately not equal to it:** retrieval reads Swiss
+Dwellings only, so v1 draws Swiss-shaped layouts to Azerbaijani conventions. The
+mismatch is a disclosed limit, not a defect — the third in the family that starts
+"single storey" and "house layouts come from apartment priors".
+
+**Thickness catalogue** — the discrete set of wall thicknesses a Region profile
+permits, per wall class and construction type. Discrete rather than free, for the
+same reason the Opening catalogue is: a chosen set beats free specification. Every
+entry must be an **even number of millimetres**, because a clear dimension is
+`erode(rect, t/2)` in integer millimetres and an odd thickness puts every wall face
+on a half-millimetre. It is an engine choice, not a quoted standard — real
+surveyed housing has no module to copy.
+
 ## Relations
 
 - Model **proposes**; solver **projects** that Proposal onto the feasible set.
@@ -259,6 +285,7 @@ nearly a factor of two.
   later refers by relation ("the wall between kitchen and hall"), so that the
   reference dies honestly when the topology changes instead of silently
   reattaching to the wrong thing.
+- **Region is a convention, not a standard of care.** The [[Region profile]] chooses what a Plan is drawn and built to; the [[Ergonomic minimum]] chooses what is rejected. Changing region never changes the second.
 - **Neufert-grade** describes dimensional standards — ergonomic and dimensional
   design data. It is not a building code, and no legal code-compliance claim is
   made anywhere in this system.

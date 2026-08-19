@@ -47,12 +47,13 @@ dimension in this system has to declare):
 | C5 | **Single-dwelling residential, single storey.** Flats and houses — *confirmed, and both ship through one code path*: dwelling type is a preset over the Envelope's edge ring, not a branch. Product copy states two limits, not one: **single storey only**, and **house layouts come from apartment priors** because every corpus is flats. See *Building scope and envelope handling*. |
 | C6 | Acceptance bar (7 items) is a **hard filter**: generate many, reject most, show survivors. See *Acceptance validator spec*. |
 | C7 | Post-generation, v1 is **edit-the-brief-and-regenerate**. Direct wall manipulation with re-solve is designed-for but deferred. |
-| C8 | **Neufert-grade dimensional standards. No legal code-compliance claim, ever.** Say so in the product copy. |
+| C8 | **Neufert-grade dimensional standards. No legal code-compliance claim, ever.** Say so in the product copy. *Neufert now names the grade, not the source* — *Which region profiles ship in v1* found that building a profile out of it is the one copyright move the research forbids, and the shipping profile draws on freely-published regulatory text instead. |
 | C9 | **Non-commercial project.** Research-only datasets and weights are available. Licence is not a gate; data quality and regional convention are. |
 | C10 | **Model proposes, solver projects** — *amended, and the amendment is load-bearing.* The Proposal must carry **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints), and exact tiling must be posted **soft, not hard**. The loose form — hand the solver boxes and let it project them — is **refuted by measurement**: it finds nothing at 24 rooms in 30 s. Amended, 6.25 s. A **two-phase fallback for infeasible Proposals is mandatory**. See *Solver formulation for layout projection*. **And "the model" is two things**: v1's Proposer has two sources — retrieval-and-warp and a trained transformer — behind one Proposal contract, with the Acceptance bar arbitrating. The split it names is proposal-versus-projection, not one generator versus another. See *What the model proposes, and how it is trained* and ADR 0005. |
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
-| C12 | Not tied to any region. Combine corpora where it can be made to work. |
+| C12 | Not tied to any region. Combine corpora where it can be made to work. *Amended: that was freedom, not a requirement to serve everywhere.* v1 ships **exactly one** region profile and it is **`AZ`**; `UK` is retained as a test fixture and is never selectable. See C14. |
 | C13 | **v1's Proposer serves 4–10 Brief-named rooms.** 92% of the corpus. Set by *What the model proposes*, which measured retrieval dying at 11+ (67.7% blank). What the *product* promises is *The room-count envelope v1 promises*; this is what the Proposer covers. |
+| C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, holding `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. See *Which region profiles ship in v1* and ADR 0006. |
 
 **Evidence that shaped the map** — read before re-litigating C10:
 
@@ -92,7 +93,12 @@ dimension in this system has to declare):
   sources but **no ergonomic layer, no room table, and no DE or US sources**. The
   table exists only as prose in the findings doc §8, `DE`/`market_default` column
   only. Found by *Acceptance validator spec*, which then made the missing
-  ergonomic layer its entire hard rule set. Ticketed.
+  ergonomic layer its entire hard rule set. Ticketed. **Superseded in part:**
+  *Which region profiles ship in v1* **deleted `DE` and `US`**, so the DE room
+  table is no longer the thing owed — what is owed is the `AZ` profile plus the
+  shared ergonomic layer, and this ticket's `must_match` and `default_region: DE`
+  are struck. Its verification-region reasoning survives intact and is what the
+  successor built on.
 - [Solver formulation for layout projection](tickets/04-solver-formulation-for-layout-projection.md)
   — **GO on C10, amended.** CP-SAT over a 250 mm integer grid, with pairwise
   separations from the Proposal promoted to hard linear constraints and exact
@@ -289,6 +295,42 @@ dimension in this system has to declare):
   how a wrong figure gets quoted later. Training stops at **50 GPU-hours**; past
   it v1 ships retrieval-only with the room-count limit stated in product copy.
 
+- [Which region profiles ship in v1](tickets/14-which-region-profiles-ship.md) —
+  **one profile ships, it is `AZ`, and the ticket's own tension dissolved once the
+  shipped profile stopped having to be the verification profile.** Spec in
+  `data/standards/room-constraints.json` (`region_model` and `tier_model`
+  rewritten), ADR
+  [0006](../adr/0006-one-shipping-profile-and-it-is-not-the-corpus-region.md),
+  measurement in `experiments/corpus-smoke/wall_thickness_swiss.py`. The map said
+  two regions were in tension; there are **four and no two agree** — retrieval is
+  **CH only**, the trained model is CH+IN, every standards source actually read is
+  **UK**, and the stub's declared default was **DE with zero DE sources**. Three
+  findings killed DE outright: its rationale cites a corpus that is *Swiss, not
+  German*; building the profile means transcribing Neufert into a data file, which
+  is the exact infringement findings §7.6 item 7 names; and its canonical 115 mm
+  partition is **illegal under ADR 0004** — the octametric series 115/365/490 is
+  systematically odd, so **the even-millimetre rule is a quiet anti-DIN filter**
+  nobody had noticed. The measurement that mattered is a **negative result**:
+  Swiss Dwellings' 1.5 M wall polygons were supposed to *supply* the thickness
+  catalogue and **there is no module in the corpus at all** — 59.1% of walls within
+  ±2 mm of a multiple of 10 against 50% for uniform noise, modal snapped value
+  5.60%, near-continuous 50–600 mm — so the catalogue is `ENGINE_CHOICE`
+  unavoidably, and corpus thickness never reaches a Plan anyway because ADR 0001
+  re-derives geometry from our own `t_int`. `AZ` was chosen as a **construction
+  system, not a country**: the SNiP-family norm is written for *multi-apartment
+  buildings*, which is the only building type any corpus here holds; its brick and
+  panel series are expected to be all-even where DIN's are odd; its sources are
+  free; and it is where a plan would actually be built. **The profile ships
+  empty on purpose** — inventing a catalogue is the 90%-right artefact C2 calls
+  worse than blank — and is owed by *The Azerbaijani region profile*. Also: the
+  stub's `must_match` is **struck** (read literally it forbids a UK profile
+  forever), replaced by *a Plan carries its profile for life*; `statutory_floor`
+  becomes a **warn worded from the source's `force` field**, not from the tier's
+  name, and AZ is the first region where it is non-null at all; and *Area
+  measurement convention*'s item 5 is **answered from the geometry model** — v1
+  has no ceiling height and no balcony, so the deductions that make the
+  conventions diverge cannot fire.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -406,6 +448,19 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   procedure* and not yet sharp enough to be its own ticket, because what "fidelity"
   means here needs the arrangement metric validated first.
 
+- **Whether a discrete thickness catalogue reproduces real dwelling geometry.**
+  New, and it is the residue of *Which region profiles ship in v1*'s negative
+  result. Real surveyed walls have **no module** — near-continuous 50–600 mm, p25
+  109 / p50 169 / p75 267 — while every Plan this engine emits will draw from a
+  chosen catalogue of perhaps eight even values. An 8-entry catalogue matches 58.5%
+  of real walls within ±10 mm and a 12-entry one 70.9%, but nothing says whether
+  the *dwellings* built from a discretised catalogue read as real, or whether the
+  areas they enclose drift systematically against the corpus. Adjacent to *Fit the
+  ENGINE_CHOICE acceptance thresholds to the corpora* and not owned by it: that
+  ticket fits acceptance thresholds, this is about whether the geometry itself is
+  plausible. Sharpens once *The Azerbaijani region profile* names actual values to
+  test.
+
 ## Out of scope
 
 Ruled beyond this destination. Does not graduate; returns only as a fresh effort.
@@ -432,3 +487,13 @@ Ruled beyond this destination. Does not graduate; returns only as a fresh effort
   window rules are topological (exterior wall run), never solar. A **north angle is
   still stored** on the Envelope, used only for the Drawing's north arrow and as a
   soft Brief preference, so the export does not have to lie about orientation.
+
+- **A second region profile in v1, and any claim of regional *layouts*.** Ruled out
+  by *Which region profiles ship in v1*. The two halves of "add a region" differ by
+  orders of magnitude: a second *standards* profile is ~30 numbers in a data file,
+  while a second *layout* region is a corpus that does not exist — retrieval reads
+  Swiss Dwellings only and ResPlan was excluded from it on metric grounds. So the
+  narrowing is real and the trap is the other way round from the one the ticket
+  feared: shipping one profile costs almost nothing, and *implying* it brings
+  regional layouts with it would be the lie. `DE`, `US` and the `IN`/`JP`/`AU`/`CN`
+  stubs are deleted from the enum; `UK` survives only as a test fixture.

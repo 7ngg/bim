@@ -141,3 +141,23 @@ builder sets out from".
   differ deliberately — the footprint is the conservative bounding square — and a
   drawing that rendered the abstraction would look wrong to anyone who knows what a
   swing arc is.
+
+## Inherited from *Which region profiles ship in v1*
+
+**Opening catalogue keys are user-visible strings owned by the region profile**,
+and v1 has exactly one profile, `AZ` (ADR 0006). They are not internal ids: the
+type marks on the plan and the rows of the door and window schedules that
+*Dimensioning and annotation rules* put on their own sheet both cite them, so a
+key is read by a builder.
+
+Two consequences for this ticket. The catalogue is **discrete by design** — the
+same move ADR 0003 made for dwelling type, a chosen set beating free
+specification — so opening placement is choosing from a list, never dimensioning
+freely. And every dimension the placement rules produce lands in a profile whose
+**thicknesses must be even millimetres**, which matters here because a structural
+opening is a leaf width plus frame and tolerance, and *Dimensional standards
+corpus* found door widths propagate into masonry rather than staying in a
+schedule.
+
+The catalogue's contents are owed by *The Azerbaijani region profile*, not by
+this ticket. What this ticket owes is the placement rule set that consumes them.

@@ -79,3 +79,31 @@ rule that follows its answer rather than keeping its own.
 - A drawing is also the artefact that makes question 2 concrete. A Homeowner
   reading `16.06 m²` on a plan they asked to be "about 90 m² total" is comparing
   our number against a listing convention they have never named.
+
+## Inherited from *Which region profiles ship in v1*
+
+**Item 5 is checked, and the answer is the welcome one it hoped for.** The
+deductions that make Wohnfläche, GIA and the IPMS family genuinely diverge —
+part-height ceilings discounted at 50%, balconies at 25–50% — **cannot fire in
+v1**, because v1's geometry model contains **no ceiling height and no balcony**.
+Neither term appears anywhere in `CONTEXT.md` or in *Canonical geometry model*.
+So this ticket is not choosing between four conventions that disagree; it is
+naming one, in one region.
+
+**One region, not several.** ADR 0006 ships exactly one selectable profile, `AZ`,
+so item 1's "per region" collapses. The live pair is the post-Soviet one —
+*общая площадь* (total) against *жилая площадь* (living) — which is a real
+distinction with real consequences for what a room tag prints and what
+`Qto_SpaceBaseQuantities` declares, and it is now the only one in scope. `UK` is
+retained only as a test fixture, so GIA still needs naming *for the fixture*, not
+for a user.
+
+**Item 2 gets sharper, not easier.** A Homeowner saying "about 90 m²" is quoting
+whatever their local property listings quote. Under the AZ profile that is
+*общая площадь*, which counts differently from the inner-face polygon a **Space**
+is defined as. Naming the convention is exactly what stops the Brief's number and
+the Plan's number silently disagreeing.
+
+**The pair itself belongs here, not to the profile ticket.** *The Azerbaijani
+region profile* is instructed to surface the two terms and hand them over rather
+than decide between them.
