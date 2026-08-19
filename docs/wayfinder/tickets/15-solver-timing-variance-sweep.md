@@ -86,3 +86,21 @@ The Envelope is now an ordered ring of edges, each `exterior` or `party`, and on
 Expect H8 to become the binding constraint at low exposure, where today it is
 nearly free. If `flat_single_aspect` at 24 rooms does not solve, that is a product
 finding, not a tuning problem — say so plainly.
+
+## Third axis, from *Dimensioning and annotation rules*
+
+The solved plans this sweep produces are the only ones that exist, so record three
+drawing measurements off the same runs — no extra solving, and the whole sheet
+ladder is currently unmeasured above **five** rooms.
+
+1. **Unique witness count per side.** A tier-2 chain dimensions the partitions
+   that *reach* that side. Nobody knows how many that is at 24 rooms, and it sets
+   how crowded the chain gets.
+2. **How often the narrow-tick rule fires**, and whether consecutive
+   text-outside labels ever collide badly enough to need the above/below
+   alternation. On the five-room worked example it fires four times.
+3. **The sheet and scale chosen.** Scale is held at 1:50 and the sheet grows, so
+   the honest question is how many rooms it takes to reach A1 — and whether
+   `(A1, 1:100)`, the last entry in the ladder, is ever reached. If a 24-room plan
+   falls off the end of the sheet ladder, that is the same class of finding as
+   `flat_single_aspect` not solving: a product finding, not a tuning problem.

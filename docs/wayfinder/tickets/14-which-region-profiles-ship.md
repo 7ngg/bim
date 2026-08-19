@@ -59,3 +59,28 @@ Decide:
 
 Feeds *Acceptance validator spec*, *Brief schema and parsing contract*, and
 *What the model proposes*. Worth resolving before any of them.
+
+## Inherited from *Dimensioning and annotation rules*
+
+**A hard constraint on the profile, and it eliminates real candidate values.**
+Every wall thickness a profile declares must be an **even number of
+millimetres** — ADR 0001 needs `erode(rect, t_int/2)` in integer millimetres, and
+ADR 0004's tier-1 overall needs `t_party/2`. 100 / 120 / 140 / 200 / 240 / 300
+pass. **115 mm (half-brick) and 125 mm fail**, and both are real: 125 mm is DIN
+4172's octametric module — the same module *Canonical geometry model* noted our
+250 mm solve grid courses — and is also a common UK blockwork-plus-plaster
+build-up. An odd thickness puts every wall face on a half-millimetre and every
+clear dimension off-integer, which breaks the integer-equality property the whole
+validator rests on. This does not force a thickness; it forbids a set of them,
+and the German case is where it bites.
+
+Three further fields the profile now owns, all discovered by the drawing needing
+them:
+
+- **Decimal separator** (`.` UK, `,` DE) — written to the DXF `DIMDSEP` and used
+  by every area and dimension string.
+- **Room-name abbreviation table** (`WC`, `ST`, `UT`) — the room tag substitutes
+  a *published* abbreviation when a name does not fit, never a truncation.
+- **Opening catalogue keys** — the type marks on the plan and the rows of the door
+  and window schedules cite them, so the keys are user-visible strings rather than
+  internal ids.

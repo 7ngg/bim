@@ -133,11 +133,45 @@ any fixture or furniture exists.
 Acceptance bar says so. It exists because the model would otherwise have to
 invent it on export.
 
-**Drawing** — a Plan, a sheet, and the annotation resolved over them: dimension
-chains, room tags, title block. **Derived** from the Plan rather than stored in
-it, because annotation is a function of geometry and goes stale the moment a wall
-moves. What *is* stored is the **Annotation override** — a human's correction to a
-derived placement, which must survive a re-render.
+**Drawing** — a Plan, a **Sheet set**, and the annotation resolved over them:
+plan graphics, dimension chains, room tags, schedules, title block. **Derived**
+from the Plan rather than stored in it, because annotation is a function of
+geometry and goes stale the moment a wall moves. What *is* stored is the
+**Annotation override** — a human's correction to a derived *placement*. An
+override moves things; it can never change a measured number, a room name or a
+schedule value, because that would let a human make the drawing lie about the
+model.
+
+**Audience** — who an annotation element is for: the Homeowner and the
+Practitioner both, or the Practitioner alone. Held per element, so that one
+derivation serves two presentations. There is no second annotation engine to
+drift against the first.
+
+**Sheet** — the paper an annotated plan is laid out on: size, plot scale,
+margins, title block. Scale is held and the sheet grows, never the reverse —
+halving the scale to fit smaller paper is a printing decision wearing a drawing
+decision's clothes.
+
+**Dimension chain** — a run of dimensions sharing one base line, whose segments
+sum exactly to the span they cover. Closing is a property, not an aspiration:
+the model is integer millimetres, so any chain that fails to close is a defect
+rather than a rounding artefact.
+
+**Witness** — the line a dimension measures to. Always a wall *face*, never a
+centreline, with one declared exception at the footprint overall. Named because
+a chain segment's identity is its pair of witnesses, and a witness is in turn
+named by the Rooms either side of it — Brief-anchored, so it dies honestly when
+the topology changes.
+
+**Type mark** — the label tying an Opening on the plan to its row in a schedule
+and its entry in the regional catalogue. The join between the drawing and the
+schedule, asserted total in both directions.
+
+**Drawing check** — the predicates a Drawing must satisfy before a file is
+emitted. Distinct from the **Acceptance bar** in consumer and in timing: the bar
+gates whether a Plan is *shown* and has two consumers, this gates whether a file
+is *written* and has one. A failure here is our defect, not the Plan's — the Plan
+already passed the bar — so it raises rather than degrading.
 
 **Acceptance bar** — the set of predicates a Plan must satisfy to be shown. One
 **declaration**, two consumers: a hard filter on finished candidates, and the
@@ -172,7 +206,10 @@ dimension means, and what the Acceptance bar is stated in.
 than the clear dimension by half a wall on each side. What the solver works in.
 
 The two are never interchangeable. Every number that crosses between the solver
-and anything else says which one it is.
+and anything else says which one it is. **Every number that reaches a human is
+the clear one** — a centreline dimension on a drawing is wrong by a wall
+thickness on every room and every axis, and putting one there is the mechanism by
+which the confusion above actually happens.
 
 **Ergonomic minimum** — the smallest clear rectangle a room's required fixtures
 and their body clearances occupy. Region-invariant, because bodies are. It is the

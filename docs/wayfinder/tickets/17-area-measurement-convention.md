@@ -57,3 +57,25 @@ and the answer is scoped by which regions actually ship.
 
 Deliverable: the convention named per region, the tagging decision, and an
 explicit statement of what the Brief's area number means to a Homeowner.
+
+## Inherited from *Dimensioning and annotation rules*
+
+This ticket now has a **third consumer that quotes the number in public**, and one
+rule that follows its answer rather than keeping its own.
+
+- The area appears in three places on an issued drawing: the **room tag**, the
+  **room schedule** on sheet `A-102` — which also states the Envelope inner area
+  and the difference, so a Practitioner can reconcile the schedule against the
+  plan — and the title block's **`AREAS`** attribute, which names the convention in
+  words. Question 3 ("does an area carry its convention everywhere it travels")
+  therefore has at least one answer already: **on the drawing it is declared once
+  in the title block, not per tag.**
+- **ADR 0004's tier-1 overall follows this ticket.** Tier 1 spans the footprint
+  and currently measures a party edge **to its centreline**, chosen because GIA and
+  IPMS both do. If this ticket lands on a convention that treats party walls
+  differently, tier 1 changes with it — one drawing must not quote a footprint on
+  one convention and an area on another, and that is a defect a Practitioner spots
+  before anything else.
+- A drawing is also the artefact that makes question 2 concrete. A Homeowner
+  reading `16.06 m²` on a plan they asked to be "about 90 m² total" is comparing
+  our number against a listing convention they have never named.

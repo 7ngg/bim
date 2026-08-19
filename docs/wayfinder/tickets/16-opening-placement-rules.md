@@ -121,3 +121,23 @@ per-region constants and a worked example on one plan.
   the circulation flow. Opening placement receives it; it does not choose it.
 - The windowless-kitchen **warn** and the topological window rule are unaffected in
   form, only in which faces count.
+
+## Inherited from *Dimensioning and annotation rules*
+
+This ticket is now the **single source** of three values the drawing publishes,
+which raises the bar on each from "a rule the engine follows" to "a number a
+builder sets out from".
+
+- **The internal-door setting-out constant.** The drawing dimensions every
+  internal opening in-plan, from the nearest perpendicular wall face to the near
+  jamb of the structural opening. That distance is this ticket's to decide; the
+  drawing only measures it.
+- **Handing and swing direction.** Both are drawn — the leaf at 90° plus its arc —
+  and both are columns in the door schedule on sheet `A-102`. A cased opening draws
+  no leaf and no arc, and its handing cell reads `—`, so the *kind* enum has to be
+  legible from the placement rule's output.
+- The `Swing footprint` in the model stays a clearance abstraction and is **never
+  drawn**; what is drawn is the real leaf swing. Worth stating because the two
+  differ deliberately — the footprint is the conservative bounding square — and a
+  drawing that rendered the abstraction would look wrong to anyone who knows what a
+  swing arc is.

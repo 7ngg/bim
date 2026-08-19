@@ -45,3 +45,27 @@ The flow to make concrete:
 
 Deliverable: the prototype, linked from this ticket as an asset, plus the
 decisions it settled.
+
+## Inherited from *Dimensioning and annotation rules*
+
+Item 7 ("what do *they* get, and where does the Practitioner-grade export sit
+without cluttering their view") is now half-answered, structurally.
+
+There is **one `Drawing`, two presentations**. Every annotation element carries an
+**audience** — `both` or `practitioner` — and a render target draws only what is
+tagged for it. So the Homeowner's eager SVG preview is not a different drawing
+engine, it is a filter: plan graphics (poché, door swings, glazing), room tags,
+and nothing else. No chains, no type marks, no title block, no schedules.
+
+Two consequences the prototype should react to rather than re-derive:
+
+- **The preview renders metres to 2 dp** (`4.40 × 3.40 m`, `16.06 m²`) while the
+  sheet renders integer millimetres. That is safe only because the preview draws no
+  chain — the invariant is that a dimension in any unit other than integer
+  millimetres may not be part of one. If the prototype wants a chain in the
+  Homeowner view, that invariant is what it is trading against.
+- **The clear dimension pair is the one dimension a Homeowner does read**, and it
+  is `both` for that reason. The glossary says they cannot read a dimension string;
+  it does not say they cannot read `4.40 × 3.40 m` in the middle of a room, which is
+  what every estate-agent plan shows. Whether that holds is a question for the
+  prototype, and it is a cheap one to put in front of someone.

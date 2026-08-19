@@ -200,6 +200,34 @@ dimension in this system has to declare):
   distribution. ADR
   [0003](../adr/0003-the-envelope-is-an-inner-face-ring-of-typed-edges.md).
 
+- [Dimensioning and annotation rules](tickets/11-dimensioning-and-annotation-rules.md)
+  — **the differentiator is unglamorous, not hard**, and three of its rules were
+  reversed mid-session for being easy rather than right. Spec at
+  `docs/spec/annotation.md`, ADR
+  [0004](../adr/0004-published-dimensions-measure-wall-faces.md). The blockers
+  **deleted** most of the ticket before it began: rooms are rectangles so the
+  centroid *is* the pole of inaccessibility (no largest-inscribed-circle
+  machinery); integer millimetres make chains close by construction; and chains on
+  a **ladder outside** the Envelope bbox make chain-vs-plan and chain-vs-chain
+  collisions impossible, leaving three local rules and no global solver. What they
+  **broke**: **every wall thickness in a region profile must be even** — ADR 0001
+  needs `erode(rect, t_int/2)` in integer millimetres — which kills **115 mm and
+  125 mm**, the latter being DIN 4172's own octametric module. Dimensions measure
+  **faces, never centrelines** (one declared exception: tier 1 takes a party edge
+  to centreline, per GIA/IPMS), and ADR 0004 records that this is the *harder*
+  formulation — centreline chains have no narrow tick at all, which is why the
+  convention exists — taken because a centreline number labelled as a room size is
+  wrong by `t_int` everywhere. Held to a **Practitioner's issued set**, which
+  reversed: no-schedule → **three drawn schedules** on their own sheet (the one
+  thing eleven surveyed vendors document *nowhere*); internal doors by general note
+  → **every opening dimensioned**; scale drops to fit A3 → **scale held, sheet
+  grows**. Added what the ticket forgot to ask for — **plan graphics**, since flat
+  single-weight linework reads as generated before a number is checked. New
+  machinery: a **Drawing check** of eleven predicates that gates whether a *file is
+  written*, deliberately **not** in `rules.json` — the Acceptance bar has two
+  consumers and this has one, and a third would reopen what *Acceptance validator
+  spec* closed.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -237,7 +265,12 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   (rect/L/U/T), and ADR 0003 records why. What stays fog is when and how angled
   walls enter, and the ≤2 cap is unevidenced in both directions — the toy ran one
   L and two U envelopes, which shows two notches are affordable and says nothing
-  about three.
+  about three. It now also carries a **deliberately unbuilt dependency**: room-tag
+  placement is the Space *centroid*, exact only because every v1 Space is a
+  rectangle. The day a room is concave, tags start landing outside their own rooms
+  and largest-inscribed-circle placement has to be specified — *Dimensioning and
+  annotation rules* left it out on purpose rather than building for a case that
+  cannot occur.
 - **Structural and services reality** — load-bearing walls, plumbing stacks,
   risers. C6 item 5 gestures at wet-room clustering; the real version is larger.
   The geometry model left the hook deliberately: a wall's `load_bearing` is
@@ -249,7 +282,10 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
 - **Frontend rendering and manipulation** — narrowed by *Language and runtime
   split*: the stack is **Next.js/TypeScript**, it talks to the engine as a **BFF over
   JSON**, and every survivor arrives as an **eager SVG preview**, so *viewing* a plan
-  is largely settled. What stays fog is **manipulation** — canvas, WebGL or
+  is largely settled. *Dimensioning and annotation rules* then fixed **what that
+  preview contains**: one `Drawing`, two presentations, every element carrying an
+  **audience**, so the preview is a filter — plan graphics and room tags — and not a
+  second annotation engine. What stays fog is **manipulation** — canvas, WebGL or
   SVG-in-DOM once C7's interactive re-solve is picked up, and how that couples to the
   drag-and-pin question below.
 - **Persistence, accounts, hosting** — where projects live, what a session is. Now
@@ -289,6 +325,11 @@ Ruled beyond this destination. Does not graduate; returns only as a fresh effort
 - **Practitioner-first workflow and native Revit round-trip as a v1 requirement.**
   C2 — the engine must not preclude it, but shipping it is not on this route.
 - **Commercial productisation, pricing, licensing posture.** C9.
+- **Detail drawings, and material-differentiated hatching.** Ruled out by
+  *Dimensioning and annotation rules*. v1's drawing scale ladder tops out at 1:50,
+  where solid poché is the correct convention; material hatches (masonry,
+  insulation, stud) belong to 1:20 details, and a detail asserts a construction
+  build-up this system does not model and C8 forbids it claiming.
 - **The site: plot boundaries, setbacks, and any solar or daylight model.** Ruled
   out by *Building scope and envelope handling*. v1 never generates a footprint
   *from* a plot — the Envelope is stated or derived from the programme, and it is
