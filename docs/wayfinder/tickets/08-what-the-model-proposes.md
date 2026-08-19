@@ -56,3 +56,43 @@ project's numbers are a warning about assuming it does.
    improved the *final, solver-projected, validator-passed* plan? That is the only
    metric that matters, and it needs the validator to exist first.
 5. What "done" looks like, so training does not become an open-ended sink.
+
+## What *Acquire the datasets* changed here
+
+The corpora are on disk and the blocking histogram has run. It lands against the
+survey's recommendation, so read this before re-deriving the training plan.
+
+**The ≥16-room tail is empty.** Counting rooms a Brief actually names — no
+shafts, no cores, no outdoor areas — across both committed corpora:
+
+| Corpus | dwellings | mean | ≥14 | **≥16** | ≥20 | ≥24 |
+|---|---:|---:|---:|---:|---:|---:|
+| Swiss Dwellings | 46,800 | 6.82 | 164 | **66** | 11 | 1 |
+| ResPlan | 17,000 | 6.79 | 14 | **0** | 0 | 0 |
+
+*Proposer architecture survey* §7.3(a) set the trigger at **~1,000**. The answer
+is **66**. Its first half fires by a factor of fifteen, so this ticket owns the
+second half: **does synthetic pre-training close the relation-accuracy gap at 16+
+rooms on held-out data?** If not, the runner-up — retrieval-and-warp over Swiss
+Dwellings — wins outright, and the beat-retrieval ablation this ticket already
+carries becomes the deciding measurement rather than a sanity check.
+
+**Two consequences the survey could not have stated:**
+
+- **A synthetic generator is no longer the recommended first stage — it is the
+  only possible source of ≥16-room training data.** RPLAN's maximum is 8 rooms and
+  MSD is a subset of Swiss Dwellings, so no legally obtainable real corpus reaches
+  the regime. If this ticket chooses to train, specifying that generator — what it
+  emits, at what room counts, and what evidence would show it transfers to real
+  dwellings — is part of the training recipe, not a later detail.
+- **Per-room target-area conditioning has a data problem in ResPlan.** Its geometry
+  is **not in metres** despite its README: polygons sit on a ~256-unit canvas whose
+  scale varies per plan (median 0.0545 m/unit, range 0.0014–0.1667, only 3.6%
+  within 1% of the median). Metres per unit must be recovered per plan as
+  `sqrt(area / polygon_area)`, and seven plans carry a square-feet bug in `area`
+  that would poison an area-conditioned loss. Swiss Dwellings is clean — WKT in
+  metres. Details in `docs/research/dataset-inventory.md` §2.4.
+
+Usable training volume, stated plainly: **46,800** Swiss Dwellings dwellings
+(46,816 unique layouts — floors sharing a `plan_id` are not a duplication problem)
+and **16,317** non-augmented ResPlan plans.

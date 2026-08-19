@@ -228,6 +228,33 @@ dimension in this system has to declare):
   consumers and this has one, and a third would reopen what *Acceptance validator
   spec* closed.
 
+- [Acquire the datasets](tickets/12-acquire-the-datasets.md) — **the >=16-room
+  tail is empty, and that lands against the map's own proposer recommendation.**
+  Two corpora on disk and verified (Swiss Dwellings md5 matches the publisher
+  exactly; ResPlan reconciles to 137,131 room polygons *exactly*), inventory at
+  `docs/research/dataset-inventory.md`, loaders in `experiments/corpus-smoke/`.
+  Counting the rooms a Brief actually names, **63,800 real dwellings hold 66 with
+  >=16 rooms and one with >=24** — against *Proposer architecture survey*'s
+  ~1,000 trigger for retrieval-and-warp winning outright. Only the data half of
+  that test is settled; the synthetic-pre-training half is now *What the model
+  proposes*'s deciding measurement. The stronger form: **RPLAN's maximum is 8
+  rooms and MSD is a subset of Swiss Dwellings, so no obtainable real corpus
+  reaches the regime** — a synthetic generator is not a first stage any more, it
+  is the only possible source. **Ticket 18's blocking SQL is wrong three ways**
+  and returns 1,563 instead: it counts SHAFTs (72,255 of them — shafts outnumber
+  bathrooms) as rooms, groups across floors despite saying "single floor" (1,672
+  apartment_ids span more than one), and swallows `md5("")` as a real apartment
+  key. The filtered mean of **6.82 corroborates Ospici's independent 6.20**; the
+  unfiltered 9.44 does not. Also **measured the exposure distribution** ADR 0003
+  needed — median **0.37** exterior, and **0 of 569 real dwellings above 0.99**,
+  so every timing on this map describes a house nobody lives in. Corrections:
+  ResPlan's geometry is **not in metres** despite its README (per-plan scale,
+  median 0.0545 m/unit), three of its documented keys don't exist, seven plans
+  carry a **square-feet bug** in `area`, and Swiss Dwellings ships **no licence
+  file at all** — CC BY 4.0 lives only in Zenodo metadata. MSD and ProcTHOR
+  deliberately not downloaded (already ruled out); **RPLAN left unsigned** — its
+  8-room ceiling adds nothing to the tail that decides the question.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -247,6 +274,17 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   the corpus-backed case and the likelier v1 purchase — get *less* variety than
   bungalows, which is backwards from where the demand is. Envelope jitter was
   rejected as a patch here; the fix belongs to whatever settles the economics.
+- **What a corpus-shaped product looks like.** *Acquire the datasets* found ~95%
+  of 63,800 real dwellings sit between 4 and 10 rooms, mean 6.8. The room-count
+  half of that is now a ticket — *The room-count envelope v1 promises*. What stays
+  fog is everything else the distribution implies: whether the **Brief's defaults**
+  should be drawn from the corpus rather than from the standards table, whether
+  candidate generation should be **biased toward corpus-typical shapes**, and
+  whether a Brief far from the corpus centre should be flagged to the Homeowner
+  before a solve rather than after. Sharpens once *What the model proposes* picks a
+  route, since retrieval makes corpus-typicality structural and training makes it a
+  choice.
+
 - **Plan quality beyond the validator** — narrowed by *Acceptance validator
   spec*: there now *is* a ranking signal, six soft rules and two warns, including
   the aspect-ratio term added specifically because a plan can pass everything and
@@ -306,10 +344,11 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   interactive re-solve is picked up and `kiwisolver` actually matters. *Update:
   the wall-thickness question did not break the formulation — see* Canonical
   geometry model *— so this stays cold until C7 is picked up.*
-- ~~**Whether the proposer is worth training at all**~~ — graduated. *Proposer
-  architecture survey* turned it into a decidable test in two places: *Acquire the
-  datasets* now carries a blocking per-dwelling area histogram, and *What the model
-  proposes* carries the beat-retrieval ablation. It is no longer fog.
+- ~~**Whether the proposer is worth training at all**~~ — graduated, and now
+  half-answered. *Acquire the datasets* ran the blocking histogram: **66 dwellings
+  at >=16 rooms against a ~1,000 trigger**, so the corpus side says retrieval. What
+  remains is the ablation *What the model proposes* carries, and the synthetic
+  generator that ticket must specify if it trains. Not fog — a live ticket.
 
 ## Out of scope
 

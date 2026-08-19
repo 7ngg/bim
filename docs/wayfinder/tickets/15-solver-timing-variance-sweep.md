@@ -104,3 +104,29 @@ ladder is currently unmeasured above **five** rooms.
    `(A1, 1:100)`, the last entry in the ladder, is ever reached. If a 24-room plan
    falls off the end of the sheet ladder, that is the same class of finding as
    `flat_single_aspect` not solving: a product finding, not a tuning problem.
+
+## The exposure axis now has measured numbers, from *Acquire the datasets*
+
+Axis 6 above named four presets but had no evidence for what real flats look
+like. Swiss Dwellings supplies it. Measured over 569 dwellings on 150 sampled
+floors — `experiments/corpus-smoke/exposure_swiss_dwellings.py`, method and
+caveats in `docs/research/dataset-inventory.md` §1.5 — the fraction of a
+dwelling's Envelope perimeter that faces neither a neighbour nor a communal area:
+
+| p5 | p25 | median | p75 | p95 | ≥0.99 |
+|---:|---:|---:|---:|---:|---:|
+| 0.16 | 0.23 | **0.37** | 0.47 | 0.59 | **0 of 569 (0.0%)** |
+
+**Not one real dwelling in the sample sits near the 100% exposure every timing on
+this map was measured at.** So sweep the presets as *fitted* values rather than
+guesses: `flat_single_aspect` at a quarter is close to the measured **p25 of
+0.23**, `terrace_mid` at a half is close to the **p75 of 0.47**, and the
+**median case is 0.37** — which is the figure a spec should quote as typical,
+not 1.0.
+
+Two riders. The sample is 569 of 46,800 dwellings and the 0.45 m party threshold
+is a judgement rather than a fitted value, so treat the quantiles as sound to two
+decimals and no further. And nine sampled dwellings scored ~0.00 exterior —
+genuinely windowless units that would fail H8 outright; worth a look before they
+are dismissed as noise, because if they are real then H8 is rejecting homes that
+exist.

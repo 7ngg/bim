@@ -9,3 +9,6 @@ experiments/**/out/
 experiments/**/outputs/
 *.dxf
 *.ifc
+
+# Corpora — multi-GB, acquired per docs/research/dataset-inventory.md
+data/corpora/
