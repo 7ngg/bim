@@ -101,3 +101,23 @@ Deliverable: `data/standards/room-constraints.json` populated for `AZ` — repla
 the `PLACEHOLDER_NOTE` — with the findings written up under `docs/research/`.
 Shares the file with *Ergonomic minima and the constraint table's missing half*,
 which owns the region-invariant layer; coordinate rather than collide.
+
+## Two ship gates on this profile, from *Solver timing variance sweep*
+
+The catalogue this ticket fills is now constrained twice over, and both are
+cheap to assert in a test:
+
+1. **ADR 0004** — every wall thickness an even number of millimetres, so `t/2`
+   stays integral. Already known; this is the rule that made the profile `AZ`
+   rather than `DE`.
+2. **ADR 0007** — every published dimensional minimum satisfies
+   `minimum_mm + t_int` congruent to 0 modulo the grid, for **every** `t_int`
+   the profile offers. Unaligned minima cost a whole grid unit per room per axis
+   and provably delete 4-, 5- and 6-room dwellings.
+
+Rule 2 has a consequence this ticket has to decide rather than inherit: at a
+250 mm grid, `t_int = 100` wants minima congruent to 150 and `t_int = 200` wants
+them congruent to 50, and there is **no common solution**. So the profile either
+ships a **single internal thickness**, or carries **per-thickness minima**, or
+forces the grid question open. The empty catalogue is the right place to settle
+that, before any number is written down.

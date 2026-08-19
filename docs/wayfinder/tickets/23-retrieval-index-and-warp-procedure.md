@@ -61,3 +61,27 @@ stated, the thing being warped is undefined.
 **Deliverable.** A spec section under `docs/spec/proposer.md` §2.2, with the warp
 reproducible from it, plus a measured coverage-versus-fidelity curve for the
 budget in item 5.
+
+## The admissibility gate is stated in the wrong units, from *Solver timing variance sweep*
+
+`docs/spec/proposer.md` gates a warp at +-10% area and +-15% aspect. The sweep
+measured the solver's actual tolerance in a different quantity entirely —
+**per-corner Gaussian noise** — and found a cliff between **sigma 0.5 m and
+1.0 m**, at which the recommended configuration goes INFEASIBLE rather than
+merely inaccurate: 5 of 5 seeds at 24 rooms, 3 of 5 at 8.
+
+Nothing connects the two. A warp inside the area and aspect budget may or may not
+land inside the corner-noise budget, because a uniform stretch moves every corner
+coherently while the noise model moves them independently — and it is the
+*incoherent* displacement that breaks the relations `fix_relations` extracts.
+
+So this ticket owes one measurement it did not know about: **what per-corner
+displacement distribution a warped retrieval actually produces**, expressed so it
+can be compared against the cliff. If warps come out coherent, the gate is fine
+and the cliff never fires for retrieval — which would be a strong argument for
+retrieval over the trained model, since the model has no such guarantee. If they
+do not, the gate needs a third term.
+
+tau is the mitigation and it is cheap in this band: at 8 rooms tau = 4 removes
+the sigma = 1.0 m cliff completely for 0.02 s. That is why the shipped default is
+tau = 4 rather than 0.

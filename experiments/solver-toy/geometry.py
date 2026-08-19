@@ -72,6 +72,25 @@ class Rect:
         return 0
 
 
+# Ticket 15 axis 6: dwelling-type presets over the Envelope's edge ring.
+# `detached` is what every timing before this ticket was measured at.
+# A preset maps each bbox edge to the *fraction* of its run that is exterior,
+# anchored at the edge's low end. A whole edge is 1.0, a party edge 0.0. The
+# fractional case is not decoration: a real flat's front elevation is commonly
+# part window wall and part shared, which is why the four whole-edge presets
+# cannot reach the corpus median on their own (see the fitted entry below).
+EXPOSURE_PRESETS = {
+    "detached": {"W": 1.0, "E": 1.0, "S": 1.0, "N": 1.0},
+    "terrace_mid": {"W": 0.0, "E": 0.0, "S": 1.0, "N": 1.0},    # opposite pair
+    "flat_corner": {"W": 0.0, "E": 1.0, "S": 1.0, "N": 0.0},    # adjacent pair
+    "flat_single_aspect": {"W": 0.0, "E": 0.0, "S": 1.0, "N": 0.0},
+    # Fitted to the Swiss Dwellings median of 0.37 (dataset-inventory.md §1.5),
+    # which no whole-edge preset reaches: one full edge plus a part of the
+    # opposite one. This is the case a spec should quote as typical.
+    "corpus_median": {"W": 0.0, "E": 0.0, "S": 1.0, "N": 0.45},
+}
+
+
 @dataclass(frozen=True)
 class Envelope:
     """A rectilinear Envelope: a bounding box minus a set of notch rectangles.
@@ -86,6 +105,11 @@ class Envelope:
     H: int
     notches: Tuple[Rect, ...]
     parts: Tuple[Rect, ...]
+    # Ticket 15 axis 6 / ADR 0003: the Envelope is an ordered ring of typed
+    # edges and only an `exterior` edge may hold a window. The four bbox edges
+    # are keyed W (x=0), E (x=W), S (y=0), N (y=H); a preset names the subset
+    # that is exterior. Everything else is a party edge.
+    exposure: str = "detached"
 
     @property
     def bbox(self) -> Rect:
@@ -100,25 +124,97 @@ class Envelope:
             return False
         return all(r.overlap_area(n) == 0 for n in self.notches)
 
+    @property
+    def exterior_sides(self) -> dict:
+        """Per-bbox-edge exterior fraction for this preset."""
+        try:
+            return EXPOSURE_PRESETS[self.exposure]
+        except KeyError:
+            raise ValueError(f"unknown exposure preset {self.exposure!r}")
+
+    def _bbox_runs(self) -> List[Tuple[str, int, int, int, bool]]:
+        """The four bbox edges, split where a preset makes one partly party.
+
+        A partial edge becomes an exterior head plus a party tail, anchored at
+        the edge's low end, so every face is wholly one type and nothing
+        downstream needs a fraction.
+        """
+        frac = self.exterior_sides
+        base = [
+            ("v", 0, 0, self.H, "W"),
+            ("v", self.W, 0, self.H, "E"),
+            ("h", 0, 0, self.W, "S"),
+            ("h", self.H, 0, self.W, "N"),
+        ]
+        out: List[Tuple[str, int, int, int, bool]] = []
+        for (k, c, lo, hi, side) in base:
+            f = frac.get(side, 0.0)
+            if f >= 1.0:
+                out.append((k, c, lo, hi, True))
+            elif f <= 0.0:
+                out.append((k, c, lo, hi, False))
+            else:
+                cut = max(lo + 1, min(hi - 1, lo + int(round((hi - lo) * f))))
+                out.append((k, c, lo, cut, True))
+                out.append((k, c, cut, hi, False))
+        return out
+
+    def _notch_is_exterior(self, n: Rect) -> bool:
+        """A notch sees daylight iff it opens onto an exterior run.
+
+        Notches are cut from the boundary (see `l_shape` / `u_shape`), so a
+        notch is flush with at least one bbox edge; it is a light well rather
+        than a shaft exactly when the stretch of edge it replaces is exterior.
+        """
+        for (k, c, lo, hi, is_ext) in self._bbox_runs():
+            if not is_ext:
+                continue
+            if k == "v" and c == n.x1 == 0 or k == "v" and c == n.x2 == self.W:
+                if min(n.y2, hi) - max(n.y1, lo) > 0:
+                    return True
+            if k == "h" and c == n.y1 == 0 or k == "h" and c == n.y2 == self.H:
+                if min(n.x2, hi) - max(n.x1, lo) > 0:
+                    return True
+        return False
+
+    def all_faces(self) -> List[Tuple[str, int, int, int, bool]]:
+        """Every boundary face, as ('v'|'h', coord, lo, hi, is_exterior)."""
+        faces = list(self._bbox_runs())
+        for n in self.notches:
+            e = self._notch_is_exterior(n)
+            faces.append(("v", n.x1, n.y1, n.y2, e))
+            faces.append(("v", n.x2, n.y1, n.y2, e))
+            faces.append(("h", n.y1, n.x1, n.x2, e))
+            faces.append(("h", n.y2, n.x1, n.x2, e))
+        return faces
+
     def exterior_faces(self) -> List[Tuple[str, int, int, int]]:
-        """Every exterior wall face, as ('v'|'h', coord, lo, hi).
+        """Every *exterior* wall face, as ('v'|'h', coord, lo, hi).
 
         'v' means a vertical face at x == coord spanning y in [lo, hi).
         A room touches the exterior if one of its faces is flush with one of
         these and overlaps it in a segment of positive length.
+
+        Ticket 15: this used to return every boundary face unfiltered, which is
+        why every timing on the map described a detached bungalow. It is now
+        filtered by the `exposure` preset.
         """
-        faces: List[Tuple[str, int, int, int]] = [
-            ("v", 0, 0, self.H),
-            ("v", self.W, 0, self.H),
-            ("h", 0, 0, self.W),
-            ("h", self.H, 0, self.W),
-        ]
-        for n in self.notches:
-            faces.append(("v", n.x1, n.y1, n.y2))
-            faces.append(("v", n.x2, n.y1, n.y2))
-            faces.append(("h", n.y1, n.x1, n.x2))
-            faces.append(("h", n.y2, n.x1, n.x2))
-        return faces
+        return [(k, c, lo, hi) for (k, c, lo, hi, e) in self.all_faces() if e]
+
+    @property
+    def exterior_fraction(self) -> float:
+        """Exterior share of the Envelope perimeter.
+
+        The same quantity `experiments/corpus-smoke/exposure_swiss_dwellings.py`
+        measured over Swiss Dwellings (p25 0.23, median 0.37, p75 0.47), so the
+        presets can be reported as fitted values rather than guesses.
+        """
+        total = ext = 0
+        for (k, c, lo, hi, e) in self.all_faces():
+            total += hi - lo
+            if e:
+                ext += hi - lo
+        return ext / total if total else 0.0
 
 
 def l_shape(W: int, H: int, notch_w: int, notch_h: int) -> Tuple[Tuple[Rect, ...], Tuple[Rect, ...]]:

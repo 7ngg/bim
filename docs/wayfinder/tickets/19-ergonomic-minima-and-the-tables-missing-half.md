@@ -93,3 +93,32 @@ rather than being added to it.
 Note the direction it cuts. Set the threshold too high and real WCs are relabelled
 as undersized bathrooms and dropped from training; too low and real bathrooms
 enter the WC class and pull its minimum down. State which error the value prefers.
+
+## Constrained by ADR 0007, from *Solver timing variance sweep*
+
+Every minimum this ticket publishes must satisfy
+
+```
+minimum_mm + t_int  is congruent to 0  (mod grid_mm)
+```
+
+for every internal wall thickness the profile offers. At the v1 grid of 250 mm
+and `t_int = 100` that admits 1650, 1900, 2150, 2400 ... and forbids the round
+numbers a source is likeliest to quote: 1750, 2000, 2250, 2500.
+
+This is not tidiness. ADR 0001 makes the published minimum a **clear** dimension,
+so `250w - t_int >= minimum` forces `w >= minimum/250 + 1` whenever `minimum` is
+a multiple of the grid — one whole grid unit of rounding loss per room per axis,
+to pay for a 100 mm wall. Measured, that **provably deletes 4-, 5- and 6-room
+dwellings**: no exact tiling exists and no Brief can even be constructed. Extra
+Envelope area does not fix it (swept to +40%, non-monotone). Grid-aligned minima
+restore the pre-ADR-0001 baseline exactly.
+
+So a source quoting 1750 mm is honoured by publishing **1650 mm clear**, with the
+derivation recorded in the provenance field so nobody later "corrects" it back.
+Same move ADR 0004 made for dimensions, and it needs the same paper trail.
+
+Note the trap ADR 0007 leaves open: a profile offering **two** internal
+thicknesses has no common solution at a 250 mm grid, because 100 and 200 want
+minima congruent to 150 and 50 respectively. Either the minima become
+per-thickness, or the profile ships one `t_int`, or the grid changes.

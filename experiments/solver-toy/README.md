@@ -85,6 +85,11 @@ displacement of all four corners from the Proposal.
 constraint.** That is what makes graceful degradation structural rather than a
 recovery heuristic.
 
+⚠️ **True only with `fix_relations=False`.** With it on — the recommended
+configuration — the extracted relations *are* constraints, and the ticket-15
+sweep measured a merely noisy Proposal going INFEASIBLE (5 of 5 seeds at 24
+rooms at σ = 1.0 m). See `docs/research/solver-formulation.md` Part II.0.
+
 ## Knobs worth turning
 
 `SolveConfig` in `solver.py`:
@@ -100,10 +105,12 @@ recovery heuristic.
 
 ## Known gaps
 
-- **Rooms tile exactly; real walls have thickness.** Whether this formulation
-  survives wall bodies separating the rooms is unknown, and it is the largest
-  open risk. Interacts directly with ticket 01.
-- Every timing is a **single run at one seed**. No variance estimate.
-- Grid resolution was never swept — everything ran at 250 mm.
+- ~~**Rooms tile exactly; real walls have thickness.**~~ **Closed.** ADR 0001's
+  dilated solve domain keeps the formulation intact and the eroded-millimetre
+  area rule costs nothing measurable (Part II.1) — but the *minima* must be
+  grid-aligned or 4-, 5- and 6-room dwellings become infeasible. See ADR 0007.
+- ~~Every timing is a **single run at one seed**. No variance estimate.~~
+  **Closed** by ticket 15: `sweep.py` / `report.py`, ~1 000 solves, Part II.
+- Grid resolution was never swept — everything ran at 250 mm. *Still true.*
 - Minimum dimensions and areas are not in the softenable set, so a Brief that is
   impossible because the rooms cannot fit fails hard with no explanation.

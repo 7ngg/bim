@@ -196,6 +196,11 @@ the number that decides whether this feels interactive. `obj` is the final
 objective: summed L1 displacement of all four corners of all rooms, in grid
 units of 250 mm.
 
+⚠️ **Single seed, one machine, 100 % exterior exposure, areas in grid units.**
+Part II re-measures every row across seeds, exposure and ADR 0001's clear
+reading; the 24-room figure moves from 6.25 s to a median of 2.72 s once the
+ground truth is held to the same reading the solver enforces.
+
 | Rooms | Configuration | Status at 30 s | **First valid Plan** | obj | Relations fixed | Independent validator |
 |---|---|---|---|---|---|---|
 | 8 | boxes only, hard coverage | FEASIBLE | **0.53 s** (20 s run) | 78 | 0 | **VALID** |
@@ -238,6 +243,12 @@ floor. The projected Plan still reads as the layout the model proposed. That is
 the property C10 is actually buying, and it survives to 24 rooms.
 
 ### An honest caveat on optimality
+
+> **Part II sets the number this section leaves open: the shipped time limit is
+> 15 s**, the p95 of time-to-VALID pooled over 159 solves, catching 96.5 % of
+> every run that ever reaches a valid Plan. On expiry, a best solution whose
+> objective is at or above `soft_weight` has unassigned floor and must be
+> discarded, not shown.
 
 **No run in this table reached `OPTIMAL` within its time limit.** Every one
 terminated at `FEASIBLE`, meaning CP-SAT had a valid Plan and a proof that it
@@ -438,6 +449,14 @@ formulation rather than a recovery heuristic:
 > appears in a constraint. It therefore cannot make the model infeasible, however
 > bad it is.**
 
+> ⚠️ **Corrected by the ticket-15 sweep — see Part II.0.** This holds only with
+> `fix_relations=False`. In the *recommended* configuration the extracted
+> relations are hard constraints, and a merely **noisy** Proposal — not just the
+> adversarial shuffled one below — goes INFEASIBLE: 3 of 5 seeds at 8 rooms and
+> **5 of 5 at 24 rooms** at σ = 1.0 m of per-corner noise, against σ = 0.5 m in
+> every run on this page. τ is the valve, and the two-phase fallback is
+> mandatory rather than prudent.
+
 There is no such thing as an "infeasible Proposal" in this design. A Proposal
 that is nonsense simply makes the objective large; the feasible set is untouched,
 and the solver returns the nearest feasible Plan to whatever nonsense it was
@@ -451,7 +470,7 @@ Measured, with two deliberately hostile Proposals, 30 s limit:
 |---|---|---|---|---|
 | 8 | **degenerate** — every room a 1×1 box at the origin | no | FEASIBLE | **0.17 s**, VALID |
 | 12 | degenerate | no | FEASIBLE | **0.59 s**, VALID |
-| 24 | degenerate | no | UNKNOWN | **none in 30 s** |
+| 24 | degenerate | no | UNKNOWN | **none in 30 s** — *Part II: FEASIBLE 6/6, valid **0/6***. Returns a Plan with unassigned floor rather than timing out. |
 | 8 | **shuffled** — correct boxes, wrong rooms | yes | **INFEASIBLE in 0.02 s** | — |
 | 12 | shuffled | yes | **INFEASIBLE in 0.05 s** | — |
 | 24 | shuffled | yes | **INFEASIBLE in 0.08 s** | — |
@@ -728,3 +747,519 @@ python probe5.py         # infeasible Proposals and Briefs
 See `experiments/solver-toy/README.md`. Seed 20260817 throughout; every run is
 deterministic in its inputs, though CP-SAT's multi-worker search is not
 bit-reproducible in its timings.
+
+---
+
+# Part II — the variance sweep (ticket 15)
+
+Everything above this line was measured **once, at one seed, on one machine, at
+100 % exterior exposure, with areas posted in grid units**. Ticket 15 re-measured
+it across seeds, room counts, dwelling-type exposure, Proposal quality, the
+confidence margin τ, worker count, and ADR 0001's eroded-millimetre area rule.
+
+**965 solves**, all serial at `num_workers = 4`, 30 s limit, on the same 4-core
+Ivy Bridge (`DESKTOP-25OJ4QH`) every number in Part I came from. Harness:
+`experiments/solver-toy/sweep.py`, aggregation `report.py`, raw rows in
+`experiments/solver-toy/results/*.jsonl`.
+
+Two corrections to Part I are load-bearing and are stated before the tables,
+because Part I's own wording is wrong in both places.
+
+## II.0 Two corrections to Part I
+
+### The Proposal *can* make the model infeasible, on ordinary noise
+
+Part I boxes this claim and calls it "the single most important design rule to
+carry out of this ticket":
+
+> The Proposal appears only in the objective and in the solution hint. It never
+> appears in a constraint. It therefore cannot make the model infeasible, however
+> bad it is.
+
+**This is false in the recommended configuration.** `fix_relations=True` reads the
+Proposal's relative arrangement and posts it as hard linear separations, which is
+a constraint by any definition. Part I knew this for the *adversarial* shuffled
+Proposal and treated it as a caveat. It is not a caveat. Measured with plain
+Gaussian per-corner noise — the pathology a real generator emits, not an attack:
+
+| σ per corner | n = 8 | n = 12 | n = 24 |
+|---|---|---|---|
+| 0.00 m | 0/5 | 0/5 | 0/5 |
+| 0.25 m | 0/5 | 0/5 | 0/5 |
+| **0.50 m — what every Part I run used** | 0/5 | **3/5** | 1/5 |
+| 1.00 m | 3/5 | 4/5 | **5/5** |
+| 2.00 m | 4/5 | 5/5 | 5/5 |
+| 4.00 m | 5/5 | 5/5 | 5/5 |
+
+INFEASIBLE counts, τ = 0, 30 s. Below σ = 0.25 m nothing fails anywhere; from
+σ = 0.5 m — **the value every Part I run used** — it is already failing 3 of 5
+seeds at 12 rooms, and by σ = 1.0 m the 24-room case is gone entirely.
+**v1 does not sit below the cliff. It sits on the edge of it.**
+
+Solve *time* barely moves across that range — at 8 rooms the median time to first
+Plan goes 0.091 s to 0.101 s from σ 0 to σ 2, and at 24 rooms 2.36 s to 2.40 s
+from σ 0 to σ 0.5. So the ticket's question, "sweep
+degradation and find where solve time turns over", has an answer it did not
+anticipate: **it never turns over. Proposal quality does not cost seconds. Past a
+threshold it costs feasibility outright.**
+
+The correct statement of the design rule is:
+
+> The Proposal reaches the constraint system through exactly one channel — the
+> relations `fix_relations` extracts — and τ is the valve on that channel. With
+> `fix_relations=False` the original claim holds exactly and is worth its billing.
+> With it on, which is the recommended configuration, the Proposal is load-bearing
+> for feasibility and a two-phase fallback is mandatory rather than prudent.
+
+### Part I's degenerate-Proposal row is optimistic at 24 rooms
+
+Part I reports 24-room degenerate as `UNKNOWN` — "I ran out of time". Re-measured
+over 6 seeds it is `FEASIBLE` 6/6 and **valid 0/6**: the solver does return a
+Plan, and the Plan has unassigned floor every time. The conclusion Part I drew is
+unchanged and slightly strengthened — *a worthless Proposal costs you the 24-room
+case entirely* — but the failure is a silently invalid Plan, not a timeout, and
+that is the more dangerous shape.
+
+## II.1 The formulation cost of ADR 0001 — and the one-line fix
+
+ADR 0001 makes a room's published rect the **clear** rect, `erode(solved, t_int/2)`,
+so H4 and H5 bind on eroded dimensions in integer millimetres. Ticket 15 flagged
+this as the sweep's most important question, because the operands move from ~10^2
+to ~10^4 and the products to ~10^8, against H4 already being the formulation's
+weak spot.
+
+**Three encodings were measured against each other:**
+
+| rig | what it posts |
+|---|---|
+| `grid` | H4/H5 on grid units. Part I's rig. Products ~10^4. |
+| `mm_direct` | a second `AddMultiplicationEquality` on eroded millimetres. Products ~10^8. The form the ticket feared. |
+| `mm_affine` | the same value, expanded algebraically. |
+
+The `mm_affine` identity is exact and worth stating, because it removes the
+question rather than answering it:
+
+```
+(g*w - t)(g*h - t) = g^2*(w*h) - g*t*(w + h) + t^2        g = 250, t = t_int
+```
+
+The eroded area is **affine in the grid-unit product**, so ADR 0001 needs **no
+second multiplication at all**. Verified exact over all `w, h` in `[1, 79]`.
+
+Median time to first Plan, 6 seeds, detached:
+
+| n | `grid` | `mm_affine` | `mm_direct` | multiplications, grid to mm_direct |
+|---|---|---|---|---|
+| 8 | 0.100 | 0.090 | 0.105 | 8 to 16 |
+| 12 | 0.353 | 0.263 | 0.303 | 12 to 24 |
+| 24 | 3.001 | 2.712 | 2.869 | 24 to 48 |
+
+**H4 survives, and the worry was unfounded.** Doubling the multiplication count
+and moving the products to 10^8 is not measurable against the seed-to-seed
+spread. `mm_affine` should still be preferred — it is free — but nothing
+depended on it.
+
+### What *did* bite: the minima are one grid unit too tight, and that is arithmetic
+
+The real cost of the clear reading is not numeric. It is that
+
+```
+clear_w = 250*w - t_int  >=  min_w
+```
+
+forces `w >= (min_w + t_int)/250`, and when `min_w` is itself a multiple of the
+grid — which every value in the placeholder standards table is — that ceiling
+lands **one whole grid unit above** `min_w/250`. Every room becomes 250 mm wider
+and 250 mm taller to pay for a 100 mm wall.
+
+Exact tiling at 9.65 m² of interior per room, 3 seeds, `valid/seeds`, `*` marking
+seeds where no Brief could be constructed at all:
+
+| reading | n=4 | n=5 | n=6 | n=7 | n=8 | n=10 | n=12 |
+|---|---|---|---|---|---|---|---|
+| published — minima on the solved rect | 3/3 | 3/3 | 2/3 | 2/3 | 3/3 | 2/3 | 3/3 |
+| **ADR 0001 — minima on the clear rect** | 0/3\* | 0/3\* | 0/3\* | 2/3 | 3/3 | 2/3 | 3/3 |
+| **ADR 0001 + grid-aligned minima** | 3/3 | 3/3 | 2/3 | 2/3 | 3/3 | 2/3 | 3/3 |
+
+The middle row **deletes 4-, 5- and 6-room dwellings**, which is the bottom half
+of the 4–10-room band C13 promises. More area does not fix it: swept from +0 % to
++40 % interior area per room, 4 rooms never recovers and the response is not even
+monotone, because Envelope shape re-snaps to the 250 mm grid as area changes
+(`erosion_cost.py`).
+
+The third row is the fix, and it is one rule:
+
+> **A published clear minimum must satisfy `min + t_int` congruent to 0 modulo the
+> grid.** A 1750 mm kitchen is published as 1650 mm, and `clear = 250w - 100`
+> meets it at exactly the `w` the old reading needed. The wall is paid for in the
+> number rather than in the grid.
+
+Recorded as ADR 0007. It is a sibling of ADR 0004's even-millimetre rule — a
+second arithmetic constraint the standards table must satisfy — and it lands on
+*Ergonomic minima and the constraint table's missing half* and *The Azerbaijani
+region profile*, which own the numbers.
+
+### A harness defect worth recording
+
+Until this was found, the ground-truth generator enforced the published reading
+while the solver enforced the clear one, so **the ground truth stopped being a
+witness** and the harness's central guarantee — *a failure to solve is a fact
+about the projection problem, not about an accidentally impossible Brief* —
+silently stopped holding. At n=4 the truth's kitchen was 7 grid units wide where
+the clear reading needs 8, and its hall 5 where it needs 6. Every validity number
+measured in that state was reporting the defect.
+`scenarios.fits_kind(r, kind, clear_t)` now takes the reading as a parameter and
+`sweep.py` passes whatever the solver will enforce. **All tables in Part II are
+post-fix.**
+
+## II.2 Exposure — and it does not do what was expected
+
+ADR 0003 makes the Envelope an ordered ring of typed edges, and only an
+`exterior` edge may hold a window. Presets, with the exterior share of perimeter
+each actually achieves on this harness's Envelopes, against the Swiss Dwellings
+distribution (`dataset-inventory.md` §1.5: p5 0.16, p25 0.23, median 0.37,
+p75 0.47, p95 0.59):
+
+| preset | edges exterior | achieved fraction | vs corpus |
+|---|---|---|---|
+| `detached` | all four | 1.00 | **above p95 — no real dwelling** |
+| `terrace_mid` | S, N | 0.64 – 0.71 | above p95 |
+| `flat_corner` | S, E | 0.53 – 0.60 | ~p95 |
+| `corpus_median` | S, plus 45 % of N | 0.32 – 0.41 | **straddles the median** |
+| `flat_single_aspect` | S | 0.19 – 0.22 | ~p25 |
+
+Two of the four presets ADR 0003 named sit **above the corpus p95**, so
+`corpus_median` was added, fitted to 0.37 — a partial edge, which is also the
+honest shape, since a real flat's front elevation is commonly part glazing and
+part shared.
+
+**Expected: H8 becomes binding at low exposure and solve time rises. It does
+not.** Median time to first Plan, 8 seeds, `mm_affine`, clear reading, τ = 0:
+
+| n | detached | terrace_mid | flat_corner | corpus_median | flat_single_aspect |
+|---|---|---|---|---|---|
+| 8 | 0.094 | 0.078 | 0.092 | 0.103 | — |
+| 10 | 0.154 | 0.136 | 0.138 | 0.148 | — |
+| 12 | 0.264 | 0.244 | 0.295 | 0.291 | — |
+| 16 | 0.543 | 0.646 | 0.820 | 0.633 | — |
+| 20 | 1.867 | 0.947 | 1.384 | 1.464 | — |
+| 24 | 2.717 | 2.086 | 2.938 | 2.935 | — |
+
+Every column is inside every other column's seed spread. **Exposure is not a
+timing axis.** Quartering the exterior face set does not make the solve harder,
+because H8 is a disjunction over faces and a smaller disjunction is a *smaller*
+model, not a tighter search.
+
+What exposure does instead is fail **earlier and harder**, at Brief construction
+rather than at solve time — which is the more useful finding, because it is
+cheap to detect and cannot be tuned away.
+
+### `flat_single_aspect` is arithmetically dead from 7 rooms, and no solver is involved
+
+Habitable rooms do not overlap, so the stretches of exterior wall they occupy are
+disjoint, and each consumes at least its own shorter minimum dimension. That is a
+**necessary condition with no search in it**:
+
+```
+sum over habitable rooms of min(min_w, min_h)   <=   total exterior run
+```
+
+| n | habitable | need | `flat_single_aspect` has | verdict |
+|---:|---:|---:|---:|---|
+| 6 | 4 | 8 500 | 9 000 | ok, 500 mm slack |
+| **7** | 5 | 10 500 | 9 500 | **dead by 1 000 mm** |
+| 8 | 5 | 10 500 | 10 000 | dead |
+| 12 | 7 | 14 500 | 13 000 | dead |
+| 24 | 14 | 28 250 | 18 000 | dead by 10 250 mm |
+
+All millimetres, `frontage.py`. Single-aspect flats sit at the corpus **p25**, so
+this is not an exotic case. **H8 as posted forbids the commonest
+restricted-aspect dwelling above 6 rooms**, and no time limit, seed, τ or
+Proposal changes it. The sweep short-circuits these cells rather than solving
+them, which is why they read `H8_IMPOSSIBLE`. Handed on as its own decision — see
+the ticket.
+
+### The nine windowless dwellings: corpus noise, and H8 stands
+
+`dataset-inventory.md` §1.5 flagged "nine dwellings scored ~0.00 exterior —
+genuinely windowless units, which would fail acceptance rule H8 outright and are
+worth inspecting before they are treated as noise". Inspected
+(`experiments/corpus-smoke/windowless_swiss.py`, same seed and sample):
+
+The "nine" is the histogram's 0.00 **bucket**, which catches everything below
+0.125. At a literal `< 0.02` there are **three**. All three carry **zero WINDOW
+openings** on their boundary band, against a control where 88.4 % of all 569
+scored dwellings have at least one and the median is 2 in every other exposure
+band — so the 0.45 m party-gap heuristic is not mis-classifying them.
+
+But their areas settle it: **14.1 m², 14.2 m² and 10.3 m²**, holding 6, 6 and 4
+annotated rooms. Two of them place a LIVING_ROOM, KITCHEN, BEDROOM, BATHROOM and
+two CORRIDORs inside 14 m² — 2.4 m² per room. The third has six door openings, no
+windows, and a STOREROOM. These are annotation fragments, not homes.
+
+**H8 is not rejecting homes that exist.** The rider is closed and H8 stands as
+posted — the single-aspect finding above is a separate and real problem.
+
+## II.3 The shipped time limit
+
+Pooled over the whole S2 grid — 8 room counts by 5 exposures by 8 seeds, 159
+solves that produced a Plan. **`valid_at`** is wall-clock to the first Plan with
+zero coverage slack, i.e. the first Plan the independent validator accepts. It is
+the same quantity Part I's table calls "first valid Plan".
+
+| metric | p50 | p90 | p95 | max |
+|---|---|---|---|---|
+| time to first Plan | 0.39 s | 2.83 s | 3.39 s | 6.18 s |
+| **time to a VALID Plan** | **1.56 s** | **10.79 s** | **13.65 s** | **25.06 s** |
+| time to within 5 % of best | 3.35 s | 18.36 s | 23.45 s | 27.71 s |
+
+Because every row carries its full improving-solution trace, any budget below
+30 s can be answered exactly rather than extrapolated:
+
+| budget | any Plan | VALID Plan | within 5 % | share of *eventually-valid* runs caught |
+|---|---|---|---|---|
+| 3 s | 93.1 % | 57.2 % | 48.4 % | 63.6 % |
+| 5 s | 98.7 % | 62.9 % | 56.0 % | 69.9 % |
+| 7.5 s | 100.0 % | 73.0 % | 67.3 % | 81.1 % |
+| 10 s | 100.0 % | 79.9 % | 73.6 % | 88.8 % |
+| **15 s** | 100.0 % | **86.8 %** | 87.4 % | **96.5 %** |
+| 20 s | 100.0 % | 88.7 % | 92.5 % | 98.6 % |
+| 30 s | 100.0 % | 89.9 % | 100.0 % | 100.0 % |
+
+The VALID column plateaus at 89.9 % because 33 of 192 attempted solves are
+INFEASIBLE and never become valid at any budget.
+
+> ### Recommendation: **the shipped time limit is 15 s.**
+>
+> It is the **p95 of time-to-VALID** (13.65 s, rounded up to a round number) and
+> catches **96.5 %** of every run that ever reaches a valid Plan. Doubling it to
+> 30 s buys 3.1 further percentage points. Halving it to 7.5 s costs 15.4.
+>
+> Every candidate has *some* Plan by 7.5 s, so a progress indicator has something
+> real to show well before the limit.
+
+### What the system does when it expires
+
+The failure mode that matters is not "no Plan". It is **a Plan that pays coverage
+slack** — one with unassigned interior floor, which the objective reveals exactly,
+because one unit of slack costs `soft_weight` = 100 000 and the corner objective
+is O(10^2 to 10^3).
+
+> On expiry, if the best solution's objective is **at or above `soft_weight`**, the
+> candidate **has no survivor**. Discard it; do not export it and do not show it.
+
+This is arithmetic, not a re-validation pass, and it matches what *Acceptance
+validator spec* already settled for the zero-survivor case: diagnose, never show a
+failing Plan. Part I's own 24-room "boxes only, soft coverage" row — objective
+14 102 001, decoding as 141 unassigned cells — is exactly this shape, and it is
+why the rule is needed rather than assumed.
+
+## II.4 τ — the confidence margin, fitted
+
+τ (`SolveConfig.relation_confidence`) is the margin by which a Proposal's best
+separation must beat its second-best before that relation is fixed hard. Part I
+never fitted it; the toy used whatever was convenient.
+
+Its direction is as the ticket predicted — high τ fixes fewer relations and is
+slower — but the ticket's framing missed what τ is actually for. **τ is the valve
+on the only channel by which the Proposal reaches the constraint system**, so it
+is a *feasibility* knob first and a timing knob second.
+
+INFEASIBLE counts out of 4, Proposal noise σ against τ (suite S8):
+
+**n = 8**
+
+| σ | τ=0 | τ=2 | τ=4 | τ=6 | τ=10 | τ=16 |
+|---|---|---|---|---|---|---|
+| 0.50 m | 0/4 | 0/4 | 0/4 | 0/4 | 0/4 | 0/4 |
+| 1.00 m | 2/4 | 1/4 | **0/4** | 0/4 | 0/4 | 0/4 |
+| 2.00 m | 3/4 | 2/4 | 2/4 | 2/4 | 2/4 | **0/4** |
+| 4.00 m | 4/4 | 4/4 | 4/4 | 3/4 | 2/4 | 2/4 |
+| *valid, pooled* | 6/16 | 8/16 | 9/16 | 10/16 | 12/16 | **14/16** |
+| *median time to first* | 0.10 | 0.11 | 0.12 | 0.14 | 0.14 | 0.18 |
+
+**n = 24**
+
+| σ | τ=0 | τ=2 | τ=4 | τ=6 | τ=10 | τ=16 |
+|---|---|---|---|---|---|---|
+| 0.50 m | 1/4 | 1/4 | 1/4 | 0/4 | 0/4 | 0/4 |
+| 1.00 m | 4/4 | 4/4 | 2/4 | 1/4 | 1/4 | **0/4** |
+| 2.00 m | 4/4 | 4/4 | 4/4 | 4/4 | 4/4 | 2/4 |
+| *valid, pooled* | 3/16 | 3/16 | 3/16 | 3/16 | 4/16 | 7/16 |
+| *median time to first* | 3.12 | 3.50 | 3.53 | 5.42 | 7.60 | 5.34 |
+| *median time to VALID* | 10.36 | 16.16 | 14.70 | 17.87 | 21.86 | **23.98** |
+
+**The exchange rate is room-count dependent, and that is the finding.** At 8
+rooms, τ = 16 more than doubles the valid rate for **+0.08 s**. At 24 rooms the
+same move costs **+13.6 s on time-to-VALID**, which is past the 15 s limit — so at
+24 rooms high τ does not buy a survivor, it buys a timeout.
+
+> ### Recommendation: **τ = 4**, with the room-count caveat stated.
+>
+> In the 4–10-room band C13 promises, τ = 4 costs 0.02 s and removes the σ = 1.0 m
+> cliff completely (2/4 INFEASIBLE to 0/4). It is free insurance in the band the
+> product actually sells.
+>
+> Above roughly 16 rooms τ stops being free and starts trading against the time
+> limit. Anything beyond the promised band should treat τ and the limit as one
+> joint parameter, not two.
+
+### Distinct Plans per Proposal: not measured, and honestly so
+
+The ticket asks for "VALID-plans-per-Proposal against τ". Holding the Proposal
+fixed and moving only CP-SAT's own random seed (suite S7, 4 runs per cell) gives
+distinct-Plan counts of 4, 2, 2, 3, 1, 4 at n = 8 across τ = 0 to 10 — consistent
+with no trend at all, and 4 runs per cell cannot separate a trend from portfolio
+noise. **No claim is published.** The hypothesis that high τ leaves more
+arrangements alive is untested, not refuted; testing it needs solution
+enumeration under a diversity constraint, which is a different experiment.
+
+## II.5 Failure modes, and a detection feature that does not work
+
+6 seeds per cell, corpus-median exposure.
+
+| n | Proposal | result | time to detect | valid |
+|---|---|---|---|---|
+| 8 | shuffled | INFEASIBLE 6/6 | 0.009 s | — |
+| 12 | shuffled | INFEASIBLE 6/6 | 0.030 s | — |
+| 16 | shuffled | INFEASIBLE 6/6 | 0.077 s | — |
+| 24 | shuffled | INFEASIBLE 6/6 | 0.125 s (max 0.172) | — |
+| 8 | degenerate | FEASIBLE 6/6 | first Plan 0.243 s | **100 %** |
+| 12 | degenerate | FEASIBLE 6/6 | 0.542 s | **100 %** |
+| 16 | degenerate | FEASIBLE 6/6 | 1.266 s | **100 %** |
+| 24 | degenerate | FEASIBLE 6/6 | 5.046 s | **0 %** |
+
+Detection of a topologically hostile Proposal is **immediate and perfectly
+reliable** — under 0.2 s at every size, 24/24 runs. A two-phase fallback triggered
+on INFEASIBLE therefore costs nothing to arm.
+
+**But the infeasibility core is useless.** Every INFEASIBLE run in the sweep, at
+every size and from every cause, returned the identical full set:
+
+```
+('circulation', 'coverage', 'exterior', 'required_adj', 'wet_cluster')
+```
+
+`SolveConfig.diagnose` names every softenable family every time and therefore
+discriminates nothing. It should either be fixed to return a minimal core or
+dropped; as it stands it is a feature that looks like diagnosis and is not.
+
+## II.6 Hardware — the axis this machine cannot answer, and what it can
+
+**Item 5 of the ticket asks for at least one modern-CPU figure. There is no
+modern CPU here.** `platform.processor()` reports `Intel64 Family 6 Model 58`,
+which is Ivy Bridge — the same 4-core desktop every number in Part I came from.
+**This axis is unresolved and no figure is extrapolated for it.**
+
+What the machine can answer is how the portfolio uses cores, which turns out to
+be the more useful half:
+
+| n | workers | median time to first | median time to within 5 % | median objective | valid |
+|---|---|---|---|---|---|
+| 8 | 1 | 0.099 | 0.80 | 43 | 100 % |
+| 8 | 2 | 0.102 | 0.32 | 43 | 100 % |
+| 8 | 4 | 0.097 | 0.22 | 43 | 100 % |
+| 24 | 1 | 2.395 | 21.02 | **17 000 136** | **0 %** |
+| 24 | 2 | 2.386 | 16.68 | 124 | **100 %** |
+| 24 | 4 | 2.384 | 15.08 | 131 | **100 %** |
+
+**Time to the first Plan is flat — 2.395 / 2.386 / 2.384 s at 24 rooms.** Cores
+buy nothing there. What they buy is *correctness*: one worker at 24 rooms returns
+an objective of 17 000 136 — 170 units of coverage slack — and never reaches a
+valid Plan inside 30 s, while two workers reach 124 and 100 % validity.
+
+So the honest statement to put in a spec, in place of the number that could not be
+measured:
+
+> More cores do not make the first Plan arrive sooner. They make the Plan that
+> arrives correct. A faster or wider CPU should be expected to raise the share of
+> candidates that survive within a fixed time limit, not to lower the limit.
+
+**Two workers is the floor.** A single-worker deployment is not a slower product,
+it is a broken one at the top of the room range.
+
+## II.7 Drawing measurements
+
+Taken off the same solved Plans, no extra solving (`drawing_metrics.py`). The
+module reproduces `annotation.md` §14's worked example exactly — all four tier-2
+chains tick-for-tick, tier 2b empty, A3 at 1:50, annotated extent 226 by 186 mm —
+which is what licenses these numbers above five rooms.
+
+| n | plans | walls | tier 2b | witnesses/side p50 | max | narrow-tick fires p50 | max | outside-text collisions | chains close | sheet |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 8 | 28 | 7 | 2 | 4 | 6 | 6 | 7 | **0** | 28/28 | A3 1:50 |
+| 10 | 28 | 9 | 3 | 6 | 8 | 6 | 6 | **0** | 28/28 | A3 1:50 |
+| 12 | 24 | 11 | 4 | 8 | 8 | 7 | 7 | **0** | 24/24 | A2 x17, A3 x7 |
+| 16 | 31 | 14 | 5 | 10 | 10 | 10 | 10 | **0** | 31/31 | A2 1:50 |
+| 20 | 22 | 18 | 8 | 10 | 10 | 11 | 12 | **0** | 22/22 | A2 1:50 |
+| 24 | 26 | 21 | 10 | 8 | 10 | 12 | 13 | **0** | 26/26 | A2 1:50 |
+
+**1. Witnesses per side top out at 10.** A tier-2 chain never carries more than 10
+witness faces, i.e. 11 segments, anywhere up to 24 rooms. The chain does not get
+crowded, and at 24 rooms the median actually *falls* to 8 — because by then most
+partitions reach no Envelope edge at all and drop to tier 2b.
+
+**2. Tier 2b is not a fallback — it is half the drawing.** The spec introduces
+running dimensions from datum as the case for "a partition reaching no Envelope
+edge", phrased as an exception. Measured: 2 walls of 7 at n=8, and **10 of 21 at
+n=24**. Nearly half of every large plan's partitions dimension this way, which
+means the 2b rung is occupied on most sides and tier 1 sits at 34 mm rather than
+26 mm as the common case, not the rare one. `annotation.md` §4.3 should be
+reworded and the sheet arithmetic should assume 34.
+
+**3. The narrow-tick rule fires constantly and never collides.** 6 to 13 times per
+plan, exactly as predicted — every `t_int` tick is 2 mm paper against ~7 mm of
+text. But **zero consecutive outside-text collisions in 159 plans**. §5a's second
+sentence — "when two consecutive outside texts would themselves overlap, alternate
+them above and below the dimension line" — **never fires up to 24 rooms**. It is
+dead code for v1 and should be marked as such rather than built.
+
+**4. The sheet ladder's top two rungs are unreachable.** A3 up to 10 rooms, A2
+from 12, and **A1 is never reached** — so `(A1, 1:50)` and `(A1, 1:100)` are
+unused at every size v1 will ship. The honest answer to "how many rooms to reach
+A1" is: more than 24, at 9.65 m² per room. `(A1, 1:100)` in particular exists for
+a dwelling this system cannot currently generate.
+
+**5. Every chain closed.** 159 of 159 plans, all four sides, sums exact. Integer
+millimetres deliver what ADR 0001 promised.
+
+### A defect in `annotation.md` §14
+
+The worked example states the narrow-tick rule "fires four times — the four
+`t_int` ticks". Its own four chains contain **five**: South one, North two, West
+one, East one. The reproduction agrees with every other number in §14 and
+disagrees here, so §14's count is off by one.
+
+## II.8 What Part II does not establish
+
+- **No modern-CPU figure.** Item 5 is unanswered; see II.6.
+- **Grid resolution was still never swept.** Everything ran at 250 mm. Ticket 15
+  called this optional and it stayed optional; ADR 0007's alignment rule is stated
+  in terms of the grid, so a change of grid changes the standards table.
+- **Distinct Plans per Proposal is unmeasured** (II.4).
+- **Room counts below 7 are measured only through the aligned-minima fix.** Under
+  the unaligned table no 4-, 5- or 6-room Brief could be built, so the growth
+  curve in the main grid starts at 8.
+- **Percentiles are nearest-rank on 8 seeds per cell**, so a per-cell p90 and p95
+  coincide with that cell's maximum. Only the pooled figures in II.3 (n = 159)
+  carry meaningful tail percentiles; the per-cell tables should be read as median
+  plus worst-of-eight.
+- **`arc_radius` is still never benchmarked**, as in Part I.
+
+## Reproducing Part II
+
+```
+cd experiments/solver-toy
+python frontage.py                  # the H8 frontage budget, no solver involved
+python sweep.py all --limit 30      # 965 solves, serial, ~3 h on 4 cores
+python report.py                    # every table above
+python erosion_cost.py              # area does not fix the clear reading
+python grid_aligned_minima.py       # what does fix it
+python ../corpus-smoke/windowless_swiss.py
+```
+
+Rows land in `results/*.jsonl`, one JSON object per solve, carrying the full
+improving-solution trace so any time limit below 30 s can be re-derived without
+re-solving. The file is resumable: re-issuing the same command skips rows already
+present. **Run nothing else on the machine while sweeping** — an early pass was
+discarded because a watcher script started a second solver concurrently.

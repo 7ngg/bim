@@ -3,8 +3,8 @@ id: 15
 title: Solver timing variance sweep
 parent: map
 labels: [wayfinder:task]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: [1]
 ---
 
@@ -158,3 +158,164 @@ Report the curve, not a single value: solve wall-clock, INFEASIBLE rate, and
 VALID-plans-per-Proposal against τ. *Validate the arrangement metric against the
 solver* hands this ticket whatever it learns about the trade at a fixed τ; this
 ticket owns choosing it.
+
+---
+
+## Resolution
+
+**The shipped time limit is 15 s and τ is 4.** Both are fitted, not chosen.
+965 solves, serial at `workers=4`, 30 s budget, on the same 4-core Ivy Bridge
+every published number came from. Findings appended to
+`docs/research/solver-formulation.md` as **Part II**; ADR
+[0007](../adr/0007-published-minima-must-erode-onto-the-solve-grid.md); harness in
+`experiments/solver-toy/{sweep,report,frontage,drawing_metrics,erosion_cost,grid_aligned_minima}.py`,
+raw rows in `experiments/solver-toy/results/*.jsonl`.
+
+### The deliverables the ticket asked for
+
+**Time limit — 15 s, the p95 of time-to-VALID.** Pooled over the whole grid
+(8 room counts × 5 exposures × 8 seeds, 159 solves that produced a Plan):
+time-to-first p50 0.39 s / p90 2.83 s; **time-to-VALID p50 1.56 s / p90 10.79 s /
+p95 13.65 s / max 25.06 s**. Every row carries its improving-solution trace, so
+any budget below 30 s is answered exactly rather than extrapolated: 15 s gives a
+valid Plan on 86.8 % of solves and catches **96.5 % of every run that ever
+reaches one**; 30 s buys 3.1 points more, 7.5 s costs 15.4. The column plateaus at
+89.9 % because 33 of 192 solves are INFEASIBLE and never become valid at any
+budget.
+
+**On expiry** the dangerous case is not "no Plan" — it is a Plan paying coverage
+slack. One unit of slack costs `soft_weight` = 100 000 against a corner objective
+of O(10²–10³), so **objective ≥ soft_weight means no survivor: discard the
+candidate, never show it.** Arithmetic, not a re-validation pass, and consistent
+with what *Acceptance validator spec* settled for the zero-survivor case.
+
+**τ = 4.** τ is not the timing knob the ticket described. It is the **valve on the
+only channel by which the Proposal reaches the constraint system**, so it governs
+feasibility first. At 8 rooms τ=4 costs 0.02 s and removes the σ=1.0 m
+infeasibility cliff completely (2/4 → 0/4); at 24 rooms the same insurance costs
++13.6 s on time-to-VALID, past the limit. **The exchange rate is room-count
+dependent** — free in the 4–10-room band C13 promises, and a joint parameter with
+the time limit above ~16 rooms.
+
+### Four findings that change other parts of the map
+
+**1. The Proposal *can* make the model infeasible, on ordinary noise — the
+formulation doc's boxed "single most important design rule" is false as
+written.** `fix_relations=True` posts the Proposal's relations as hard
+constraints. Part I knew this for the adversarial *shuffled* Proposal and filed it
+as a caveat. Measured with plain Gaussian corner noise, τ=0:
+
+| σ | n=8 | n=12 | n=24 |
+|---|---|---|---|
+| 0.25 m | 0/5 | 0/5 | 0/5 |
+| **0.50 m — every published run** | 0/5 | **3/5** | 1/5 |
+| 1.00 m | 3/5 | 4/5 | **5/5** |
+
+INFEASIBLE counts. Nothing fails below σ = 0.25 m, so **v1 does not sit below the
+cliff — it sits on the edge of it.** And solve *time* barely
+moves across the range, so the ticket's "find where solve time turns over" has an
+answer it did not anticipate: it never turns over — **Proposal quality does not
+cost seconds, it costs feasibility outright.** Corrected in place in Part I and in
+the toy's README. The two-phase fallback C10 mandates is now load-bearing for
+ordinary operation, not just for hostile input.
+
+**2. ADR 0001's clear reading deletes 4-, 5- and 6-room dwellings unless the
+minima are grid-aligned.** The feared part was harmless: three encodings of the
+eroded-millimetre area — grid units, a second `AddMultiplicationEquality` at 10⁸,
+and an affine expansion — are **indistinguishable in time** (24 rooms: 3.00 /
+2.87 / 2.71 s median), so **H4 survives**. The affine identity
+`(gw−t)(gh−t) = g²wh − gt(w+h) + t²` means ADR 0001 needs no second
+multiplication at all. What bit instead is arithmetic: `250w − t ≥ min_w` forces
+`w ≥ min_w + 1` whenever `min_w` is a multiple of the grid, costing 250 mm per
+room per axis to pay for a 100 mm wall. Exact tiling then becomes **provably**
+impossible at 4–6 rooms, and **more area does not fix it** (swept to +40 %,
+non-monotone, 4 rooms never recovers). Grid-aligned minima restore the
+pre-ADR-0001 baseline exactly. **ADR 0007**, and it constrains *Ergonomic minima*
+and *The Azerbaijani region profile*, which own the numbers.
+
+**3. Exposure is not a timing axis — the ticket's central expectation is
+refuted.** H8 was expected to become binding at low exposure. Every preset's
+median time-to-first sits inside every other preset's seed spread at every room
+count (24 rooms: detached 2.72, terrace_mid 2.09, flat_corner 2.94,
+corpus_median 2.94 s). A smaller face set makes H8 a *smaller* disjunction, not a
+tighter search. Two of ADR 0003's four presets also sit **above the corpus p95**,
+so a fifth, `corpus_median`, was fitted to the measured 0.37.
+
+What exposure does instead is fail earlier: **`flat_single_aspect` is
+arithmetically dead from 7 rooms**, with no solver involved. Habitable rooms
+occupy disjoint stretches of exterior wall, so `Σ min(min_w, min_h) ≤ exterior
+run` is necessary; at 7 rooms it is 10 500 mm needed against 9 500 available, and
+at 24 rooms it fails by 10 250 mm. Single-aspect flats are the corpus **p25**.
+Ticketed as *H8 and the single-aspect flat*.
+
+**4. More cores do not make the first Plan arrive sooner — they make the Plan
+that arrives correct.** Time-to-first is flat across 1/2/4 workers (24 rooms:
+2.395 / 2.386 / 2.384 s). One worker at 24 rooms returns objective 17 000 136 —
+170 units of slack — and **0 % validity**; two workers reach 124 and **100 %**.
+**Two workers is a floor, not a preference.** This is offered in place of item 5's
+modern-CPU figure, which **could not be measured**: `platform.processor()` reports
+`Intel64 Family 6 Model 58`, Ivy Bridge — this *is* the original machine. That
+axis is unresolved and nothing was extrapolated for it.
+
+### Drawing measurements, and three spec corrections
+
+`drawing_metrics.py` reproduces `annotation.md` §14's worked example exactly —
+four chains tick-for-tick, A3 1:50, extent 226 × 186 — which is what licenses
+these numbers above five rooms.
+
+- **Witnesses per side top out at 10** (11 segments) anywhere up to 24 rooms. The
+  chain does not get crowded; at 24 rooms the median *falls* to 8, because most
+  partitions no longer reach a side.
+- **Tier 2b is not a fallback — it is half the drawing.** 2 walls of 7 at n=8,
+  **10 of 21 at n=24**. So tier 1 sits at the 34 mm rung by default, not 26.
+  `annotation.md` §4.3 corrected.
+- **The narrow-tick rule fires 6–13 times per plan and never collides** — zero
+  consecutive-outside-text collisions in 159 plans. §5a's above/below alternation
+  is unreachable at v1 sizes; marked do-not-build.
+- **The sheet ladder's top two rungs are unreachable.** A3 to 10 rooms, A2 from
+  12, **A1 never**. `(A1, 1:100)` exists for a dwelling this engine cannot
+  generate. §9 corrected.
+- **Every chain closed, 159 of 159**, all four sides, sums exact.
+- **§14 undercounts its own narrow-tick rule**: it says four, its four chains
+  contain five. Corrected.
+
+### Two riders closed
+
+**The nine windowless Swiss dwellings are corpus noise, and H8 stands.** The
+"nine" is the histogram's 0.00 bucket (everything below 0.125); at a literal
+< 0.02 there are **three**. All three carry zero WINDOW openings against a control
+where 88.4 % of 569 dwellings have ≥1 — so the party-gap heuristic is not
+mis-classifying them — but their areas are **14.1, 14.2 and 10.3 m²** holding 6, 6
+and 4 annotated rooms. A LIVING_ROOM, KITCHEN, BEDROOM, BATHROOM and two CORRIDORs
+in 14 m² is an annotation fragment, not a home. **H8 is not rejecting homes that
+exist**; the single-aspect finding above is the real problem and is separate.
+
+**The infeasibility core does not work.** Every INFEASIBLE run in the sweep, at
+every size and from every cause, returned the identical full set
+`('circulation', 'coverage', 'exterior', 'required_adj', 'wet_cluster')`.
+`SolveConfig.diagnose` discriminates nothing and should be fixed to return a
+minimal core or dropped — as it stands it is a feature that looks like diagnosis.
+
+### A harness defect that invalidated a first pass
+
+The ground-truth generator enforced the published reading while the solver
+enforced ADR 0001's clear one, so **the ground truth stopped being a witness** and
+the harness's central guarantee — *a failure to solve is a fact about the
+projection problem, not about an accidentally impossible Brief* — silently stopped
+holding. At n=4 the truth's kitchen was 7 grid units wide where the clear reading
+needs 8. `scenarios.fits_kind(rect, kind, clear_t)` now takes the reading as a
+parameter. Every table published here is post-fix; the pre-fix pass was discarded,
+as was an earlier one in which a watcher script started a second solver
+concurrently and corrupted the timings. Rows now carry start timestamps so
+contention is detectable rather than invisible.
+
+### What this ticket did not settle
+
+- **No modern-CPU figure** (item 5). Unresolved, not estimated.
+- **Grid resolution still never swept.** ADR 0007's arithmetic is stated in terms
+  of the grid, so changing it restates the standards table.
+- **Distinct valid Plans per Proposal against τ is unmeasured.** 4 runs per cell
+  cannot separate a trend from portfolio noise, so no claim is published; the
+  hypothesis is untested rather than refuted.
+- **Per-cell percentiles are nearest-rank on 8 seeds**, so a cell's p90/p95
+  coincide with its maximum. Only the pooled figures carry real tails.

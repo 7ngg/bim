@@ -1,0 +1,18 @@
+floors sampled: 150 (same seed and count as the exposure run)
+dwellings scored: 569
+at ~0.00 exterior (< 0.02): 3
+
+  ext rooms  area m2  wins doors  subtypes
+0.000     6     14.1     0     0  CORRIDORx2, LIVING_ROOMx1, BATHROOMx1, BEDROOMx1, KITCHENx1
+0.000     6     14.2     0     0  CORRIDORx2, KITCHENx1, BEDROOMx1, LIVING_ROOMx1, BATHROOMx1
+0.000     4     10.3     0     6  BATHROOMx1, ROOMx1, CORRIDORx1, STOREROOMx1
+
+of the 3: 3 carry no WINDOW opening on the boundary band, 0 do.
+
+control over all 569 scored dwellings:
+  with >=1 boundary window: 503 (88.4%)
+  ext 0.00-0.02: n=   3 median windows  0.0 median rooms  6.0
+  ext 0.02-0.15: n=  16 median windows  2.0 median rooms  7.0
+  ext 0.15-0.30: n= 194 median windows  2.0 median rooms  6.0
+  ext 0.30-0.45: n= 149 median windows  2.0 median rooms  7.0
+  ext 0.45-1.01: n= 207 median windows  2.0 median rooms  7.0

@@ -65,7 +65,36 @@ class SolveConfig:
     fix_relations: bool = False
     # Fix only relations the Proposal is confident about: separation cost, in
     # grid units, below which a relation is considered too ambiguous to fix.
+    # This is tau. See ticket 15 and docs/spec/proposer.md 5.
     relation_confidence: int = 0
+
+    # -- ADR 0001: the solver tiles a *solve domain* and a room's published
+    # -- clear rect is erode(solved rect, t_int/2). H4/H5 therefore bind on
+    # -- eroded dimensions in integer millimetres, not on grid units.
+    #
+    #   grid       H4/H5 on grid units, products ~10^4.   The published rig.
+    #   mm_direct  H4/H5 on eroded millimetres via a second
+    #              AddMultiplicationEquality, operands ~10^4, products ~10^8.
+    #              This is the form ticket 15 flagged against H4.
+    #   mm_affine  the same feasible set, but the eroded area is expanded
+    #              algebraically and stays *linear* in the grid-unit product:
+    #                  a_mm = 62500*a_grid - 250*t*(w + h) + t^2
+    #              so no second multiplication is created.
+    area_units: str = "grid"
+    t_int_mm: int = 100
+    # True  — H4/H5 bind on the *clear* rect, which is what ADR 0001 means by a
+    #         published minimum. Strictly tighter: at a 250 mm grid and t_int
+    #         100, a clear width of 250w - 100 >= min_w costs one whole grid
+    #         unit on every room dimension.
+    # False — H4/H5 bind on the solved grid rect, the reading every published
+    #         run used. Same feasible set as the `grid` rig, so pairing it with
+    #         an mm rig isolates the numeric cost from the tightening cost.
+    erode_minima: bool = True
+    # Restate each published minimum 100 mm lower, so `clear = 250w - t_int`
+    # meets it at the same grid bound the published reading needed. H4 still
+    # binds on the clear rect and H5 still measures clear proportions; what
+    # changes is only which millimetre number the standards table prints.
+    minima_are_clear_grid: bool = False
 
 
 @dataclass
@@ -148,16 +177,7 @@ class LayoutProjector:
         m.AddNoOverlap2D(xiv, yiv)
 
         # H4/H5 — dimensions, area, aspect.
-        self.area = []
-        for i, spec in enumerate(b.rooms):
-            m.Add(self.w[i] >= spec.min_w)
-            m.Add(self.h[i] >= spec.min_h)
-            a = m.NewIntVar(spec.min_area, W * H, f"a_{i}")
-            m.AddMultiplicationEquality(a, [self.w[i], self.h[i]])
-            self.area.append(a)
-            k = b.max_aspect
-            m.Add(self.w[i] <= k * self.h[i])
-            m.Add(self.h[i] <= k * self.w[i])
+        self._add_dimensions()
 
         # H3 — exact tiling. With H1 and H2 already in force, every room is
         # inside the interior and no two overlap, so total room area equal to
@@ -166,6 +186,7 @@ class LayoutProjector:
         self._add_coverage()
 
         self.fixed_relations = 0
+        self.candidate_relations = self.n * (self.n - 1) // 2
         if self.cfg.fix_relations:
             self._add_relations()
 
@@ -179,6 +200,79 @@ class LayoutProjector:
         self._hint()
 
         self.build_time = time.perf_counter() - t0
+
+    # -- H4/H5 --------------------------------------------------------------
+    def _add_dimensions(self):
+        """Minimum width, height, area and aspect, in the configured units.
+
+        `self.area` is always in *grid cells*, because H3 tiles the solve
+        domain and coverage is a grid-unit quantity under ADR 0001. The mm rigs
+        add the eroded clear dimensions on top of it.
+        """
+        m, b = self.m, self.brief
+        W, H = self.env.W, self.env.H
+        g, t = 250, self.cfg.t_int_mm
+        units = self.cfg.area_units
+        self.area = []
+        self.area_mm2 = []
+        self.mults = 0
+
+        for i, spec in enumerate(b.rooms):
+            a = m.NewIntVar(0, W * H, f"a_{i}")
+            m.AddMultiplicationEquality(a, [self.w[i], self.h[i]])
+            self.mults += 1
+            self.area.append(a)
+            k = b.max_aspect
+
+            if units == "grid":
+                m.Add(self.w[i] >= spec.min_w)
+                m.Add(self.h[i] >= spec.min_h)
+                m.Add(a >= spec.min_area)
+                m.Add(self.w[i] <= k * self.h[i])
+                m.Add(self.h[i] <= k * self.w[i])
+                continue
+
+            # Clear dimensions, integer millimetres: clear = solved - t_int.
+            cw = m.NewIntVar(1, W * g, f"cw_{i}")
+            ch = m.NewIntVar(1, H * g, f"ch_{i}")
+            m.Add(cw == self.w[i] * g - t)
+            m.Add(ch == self.h[i] * g - t)
+
+            amm = m.NewIntVar(0, W * g * H * g, f"amm_{i}")
+            if units == "mm_direct":
+                m.AddMultiplicationEquality(amm, [cw, ch])
+                self.mults += 1
+            elif units == "mm_affine":
+                # (g*w - t)(g*h - t) = g^2*wh - g*t*(w + h) + t^2, so the eroded
+                # area is *affine* in the grid-unit product and needs no second
+                # multiplication at all. Same variable, same value, no 10^8
+                # operands entering AddMultiplicationEquality.
+                m.Add(amm == g * g * a - g * t * (self.w[i] + self.h[i]) + t * t)
+            else:
+                raise ValueError(f"unknown area_units {units!r}")
+            self.area_mm2.append(amm)
+
+            if self.cfg.erode_minima and self.cfg.minima_are_clear_grid:
+                m.Add(cw >= spec.min_w * g - t)
+                m.Add(ch >= spec.min_h * g - t)
+                m.Add(a >= spec.min_area)
+                m.Add(cw <= k * ch)
+                m.Add(ch <= k * cw)
+            elif self.cfg.erode_minima:
+                m.Add(cw >= spec.min_w * g)
+                m.Add(ch >= spec.min_h * g)
+                m.Add(amm >= spec.min_area * g * g)
+                m.Add(cw <= k * ch)
+                m.Add(ch <= k * cw)
+            else:
+                # The published reading: minima bind on the solved rect. Same
+                # feasible set as the `grid` rig, so the only difference left is
+                # how the area is encoded.
+                m.Add(self.w[i] >= spec.min_w)
+                m.Add(self.h[i] >= spec.min_h)
+                m.Add(a >= spec.min_area)
+                m.Add(self.w[i] <= k * self.h[i])
+                m.Add(self.h[i] <= k * self.w[i])
 
     # -- H3 ----------------------------------------------------------------
     def _add_coverage(self):
@@ -588,6 +682,11 @@ class LayoutProjector:
             "constraints": len(proto.constraints),
             "pairs": len(self.pairs),
             "fixed_relations": self.fixed_relations,
+            "multiplications": self.mults,
+            "cov_slack": (0 if self.cov_slack is None
+                          else int(s.Value(self.cov_slack))
+                          if status in (cp_model.OPTIMAL, cp_model.FEASIBLE) else -1),
+            "candidate_relations": self.candidate_relations,
         }
         name = s.StatusName(status)
         res = SolveResult(

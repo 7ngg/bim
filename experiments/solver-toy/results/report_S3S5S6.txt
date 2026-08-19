@@ -1,0 +1,99 @@
+
+==============================================================================
+Measurement host(s)
+==============================================================================
+  {'cpu': 'Intel64 Family 6 Model 58 Stepping 9, GenuineIntel', 'cores': 4, 'python': '3.12.10', 'workers': 4, 'machine': 'DESKTOP-25OJ4QH'}
+
+==============================================================================
+S3 — Proposal quality: solve time against corner noise sigma
+==============================================================================
+  n  sigma_m seeds solved first p50     p90     max   obj p50 fixed rel  valid  status
+  8     0.00     5      5     0.074   0.104   0.104   1000007      28.0    40%  OPTIMAL=5
+  8     0.25     5      5     0.073   0.102   0.102   1000016      28.0    40%  OPTIMAL=5
+  8     0.50     5      5     0.075   0.105   0.105   1000036      28.0    40%  OPTIMAL=5
+  8     1.00     5      2     0.079   0.084   0.084   1000076      28.0     0%  INFEASIBLE=3 OPTIMAL=2
+  8     2.00     5      1     0.094   0.094   0.094       147      28.0   100%  INFEASIBLE=4 OPTIMAL=1
+  8     4.00     5      0                                          28.0    -    INFEASIBLE=5
+
+ 12     0.00     5      3     0.273   0.367   0.367         6      66.0   100%  INFEASIBLE=2 OPTIMAL=3
+ 12     0.25     5      3     0.257   0.592   0.592        40      66.0   100%  FEASIBLE=1 INFEASIBLE=2 OPTIMAL=2
+ 12     0.50     5      3     0.371   0.401   0.401        75      66.0    67%  FEASIBLE=3 INFEASIBLE=2
+ 12     1.00     5      2     0.243   0.344   0.344       142      66.0    50%  FEASIBLE=1 INFEASIBLE=3 OPTIMAL=1
+ 12     2.00     5      0                                          66.0    -    INFEASIBLE=5
+ 12     4.00     5      0                                          66.0    -    INFEASIBLE=5
+
+ 24     0.00     5      5     2.454   3.361   3.361         3     276.0   100%  OPTIMAL=5
+ 24     0.25     5      5     2.503   5.363   5.363        63     276.0   100%  FEASIBLE=5
+ 24     0.50     5      4     2.015   3.973   3.973       133     276.0   100%  FEASIBLE=4 INFEASIBLE=1
+ 24     1.00     5      0                                         276.0    -    INFEASIBLE=5
+ 24     2.00     5      0                                         276.0    -    INFEASIBLE=5
+ 24     4.00     5      0                                         276.0    -    INFEASIBLE=5
+
+
+==============================================================================
+S5 — the two known failure modes, and how fast detection fires
+==============================================================================
+  n     proposal seeds first p50     p90 detect p50     max  valid  status
+  6   degenerate     6                                         -    NO_BRIEF=6
+  6     shuffled     6                                         -    NO_BRIEF=6
+  8   degenerate     6     0.201   0.204                      100%  FEASIBLE=6
+  8     shuffled     6                        0.009   0.009    -    INFEASIBLE=6
+ 12   degenerate     6     0.673   0.877                      100%  FEASIBLE=6
+ 12     shuffled     6                        0.036   0.039    -    INFEASIBLE=6
+ 16   degenerate     6     1.730   3.046                      100%  FEASIBLE=6
+ 16     shuffled     6                        0.068   0.071    -    INFEASIBLE=6
+ 24   degenerate     6     8.201  20.154                       17%  FEASIBLE=6
+ 24     shuffled     6                        0.141   0.175    -    INFEASIBLE=6
+
+infeasibility cores seen:
+  ('circulation', 'coverage', 'exterior', 'required_adj', 'wet_cluster')
+
+==============================================================================
+S6 — worker scaling. The honest half of the hardware axis.
+==============================================================================
+No modern CPU was available; this is the same 4-core Ivy Bridge.
+What can be measured is how the portfolio uses cores.
+
+  n workers seeds first p50     p90  w5 p50   obj p50  valid  status
+  8       1     5     0.086   0.135    0.89   1000036    40%  OPTIMAL=5
+  8       2     5     0.088   0.124    0.21   1000036    40%  OPTIMAL=5
+  8       4     5     0.081   0.110    0.18   1000036    40%  OPTIMAL=5
+
+ 12       1     5     0.384   0.414    8.79    600074    33%  FEASIBLE=3 INFEASIBLE=2
+ 12       2     5     0.385   0.398    3.25        75    67%  FEASIBLE=3 INFEASIBLE=2
+ 12       4     5     0.362   0.370    4.75        75    67%  FEASIBLE=3 INFEASIBLE=2
+
+ 24       1     5     1.945   3.437   19.26  15600135     0%  FEASIBLE=4 INFEASIBLE=1
+ 24       2     5     1.985   3.598   14.24       133    75%  FEASIBLE=4 INFEASIBLE=1
+ 24       4     5     2.017   4.217   17.65       133    75%  FEASIBLE=4 INFEASIBLE=1
+
+
+==============================================================================
+Plans the solver returned and validate.check rejected — 154
+==============================================================================
+    53  H3 10 interior cells unassigned
+    29  H3 8 interior cells unassigned
+    13  H3 6 interior cells unassigned
+    11  H3 1 interior cells unassigned
+     5  H3 14 interior cells unassigned
+     5  H3 3 interior cells unassigned
+     3  H3 5 interior cells unassigned
+     3  H3 12 interior cells unassigned
+     3  H3 9 interior cells unassigned
+     3  H3 7 interior cells unassigned
+     2  H3 2 interior cells unassigned
+     2  H3 24 interior cells unassigned
+
+  by (suite, n, proposal):
+    37  ('S2', 4, 'noisy')
+    21  ('S4', 8, 'noisy')
+    12  ('S2', 16, 'noisy')
+    11  ('S3', 8, 'noisy')
+     9  ('S2', 20, 'noisy')
+     9  ('S6', 8, 'noisy')
+     7  ('S1', 24, 'noisy')
+     6  ('S2', 8, 'noisy')
+     6  ('S6', 24, 'noisy')
+     5  ('S2', 6, 'noisy')
+     5  ('S4', 24, 'noisy')
+     5  ('S5', 24, 'degenerate')

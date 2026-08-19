@@ -45,11 +45,12 @@ dimension in this system has to declare):
 | C3 | Hard output floor: **dimensioned 2D vector plan** — walls with thickness, doors, windows, room tags, dimension strings — to DXF/PDF. IFC/BIM is the stated export path. |
 | C4 | Input is **prompt → LLM-parsed structured brief**, with gaps filled from standards and every assumption surfaced to the user. The brief stays editable; it is the real interface. |
 | C5 | **Single-dwelling residential, single storey.** Flats and houses — *confirmed, and both ship through one code path*: dwelling type is a preset over the Envelope's edge ring, not a branch. Product copy states two limits, not one: **single storey only**, and **house layouts come from apartment priors** because every corpus is flats. See *Building scope and envelope handling*. |
-| C6 | Acceptance bar (7 items) is a **hard filter**: generate many, reject most, show survivors. See *Acceptance validator spec*. |
+| C6 | Acceptance bar (7 items) is a **hard filter**: generate many, reject most, show survivors. See *Acceptance validator spec*. **On solver expiry**, a candidate whose best objective is ≥ `soft_weight` has unassigned floor and is **not a survivor** — discard it, never show it (*Solver timing variance sweep*). |
 | C7 | Post-generation, v1 is **edit-the-brief-and-regenerate**. Direct wall manipulation with re-solve is designed-for but deferred. |
+| C15 | **The standards table carries two arithmetic constraints.** ADR 0004: every wall thickness even. ADR 0007: every published minimum satisfies `min + t_int ≡ 0 (mod grid)`, because ADR 0001's clear reading otherwise costs a whole grid unit per room per axis and **provably deletes 4-, 5- and 6-room dwellings**. Both are ship gates on a region profile. |
 | C8 | **Neufert-grade dimensional standards. No legal code-compliance claim, ever.** Say so in the product copy. *Neufert now names the grade, not the source* — *Which region profiles ship in v1* found that building a profile out of it is the one copyright move the research forbids, and the shipping profile draws on freely-published regulatory text instead. |
 | C9 | **Non-commercial project.** Research-only datasets and weights are available. Licence is not a gate; data quality and regional convention are. |
-| C10 | **Model proposes, solver projects** — *amended, and the amendment is load-bearing.* The Proposal must carry **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints), and exact tiling must be posted **soft, not hard**. The loose form — hand the solver boxes and let it project them — is **refuted by measurement**: it finds nothing at 24 rooms in 30 s. Amended, 6.25 s. A **two-phase fallback for infeasible Proposals is mandatory**. See *Solver formulation for layout projection*. **And "the model" is two things**: v1's Proposer has two sources — retrieval-and-warp and a trained transformer — behind one Proposal contract, with the Acceptance bar arbitrating. The split it names is proposal-versus-projection, not one generator versus another. See *What the model proposes, and how it is trained* and ADR 0005. |
+| C10 | **Model proposes, solver projects** — *amended, and the amendment is load-bearing.* The Proposal must carry **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints), and exact tiling must be posted **soft, not hard**. The loose form — hand the solver boxes and let it project them — is **refuted by measurement**: it finds nothing at 24 rooms in 30 s. Amended, 6.25 s. A **two-phase fallback for infeasible Proposals is mandatory** — and *Solver timing variance sweep* moved this from prudence to operational necessity: `fix_relations` posts the Proposal's relations as **hard constraints**, so a merely **noisy** Proposal goes INFEASIBLE (5 of 5 seeds at 24 rooms at σ = 1.0 m, against σ = 0.5 m in every published run). The formulation doc's boxed claim that the Proposal *cannot* make the model infeasible is **false as written**. Shipped parameters: **time limit 15 s, τ = 4**. See *Solver formulation for layout projection*. **And "the model" is two things**: v1's Proposer has two sources — retrieval-and-warp and a trained transformer — behind one Proposal contract, with the Acceptance bar arbitrating. The split it names is proposal-versus-projection, not one generator versus another. See *What the model proposes, and how it is trained* and ADR 0005. |
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region. Combine corpora where it can be made to work. *Amended: that was freedom, not a requirement to serve everywhere.* v1 ships **exactly one** region profile and it is **`AZ`**; `UK` is retained as a test fixture and is never selectable. See C14. |
 | C13 | **v1's Proposer serves 4–10 Brief-named rooms.** 92% of the corpus. Set by *What the model proposes*, which measured retrieval dying at 11+ (67.7% blank). What the *product* promises is *The room-count envelope v1 promises*; this is what the Proposer covers. |
@@ -331,6 +332,49 @@ dimension in this system has to declare):
   has no ceiling height and no balcony, so the deductions that make the
   conventions diverge cannot fire.
 
+- [Solver timing variance sweep](tickets/15-solver-timing-variance-sweep.md) —
+  **15 s and τ = 4, both fitted; and four of the map's own claims move.** 965
+  serial solves on the machine every published number came from; findings are
+  `docs/research/solver-formulation.md` **Part II**, ADR
+  [0007](../adr/0007-published-minima-must-erode-onto-the-solve-grid.md),
+  harness in `experiments/solver-toy/`. The limit is the **p95 of time-to-VALID**
+  (13.65 s) and catches **96.5%** of runs that ever reach a valid Plan; 30 s buys
+  3.1 points more. On expiry, **objective ≥ `soft_weight` means no survivor** —
+  discard, never show, which is arithmetic rather than a re-validation pass. What
+  bites hardest: **the Proposal *can* make the model infeasible on ordinary
+  noise**, so *Solver formulation*'s boxed "single most important design rule" is
+  **false as written** — `fix_relations` posts relations as hard constraints, and
+  at **σ = 1.0 m of corner noise 5 of 5 seeds are INFEASIBLE at 24 rooms**, and at
+  the σ = 0.5 m every published run used, 3 of 5 already fail at 12 rooms.
+  **v1 sits on the edge of the cliff, not below it**, and
+  Proposal quality costs *feasibility*, not seconds — solve time barely moves at
+  all, so the ticket's "where does time turn over" never turns over. τ is the
+  valve on that one channel, which is why it is a feasibility knob first, free at
+  8 rooms and unaffordable at 24. **ADR 0001's cost was misidentified**: the
+  feared 10⁸ products are harmless (three encodings indistinguishable; the eroded
+  area is *affine* in the grid product, so no second multiplication is needed) but
+  `250w − t ≥ min_w` costs one whole grid unit per room per axis and **provably
+  deletes 4-, 5- and 6-room dwellings** — the bottom half of C13's band — with
+  more area not fixing it. ADR 0007 makes the erosion free. **Exposure is not a
+  timing axis at all** — the ticket's central expectation, refuted; every preset
+  sits inside every other's seed spread — but `flat_single_aspect` is
+  **arithmetically dead from 7 rooms**, and it is the corpus p25, ticketed as
+  *H8 and the single-aspect flat*. Two of ADR 0003's four presets sit above the
+  corpus p95, so a fitted `corpus_median` was added. **Cores buy correctness, not
+  latency** (24 rooms: time-to-first flat at 2.39 s across 1/2/4 workers, but one
+  worker is 0% valid and two are 100%) — **two workers is a floor**, offered in
+  place of the modern-CPU figure that **could not be measured**, because this
+  machine *is* the original Ivy Bridge. Drawing: chains never exceed **10
+  witnesses a side**, the narrow-tick rule fires 6–13 times a plan with **zero
+  collisions ever** (so §5a's alternation is do-not-build), **A1 is never
+  reached**, all 159 chains closed — and **tier 2b is half the drawing, not a
+  fallback** (10 of 21 walls at 24 rooms), so tier 1 sits at 34 mm by default.
+  Corrects `annotation.md` in four places including §14's own narrow-tick count.
+  Closes the windowless-dwelling rider: the three units below 0.02 exterior hold
+  6 rooms in 14.1 m² and are annotation fragments, so **H8 is not rejecting homes
+  that exist**. Also: **the infeasibility core discriminates nothing** — every
+  INFEASIBLE run at every size returned the identical five-family set.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -460,6 +504,29 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   ticket fits acceptance thresholds, this is about whether the geometry itself is
   plausible. Sharpens once *The Azerbaijani region profile* names actual values to
   test.
+
+- **The Proposal-quality floor, and how often the fallback fires.** New, and it is
+  the fog patch the sweep created. *Solver timing variance sweep* found the
+  recommended configuration goes INFEASIBLE between **σ 0.5 and 1.0 m** of
+  per-corner Proposal noise, and that τ buys the margin back cheaply at 8 rooms and
+  not at 24. What stays fog is the number that matters commercially: **how often a
+  real Proposer lands past the cliff**, which decides whether the two-phase
+  fallback is a rare safety net or a routine second solve — and therefore how many
+  candidates must be launched to get a survivor. Neither source has been measured
+  against the solver: retrieval-and-warp's admissibility gate is stated in area and
+  aspect, not in the corner noise this cliff is measured in, and the trained model
+  has no measured noise figure at all. Sharpens the moment *The retrieval index and
+  warp procedure* produces real warped Proposals, and it feeds the economics
+  question under *Variant generation and ranking* directly.
+
+- **Whether the solve grid should be finer than 250 mm.** Long deferred as
+  "optional curiosity"; ADR 0007 gives it a price. The clear-reading rounding loss
+  is exactly `grid − t_int` per room per axis, so a 125 mm grid halves it and a
+  50 mm grid removes it, and the standards table would then be free of the
+  congruence rule. Nobody has measured what a finer grid costs the solve — the
+  variance sweep ran entirely at 250 mm — so the trade is one measured cost against
+  one unmeasured one. It also collides with a profile offering **two** internal
+  thicknesses, which ADR 0007 shows has no common solution at 250 mm.
 
 ## Out of scope
 

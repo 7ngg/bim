@@ -102,9 +102,30 @@ FILLER = ("bedroom", "bathroom", "study", "wc", "dining", "corridor",
           "bedroom", "study", "wc", "dining", "bedroom", "utility")
 
 
+# Ticket 15 axis 3 sweeps room counts across the whole range, and C13 fixes the
+# v1 band at 4-10. The mandatory six below 6 rooms is not a fact about homes: a
+# studio is 4 rooms and a one-bed 5, and both are ordinary in Swiss Dwellings.
+# The *bounds* fall with the mix (see `comp_bounds`) so the constraint system
+# stays the same shape rather than becoming infeasible by table lookup.
+SMALL_BASE = {
+    4: ["hall", "living", "kitchen", "bathroom"],                # studio
+    5: ["hall", "living", "kitchen", "bathroom", "bedroom"],     # one-bed
+}
+
+
+def comp_bounds(mix: Sequence[str]) -> Dict[str, Tuple[int, Optional[int]]]:
+    """COMPOSITION with every minimum clamped to what `mix` actually contains."""
+    out = {}
+    for k, (lo, hi) in COMPOSITION.items():
+        out[k] = (min(lo, mix.count(k)), hi)
+    return out
+
+
 def composition(n: int) -> List[str]:
     """A plausible room mix of size `n` satisfying COMPOSITION."""
     base = ["hall", "living", "kitchen", "bathroom", "bedroom", "bedroom"]
+    if n in SMALL_BASE:
+        return list(SMALL_BASE[n])
     if n < len(base):
         raise ValueError(f"{n} rooms cannot satisfy the composition rules")
     out = list(base)
@@ -282,8 +303,40 @@ def ground_truth(env: Envelope, kinds: Sequence[str], rng: random.Random) -> Lis
 # ---------------------------------------------------------------------------
 
 
+# Tunable so a sweep over hundreds of scenarios cannot spend 40 x 30 s failing
+# to type a single hostile one. Defaults reproduce the published behaviour.
+ASSIGN_TIME_LIMIT_S = 30.0
+ASSIGN_WORKERS = 8
+BRIEF_ATTEMPTS = 40
+
+
+def fits_kind(r: Rect, kind: str, clear_t: int = 0) -> bool:
+    """Does a *solved* rect satisfy a kind's published minima?
+
+    `clear_t` is the internal wall thickness in millimetres. At 0 the minima
+    bind on the solved rect, which is the reading every published run used. At
+    100 they bind on the clear rect — `erode(solved, t/2)` — which is what
+    ADR 0001 means by a published minimum, and which costs one whole grid unit
+    on every dimension because 250w - 100 >= 250*min_w forces w >= min_w + 1.
+
+    Ticket 15: without this the ground truth stops being a witness under the
+    clear reading, and the harness's central guarantee — that a failure to solve
+    is a fact about the projection problem, not about an impossible Brief —
+    silently stops holding.
+    """
+    mw, mh, ma = STANDARDS[kind]
+    if clear_t <= 0:
+        return r.w >= mw and r.h >= mh and r.area >= ma
+    cw = r.w * GRID_MM - clear_t
+    ch = r.h * GRID_MM - clear_t
+    return (cw >= mw * GRID_MM and ch >= mh * GRID_MM
+            and cw * ch >= ma * GRID_MM * GRID_MM)
+
+
 def assign_kinds(
-    truth: Sequence[Rect], env: Envelope, door_min: int, window_min: int, seed: int
+    truth: Sequence[Rect], env: Envelope, door_min: int, window_min: int, seed: int,
+    comp: Optional[Dict[str, Tuple[int, Optional[int]]]] = None,
+    clear_t: int = 0,
 ) -> Optional[List[str]]:
     n = len(truth)
     adj = adjacency_matrix(truth, door_min)
@@ -296,13 +349,12 @@ def assign_kinds(
     for i in range(n):
         m.AddExactlyOne(z[i])
         for k in ALL_KINDS:
-            mw, mh, ma = STANDARDS[k]
-            if truth[i].w < mw or truth[i].h < mh or truth[i].area < ma:
+            if not fits_kind(truth[i], k, clear_t):
                 m.Add(z[i][k_of[k]] == 0)          # room too small for this type
             if k in HABITABLE and not ext[i]:
                 m.Add(z[i][k_of[k]] == 0)          # habitable needs a window
 
-    for k, (lo, hi) in COMPOSITION.items():
+    for k, (lo, hi) in (comp or COMPOSITION).items():
         col = [z[i][k_of[k]] for i in range(n)]
         m.Add(sum(col) >= lo)
         if hi is not None:
@@ -363,8 +415,8 @@ def assign_kinds(
     m.Maximize(sum(truth[i].area * z[i][k_of["living"]] for i in range(n)))
 
     s = cp_model.CpSolver()
-    s.parameters.max_time_in_seconds = 30.0
-    s.parameters.num_workers = 8
+    s.parameters.max_time_in_seconds = ASSIGN_TIME_LIMIT_S
+    s.parameters.num_workers = ASSIGN_WORKERS
     s.parameters.random_seed = seed
     st = s.Solve(m)
     if st not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
@@ -386,17 +438,19 @@ def make_brief(
     window_min: int,
     required_frac: float = 0.30,
     forbidden_frac: float = 0.10,
+    clear_t: int = 0,
 ) -> Tuple[Brief, List[Rect], List[str]]:
     mix = composition(n_rooms)
     last = None
-    for attempt in range(40):
+    for attempt in range(BRIEF_ATTEMPTS):
         rng = random.Random(seed + attempt)
         try:
             truth = ground_truth(env, mix, rng)
         except ValueError as e:
             last = e
             continue
-        kinds = assign_kinds(truth, env, door_min, window_min, seed + attempt)
+        kinds = assign_kinds(truth, env, door_min, window_min, seed + attempt,
+                             comp_bounds(mix), clear_t)
         if kinds is None:
             last = "no valid room-type assignment"
             continue
@@ -407,6 +461,7 @@ def make_brief(
         adj_door = adjacency_matrix(truth, door_min)
         adj_any = adjacency_matrix(truth, 1)
         entry = kinds.index("hall")
+
 
         true_pairs = [(i, j) for i in range(n_rooms) for j in range(i + 1, n_rooms)
                       if adj_door[i][j]]
@@ -426,7 +481,8 @@ def make_brief(
             truth,
             kinds,
         )
-    raise RuntimeError(f"{name}: no feasible Brief after 40 attempts ({last})")
+    raise RuntimeError(
+        f"{name}: no feasible Brief after {BRIEF_ATTEMPTS} attempts ({last})")
 
 
 # ---------------------------------------------------------------------------
@@ -487,28 +543,86 @@ DOOR_MIN = mm(0.75)     # a shared wall shorter than this is not a door
 WINDOW_MIN = mm(1.00)   # exterior wall run a habitable room needs
 
 
-def envelope_for(n_rooms: int) -> Envelope:
-    if n_rooms == 8:
-        notches, parts = l_shape(mm(10.0), mm(8.0), mm(2.5), mm(2.0))
-        return Envelope("L 10.0x8.0 m less 2.5x2.0 m", mm(10.0), mm(8.0), notches, parts)
-    if n_rooms == 12:
-        notches, parts = u_shape(mm(13.0), mm(10.0), mm(3.0), mm(1.5), mm(5.0))
-        return Envelope("U 13.0x10.0 m, two notches", mm(13.0), mm(10.0), notches, parts)
-    if n_rooms == 24:
-        notches, parts = u_shape(mm(18.0), mm(14.0), mm(4.0), mm(1.75), mm(7.0))
-        return Envelope("U 18.0x14.0 m, two notches", mm(18.0), mm(14.0), notches, parts)
-    raise ValueError(f"no Envelope defined for {n_rooms} rooms")
+# The three published Envelopes, kept bit-exact so every number this sweep
+# produces at 8 / 12 / 24 is comparable with the ones already in
+# docs/research/solver-formulation.md.
+PUBLISHED_ENVELOPES = {
+    8:  ("L 10.0x8.0 m less 2.5x2.0 m", 10.0, 8.0, ("L", 2.5, 2.0, None)),
+    12: ("U 13.0x10.0 m, two notches",  13.0, 10.0, ("U", 3.0, 1.5, 5.0)),
+    24: ("U 18.0x14.0 m, two notches",  18.0, 14.0, ("U", 4.0, 1.75, 7.0)),
+}
+
+# Fitted from the three published Envelopes: 75.0 / 118.0 / 232.8 m2 of interior
+# over 8 / 12 / 24 rooms is 9.38 / 9.83 / 9.70 m2 per room, and all three bboxes
+# sit at an aspect of 1.25-1.30.
+AREA_PER_ROOM_M2 = 9.65
+BBOX_ASPECT = 1.28
+
+# Set False to make 8 / 12 / 24 scale with AREA_PER_ROOM_M2 like every other
+# count, which is what a sweep over Envelope size needs.
+USE_PUBLISHED_ENVELOPES = True
+
+
+def envelope_for(n_rooms: int, exposure: str = "detached") -> Envelope:
+    """An Envelope sized for `n_rooms`, under a dwelling-type exposure preset.
+
+    8, 12 and 24 return the published Envelopes unchanged. Every other count is
+    generated by the same recipe: interior area scaled at a fixed area per room,
+    a bbox at the published aspect, and one notch below 10 rooms or two above,
+    cut to the published notch share of the bbox.
+    """
+    if USE_PUBLISHED_ENVELOPES and n_rooms in PUBLISHED_ENVELOPES:
+        name, Wm, Hm, spec = PUBLISHED_ENVELOPES[n_rooms]
+        kind, nw, nh, gap = spec
+        if kind == "L":
+            notches, parts = l_shape(mm(Wm), mm(Hm), mm(nw), mm(nh))
+        else:
+            notches, parts = u_shape(mm(Wm), mm(Hm), mm(nw), mm(nh), mm(gap))
+        return Envelope(name, mm(Wm), mm(Hm), notches, parts, exposure)
+
+    if n_rooms < 4:
+        raise ValueError(f"no Envelope defined for {n_rooms} rooms")
+
+    notch_share = 0.0625 if n_rooms < 10 else 0.085
+    bbox_m2 = n_rooms * AREA_PER_ROOM_M2 / (1.0 - notch_share)
+    Wm = round((bbox_m2 * BBOX_ASPECT) ** 0.5 * 4) / 4      # snap to 250 mm
+    Hm = round(bbox_m2 / Wm * 4) / 4
+    W, H = mm(Wm), mm(Hm)
+
+    if n_rooms < 10:
+        # One notch, in the published 2.5x2.0-of-10.0x8.0 proportion.
+        nw = round(W * 0.25 / 2) * 2 or 2
+        nh = round(H * 0.25 / 2) * 2 or 2
+        notches, parts = l_shape(W, H, nw, nh)
+        name = f"L {Wm}x{Hm} m less {nw*GRID_MM/1000}x{nh*GRID_MM/1000} m"
+    else:
+        nh = max(2, round(H * 0.145))
+        nw = max(2, round(W * 0.23))
+        gap = max(2, round(W * 0.39))
+        if nw + gap >= W:
+            gap = max(2, W - nw - 2)
+        notches, parts = u_shape(W, H, nw, nh, gap)
+        name = f"U {Wm}x{Hm} m, two notches"
+    return Envelope(name, W, H, notches, parts, exposure)
 
 
 DEFAULT_SEED = 20260817
 
 
-def scenario(n_rooms: int, seed: int = DEFAULT_SEED) -> Tuple[Brief, List[Rect], Proposal]:
-    env = envelope_for(n_rooms)
+def scenario(
+    n_rooms: int,
+    seed: int = DEFAULT_SEED,
+    exposure: str = "detached",
+    door_min: int = DOOR_MIN,
+    sigma_m: float = 0.5,
+    clear_t: int = 0,
+) -> Tuple[Brief, List[Rect], Proposal]:
+    env = envelope_for(n_rooms, exposure)
     brief, truth, kinds = make_brief(
-        f"{n_rooms}-room", env, n_rooms, seed, DOOR_MIN, WINDOW_MIN
+        f"{n_rooms}-room", env, n_rooms, seed, door_min, WINDOW_MIN,
+        clear_t=clear_t
     )
-    proposal = make_proposal(truth, kinds, seed, sigma=mm(0.5))
+    proposal = make_proposal(truth, kinds, seed, sigma=mm(sigma_m))
     return brief, truth, proposal
 
 

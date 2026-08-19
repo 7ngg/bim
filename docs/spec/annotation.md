@@ -194,6 +194,13 @@ side — standard setting-out practice, on its own rung.
 This is what makes `draw.every_wall_face_dimensioned` a hard predicate rather
 than a hope: the fallback always applies and never collides.
 
+**Measured, and it is not a fallback.** *Solver timing variance sweep* counted
+tier-2b partitions over 159 solved Plans: **2 walls of 7 at 8 rooms, 4 of 11 at
+12, and 10 of 21 at 24.** Nearly half of a large plan's partitions reach no
+Envelope edge, so the 2b rung is occupied on most sides in the common case and
+**tier 1 sits at 34 mm rather than 26 mm by default**. Size the sheet for 34
+unless a plan is measured to need less; do not treat 26 as typical.
+
 ### 4.4 Tier 3 — openings on Envelope edges
 
 One chain per Envelope edge holding an Opening — windows and the entrance door
@@ -246,6 +253,14 @@ Frequent by construction: every tier-2 wall-thickness tick is `t_int`, which at
 > and below the dimension line.
 
 Arithmetic, not search. Both operands are known before anything is drawn.
+
+**The first sentence fires constantly; the second never fires.** *Solver timing
+variance sweep* measured 6 to 13 outside-text placements per plan from 8 to 24
+rooms — every `t_int` tick, as expected — and **zero consecutive-outside-text
+collisions in 159 plans**. The above/below alternation is unreachable at every
+size v1 ships. Keep it in the spec as the rule it is, but **do not build it for
+v1**; assert instead that the collision count is zero and revisit if that ever
+trips.
 
 **We compute the placement; the dimstyle only declares it.** ezdxf renders
 dimension geometry into an anonymous block, and that block is what most viewers
@@ -380,6 +395,13 @@ printable area:
 ```
 
 1:100 appears once, at the largest sheet, for a dwelling that fits nothing else.
+
+**The top two rungs are unreachable at v1 sizes.** Measured over 159 solved
+Plans: A3 up to 10 rooms, A2 from 12, and **A1 never**, so `(A1, 1:50)` and
+`(A1, 1:100)` are dead entries for every dwelling this engine can currently
+generate. Implement the ladder as written — it is three lines — but expect only
+the first two rungs to be exercised, and treat an A1 selection as a signal that
+something upstream has produced a dwelling outside the promised envelope.
 
 Annotated extent = footprint grown on each side by that side's outermost occupied
 rung plus one text height, plus the margin column where the §7 ladder reached
@@ -663,10 +685,14 @@ perpendicular face to the near jamb:
 Each contact clears the threshold: `SO + t_int` against a contact run of 2000
 (D2), 1500 (D3) and 2250 (D4, D5).
 
-**Narrow-tick rule fires four times** — the four `t_int` ticks, 2 mm `paper` at
-1:50 against ~7 mm of text, all four text-outside with a leader. On the north
-chain the two outside texts are 3400 apart, 68 mm `paper`, so no alternation is
-needed.
+**Narrow-tick rule fires five times** — the five `t_int` ticks (South one, North
+two, West one, East one), 2 mm `paper` at 1:50 against ~7 mm of text, all five
+text-outside with a leader. On the north chain the two outside texts are 3400
+apart, 68 mm `paper`, so no alternation is needed.
+
+*(Corrected from "four" by* Solver timing variance sweep*, whose reproduction in
+`experiments/solver-toy/drawing_metrics.py` agrees with every other number in
+this section. The four chains above contain five `t_int` ticks.)*
 
 **Sheet.** Annotated extent = 8300 + 2 × (26 + 4) × 50 = 11 300 → 226 mm `paper`;
 6300 + same = 9300 → 186 mm `paper`. A3 landscape printable area with the 40 mm

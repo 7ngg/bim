@@ -1,0 +1,88 @@
+
+==============================================================================
+S2 — room count x dwelling-type exposure (the main grid)
+==============================================================================
+  n            exposure seeds solved first p50     p90     p95     max  w5 p50  w5 p90  valid  status
+  4            detached     8      0                                                      -    NO_BRIEF=8
+  4         terrace_mid     8      0                                                      -    NO_BRIEF=8
+  4         flat_corner     8      0                                                      -    NO_BRIEF=8
+  4       corpus_median     8      0                                                      -    NO_BRIEF=8
+  4  flat_single_aspect     8      0                                                      -    NO_BRIEF=8
+
+  6            detached     8      0                                                      -    NO_BRIEF=8
+  6         terrace_mid     8      0                                                      -    NO_BRIEF=8
+  6         flat_corner     8      0                                                      -    NO_BRIEF=8
+  6       corpus_median     8      0                                                      -    NO_BRIEF=8
+  6  flat_single_aspect     8      0                                                      -    NO_BRIEF=8
+
+  8            detached     8      7     0.094   0.117   0.117   0.117    0.20    0.42   100%  INFEASIBLE=1 OPTIMAL=7
+  8         terrace_mid     8      7     0.078   0.105   0.105   0.105    0.08    1.50   100%  INFEASIBLE=1 OPTIMAL=7
+  8         flat_corner     8      7     0.092   0.115   0.115   0.115    0.18    1.37   100%  INFEASIBLE=1 OPTIMAL=7
+  8       corpus_median     8      7     0.103   0.112   0.112   0.112    0.22    1.32   100%  INFEASIBLE=1 OPTIMAL=7
+  8  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 10            detached     8      7     0.154   0.200   0.200   0.200    1.41    2.45   100%  FEASIBLE=4 INFEASIBLE=1 OPTIMAL=3
+ 10         terrace_mid     8      7     0.136   0.213   0.213   0.213    1.01    1.63    86%  FEASIBLE=7 INFEASIBLE=1
+ 10         flat_corner     8      7     0.138   0.184   0.184   0.184    1.50    4.65   100%  FEASIBLE=4 INFEASIBLE=1 OPTIMAL=3
+ 10       corpus_median     8      7     0.148   0.210   0.210   0.210    0.59    2.11    71%  FEASIBLE=3 INFEASIBLE=1 OPTIMAL=4
+ 10  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 12            detached     8      6     0.264   0.302   0.302   0.302    2.09    4.37   100%  FEASIBLE=5 INFEASIBLE=2 OPTIMAL=1
+ 12         terrace_mid     8      6     0.244   0.450   0.450   0.450    1.88    3.33   100%  FEASIBLE=5 INFEASIBLE=2 OPTIMAL=1
+ 12         flat_corner     8      7     0.295   0.398   0.398   0.398    2.21    5.97   100%  FEASIBLE=7 INFEASIBLE=1
+ 12       corpus_median     8      5     0.291   0.323   0.323   0.323    1.90   12.45   100%  FEASIBLE=5 INFEASIBLE=3
+ 12  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 16            detached     8      8     0.543   1.161   1.161   1.161    5.52   24.99    75%  FEASIBLE=8
+ 16         terrace_mid     8      8     0.646   1.060   1.060   1.060    5.84   13.05    75%  FEASIBLE=8
+ 16         flat_corner     8      7     0.820   1.005   1.005   1.005    5.53   24.08   100%  FEASIBLE=7 INFEASIBLE=1
+ 16       corpus_median     8      8     0.633   0.767   0.767   0.767    5.75   14.05    88%  FEASIBLE=8
+ 16  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 20            detached     8      5     1.867   3.394   3.394   3.394    6.56   13.23    80%  FEASIBLE=5 INFEASIBLE=3
+ 20         terrace_mid     8      6     0.947   2.865   2.865   2.865   10.03   18.36    83%  FEASIBLE=6 INFEASIBLE=2
+ 20         flat_corner     8      5     1.384   1.591   1.591   1.591   12.59   22.95    80%  FEASIBLE=5 INFEASIBLE=3
+ 20       corpus_median     8      6     1.464   1.922   1.922   1.922   11.16   27.71    67%  FEASIBLE=6 INFEASIBLE=2
+ 20  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 24            detached     8      8     2.717   4.636   4.636   4.636   13.73   26.56    88%  FEASIBLE=8
+ 24         terrace_mid     8      6     2.086   3.999   3.999   3.999   11.72   18.85    83%  FEASIBLE=6 INFEASIBLE=2
+ 24         flat_corner     8      6     2.938   6.181   6.181   6.181   19.03   26.80    83%  FEASIBLE=6 INFEASIBLE=2
+ 24       corpus_median     8      6     2.935   4.460   4.460   4.460   20.84   27.46   100%  FEASIBLE=6 INFEASIBLE=2
+ 24  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+
+==============================================================================
+S2 — the shipped time limit: what a budget buys, pooled over the grid
+==============================================================================
+time to first Plan           p50=  0.39 p90=  2.83 p95=  3.39 max=  6.18  (n=159)
+time to a VALID Plan         p50=  1.56 p90= 10.79 p95= 13.65 max= 25.06  (n=143)
+time to within 5% of best    p50=  3.35 p90= 18.36 p95= 23.45 max= 27.71  (n=159)
+
+  Derived from the solution traces, so every row below is what a
+  shipped time limit of that size would actually have delivered.
+
+   budget  any Plan  VALID Plan  within 5%
+     0.5s     52.8%       30.2%      20.8%
+     1.0s     71.1%       34.6%      24.5%
+     2.0s     84.3%       49.1%      39.0%
+     3.0s     93.1%       57.2%      48.4%
+     5.0s     98.7%       62.9%      56.0%
+     7.5s    100.0%       73.0%      67.3%
+    10.0s    100.0%       79.9%      73.6%
+    15.0s    100.0%       86.8%      87.4%
+    20.0s    100.0%       88.7%      92.5%
+    30.0s    100.0%       89.9%     100.0%
+
+==============================================================================
+S2 — drawing measurements (annotation.md), taken off the same solves
+==============================================================================
+  n plans  walls    2b witn/side p50   max narrow p50   max collide closes  sheets
+  8    28    7.0   2.0           4.0     6        6.0     7       0  28/28  A3/1:50x28
+ 10    28    9.0   3.0           6.0     8        6.0     6       0  28/28  A3/1:50x28
+ 12    24   11.0   4.0           8.0     8        7.0     7       0  24/24  A2/1:50x17 A3/1:50x7
+ 16    31   14.0   5.0          10.0    10       10.0    10       0  31/31  A2/1:50x31
+ 20    22   18.0   8.0          10.0    10       11.0    12       0  22/22  A2/1:50x22
+ 24    26   21.0  10.0           8.0    10       12.0    13       0  26/26  A2/1:50x26
+
+`!` marks a plan that fell off the end of the sheet ladder.

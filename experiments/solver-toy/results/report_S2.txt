@@ -1,0 +1,125 @@
+
+==============================================================================
+Measurement host(s)
+==============================================================================
+  {'cpu': 'Intel64 Family 6 Model 58 Stepping 9, GenuineIntel', 'cores': 4, 'python': '3.12.10', 'workers': 4, 'machine': 'DESKTOP-25OJ4QH'}
+
+==============================================================================
+S2 — room count x dwelling-type exposure (the main grid)
+==============================================================================
+  n            exposure seeds solved first p50     p90     p95     max  w5 p50  w5 p90  valid  status
+  4            detached     8      8     0.044   0.060   0.060   0.060    0.05    0.08     0%  OPTIMAL=8
+  4         terrace_mid     8      5     0.036   0.051   0.051   0.051    0.04    0.07     0%  INFEASIBLE=3 OPTIMAL=5
+  4         flat_corner     8      8     0.034   0.056   0.056   0.056    0.04    0.07     0%  OPTIMAL=8
+  4       corpus_median     8      8     0.031   0.040   0.040   0.040    0.03    0.05     0%  OPTIMAL=8
+  4  flat_single_aspect     8      8     0.031   0.038   0.038   0.038    0.03    0.04     0%  OPTIMAL=8
+
+  6            detached     8      7     0.076   0.365   0.365   0.365    0.11    0.46    29%  INFEASIBLE=1 OPTIMAL=7
+  6         terrace_mid     8      0                                                      -    NO_BRIEF=8
+  6         flat_corner     8      0                                                      -    NO_BRIEF=8
+  6       corpus_median     8      0                                                      -    NO_BRIEF=8
+  6  flat_single_aspect     8      0                                                      -    NO_BRIEF=8
+
+  8            detached     8      7     0.125   0.280   0.280   0.280    0.29    0.53    71%  INFEASIBLE=1 OPTIMAL=7
+  8         terrace_mid     8      3     0.129   0.140   0.140   0.140    0.34    0.97   100%  INFEASIBLE=5 OPTIMAL=3
+  8         flat_corner     8      7     0.124   0.155   0.155   0.155    0.26    0.63   100%  INFEASIBLE=1 OPTIMAL=7
+  8       corpus_median     8      7     0.088   0.106   0.106   0.106    0.18    0.22    43%  INFEASIBLE=1 OPTIMAL=7
+  8  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 10            detached     8      5     0.282   0.369   0.369   0.369    2.22    3.46   100%  FEASIBLE=4 INFEASIBLE=3 OPTIMAL=1
+ 10         terrace_mid     8      3     0.207   0.265   0.265   0.265    2.05    3.32   100%  FEASIBLE=3 INFEASIBLE=5
+ 10         flat_corner     8      6     0.189   0.439   0.439   0.439    1.33    2.69    67%  FEASIBLE=4 INFEASIBLE=2 OPTIMAL=2
+ 10       corpus_median     8      2     0.167   0.220   0.220   0.220    1.09    3.05    50%  FEASIBLE=2 INFEASIBLE=6
+ 10  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 12            detached     8      6     0.508   0.929   0.929   0.929    4.33   27.63   100%  FEASIBLE=5 INFEASIBLE=2 OPTIMAL=1
+ 12         terrace_mid     8      6     0.534   1.899   1.899   1.899    3.49   15.28    67%  FEASIBLE=5 INFEASIBLE=2 OPTIMAL=1
+ 12         flat_corner     8      6     0.712   2.426   2.426   2.426    6.18   14.73   100%  FEASIBLE=6 INFEASIBLE=2
+ 12       corpus_median     8      6     0.394   0.583   0.583   0.583    3.13   15.79    83%  FEASIBLE=4 INFEASIBLE=2 OPTIMAL=2
+ 12  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 16            detached     8      8     1.359   3.043   3.043   3.043   12.24   26.79    62%  FEASIBLE=8
+ 16         terrace_mid     8      6     0.932   1.565   1.565   1.565    7.63   28.95    50%  FEASIBLE=6 INFEASIBLE=2
+ 16         flat_corner     8      7     0.926   1.280   1.280   1.280    6.38   12.95    57%  FEASIBLE=7 INFEASIBLE=1
+ 16       corpus_median     8      7     1.075   2.003   2.003   2.003    3.71   17.20    57%  FEASIBLE=7 INFEASIBLE=1
+ 16  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 20            detached     8      5     2.710   3.203   3.203   3.203   14.00   27.23    20%  FEASIBLE=5 INFEASIBLE=3
+ 20         terrace_mid     8      5     1.733   3.391   3.391   3.391   17.64   30.00    60%  FEASIBLE=5 INFEASIBLE=3
+ 20         flat_corner     8      4     2.803   3.458   3.458   3.458   14.44   16.86    50%  FEASIBLE=4 INFEASIBLE=4
+ 20       corpus_median     8      4     2.964   3.881   3.881   3.881   18.91   20.82    75%  FEASIBLE=4 INFEASIBLE=4
+ 20  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+ 24            detached     8      7     3.269   8.713   8.713   8.713   19.20   21.80   100%  FEASIBLE=7 INFEASIBLE=1
+ 24         terrace_mid     8      6     2.284   4.275   4.275   4.275   11.29   28.54    83%  FEASIBLE=6 INFEASIBLE=2
+ 24         flat_corner     8      7     3.737   5.609   5.609   5.609   15.19   29.21    86%  FEASIBLE=7 INFEASIBLE=1
+ 24       corpus_median     8      6     2.530   4.163   4.163   4.163   11.77   25.56   100%  FEASIBLE=6 INFEASIBLE=2
+ 24  flat_single_aspect     8      0                                                      -    H8_IMPOSSIBLE=8
+
+
+==============================================================================
+S2 — the shipped time limit: what a budget buys, pooled over the grid
+==============================================================================
+time to first Plan           p50=  0.44 p90=  3.04 p95=  3.74 max=  8.71  (n=180)
+time to a VALID Plan         p50=  3.46 p90= 18.72 p95= 22.17 max= 28.95  (n=103)
+time to within 5% of best    p50=  2.95 p90= 19.20 p95= 25.56 max= 30.00  (n=180)
+
+  Derived from the solution traces, so every row below is what a
+  shipped time limit of that size would actually have delivered.
+
+   budget  any Plan  VALID Plan  within 5%
+     0.5s     51.1%       11.1%      37.2%
+     1.0s     65.0%       16.1%      40.6%
+     2.0s     77.8%       21.7%      46.7%
+     3.0s     89.4%       27.8%      50.0%
+     5.0s     97.8%       31.1%      57.8%
+     7.5s     99.4%       35.6%      62.2%
+    10.0s    100.0%       38.9%      67.8%
+    15.0s    100.0%       48.3%      82.2%
+    20.0s    100.0%       52.8%      91.1%
+    30.0s    100.0%       57.2%      99.4%
+
+==============================================================================
+S2 — drawing measurements (annotation.md), taken off the same solves
+==============================================================================
+  n plans  walls    2b witn/side p50   max narrow p50   max collide closes  sheets
+  4    37    3.0   0.0           4.0     4        3.0     3       0  37/37  A3/1:50x37
+  6     7    5.0   0.0           4.0     4        5.0     5       0   7/7   A3/1:50x7
+  8    24    7.0   1.0           4.0     6        6.0     7       0  24/24  A3/1:50x24
+ 10    16    9.0   3.0           6.0     8        6.0     6       0  16/16  A3/1:50x16
+ 12    24   10.0   4.0           8.0     8        7.0     8       0  24/24  A2/1:50x18 A3/1:50x6
+ 16    28   14.0   5.0          10.0    10       10.0    10       0  28/28  A2/1:50x28
+ 20    18   18.0   8.0          10.0    10       11.0    12       0  18/18  A2/1:50x18
+ 24    26   22.0  10.0           8.0    10       12.0    13       0  26/26  A2/1:50x26
+
+`!` marks a plan that fell off the end of the sheet ladder.
+
+==============================================================================
+Plans the solver returned and validate.check rejected — 154
+==============================================================================
+    53  H3 10 interior cells unassigned
+    29  H3 8 interior cells unassigned
+    13  H3 6 interior cells unassigned
+    11  H3 1 interior cells unassigned
+     5  H3 14 interior cells unassigned
+     5  H3 3 interior cells unassigned
+     3  H3 5 interior cells unassigned
+     3  H3 12 interior cells unassigned
+     3  H3 9 interior cells unassigned
+     3  H3 7 interior cells unassigned
+     2  H3 2 interior cells unassigned
+     2  H3 24 interior cells unassigned
+
+  by (suite, n, proposal):
+    37  ('S2', 4, 'noisy')
+    21  ('S4', 8, 'noisy')
+    12  ('S2', 16, 'noisy')
+    11  ('S3', 8, 'noisy')
+     9  ('S2', 20, 'noisy')
+     9  ('S6', 8, 'noisy')
+     7  ('S1', 24, 'noisy')
+     6  ('S2', 8, 'noisy')
+     6  ('S6', 24, 'noisy')
+     5  ('S2', 6, 'noisy')
+     5  ('S4', 24, 'noisy')
+     5  ('S5', 24, 'degenerate')

@@ -1,0 +1,11 @@
+Exact tiling at 9.65 m2 per room, three readings of the same table.
+`*` marks seeds where no Brief could be built at all.
+
+reading                                n=4     n=5     n=6     n=7     n=8    n=10    n=12
+published: minima on solved rect       3/3     3/3     2/3     2/3     3/3     2/3     3/3
+ADR 0001: minima on clear rect        0/3*    0/3*    0/3*     2/3     3/3     2/3     3/3
+ADR 0001 + grid-aligned minima         3/3     3/3     2/3     2/3     3/3     2/3     3/3
+
+Row 3 publishes each minimum 100 mm lower — 1750 mm becomes 1650 —
+so that clear = 250*w - 100 meets it at the same w the published
+reading needed. The wall is paid for in the number, not in the grid.

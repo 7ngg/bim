@@ -1,0 +1,93 @@
+
+==============================================================================
+Measurement host(s)
+==============================================================================
+  {'cpu': 'Intel64 Family 6 Model 58 Stepping 9, GenuineIntel', 'cores': 4, 'python': '3.12.10', 'workers': 4, 'machine': 'DESKTOP-25OJ4QH'}
+
+==============================================================================
+S4 — tau: the confidence margin above which a relation is fixed hard
+==============================================================================
+High tau fixes few relations (slower, more arrangements survive);
+low tau fixes many (faster, and a wrong one is INFEASIBLE at once).
+
+  n        exposure  tau seeds INFEAS solved  fixed/cand first p50     p90   obj p50  valid
+  8   corpus_median    0     5      0      5       28/28     0.078   0.107   1000036    40%
+  8   corpus_median    1     5      0      5       28/28     0.075   0.103   1000036    40%
+  8   corpus_median    2     5      0      5       27/28     0.090   0.105   1000036    40%
+  8   corpus_median    4     5      0      5       25/28     0.099   0.124        53    60%
+  8   corpus_median    6     5      0      5       22/28     0.105   0.139        53    60%
+  8   corpus_median   10     5      0      5       16/28     0.113   0.163        53    80%
+
+  8        detached    0     5      0      5       28/28     0.081   0.103        67    60%
+  8        detached    1     5      0      5       28/28     0.084   0.107        67    60%
+  8        detached    2     5      0      5       27/28     0.093   0.108        53    80%
+  8        detached    4     5      0      5       24/28     0.098   0.115        45    80%
+  8        detached    6     5      0      5       22/28     0.122   0.133        45    80%
+  8        detached   10     5      0      5       15/28     0.166   0.190        45   100%
+
+ 24   corpus_median    0     5      1      4     276/276     2.039   4.216       132    75%
+ 24   corpus_median    1     5      1      4     272/276     2.391   3.669       129   100%
+ 24   corpus_median    2     5      1      4     263/276     3.031   3.429       122   100%
+ 24   corpus_median    4     5      1      4     243/276     3.809   5.697       141   100%
+ 24   corpus_median    6     5      0      5     223/276     5.567  14.172       129   100%
+ 24   corpus_median   10     5      0      5     191/276     5.793   6.532       168    80%
+
+ 24        detached    0     5      1      4     276/276     2.350   4.778       133   100%
+ 24        detached    1     5      1      4     272/276     2.473   4.573       123   100%
+ 24        detached    2     5      1      4     263/276     2.627   4.585       122    75%
+ 24        detached    4     5      1      4     243/276     2.796   5.397       121   100%
+ 24        detached    6     5      0      5     223/276     4.737   8.914       129    80%
+ 24        detached   10     5      0      5     191/276     5.934   8.083       227    80%
+
+
+==============================================================================
+S7 — distinct valid Plans off ONE Proposal, against tau
+==============================================================================
+Proposal held fixed; only CP-SAT's random seed moves. `distinct` is
+how many different rectangle sets the runs produced.
+
+  n  tau  runs  fixed/cand INFEAS  valid distinct first p50   obj p50
+  8    0     4       28/28      0      4        4     0.090        37
+  8    1     4       28/28      0      4        2     0.089        37
+  8    2     4       28/28      0      4        2     0.091        37
+  8    4     4       26/28      0      4        3     0.104        37
+  8    6     4       23/28      0      4        1     0.132        37
+  8   10     4       16/28      0      4        4     0.136        37
+
+ 24    0     4     276/276      0      4        4     2.897       132
+ 24    1     4     270/276      0      4        4     3.029       135
+ 24    2     4     262/276      0      3        3     3.439       135
+ 24    4     4     245/276      0      3        3     4.436       136
+ 24    6     4     228/276      0      4        4     4.870       140
+ 24   10     4     206/276      0      4        4     4.680       146
+
+
+==============================================================================
+Plans the solver returned and validate.check rejected — 154
+==============================================================================
+    53  H3 10 interior cells unassigned
+    29  H3 8 interior cells unassigned
+    13  H3 6 interior cells unassigned
+    11  H3 1 interior cells unassigned
+     5  H3 14 interior cells unassigned
+     5  H3 3 interior cells unassigned
+     3  H3 5 interior cells unassigned
+     3  H3 12 interior cells unassigned
+     3  H3 9 interior cells unassigned
+     3  H3 7 interior cells unassigned
+     2  H3 2 interior cells unassigned
+     2  H3 24 interior cells unassigned
+
+  by (suite, n, proposal):
+    37  ('S2', 4, 'noisy')
+    21  ('S4', 8, 'noisy')
+    12  ('S2', 16, 'noisy')
+    11  ('S3', 8, 'noisy')
+     9  ('S2', 20, 'noisy')
+     9  ('S6', 8, 'noisy')
+     7  ('S1', 24, 'noisy')
+     6  ('S2', 8, 'noisy')
+     6  ('S6', 24, 'noisy')
+     5  ('S2', 6, 'noisy')
+     5  ('S4', 24, 'noisy')
+     5  ('S5', 24, 'degenerate')
