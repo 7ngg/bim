@@ -130,3 +130,31 @@ decimals and no further. And nine sampled dwellings scored ~0.00 exterior —
 genuinely windowless units that would fail H8 outright; worth a look before they
 are dismissed as noise, because if they are real then H8 is rejecting homes that
 exist.
+
+## New axis from *What the model proposes, and how it is trained*: fit τ
+
+`docs/spec/proposer.md` §5 defines the arrangement metric on a **confidence
+margin τ** — the gap between the best and second-best separation for a room pair.
+τ is not the metric's parameter; it is **the solver's**, and it is the same number
+the solver already uses to decide which relations to fix hard.
+
+That makes it a timing axis, which is why it lands here rather than on the
+Proposer:
+
+- **High τ** — few relations asserted, most pairs left free. The search is less
+  constrained, so it is **slower** and finds more valid arrangements.
+- **Low τ** — many relations asserted as hard constraints. **Faster**, and a
+  wrong one makes the model INFEASIBLE in under 0.1 s.
+
+So τ trades wall-clock against candidate loss, and neither end is obviously right.
+The current toy uses whatever value was convenient; nothing has fitted it.
+
+**Sweep it against the axes already on this ticket**, because the interaction is
+the point — a τ that is right at 100 % exposure and 24 rooms is not obviously
+right at the measured median 0.37 and 6.8 rooms, and 4–10 rooms is the band
+`docs/spec/proposer.md` §3 fixed for v1.
+
+Report the curve, not a single value: solve wall-clock, INFEASIBLE rate, and
+VALID-plans-per-Proposal against τ. *Validate the arrangement metric against the
+solver* hands this ticket whatever it learns about the trade at a fixed τ; this
+ticket owns choosing it.

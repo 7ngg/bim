@@ -49,9 +49,10 @@ dimension in this system has to declare):
 | C7 | Post-generation, v1 is **edit-the-brief-and-regenerate**. Direct wall manipulation with re-solve is designed-for but deferred. |
 | C8 | **Neufert-grade dimensional standards. No legal code-compliance claim, ever.** Say so in the product copy. |
 | C9 | **Non-commercial project.** Research-only datasets and weights are available. Licence is not a gate; data quality and regional convention are. |
-| C10 | **Model proposes, solver projects** — *amended, and the amendment is load-bearing.* The Proposal must carry **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints), and exact tiling must be posted **soft, not hard**. The loose form — hand the solver boxes and let it project them — is **refuted by measurement**: it finds nothing at 24 rooms in 30 s. Amended, 6.25 s. A **two-phase fallback for infeasible Proposals is mandatory**. See *Solver formulation for layout projection*. |
+| C10 | **Model proposes, solver projects** — *amended, and the amendment is load-bearing.* The Proposal must carry **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints), and exact tiling must be posted **soft, not hard**. The loose form — hand the solver boxes and let it project them — is **refuted by measurement**: it finds nothing at 24 rooms in 30 s. Amended, 6.25 s. A **two-phase fallback for infeasible Proposals is mandatory**. See *Solver formulation for layout projection*. **And "the model" is two things**: v1's Proposer has two sources — retrieval-and-warp and a trained transformer — behind one Proposal contract, with the Acceptance bar arbitrating. The split it names is proposal-versus-projection, not one generator versus another. See *What the model proposes, and how it is trained* and ADR 0005. |
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region. Combine corpora where it can be made to work. |
+| C13 | **v1's Proposer serves 4–10 Brief-named rooms.** 92% of the corpus. Set by *What the model proposes*, which measured retrieval dying at 11+ (67.7% blank). What the *product* promises is *The room-count envelope v1 promises*; this is what the Proposer covers. |
 
 **Evidence that shaped the map** — read before re-litigating C10:
 
@@ -255,6 +256,39 @@ dimension in this system has to declare):
   deliberately not downloaded (already ruled out); **RPLAN left unsigned** — its
   8-room ceiling adds nothing to the tail that decides the question.
 
+- [What the model proposes, and how it is trained](tickets/08-what-the-model-proposes.md)
+  — **the Proposer has two sources, and the fork the map inherited was a false
+  one.** Spec `docs/spec/proposer.md`, ADR
+  [0005](../adr/0005-the-proposer-has-two-sources.md), measurement in
+  `experiments/retrieval-coverage/`. **Retrieval-and-warp** ships first and
+  **the survey's room-set transformer** always answers; both emit the same
+  Proposal, both go through the same solver, and the Acceptance bar arbitrates —
+  C6 always generated many and rejected most, and nothing ever said they come from
+  one source. Neither survives alone: measured over all 46,800 Swiss Dwellings
+  dwellings with each Brief taking one dwelling's programme and a **different**
+  dwelling's envelope, retrieval blanks on **9.5% of 4–6-room and 12.4% of
+  7–10-room Briefs** (median pool 92 and 66) and **67.7% at 11–15** — one Brief in
+  nine refused is not a usable product — while a trained model **fails quietly**
+  and throws away 46,800 arrangements that are real by construction. Explicitly
+  rejected because it was the easy answer: **widening the warp budget** until
+  retrieval covers everything; ±10% area / ±15% aspect is a **hard gate**, since a
+  plan stretched 40% in proportion is the 90%-right artefact C2 calls worse than
+  blank. Two cuts follow from evidence: **v1's Proposer serves 4–10 rooms** — so
+  **§7.3(a) does not fire, it counted the tail**, and in-band the corpora hold
+  ~60,600 dwellings against a ~4,000 floor, 15× — and **synthetic pre-training is
+  cut**, its only purpose having been the 12–32 room regime now out of the promise
+  (training drops to 5–15 GPU-hours). Two corpus findings nothing on the map had:
+  **`ROOM` is 26% of the corpus and is not a grab bag** — p5–p95 9.9–22.4 m²,
+  CV 0.29 against `BEDROOM`'s 0.22 — so `{ROOM, BEDROOM, STUDIO}` collapse to one
+  class and **every coverage figure measured before that was pessimistic**; and
+  **`BATHROOM` spans a WC to a family bathroom under one label**, split ticketed to
+  *Ergonomic minima* rather than invented here. Defines the arrangement metric the
+  survey assigned it — **three numbers, never one, with confident-wrong as the
+  headline** — and refuses to approximate the terminal one: **no partial
+  `hard_pass_rate` is published**, because an upper bound with a plausible name is
+  how a wrong figure gets quoted later. Training stops at **50 GPU-hours**; past
+  it v1 ships retrieval-only with the room-count limit stated in product copy.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -281,9 +315,13 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   should be drawn from the corpus rather than from the standards table, whether
   candidate generation should be **biased toward corpus-typical shapes**, and
   whether a Brief far from the corpus centre should be flagged to the Homeowner
-  before a solve rather than after. Sharpens once *What the model proposes* picks a
-  route, since retrieval makes corpus-typicality structural and training makes it a
-  choice.
+  before a solve rather than after. **Sharpened by the route, which is both.**
+  Corpus-typicality is now *structural* for the ~89% of common-band Briefs
+  retrieval covers and a *choice* for the rest — so the question is no longer
+  which, but what a Homeowner is told when their Brief crosses that line. Note the
+  line is already measurable at Brief-parse time: retrieval's gate is a lookup, so
+  the system knows before it solves whether this Brief has real precedent. Nothing
+  yet says whether that should be shown.
 
 - **Plan quality beyond the validator** — narrowed by *Acceptance validator
   spec*: there now *is* a ranking signal, six soft rules and two warns, including
@@ -303,7 +341,14 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   (rect/L/U/T), and ADR 0003 records why. What stays fog is when and how angled
   walls enter, and the ≤2 cap is unevidenced in both directions — the toy ran one
   L and two U envelopes, which shows two notches are affordable and says nothing
-  about three. It now also carries a **deliberately unbuilt dependency**: room-tag
+  about three. *What the model proposes* added the first evidence that the cap may
+  be **too tight rather than too loose**: real dwellings fill only **0.79** of
+  their minimum-area rotated rectangle at the median and **0.61** at p5, so a
+  meaningful share of Swiss Dwellings is more notched than rect/L/U/T can
+  describe. **How many real dwellings fit inside the cap is unmeasured**, and it
+  bounds retrieval from a direction nothing has tested — a corpus dwelling the
+  Envelope model cannot express is a retrieval match that cannot be warped. It
+  also carries a **deliberately unbuilt dependency**: room-tag
   placement is the Space *centroid*, exact only because every v1 Space is a
   rectangle. The day a room is concave, tags start landing outside their own rooms
   and largest-inscribed-circle placement has to be specified — *Dimensioning and
@@ -344,11 +389,22 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   interactive re-solve is picked up and `kiwisolver` actually matters. *Update:
   the wall-thickness question did not break the formulation — see* Canonical
   geometry model *— so this stays cold until C7 is picked up.*
-- ~~**Whether the proposer is worth training at all**~~ — graduated, and now
-  half-answered. *Acquire the datasets* ran the blocking histogram: **66 dwellings
-  at >=16 rooms against a ~1,000 trigger**, so the corpus side says retrieval. What
-  remains is the ablation *What the model proposes* carries, and the synthetic
-  generator that ticket must specify if it trains. Not fog — a live ticket.
+- ~~**Whether the proposer is worth training at all**~~ — **closed.** *What the
+  model proposes* answered it: **yes, and also retrieval, and the question was
+  never exclusive.** The trigger that looked decisive counted the ≥16-room tail,
+  which v1 no longer promises; in the band it does promise the corpora are 15× the
+  training floor. Retrieval's measured **9.5–12.4% blank rate** in that band is why
+  it cannot be the only source. Not fog — settled.
+
+- **Where warp fidelity actually breaks.** New, and it is the fog patch with the
+  most product value on the map: every point of retrieval coverage bought is a
+  Brief that does not fall through to a model. *What the model proposes* stated
+  ±10% area / ±15% aspect as the admissibility gate and was explicit that the
+  numbers are **the budget coverage was measured at, not a fitted value**.
+  Loosening raises coverage and lowers fidelity, and nobody has measured the
+  trade. Sharp enough to be a sub-question of *The retrieval index and warp
+  procedure* and not yet sharp enough to be its own ticket, because what "fidelity"
+  means here needs the arrangement metric validated first.
 
 ## Out of scope
 

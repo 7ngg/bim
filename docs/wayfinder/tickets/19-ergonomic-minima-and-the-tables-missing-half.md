@@ -69,3 +69,27 @@ Deliverable: the completed `data/standards/room-constraints.json` with an
 `ergonomic` layer, each value carrying `v` / `src` / `ref` / `conf` / `note` per
 the file's own `value_format`, and the three `pending` registry rules flipped to
 real numbers.
+
+## New obligation from *What the model proposes, and how it is trained*: the WC/bathroom split
+
+Both Proposer sources read Swiss Dwellings, and **the corpus has one `BATHROOM`
+label spanning p5 1.5 m² to p95 6.3 m²** — a WC at one end, a family bathroom at
+the other (measured, `experiments/retrieval-coverage/room_label_probe.py`). A
+Brief distinguishes them and this table already does: `dim.min_area` is a
+different number for `wc` and for `bathroom`, and both are `conf: pending` here.
+
+So the corpus has to be split by area before either source can use it, and **the
+splitting threshold is this ticket's**, not the Proposer's. It is derived from the
+same fixture footprints and body clearances this ticket is already deriving — a WC
+is a pan plus its clearance, a bathroom is a pan plus a basin plus a bath or
+shower plus theirs. Inventing a second number on the Proposer side would create a
+table to drift against this one, which is exactly the failure *Acceptance
+validator spec* closed for the acceptance rules.
+
+Deliver it as part of the `ergonomic` layer, not as a one-off constant: the
+threshold is the boundary between two rooms' minima, so it falls out of the table
+rather than being added to it.
+
+Note the direction it cuts. Set the threshold too high and real WCs are relabelled
+as undersized bathrooms and dropped from training; too low and real bathrooms
+enter the WC class and pull its minimum down. State which error the value prefers.

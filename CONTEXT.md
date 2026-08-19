@@ -66,7 +66,27 @@ and proportion, used as the solver's objective. It is never the output.
 
 **Proposer** — the component that emits the Proposal. Named separately from the
 Proposal because it is replaceable: what it is built from is a separate question
-from what it must emit, and the Proposal is the contract between them.
+from what it must emit, and the Proposal is the contract between them. It is
+**not one thing** — v1 has two sources behind that contract, a retrieval over real
+dwellings and a trained model, because one blanks where the corpus is thin and the
+other fails without saying so. Which source a Proposal came from is recorded on
+the **job**, never on the Proposal, so nothing downstream can prefer a source.
+
+**Retrieval pool** — the real dwellings admissible as a Proposal for one Brief:
+those whose room programme matches it and whose size and proportion are close
+enough to warp without inventing. Its size is the candidate count, so an empty
+pool is a Brief with no real precedent rather than an error.
+
+**Warp budget** — how far a real dwelling may be stretched before its arrangement
+stops being a real home's. A limit, not a preference: retrieval's entire claim is
+that a person once lived in this arrangement, and past some distortion that
+sentence is false. A dwelling outside the budget is not retrieved at all.
+
+**Private room** — a Brief's bedroom, study or nursery, as one class. It exists
+because the corpora cannot tell them apart: the most common label in Swiss
+Dwellings is an unlabelled room with a bedroom's proportions. The Brief keeps the
+finer word for the Homeowner and for conditioning; retrieval only ever matches the
+class.
 
 **Corpus** — a dataset of real floor plans used to train and evaluate the
 Proposer. Plural **corpora**. They are not interchangeable: each encodes a
@@ -210,6 +230,17 @@ and anything else says which one it is. **Every number that reaches a human is
 the clear one** — a centreline dimension on a drawing is wrong by a wall
 thickness on every room and every axis, and putting one there is the mechanism by
 which the confusion above actually happens.
+
+**Separation direction** — which of left-of, right-of, above or below one Room is
+meant to sit relative to another. What the solver actually reads out of a
+Proposal's boxes, which is why a Proposal is judged on arrangement rather than on
+how close its boxes landed.
+
+**Asserted** and **abstained** — a Room pair whose separation direction is claimed
+firmly enough to become a constraint, against one left open. The two are not
+symmetric and must never be reported as one number: an abstention leaves the
+solver free, and a **confident-wrong** pair — asserted, and backwards — is the
+failure that costs a candidate outright.
 
 **Ergonomic minimum** — the smallest clear rectangle a room's required fixtures
 and their body clearances occupy. Region-invariant, because bodies are. It is the
