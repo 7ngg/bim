@@ -93,6 +93,28 @@ Proposer. Plural **corpora**. They are not interchangeable: each encodes a
 regional layout convention, which is why a Proposal is conditioned on which
 corpus it came from rather than trained on all of them pooled.
 
+A corpus stores **Spaces**, not Rooms — polygons bounded by wall inner faces,
+with the wall body in the gap between them. No two of them touch. So a corpus
+room is geometry with a label, never a Brief's programme, and adjacency in a
+corpus is a question about distance rather than about contact.
+
+**Rectangularisation** — turning a corpus **Space**, which is whatever shape a
+person built, into the one rectangle every stage of this system places. Two
+decisions, not one: which **axis**, and then which rectangle. It is not
+preprocessing — it decides what arrangement the Proposer can ever learn.
+
+**Dwelling axis** — the frame a dwelling is square to, which is its own and not
+its site's. Corpora are geo-referenced, so a dwelling's rooms are square to a
+building that is square to a street; measured against the world's axes not one
+room in the corpus is a rectangle. Every shape statement about a corpus dwelling
+names the axis it was measured on, or it means nothing.
+
+**Representable** — whether a real dwelling can be expressed in this system's
+model at all: one rectangle per Room, tiling an Envelope of a bounding box minus
+at most two notches. The property that decides whether a corpus dwelling is used
+or dropped. Stated as representability rather than as a similarity threshold
+because the question is what v1 *can say*, and a percentile cannot answer that.
+
 **Plan** — the canonical geometry: walls with thickness, openings hosted on walls,
 and spaces. The single representation every layer reads or writes. Annotation is
 **not** part of it — see **Drawing**.

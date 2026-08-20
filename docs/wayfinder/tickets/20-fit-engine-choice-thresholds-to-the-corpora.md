@@ -75,3 +75,32 @@ And one distribution worth fitting rather than guessing:
   one, and it tells *Solver timing variance sweep* which exposure case is typical
   rather than merely possible. Confirm the hierarchy survives extraction on
   *Acquire the datasets* first.
+
+## Two obligations from *Rectangularising real rooms*
+
+**Fit against the converted corpus, and erode before you compare.** A corpus
+dwelling is now a rectangular tiling produced by a CP-SAT fit (ADR 0008), and its
+rectangles are **centreline** rectangles: the conversion splits each wall at its
+axis, so a converted room's area includes half of every wall around it. Per
+ADR 0001 the clear rectangle is that eroded by `t_int/2`. **Every threshold here
+is stated in clear dimensions** (*Acceptance validator spec*: the hard floor is
+the ergonomic minimum, which is a clear number), so fitting against unroded
+rectangles makes every fitted minimum generous by `t_int` per axis — and by
+ADR 0007's arithmetic that is exactly the error that deletes 4-, 5- and 6-room
+dwellings.
+
+**The population you are fitting to is not the corpus.** The conversion drops
+**31 % of Swiss Dwellings and 40 % of ResPlan**, and it drops them
+non-uniformly — 83 % of 4-room dwellings convert against 46 % of 10-room. A
+threshold fitted to the surviving population is fitted to a corpus that is
+**biased toward the small and the simple**, because what fails to convert is
+disproportionately the dwelling whose arrangement a rectangle model cannot hold.
+Say which population each fitted number came from. Fitting against the *raw*
+polygons is also available and is the right choice for any predicate that is
+well-defined on a polygon (area, aspect via bbox); it is not available for
+anything that needs a tiling.
+
+Also relevant: *Acquire the datasets* §6 flagged that geometric validity was
+unmeasured and this ticket would hit it first. Partly discharged — 46 invalid
+polygons in 296,653 were repaired by `make_valid`, none dropped
+(`experiments/rectangularise/measure_swiss.py`).

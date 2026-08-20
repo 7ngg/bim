@@ -76,3 +76,24 @@ is real and which H8 forbids.
 Deliverable: a decision recorded against `data/acceptance/rules.json`'s H8 entry
 and `docs/spec/acceptance-bar.md`, plus whatever the Envelope model owes if
 option 4 wins.
+
+## A gap left open by *Rectangularising real rooms*
+
+The corpus conversion (ADR 0008) preserves every real adjacency and every
+separation direction, and it says **nothing about H8**. The fit does not know
+which Envelope edges are exterior and which are party, so what it measured is
+**boundary contact** — did a room that touched the Envelope's edge still touch it —
+not window frontage. A room can keep its boundary run and have kept the *party*
+side of it.
+
+So: **whether the converted corpus still satisfies H8 is unverified**, and this
+ticket should not assume it does. That matters here specifically, because
+`flat_single_aspect` is arithmetically dead from 7 rooms and the corpus p25 is
+0.23 exterior — if the conversion quietly moves habitable rooms off the exterior
+run, the corpus will look worse against H8 than the real dwellings are, and the
+fix would be aimed at the wrong thing.
+
+The exposure machinery to close this already exists:
+`experiments/corpus-smoke/exposure_swiss_dwellings.py` recovers the per-dwelling
+exterior/party ring from the building hierarchy (*Acquire the datasets* §1.5,
+150 floors, 569 dwellings). Joining it to the converted tiling is the measurement.

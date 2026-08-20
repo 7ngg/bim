@@ -199,16 +199,50 @@ For training it enters under the `(region, corpus, annotation_provenance)`
 conditioning tag *Cross-dataset unification* requires, with per-plan scale
 recovery applied and ids 5981–5985 filtered. **16,317** non-augmented plans.
 
-### 4.4 Rectangularisation is unspecified and load-bearing
+### 4.4 Rectangularisation — settled, and it is a solve
 
-Every stage downstream places **one rectangle per room**, and real rooms are not
-rectangles — ResPlan reports 43.2 % exactly rectangular, 62.3 % at 2 % tolerance.
-Both sources need real polygons turned into rectangles, and how is unowned:
-§7.4 of the survey flagged it as belonging to tickets 01/04, and both are closed
-without settling it.
+Every stage downstream places **one rectangle per room**, and about half of real
+rooms are not rectangles. Settled by *Rectangularising real rooms*:
+`docs/research/rectangularisation.md`, ADR
+[0008](../adr/0008-a-corpus-dwelling-is-converted-by-solving-it.md), harness in
+`experiments/rectangularise/`.
 
-Ticketed as *Rectangularising real rooms*. Both sources block on it, so it is on
-the critical path rather than a preprocessing detail.
+**A corpus dwelling is converted by solving it.** One CP-SAT fit per dwelling on
+the shipped 250 mm grid, with the real dwelling's separation directions and
+door-width adjacencies posted **hard** and exact tiling **soft** — the shipping
+solver's own constraint structure, pointed at a real home. A dwelling with no
+such tiling is **dropped**; representability is the reject rule.
+
+Three corrections to what this section used to say:
+
+- **ResPlan's "43.2 % exactly rectangular" is a vertex count, not a shape
+  measure.** 43.18 % of its room polygons have four vertices; **53.9 %** have an
+  area equal to their bounding box. Every use of 43.2 % here was pessimistic.
+- **Swiss Dwellings had never been measured.** It is **48.9 %** rectangular at
+  the same 2 % tolerance — and **0 %** in the corpus's own coordinates, because
+  it is geo-referenced. Every shape figure names the **dwelling axis** it was
+  measured on, which is the minimum rotated rectangle of the union of its rooms.
+- **Non-rectangularity is two room types.** CORRIDOR and LIVING_DINING are
+  rectangular in 26 % of cases; BEDROOM in 77 %. ResPlan folds circulation into
+  `living`, which is rectangular in **1.7 %** of plans.
+
+**What the conversion guarantees, on both corpora:** zero real adjacencies
+destroyed, zero separation directions flipped or weakened. **What it costs:** 31 %
+of Swiss Dwellings and 40 % of ResPlan dropped, per-room IoU median 0.895 and
+0.679, per-room area error median −3.5 % and −6.3 %.
+
+**This invalidates §2.2's coverage table.** The 9.5 % and 12.4 % blank rates were
+measured on the unconverted corpus. Conversion removes 31 % of Swiss Dwellings and
+takes it disproportionately from the top of the band — 83 % of 4-room dwellings
+convert against 46 % of 10-room — so retrieval's pool shrinks most where it was
+already thinnest. *The retrieval index and warp procedure* must re-measure before
+any coverage figure here is quoted again. It is affordable at all because ADR 0005
+gives a blanked Brief somewhere to go.
+
+**The converted room is a centreline rectangle**, not a clear one: the watershed
+splits each wall at its axis, so a converted room's area includes half of every
+wall around it. Per ADR 0001 the clear rectangle is that eroded by `t_int/2`, and
+anything comparing against a clear-dimension threshold must erode first.
 
 ---
 

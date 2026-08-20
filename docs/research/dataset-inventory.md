@@ -318,7 +318,7 @@ Every published figure checked reconciles, one of them exactly:
 | total plans | 17,000 | 17,000 | ✓ |
 | splits | 13,053 / 1,632 / 1,632 (+683 aug) | identical, and they **sum to 17,000** | ✓ |
 | room polygons | 137,131 | **137,131** | ✓ exact |
-| rectangular share | 43.2% | 42.1% exact / 62.3% at 2% tolerance | ✓ |
+| rectangular share | 43.2% | **53.9% exact / 62.1% at 2% tolerance** | ⚠️ see below |
 | avg functional rooms | 8.1 | 8.07 | ✓ |
 | median floor area | 110 m² | 109.6 m² | ✓ |
 | median wall thickness | 21 cm | 22.6 cm | ✓ |
@@ -326,8 +326,26 @@ Every published figure checked reconciles, one of them exactly:
 The exact match on 137,131 also **defines what the paper means by a functional
 room**: five classes — `living`, `kitchen`, `bedroom`, `bathroom`, `balcony`.
 Counting all eight classes present gives 138,336, and the difference of 1,205 is
-exactly `garden` 853 + `parking` 351 + `pool` 1. The published "43.2% rectangular"
-likewise means *exactly* rectangular; at a 2% area tolerance it is 62.3%.
+exactly `garden` 853 + `parking` 351 + `pool` 1.
+
+**Correction, from *Rectangularising real rooms*.** The line that used to stand
+here — "the published 43.2% likewise means *exactly* rectangular" — is wrong, and
+so is the 42.1% in the table above. Re-run over all 137,131 polygons:
+
+| definition | share |
+|---|---:|
+| **exactly four exterior vertices** | **43.18 %** |
+| area equal to bounding-box area, float equality | 51.32 % |
+| **area equal to bounding-box area, 1e-9** | **53.88 %** |
+| within 2 % of bounding-box area | 62.11 % |
+
+The 2 % figure reproduces the paper (62.3 %) and the original probe (62.5 % on
+its first 2,000 plans). The *exact* figure does not, under any area-based
+definition — but **43.18 % of polygons have four vertices**, which lands on the
+paper's 43.2 %. So the paper's "exactly rectangular" is a statement about
+**storage**, not shape: 10.7 % of ResPlan's rooms are rectangles written down with
+redundant collinear vertices. Every use of 43.2 % as a shape figure — this table,
+`docs/spec/proposer.md` §4.4, and the map — was pessimistic by that margin.
 
 The splits are worth stating plainly because the map has carried them wrong: the
 683 augmented plans are **inside** the 17,000, not additional to it. Usable

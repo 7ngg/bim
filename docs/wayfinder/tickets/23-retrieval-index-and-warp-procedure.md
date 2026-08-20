@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:grilling]
 status: open
 assignee:
-blocked_by: [22]
+blocked_by: []
 ---
 
 # The retrieval index and warp procedure
@@ -85,3 +85,42 @@ do not, the gate needs a third term.
 tau is the mitigation and it is cheap in this band: at 8 rooms tau = 4 removes
 the sigma = 1.0 m cliff completely for 0.02 s. That is why the shipped default is
 tau = 4 rather than 0.
+
+## What *Rectangularising real rooms* hands this ticket
+
+**Unblocked.** A corpus dwelling is now a **rectangular tiling of a bbox-minus-≤2-notch
+Envelope**, one centreline rectangle per room, produced by a CP-SAT fit
+(ADR 0008, `docs/research/rectangularisation.md`). Item 2's "how do rooms move"
+is therefore warping *a tiling*, not warping polygons, and a scaled tiling is
+still a tiling — which is most of what made the mechanism hard to state.
+
+**Three things change on this ticket, and one of them is a correction.**
+
+**Item 3's pool sizes are wrong, and item 5 now has half its curve.** The median
+pool of 66–92 was measured on the unconverted corpus. Conversion drops **31 % of
+Swiss Dwellings**, and not uniformly: **83 % of 4-room dwellings convert against
+46 % of 10-room**, so the index thins most in exactly the band *What the model
+proposes* already found weakest (12.4 % blank, median pool 66). **Re-measure
+coverage before quoting any figure from §2.2.** This is affordable only because
+ADR 0005 gives a blanked Brief somewhere to go.
+
+**Item 5 inherits a second budget in a different coordinate.** The conversion
+posts a **±10 % per-room area band** — stricter than the ±10 % *total*-area warp
+gate, chosen so the corpus is not looser than the gate it feeds. Relaxing it to
+±25 % takes conversion from 73.6 % to 90.8 %, and unconstrained to 91.2 %. That is
+**17.6 points of corpus for a per-room area tolerance**, measured, and it is the
+same fidelity-versus-coverage trade as the ±10 %/±15 % gate. Both belong here.
+
+**A new item.** *What happens to the conversion's spurious relations under a
+warp.* The fit preserves every separation direction the real dwelling asserted —
+zero flipped, zero weakened — but **adds** an assertion on **15.7 %** of axis-pairs
+where the truth abstained, because a rectangle model must pick a side when one
+room wraps another. Those are the pairs the warp is least entitled to trust, and
+`fix_relations` will post them **hard** like any other. Item 4's per-room
+confidence should mark them: a relation the corpus asserted and a relation the
+conversion invented are not the same claim, and the Proposal contract has exactly
+one field that can say so.
+
+**One thing this does not hand over.** The fit does not know exterior from party,
+so item 6's exposure-ring matching gets no help from it — what was measured is
+boundary contact, not window frontage.

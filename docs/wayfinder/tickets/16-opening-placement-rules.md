@@ -161,3 +161,25 @@ schedule.
 
 The catalogue's contents are owed by *The Azerbaijani region profile*, not by
 this ticket. What this ticket owes is the placement rule set that consumes them.
+
+## An ordering question this ticket inherits and may not own
+
+**Doors are placed after the solve, and an architect places them with the room.**
+*Acceptance validator spec* found Opening rules "unpostable by construction" —
+Openings do not exist when the solver runs — so the pipeline is solve, then
+place. ADR 0001 consequence 3 makes the solver reserve *enough* shared wall
+(structural opening + `t_int`), which is why circulation is satisfiable. It does
+not reserve **where**.
+
+That gap is architectural, not procedural. A door's position decides whether a
+room has an unbroken furniture wall, whether two doors eat the same corner, and
+whether the swing lands in the circulation path rather than across it. A room
+that is dimensionally fine and has its only door mid-wall is a room an architect
+would redraw, and nothing in the current ordering can prevent it — the solve that
+fixed the geometry had no opinion about doors beyond a minimum contact length.
+
+Decide here whether that is acceptable for v1, or whether the solve needs a
+door-position variable (which would make Openings partly postable and reopen
+*Acceptance validator spec*'s enforcement-site table). Stating "acceptable, and
+here is why" is a fine answer; leaving it unstated is not, because it is one of
+the two or three things that most makes a generated plan read as generated.

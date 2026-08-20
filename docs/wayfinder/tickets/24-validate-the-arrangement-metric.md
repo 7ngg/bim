@@ -4,7 +4,7 @@ title: Validate the arrangement metric against the solver
 parent: map
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 ---
 

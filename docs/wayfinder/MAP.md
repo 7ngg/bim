@@ -275,7 +275,12 @@ dimension in this system has to declare):
   dwellings with each Brief taking one dwelling's programme and a **different**
   dwelling's envelope, retrieval blanks on **9.5% of 4–6-room and 12.4% of
   7–10-room Briefs** (median pool 92 and 66) and **67.7% at 11–15** — one Brief in
-  nine refused is not a usable product — while a trained model **fails quietly**
+  nine refused is not a usable product — ⚠️ *those three figures are **superseded**:
+  they were measured on the unconverted corpus, and* Rectangularising real rooms
+  *removes 31% of the retrieval index, disproportionately from the top of the band
+  (83% of 4-room dwellings convert, 46% of 10-room). The conclusion they support —
+  neither source survives alone — is strengthened, not weakened; the numbers must
+  be re-measured by* The retrieval index and warp procedure — while a trained model **fails quietly**
   and throws away 46,800 arrangements that are real by construction. Explicitly
   rejected because it was the easy answer: **widening the warp budget** until
   retrieval covers everything; ±10% area / ±15% aspect is a **hard gate**, since a
@@ -375,6 +380,76 @@ dimension in this system has to declare):
   that exist**. Also: **the infeasibility core discriminates nothing** — every
   INFEASIBLE run at every size returned the identical five-family set.
 
+- [Rectangularising real rooms](tickets/22-rectangularising-real-rooms.md) — **a
+  corpus dwelling is converted by solving it**, and the ticket's premise was wrong
+  twice before anything could be decided. Findings
+  `docs/research/rectangularisation.md`, ADR
+  [0008](../adr/0008-a-corpus-dwelling-is-converted-by-solving-it.md), harness
+  `experiments/rectangularise/`. **"40% of rooms are not rectangles" has no
+  meaning without an axis** — in the corpus's own geo-referenced coordinates
+  **0.0%** of Swiss Dwellings rooms are rectangles, and on the dwelling's own axis
+  **48.9%** are, the first measurement of this corpus; and **ResPlan's 43.2% is a
+  vertex count**, not a shape measure — 53.9% of its rooms have an area equal to
+  their bounding box, so every downstream use of 43.2% was pessimistic. Also:
+  corpus rooms are **Spaces that never touch** (p50 gap 99 mm, share touching
+  0.000), so "do they still tile" was malformed — they never tiled. All three
+  per-room conversions fail because each converts a room in ignorance of its
+  neighbours: the **largest inscribed rectangle destroys 38% of every real
+  adjacency** and the area-preserving one 24%, both manufacturing confident-wrong
+  assertions, because holding area while the bbox inflates it 11% *means*
+  shrinking and shrinking deletes contacts. **The bounding box preserves the
+  separation relation exactly, by construction** — a relation is a bounds test and
+  a bbox preserves bounds, 1.0000 on 931,369 pairs — so its failure is *not*
+  feasibility; it is that its rectangles collide in **86%** of dwellings and an
+  overlapping pair **abstains**, handing the solver a target that is not a Plan
+  with the interesting pairs silently dropped. So: one CP-SAT fit per dwelling on
+  the 250 mm grid, relations and door-width adjacencies **hard**, tiling **soft** —
+  the shipping solver's own structure pointed at a real home. **Zero adjacencies
+  destroyed and zero relations flipped or weakened across both corpora**; IoU
+  median 0.895 Swiss / 0.679 ResPlan; area error median −3.5% against bbox's
+  +11.1%. The reject rule is **representability, and it is decidable** — every
+  dwelling proven optimal or proven infeasible inside 10 s, zero UNKNOWN — and it
+  holds exactly for **69% of Swiss Dwellings and 60% of ResPlan**. ⚠️ **Amended
+  after the fact, because the first framing was wrong**: every corpus dwelling is
+  a real, built, QA'd home, so a rule that "rejects" 31% of them measures **what
+  our model cannot express**, not what is wrong with the data — and *Acceptance
+  validator spec* had already set the opposite principle by loosening two rules
+  "to survive real homes". Replaced by a **fidelity ladder**: tier A exact
+  (0.7360), B neighbour-relations only (0.8200), C relations soft (0.9375), D
+  adjacency soft (**1.0000**). **Retrieval admits tier A only** — its claim is
+  that someone lived in *this* arrangement — while **training takes every
+  dwelling** at its best tier, carried as a conditioning field, which also deletes
+  the size bias below. Ablation's last row is the sentence: with relations and
+  adjacency both free **100%** convert, so **nothing here is un-tileable — what
+  fails is tiling a dwelling *as itself*.** Three things were measured wrong first,
+  each of which looked obviously right: posting tiling **hard** rejects nearly
+  every dwelling; the **shipped L1 corner objective is wrong for fitting** (IoU
+  0.14 against 0.82 — projection and fitting are different problems); and a notch
+  taken as the complement's **bounding box** over-cuts, deleting a room in 15% of
+  dwellings. Beyond the ask: **Graph2Plan's 93% does not survive either corpus** —
+  bbox ∩ envelope buys 1.3 points because the envelope explains only 2.3–2.8% of
+  real non-rectangularity, so rooms are concave because another *room* is there,
+  and the gap the ticket asked about is the corpus rather than the method;
+  **ADR 0003's ≤2-notch cap is evidenced and vindicated** — 61.8% of dwellings
+  need ≤2, a third notch recovers 0.64 points of area, and **raising the cap makes
+  conversion worse** (66.8% at four against 73.6% at two); and non-rectangularity
+  is **two room types** — CORRIDOR and LIVING_DINING at 26% rectangular against
+  BEDROOM's 77%, while ResPlan folds circulation into `living`, rectangular in
+  **1.7%** of plans, which is why it converts far worse and is a second reason it
+  stays training-only. ⚠️ **Invalidates *What the model proposes*' coverage
+  table**: the 9.5% and 12.4% blank rates were measured unconverted, and the
+  conversion takes the index disproportionately from the top of the band (83% of
+  4-room dwellings convert, 46% of 10-room), so retrieval thins most where it was
+  already thinnest — affordable only because ADR 0005 gives a blanked Brief
+  somewhere to go. What the 31% is **not** is a boxiness filter: rooms that were
+  already rectangles are 53.90% of the corpus and **53.72%** of what survives, so
+  the self-confirming spiral a rectangle model invites does not happen. What it
+  selects for is **size and interlock** — median dropped dwelling 8 rooms and
+  89.9 m² against 6 rooms and 71.7 m², bbox overlap 2.9× higher, `STOREROOM`
+  over-represented 1.71× — so the corpus skews **small**, which compounds a
+  thinness *Acquire the datasets* already found above 10 rooms and lands on
+  *The room-count envelope v1 promises* as well as on retrieval.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -422,19 +497,39 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   even though no fixture is modelled; and one acceptance rule
   (`open.wc_door_outward_pan_overlap`) sits `deferred` in the registry, with its
   source and its 250 mm, waiting only for a pan to exist.
-- **Non-orthogonal geometry** — no longer a presumption: *Building scope and
+- **Non-orthogonal geometry** — ⚠️ **this patch was two questions wearing one
+  name, and the conflation cost the map a decision nobody examined.** An
+  **L-shaped room is orthogonal.** It is a union of two axis-aligned rectangles,
+  and CP-SAT places two rectangles as happily as one. Filing "a room that is not a
+  rectangle" next to "walls at an angle" made the cheap question inherit the
+  expensive one's deferral, and every downstream ticket then inherited *one box
+  per Room* without anyone weighing it. The map's own text shows the seam: the
+  **Envelope** may have two notches — L, U, T — while a **room** may not have one.
+  Split out as *Whether a Room may be more than one rectangle*; what remains in
+  this patch is **angled walls only**, which genuinely do break the coordinate
+  model and are genuinely v2. ⚠️ **And the split is not cosmetic** — measured in
+  *Rectangularising real rooms*' follow-on
+  (`experiments/rectangularise/rectilinear_k.py`, 8,293 rooms): **only 2.67% of
+  real dwellings have every room a rectangle**, against 23.9% if a Room may be an
+  L and 54.7% at three rectangles. Per room it is 52.9% / 77.8% / 87.6%, and
+  CORRIDOR — the room the whole circulation model rests on — is a rectangle just
+  **29.8%** of the time. So *one box per Room* is not a modelling simplification
+  with a small cost; it is the reason the corpus conversion has to approximate at
+  all. Settle it before anything is built.
+
+  No longer a presumption: *Building scope and
   envelope handling* fixed v1's Envelope as **rectilinear, bbox minus ≤2 notches**
-  (rect/L/U/T), and ADR 0003 records why. What stays fog is when and how angled
-  walls enter, and the ≤2 cap is unevidenced in both directions — the toy ran one
-  L and two U envelopes, which shows two notches are affordable and says nothing
-  about three. *What the model proposes* added the first evidence that the cap may
-  be **too tight rather than too loose**: real dwellings fill only **0.79** of
-  their minimum-area rotated rectangle at the median and **0.61** at p5, so a
-  meaningful share of Swiss Dwellings is more notched than rect/L/U/T can
-  describe. **How many real dwellings fit inside the cap is unmeasured**, and it
-  bounds retrieval from a direction nothing has tested — a corpus dwelling the
-  Envelope model cannot express is a retrieval match that cannot be warped. It
-  also carries a **deliberately unbuilt dependency**: room-tag
+  (rect/L/U/T), and ADR 0003 records why. **The ≤2 cap is no longer unevidenced, and it is vindicated** —
+  *Rectangularising real rooms* measured it: **61.8%** of real dwellings need two
+  notches or fewer, the rest lose a median **1.85%** of envelope area to the cap,
+  a third notch recovers 0.64 points of that and a fourth 0.18, and a plain
+  rectangle would lose 16.5% — so L/U/T earn their place and the curve is flat
+  past two. **Raising the cap makes things worse**: conversion falls to 66.8% at
+  four notches against 73.6% at two, because a more articulated Envelope is
+  harder to tile with *n* rectangles. That closes the suspicion *What the model
+  proposes* raised from the 0.79 median rotated-rectangle fill — real dwellings
+  are indeed more notched than rect/L/U/T describes, and it costs almost nothing.
+  The patch also carries a **deliberately unbuilt dependency**: room-tag
   placement is the Space *centroid*, exact only because every v1 Space is a
   rectangle. The day a room is concave, tags start landing outside their own rooms
   and largest-inscribed-circle placement has to be specified — *Dimensioning and
@@ -490,7 +585,12 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   Loosening raises coverage and lowers fidelity, and nobody has measured the
   trade. Sharp enough to be a sub-question of *The retrieval index and warp
   procedure* and not yet sharp enough to be its own ticket, because what "fidelity"
-  means here needs the arrangement metric validated first.
+  means here needs the arrangement metric validated first. **Now has a second
+  coordinate and one measured curve.** *Rectangularising real rooms* posts a
+  **±10% per-room area band** in the corpus conversion — stricter than the ±10%
+  *total*-area warp budget, chosen so the corpus is not looser than the gate it
+  feeds — and it costs **17.6 points of corpus**: relaxing it takes conversion
+  from 73.6% to 91.2%. Same trade, different axis, and the same ticket owns both.
 
 - **Whether a discrete thickness catalogue reproduces real dwelling geometry.**
   New, and it is the residue of *Which region profiles ship in v1*'s negative
