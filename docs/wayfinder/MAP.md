@@ -19,6 +19,37 @@ IFC**. Built clean, from scratch.
 The map is done when someone could staff the build from it. It produces
 decisions, not code.
 
+### Done-test
+
+"Someone could staff the build" means **every component below is `settled`**. This
+is the only thing that orders the frontier: the tickets are nearly all unblocked,
+so pick by which gap is widest and which sits furthest upstream, not by which is
+easiest to take. A ⚠️ on a `settled` row is a live challenge to something already
+decided — it does not un-settle the row, but it is why that row can still move.
+
+Every open ticket appears here exactly once. A row with no ticket is **unowned**,
+and that is the failure this table exists to catch.
+
+| Component | | Owed by |
+|---|---|---|
+| Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings | settled | ⚠️ its *one box per Room* premise was never weighed — *Whether a Room may be more than one rectangle* |
+| Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
+| Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus* |
+| Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts* |
+| Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | — |
+| Runtime and process split — engine / proposer service / BFF, job model, threads, JSON | settled | ⚠️ the honest end state (queue + result store) is fog, under *Persistence, accounts, hosting* |
+| DXF export | settled | — |
+| Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by |
+| Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
+| Acceptance bar — 37 predicates, enforcement sites, conformance test | partial | **19 of 37 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Opening rules need *Opening placement rules* |
+| Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*. Also *One internal thickness, against a corpus that has no module at all* |
+| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing — *The annotation spec is US-shaped and the drawing is now Azerbaijani* |
+| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | **open** | nothing written — *Brief schema and parsing contract*, itself waiting on *Area measurement convention* |
+| **Area measurement convention** — what a m² means everywhere it travels | **open** | *Area measurement convention*. Upstream of the Brief, the bar and the exports |
+| **IFC export** — the Destination's second named output | **open** | ⚠️ **was unowned until the done-test ran.** `IFC` appears in no spec file; *BIM and CAD export stack* proved the tooling, never the content — *What IFC the engine actually emits* |
+| **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, waiting on the Brief |
+| **Room-count promise** — what the product says it covers, against C13's 4–10 | **open** | *The room-count envelope v1 promises* |
+
 ## Notes
 
 **This map is an index.** Every decision below lives in full on its ticket, under
@@ -144,7 +175,7 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   set region-free. Circulation splits into **potential** (solver) and **realised**
   (validator). Two rules were loosened to survive real homes; **aspect ratio ≤3.0
   hard** was added because a 2750 × 8250 bedroom passes every other test. ⚠️ 19 rules
-  remain `ENGINE_CHOICE`, owed by *Fit the ENGINE_CHOICE acceptance thresholds*.
+  remain `ENGINE_CHOICE`, owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*.
 - [Building scope and envelope handling](tickets/09-building-scope-and-envelope-handling.md)
   — **flats and single-storey houses through one code path**, because the difference
   was never provenance — it is **which edges can hold a window**. The Envelope is the
