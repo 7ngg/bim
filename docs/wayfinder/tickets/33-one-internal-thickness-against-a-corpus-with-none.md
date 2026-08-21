@@ -3,8 +3,8 @@ id: 33
 title: One internal thickness, against a corpus that has no module at all
 parent: map
 labels: [wayfinder:research]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
   - docs/research/ (new findings doc) — read-only on the profile
@@ -103,3 +103,125 @@ Three things follow for this ticket:
 
 The finish constant itself is **not** this ticket's to settle — *What an
 Azerbaijani finish layer actually is* owns it, and it is a sibling, not a blocker.
+
+## Findings pointer
+
+Measured and written up in **`docs/research/single-internal-thickness.md`**.
+Harness, runnable, in **`experiments/thickness-fidelity/`** (`README.md` there
+carries the two things that will bite whoever runs it next).
+
+Nothing in `data/standards/room-constraints.json` was edited — the `writes:`
+declaration above is honoured literally. This section is a pointer only; the
+`## Resolution` is the parent session's to write.
+
+## Resolution
+
+**One internal thickness is defensible, and 150 mm is nearly optimal. What it
+costs is the drawing, not the areas** — and the cost is a different failure from
+the one the map was guarding against. Findings:
+`docs/research/single-internal-thickness.md`. Harness:
+`experiments/thickness-fidelity/` (8 scripts, all runnable; the measurement pass
+is ~48 min over 14,063 dwellings).
+
+### The four items
+
+1. **Does a dwelling drawn with one internal thickness read as real? No — and not
+   for the expected reason.** 93.0% of real dwellings carry ≥2 internal thickness
+   classes at ±10 mm; the modal dwelling has three; only **7.0%** have one.
+   Heaviest ÷ lightest is a median **2.00×**, and 77.0% differ by ≥50 mm, which is
+   1 mm of paper at 1:50. **76.1% show three weights** — envelope, internal
+   bearing, partition. A uniform `t_int` draws two, always. So the plan does not
+   read as *generated*; it reads as **drawn by someone who does not distinguish a
+   partition from a bearing wall.** That is a competence signal, not a novelty
+   signal, and it is the C2 failure. Drawn three ways in `out/compare.png` — as
+   surveyed, uniform at the dwelling's own median, uniform at 150 — which
+   separates *uniformity* from *thickness*.
+2. **Does area drift? Not at 150, and ADR 0010 deleted the drift by accident.**
+   Three independent estimators land at **−0.91% / −0.46% / +0.68%** of Σ Space
+   area — they straddle zero. At the 120 mm ADR 0010 replaced they were
+   **+0.22 / +0.68 / +1.81, all positive**. The drift was real and moving `t_int`
+   for an unrelated reason removed it. Per *room* it is not zero — bathrooms
+   +5.1%, flagged by the study itself as its least reliable figure.
+3. **What a second thickness buys.** The re-pricing is right and re-prices a cost
+   that was already nil. But **per-plan selection captures 1% of the available
+   gain; 99% lives inside a single dwelling.** So the purchase that buys the
+   fidelity is two `t_int` in **one** Plan, which breaks ADR 0001 consequence 5
+   and the **hard** rule `model.space_matches_erosion` — neither touched by ADR
+   0009. A cheap middle shape exists ("solve at 280, draw at 150") and costs
+   **19 of 36 room-axes an extra 250 mm solve cell**, plus a re-derivation of the
+   area gate.
+4. **Sanity-check the value. It passes, and by a wide margin.** The corpus-optimal
+   **single** internal thickness over 411 km of Swiss internal wall is **146 mm**;
+   `AZ` ships **150**, reached from AzDTN 2.17-1's half-brick and AzDTN 2.12-4\*'s
+   plaster **with no corpus involved**. Misplaced material 38.1% against 38.0% at
+   the optimum. Two independent construction traditions, one number, 4 mm apart.
+   The three biases *do* compound — bias 1's gradient runs −0.74% in the smallest
+   area quintile to −0.03% in the largest, monotone, and the retained pool skews
+   small — but each is ~1% and none justifies moving a `verified` number.
+
+### What it contradicts, and one of them is mine from this morning
+
+- **VERIFIED, not contradicted** — the prior's *"no module at all"* reproduces on
+  an independent 467,690-wall sample, every cell within ~2 points. C11 satisfied.
+- **CORRECTED, and it is ADR 0010's own figure.** *"The partition footprint is
+  roughly 4–5% — the width of the 5% gate"* is verified for the corpus (4.8%) and
+  for the 120 mm ADR 0010 **replaced** (4.5%), and stale for the **150 it
+  shipped**: measured **5.7%**, *wider* than the gate. Fixed in ADR 0010
+  consequence 4, `acceptance-bar.md` §8, `rules.json` and the profile's
+  `area_convention.quantity`. It strengthens ADR 0010's argument rather than
+  weakening it, which is exactly why it needed saying rather than quietly
+  benefiting from it.
+- **CONTRADICTED** — *"120 sits below the corpus median, near the p25"*, inherited
+  from *Which region profiles ship in v1*, quotes the **all-walls** census, which
+  mixes in exterior and party walls at 2–3× a partition. **Internal walls only:
+  p25 = 100, p50 = 131, p75 = 169.** 150 sits at ≈ **p60**, *above* the internal
+  median. Recorded in the profile's `ship_gates.ticket_33_sanity_check`.
+- **QUALIFIED** — *"an 8-entry catalogue matches 58.5% of real walls"* is measured
+  on all walls. On **internal** walls it is **74.7%**; 12 entries 84.1%; top-20
+  snapped 91.5%. The conclusion survives; the evidence was understated by 16
+  points on the population it is used to talk about.
+- **SUPERSEDED** — *"a second `t_int` needs N copies of every dimensional
+  minimum"*, in `az-region-profile.md` §2 and in the shipped ship-gate note, is
+  **false by count**: `profiles.AZ` publishes **zero** linear minima. The
+  single-`t_int` conclusion holds on a different argument — ADR 0001, not ADR
+  0007. Ship-gate note corrected.
+- **NARROWED** — ADR 0009 cheapens the *per-Plan* purchase, whose cost was already
+  zero. It does not touch the one that buys the fidelity.
+
+### A free gift to a re-owed item
+
+**ADR 0010's 120 → 150 move cost the solver nothing** — 253 solve cells either
+way, not one room-axis changed its ceiling. That is *partial* evidence toward
+ticket 19's re-owed room-count deletion analysis: the per-room ceiling is unmoved.
+It does **not** settle it, because the deletion also turns on the Envelope's own
+re-snapping, which this arithmetic does not touch. A starting point, not a
+conclusion.
+
+### The finding that answers a question I handed elsewhere
+
+**Swiss Dwellings records exactly one plane and no finish layer.** Space polygons
+sit on the wall body's own faces to within 1 mm a side; `gap − t_mrr` has a mode
+at exactly 2.0 mm. So *Look at the converted corpus* was handed the wrong
+question: the corpus is not structural *or* finished — **the distinction does not
+exist in the file.** That ticket's item is rewritten accordingly.
+
+### What was surfaced rather than resolved
+
+Item 1's measurement is a **fact**; what to do about it is a **decision**, and it
+is not this ticket's. New ticket: *One wall weight where a real plan draws three*,
+with the three shapes priced — accept and say so; solve thick and draw thin; two
+`t_int` in one Plan.
+
+### What could not be obtained
+
+Any Azerbaijani dwelling geometry — **none exists**, so every figure here is Swiss
+and inherits C14's standing disagreement · a third corpus (`rplan/`, `msd/`,
+`procthor/` are empty directories) · a per-wall thickness in ResPlan (one scalar
+per plan, 17,000 of 17,000 — it *assumes* uniformity and so cannot corroborate) ·
+a load-bearing flag, so the ≥200 mm bearing proxy is `engine_choice` · solve
+**time** at a second thickness, since `experiments/solver-toy/` belongs to other
+tickets, so shape B's cost is stated in solve cells rather than seconds · a
+Practitioner's judgement of a uniform plan, because **nobody has been shown one**
+· **the sign of the drift at 150** — three estimators straddle zero, magnitude
+bounded under 1%, direction unresolved · the magnitude of the bathroom per-room
+drift, whose ordering is robust and whose number is not.

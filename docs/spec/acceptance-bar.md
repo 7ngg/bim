@@ -235,9 +235,16 @@ belongs to *Opening placement rules*.
 **The quantity is the sum of Space areas**, not GIA. *Area measurement
 convention* / ADR 0010: v1 measures `az_umumi_sahə` per Area Qaydalar cl. 3.8,
 which **sums room areas** and therefore does **not** count internal partitions.
-GIA counts them. On a 90 m² dwelling that difference is roughly **4–5%** — the
-width of the gate below — so this was a change of *quantity*, not of tolerance,
-and the earlier "GIA" wording is struck rather than adjusted.
+GIA counts them. That difference is **5.7%** of Σ Space area at the shipped
+`t_int` of 150 mm — **wider than the 5% gate below**, measured over 14,063
+dwellings by *One internal thickness, against a corpus that has no module at all*.
+So this was a change of *quantity*, not of tolerance, and the earlier "GIA"
+wording is struck rather than adjusted.
+
+> The figure first written here was "roughly 4–5%". That is verified for the
+> corpus's own partitions (4.8%) and for the `t_int` of 120 mm that ADR 0010
+> replaced (4.5%) — and stale for the 150 mm it shipped. Corrected, and it widens
+> the gap rather than narrowing it.
 
 | Envelope | Rule | Why |
 |---|---|---|

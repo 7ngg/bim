@@ -1,0 +1,8 @@
+# Working copies of official normative publications (AzDTN, SNiP) downloaded for
+# ticket 35. They are free official publications with NO open licence: read to
+# establish facts, never redistributed. Re-fetch with the URLs recorded in
+# docs/research/az-finish-layer.md section 9 if they are needed again.
+src/
+
+# Extracted text and probe output — regenerate by running the scripts here.
+out/

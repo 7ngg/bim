@@ -92,3 +92,28 @@ is itself the finding.
 
 This is a looking task, not a re-fit. If it shows the floor is lenient, the re-fit
 is owed by whoever holds the ergonomic layer, not by this ticket.
+
+## Amended by *One internal thickness* — the question above was the wrong one
+
+The face-convention check handed to this ticket has been answered, and the answer
+is that the question does not apply.
+
+**Swiss Dwellings records exactly one plane, and no finish layer at all.** A
+corpus Space polygon is not offset from its wall: the polygons sit on the wall
+body's own faces to within 1 mm a side, and `gap − t_mrr` has a mode at **exactly
+2.0 mm**. So the corpus is not "structural" and not "finished" — the distinction
+that ADR 0010 introduced **does not exist in the file**.
+
+Two consequences, and the second is the one worth looking at:
+
+1. **The leniency worry is unresolvable from this corpus**, not merely unmeasured.
+   *Ergonomic minima*' Swiss validation compared our rectangle against a corpus
+   plane that is neither of ours. That is a **stated limit** on those figures now,
+   not a pending measurement. Nothing further is owed here.
+2. **What is still worth looking at is the shape, not the plane.** This ticket's
+   own reason stands untouched — no converted plan has ever been looked at, and
+   everything the Proposer will learn about arrangement comes through that
+   conversion. Do the looking.
+
+`experiments/thickness-fidelity/` did the arithmetic (see its README, *"A corpus
+room polygon is not offset from its wall"*); do not repeat it.

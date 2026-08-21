@@ -115,13 +115,24 @@ and `DIM-CONV` loses its second clause.
    Direction is not obvious and must not be guessed: this is filed as a
    correction, not a reassurance.
 4. **The total-area gate changes quantity, not just width.** It gated on GIA,
-   which counts partitions; `ümumi sahə` does not. On a 90 m² dwelling the
-   partition footprint is roughly **4–5%** — the width of the 5% gate itself. See
-   `acceptance-bar.md` §8.
-5. **The finish constant is `engine_choice` and is the weakest number here.**
-   15 mm is not read from any Azerbaijani document. It is corroborated only by
-   being the value the shipped `t_party` derivation already assumes. Owed by
-   *What an Azerbaijani finish layer actually is*.
+   which counts partitions; `ümumi sahə` does not. The partition footprint is
+   **5.7%** of Σ Space area at the `t_int` = 150 this ADR ships — measured over
+   14,063 dwellings, `experiments/thickness-fidelity/`. **Wider than the 5% gate,
+   not the same width as it.** The "roughly 4–5%" this originally said is verified
+   for the corpus (4.8%) and for the 120 mm it replaced (4.5%), and was stale for
+   its own shipped value. Corrected by *One internal thickness*, which notes the
+   error strengthens this argument rather than weakening it.
+   See `acceptance-bar.md` §8.
+5. ~~**The finish constant is `engine_choice` and is the weakest number here.**~~
+   **Discharged the same day, and the number did not move.** `t_finish` = 15 mm
+   is now `verified` — **AzDTN 2.12-4\* Əlavə 8\*, Cədvəl 1, rows 27–28**,
+   *plastering over stone or brick masonry*, column `Layın qalınlığı, mm`, read
+   first-hand. `docs/research/az-finish-layer.md`. Not the ticket-25 trap: this
+   is the live Azerbaijani instrument — the one that suspended СНиП II-3-79\* —
+   quoted from its own text, and its 15 mm is **tabulated, not required** (C8).
+   The `t_party` derivation that assumed 15 mm plaster both sides is therefore
+   strictly better sourced than when it shipped. Every consequence above stands
+   unchanged: `t_int` 150, residue 100 mod 250.
 6. **The drawing gets easier, and that is a side effect and never the reason.**
    ADR 0004's collision complaint was a `t_int` tick of 2 mm of paper at 1:50
    against 2.5 mm of text. At 150 mm the tick is 3 mm. Fewer leaders. Had the

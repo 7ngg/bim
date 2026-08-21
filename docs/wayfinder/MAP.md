@@ -42,10 +42,10 @@ and that is the failure this table exists to catch.
 | Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by |
 | Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
 | Acceptance bar — 38 predicates, enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Opening rules need *Opening placement rules* |
-| Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*. Also *One internal thickness, against a corpus that has no module at all* |
-| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani* |
+| Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*. ✅ its thickness is now measured-vindicated: 150 lands **4 mm from the corpus-optimal 146** |
+| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three* |
 | **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | **open** | nothing written, but **unblocked** and now handed its two area fields — *Brief schema and parsing contract* |
-| Area measurement convention — what a m² means everywhere it travels | settled | ⚠️ its plane rests on a 15 mm `engine_choice` finish — *What an Azerbaijani finish layer actually is* |
+| Area measurement convention — what a m² means everywhere it travels | settled | — |
 | **IFC export** — the Destination's second named output | **open** | ⚠️ **was unowned until the done-test ran.** `IFC` appears in no spec file; *BIM and CAD export stack* proved the tooling, never the content — *What IFC the engine actually emits*, now **unblocked** and handed its quantity and its wall layers |
 | **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, waiting on the Brief |
 | **Room-count promise** — what the product says it covers, against C13's 4–10 | **open** | *The room-count envelope v1 promises* |
@@ -116,7 +116,7 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region — but that was freedom, not an obligation to serve everywhere. v1 ships **exactly one** profile and it is **`AZ`**; `UK` survives as a test fixture and is never selectable. |
 | C13 | **v1's Proposer serves 4–10 Brief-named rooms**, 92% of the corpus; retrieval dies at 11+. What the *product* promises is *The room-count envelope v1 promises*. |
-| C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. Now populated: **one construction type, brick, `t_int` 150 mm — a layer set, 120 structural + 2 × 15 finish**, drawing in Azerbaijani. It also owns the **area convention**, and every published number measures to that finish plane. ADR 0006, ADR 0010. |
+| C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. Now populated: **one construction type, brick, `t_int` 150 mm — a layer set, 120 structural + 2 × 15 finish, every term `verified`**, drawing in Azerbaijani. It also owns the **area convention**, and every published number measures to that finish plane. ADR 0006, ADR 0010. |
 | C15 | **Two arithmetic ship gates, and they bind different layers.** ADR 0004 — every wall thickness **even** — is global. ADR 0007 — `min + t_int ≡ 0 (mod grid)` — binds **region profiles only**; ADR 0009 exempts the region-invariant ergonomic layer, whose minima are *derived* rather than quoted and so have no nominal-to-clear conversion to apply. Asserted, not claimed: `experiments/region-profile/gate_check.py` — **33 gates, all pass** after ADR 0010 moved the residue class from 130 to 100 mod 250 and sharpened ADR 0004 to bind on **totals, not layer components**. |
 
 **Evidence that shaped the map** — read before re-litigating C10:
@@ -257,7 +257,12 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   thickness catalogue and **there is no module in it at all** (near-continuous
   50–600 mm), so the catalogue is `ENGINE_CHOICE` unavoidably. `AZ` was chosen as a
   **construction system, not a country**. The profile shipped **empty on purpose**, and
-  is populated by *The Azerbaijani region profile*.
+  is populated by *The Azerbaijani region profile*. ⚠️ **Its thickness census mixes
+  internal and external walls**, so every "sits at the corpus p*N*" reading off it is
+  comparing a partition against a population two to three times heavier — *One internal
+  thickness* re-measures it internal-only and the shipped value moves from "near the p25"
+  to **≈ p60, above the internal median**. ⚠️ Its "8 entries match 58.5% of real walls" is
+  **74.7%** on internal walls.
 - [Solver timing variance sweep](tickets/15-solver-timing-variance-sweep.md) — **15 s
   and τ = 4, both fitted**, from 965 serial solves. `docs/research/solver-formulation.md`
   Part II, ADR 0007, `experiments/solver-toy/`. The limit is the p95 of time-to-VALID
@@ -339,9 +344,44 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   not tolerance, by roughly the width of the gate itself. New hard rule
   `area.convention_agrees`: **presence of a convention was never agreement.**
   ⚠️ ADR 0004's one centreline number — tier 1 to a party-wall centreline — is
-  **dead**, as ADR 0004 §4 pre-authorised. ⚠️ The whole plane rests on
-  `t_finish` = 15 mm `engine_choice`, corroborated only by being what the shipped
-  `t_party` acoustic derivation already assumed.
+  **dead**, as ADR 0004 §4 pre-authorised. ✅ Its one `engine_choice` was
+  discharged the same day — see below.
+- [What an Azerbaijani finish layer actually is](tickets/35-what-an-azerbaijani-finish-layer-is.md)
+  — **15 mm, and it is now `verified`.** `docs/research/az-finish-layer.md`,
+  `experiments/finish-layer/`. **AzDTN 2.12-4\* Əlavə 8\*, Cədvəl 1, rows 27–28**,
+  *plastering over stone or brick masonry* — the live instrument that suspended
+  СНиП II-3-79\*, not a repealed ancestor, so not ticket 25's trap. The number did
+  not move, so **nothing downstream re-opened**. `pdftotext` scrambles that table,
+  so the column was verified from **glyph coordinates** and the check is committed
+  and reproducible. What bites hardest is the **refutation**: the finishing-works
+  ladder — simple / improved / high-quality — is **flatness tolerances, not
+  thicknesses**, and reading it as thickness would have shipped `t_finish` =
+  1/2/3 mm, `t_int` = 122/124/126, **internally consistent all the way down with no
+  gate on this map catching it.** A competing AZ number, 10 mm, is real and loses
+  on **product not authority** — it is a factory panel's cast face, not laid
+  masonry. ⚠️ Both corpora are **permanently** unable to corroborate a finish
+  thickness: Swiss Dwellings' separator taxonomy is `WALL/RAILING/COLUMN` and
+  ResPlan carries one scalar per plan. ⚠️ Leaves `t_ext_total`'s 20 mm external
+  finish **unsupported on a second axis** — Əlavə 8\*'s only 20 mm row is over
+  *timber*.
+- [One internal thickness, against a corpus that has no module at all](tickets/33-one-internal-thickness-against-a-corpus-with-none.md)
+  — **one thickness is defensible and 150 mm is nearly optimal; what it costs is the
+  drawing, not the areas.** `docs/research/single-internal-thickness.md`,
+  `experiments/thickness-fidelity/` (14,063 dwellings, 411 km of internal wall). The
+  corpus-optimal **single** internal thickness is **146 mm** and `AZ` ships **150**,
+  reached from Azerbaijani sources with no corpus involved — two traditions, 4 mm
+  apart. Area drift **straddles zero** at 150; it was real and positive at the 120 ADR
+  0010 replaced, which **deleted it by accident**. What it leaves behind is not a
+  number but a fact: **76.1% of real dwellings draw three wall weights and a uniform
+  `t_int` draws two**, which reads not as *generated* but as *drawn by someone who
+  cannot tell a partition from a bearing wall* — ticketed as *One wall weight where a
+  real plan draws three*. ⚠️ **Corrects ADR 0010's own partition footprint**: 4–5% is
+  right for the corpus and for the 120 it replaced, and the 150 it shipped is
+  **5.7%**, *wider* than the 5% gate. ⚠️ Kills the recorded justification for one
+  `t_int` — *"N copies of every dimensional minimum"* is **false by count**, zero rows
+  — while leaving the conclusion standing on ADR 0001 instead. ⚠️ **Swiss Dwellings
+  records one plane and no finish layer**, so the corpus can never say whether it is
+  structural or finished.
 
 ## Not yet specified
 
@@ -423,7 +463,7 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   snapped to 250 mm, which makes a finer grid **strictly easier to adopt later, never
   harder**. Only the solve-time side is still unmeasured. ⚠️ **And the deletion figure itself is
   now stale** — it was computed at `t_int` 120, which ADR 0010 makes 150, moving the
-  residue class from 130 to 100 mod 250. Recompute before quoting it again.
+  residue class from 130 to 100 mod 250. Recompute before quoting it again. *One internal thickness* supplies a **partial** starting point and not a conclusion: the 120 → 150 move cost **253 solve cells either way**, so no per-room ceiling changed — but the deletion also turns on the Envelope's own re-snapping, which that arithmetic does not touch.
 
 ## Out of scope
 
