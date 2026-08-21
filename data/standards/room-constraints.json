@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "id": "bim-engine/dimensional-standards/room-constraints",
   "generated": "2026-08-21",
-  "ticket": "docs/wayfinder/tickets/05-dimensional-standards-corpus.md; region_model and tier_model rewritten by docs/wayfinder/tickets/14-which-region-profiles-ship.md (ADR 0006)",
+  "ticket": "docs/wayfinder/tickets/05-dimensional-standards-corpus.md; region_model and tier_model rewritten by docs/wayfinder/tickets/14-which-region-profiles-ship.md (ADR 0006); area convention and wall layer sets by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010)",
   "findings": "docs/research/dimensional-standards.md",
   "disclaimer": "Neufert-grade dimensional standards (C8). This is design data, not a building code. No legal code-compliance claim is made or implied by any value in this file. Values are cited to their source so that a Practitioner can check them; they are not a substitute for checking them.",
   "units": {
@@ -671,17 +671,31 @@
       "findings": "docs/research/az-region-profile.md",
       "headline": "Every load-bearing value here is VERIFIED against an Azerbaijani document read first-hand. The ticket budgeted for REPORTED values off SNiP/SP ancestors and that fallback proved unnecessary: arxkom.gov.az serves the normative PDFs on an unauthenticated GET. It would also have been WRONG -- AzDTN 2.7-2 terminated the legal force of SNiP 2.08.01-89* in Azerbaijan on 2021-11-30, so the ancestor's numbers are superseded here, not merely aged.",
       "construction": {
-        "comment": "ONE construction type and ONE t_int, and the arithmetic forced it rather than taste choosing it. Over 19 sourced candidate thicknesses the set of pairs sharing a residue class mod 250 is EMPTY, and structurally so: the fired-brick series steps by 130 and the RC-panel series by 20, neither of which 250 divides. Under ADR 0007 a second t_int would need a second copy of every linear minimum. See ship_gates.adr_0007_single_t_int_decision.",
+        "comment": "ONE construction type and ONE t_int, and the arithmetic forced it rather than taste choosing it. Over 19 sourced candidate thicknesses the set of pairs sharing a residue class mod 250 is EMPTY, and structurally so: the fired-brick series steps by 130 and the RC-panel series by 20, neither of which 250 divides. Under ADR 0007 a second t_int would need a second copy of every linear minimum. See ship_gates.adr_0007_single_t_int_decision. ADR 0010 makes every thickness here a LAYER SET: the unsuffixed key is the total and is the only one anything consumes.",
         "shipping_type": "brick",
         "shipping_type_rationale": "The only type with an AZ-verified value for every field, even by construction, and the commonest multi-apartment wall system in Azerbaijan -- which is the only building type any corpus on this map holds.",
         "catalogue": {
           "brick": {
+            "t_finish": {
+              "v": 15,
+              "src": "engine_choice",
+              "ref": null,
+              "conf": "engine_choice",
+              "note": "PROVISIONAL, and the weakest number in this profile. No Azerbaijani document read on this map states a plaster thickness. Corroborated only from inside: t_party's shipped 250 leaf was DERIVED from an acoustic table whose rows are 'brick + 15 plaster both sides', so 15 is already load-bearing in a verified-derived number and changing it re-opens t_party. Owed by docs/wayfinder/tickets/35-what-an-azerbaijani-finish-layer-is.md."
+            },
             "t_int": {
+              "v": 150,
+              "src": "derived",
+              "ref": "t_int_structural + 2 x t_finish",
+              "conf": "derived",
+              "note": "TOTAL. Was 120 (bare half-brick), which put the Space boundary on the STRUCTURAL face while four documents claimed finished faces -- and put a 1700 mm bath inside a 1670 mm bathroom minimum. ADR 0010. MOVES THE ADR 0007 RESIDUE CLASS FROM 130 TO 100 mod 250."
+            },
+            "t_int_structural": {
               "v": 120,
               "src": "az_azdtn_2_17_1",
               "ref": "cl. 4.3; Table 29 note 2",
               "conf": "verified",
-              "note": "Half-brick bare masonry. Corroborated by gost_530_2012 Table 3 working width with cl. 3.12. FIXES THE ADR 0007 RESIDUE CLASS AT 130 mod 250."
+              "note": "Half-brick bare masonry. Corroborated by gost_530_2012 Table 3 working width with cl. 3.12. Consumed by nothing in v1; carried for IFC layers and for the deferred structural patch."
             },
             "t_int_bearing": {
               "v": 250,
@@ -702,30 +716,37 @@
               "src": "engine_choice",
               "ref": null,
               "conf": "engine_choice",
-              "note": "PROVISIONAL. 380 leaf + 100 insulation + 20 finish. az_azdtn_2_12_4 Table 4 asks R >= 2.1 and a 380 brick leaf gives about 0.7, so a build-up is required -- but Baku's degree-day figure Dd could not be obtained, so the total is not yet derivable. Flagged, not hidden."
+              "note": "PROVISIONAL. 380 leaf + 100 insulation + 20 finish. az_azdtn_2_12_4 Table 4 asks R >= 2.1 and a 380 brick leaf gives about 0.7, so a build-up is required -- but Baku's degree-day figure Dd could not be obtained, so the total is not yet derivable. Flagged, not hidden. ADR 0010: this number was ALREADY a total including its 20 mm inner finish, so it is unchanged -- the external wall was finished-face all along and only t_int disagreed."
             },
             "t_party": {
+              "v": 280,
+              "src": "derived",
+              "ref": "t_party_structural + 2 x t_finish",
+              "conf": "derived",
+              "note": "TOTAL. 250 one-brick leaf + 15 our finish + 15 the neighbour's. Drawn thickness. NOT eroded: a party wall sits on the Envelope, whose inner face is given, so only partitions are eroded. ADR 0010 deletes ADR 0004's tier-1 centreline exception, so t_party/2 now has no consumer at all."
+            },
+            "t_party_structural": {
               "v": 250,
               "src": "az_azdtn_2_7_2",
               "ref": "cl. 9.22 (>= 50 dB); Table 3 (REI 30 / EI 30, K0)",
               "conf": "derived",
-              "note": "One brick. No code publishes a party-wall THICKNESS; it is derived from the acoustic and fire requirements. 120 mm computes to 49 dB and FAILS. Note the AZ/RU divergence: Azerbaijan requires 50 dB, not Russia's 52."
+              "note": "One brick. No code publishes a party-wall THICKNESS; it is derived from the acoustic and fire requirements. The acoustic rows are 'brick + 15 plaster both sides': 250 computes to 52 dB and passes, 120 to 49 dB and FAILS. Note the AZ/RU divergence: Azerbaijan requires 50 dB, not Russia's 52. THIS ROW IS WHY t_finish IS 15."
             }
           }
         },
         "residue_class_mod_grid": {
           "grid_mm": 250,
-          "t_int_mm": 120,
-          "residue": 130,
+          "t_int_mm": 150,
+          "residue": 100,
           "admissible_linear_minima": [
-            1630,
-            1880,
-            2130,
-            2380,
-            2630,
-            2880
+            1600,
+            1850,
+            2100,
+            2350,
+            2600,
+            2850
           ],
-          "note": "ADR 0007. Every linear minimum the solver posts on a room's CLEAR rect must be congruent to 130 mod 250. See ship_gates.adr_0007_scope_carve_out -- this does NOT apply to areas, storey heights, door clear widths or turning squares."
+          "note": "ADR 0007, restated at ADR 0010's t_int. Every linear minimum the solver posts on a room's CLEAR rect must be congruent to 100 mod 250 (was 130, at the old bare-masonry t_int of 120). See ship_gates.adr_0007_scope_carve_out -- this does NOT apply to areas, storey heights, door clear widths or turning squares. Still moot for AZ, which publishes no hard linear minimum at all."
         },
         "excluded_types": {
           "block": "DO NOT SHIP. gost_21520_89 Table 1 gives cellular-concrete blocks TWO thickness series by laying method: mortar-laid 200/250/300 (even) and thin-bed-glue-laid 195/245/295 (ALL ODD). Glue is the modern default for gazobeton and a single-leaf wall is one block wide, so that width IS t_int. Structurally the same defect that killed DE.",
@@ -740,7 +761,8 @@
           "195_245_295": "gost_21520_89 Table 1, thin-bed-glue-laid cellular blocks.",
           "375": "Commercial gazobeton, traceable to the abolished gost_11024_84 M/4 = 25 mm series."
         },
-        "notable_refutation": "The ticket's expected brick series 120/250/380/510 is CONFIRMED for 120/250/380 and REFUTED for 510 as AZ-attested: az_azdtn_2_17_1 speaks only in 12/25/38/40 cm and 51 cm appears nowhere in it. 510 remains shippable but only as derived from gost_530_2012 Table 3. The expected panel series 80/140/160 conflates two different products."
+        "notable_refutation": "The ticket's expected brick series 120/250/380/510 is CONFIRMED for 120/250/380 and REFUTED for 510 as AZ-attested: az_azdtn_2_17_1 speaks only in 12/25/38/40 cm and 51 cm appears nowhere in it. 510 remains shippable but only as derived from gost_530_2012 Table 3. The expected panel series 80/140/160 conflates two different products.",
+        "layer_set_note": "LAYER SET, not scalars (ADR 0010). Every `t_*` key WITHOUT a `_structural` suffix is a TOTAL and is the only number the solver, erode() and every published dimension consume. The `_structural` twin is the bare leaf, kept as data, consumed by nothing in v1, and needed by the acoustic derivation below and by IfcMaterialLayerSetUsage on export."
       },
       "rooms": {
         "comment": "Areas in m2, linear dimensions in mm. READ THE EMPTIES AS THE FINDING: nine of thirteen area cells and ALL SIX width cells at statutory_floor are null. Azerbaijani law fixes habitable-room and kitchen areas and nothing else about a room's plan. A profile that fills those cells is asserting law that does not exist -- the exact C8 failure.",
@@ -1346,53 +1368,71 @@
         "sheet_mark_conflict": "UNRESOLVED, and handed on. azs_21101_2010 Elave A marks architectural working drawings MH (Memarliq helli) or MT, where annotation cl. 9/10 numbers sheets A-101 on the US NCS convention and cl. 11 layers them A-WALL on AIA. A drawing issued in Azerbaijani to an Azerbaijani builder with a US sheet number is internally inconsistent. Layer names are a machine-facing interchange convention and have their own justification; the SHEET NUMBER, which the builder reads, is the one worth reconsidering."
       },
       "area_convention": {
-        "comment": "REPORT ONLY. The choice belongs to *Area measurement convention*; this ticket was told to hand it over and does so.",
-        "there_is_no_zhilaya_ploshchad": "THE FINDING THAT MATTERS. Azerbaijan publishes no living-area metric. The modern instruments did not ADD a total-area figure alongside a living-area one -- they REPLACED the pair. The ticket's framing of the handoff as a PAIR is wrong.",
-        "what_az_has_instead": "TWO in-force, mutually contradicting statutory definitions of umumi sahe: az_housing_code art. 12.5 (housing-law entitlement) EXCLUDES balconies outright, while az_area_rules_2012 cl. 3.8 (design and inventory) INCLUDES them at a coefficient. Both statutory. That disagreement, not the Soviet pair, is the real question.",
-        "coefficients": {
+        "comment": "DECIDED by docs/wayfinder/tickets/17-area-measurement-convention.md. ADR 0010. This block was REPORT ONLY; it now ships.",
+        "id": "az_umumi_sahe",
+        "instrument": {
+          "v": "az_area_rules_2012 cl. 3.8",
+          "src": "az_area_rules_2012",
+          "ref": "cl. 3.8",
+          "conf": "verified",
+          "note": "Chosen over az_housing_code art. 12.5. Both are in force and both define umumi sahe; they disagree only on balconies, which v1 cannot express. The Qaydalar is the DESIGN AND INVENTORY instrument -- which is what a drawing is, what a technical passport is, and therefore what an Azerbaijani property listing quotes -- and cl. 3.2, the measurement rule adopted below, lives inside it. The Housing Code is a housing-law ENTITLEMENT test and was never a drawing convention."
+        },
+        "measurement_plane": {
+          "v": "finished inner face of walls and partitions, at floor level, skirtings excluded",
+          "src": "az_area_rules_2012",
+          "ref": "cl. 3.2",
+          "conf": "verified",
+          "note": "THE CLAUSE THAT BOUND V1, now obeyed. ADR 0001 eroded t_int/2 from a centreline where t_int was the BARE leaf, yielding the structural face and overstating every area. ADR 0010 makes t_int a total, so the erosion lands on the finished face by construction and no second plane exists."
+        },
+        "quantity": {
+          "v": "sum of Space areas",
+          "src": "az_area_rules_2012",
+          "ref": "cl. 3.8 read with cl. 3.2",
+          "conf": "verified",
+          "note": "umumi sahe SUMS ROOM AREAS, so internal partitions are NOT counted. This is NOT GIA, which counts them. On a 90 m2 dwelling the partition footprint is roughly 4-5 percent -- the width of the acceptance bar's own 5 percent total-area gate, which is why the gate had to change QUANTITY and not merely tolerance. Hall, corridor, lobby and store are included: umumi sahe counts habitable and ancillary spaces alike."
+        },
+        "carried": "ONE value per Plan, derived from this profile and carried for life alongside the region profile id -- never per Space, which would be twenty copies of one fact. Printed once in the title block AREAS attribute, written once into IFC. The Brief carries its OWN target_area_convention, separately, and the two are allowed to disagree; a disagreement is a hard BRIEF error.",
+        "brief_semantics": "target_area means INTERIOR umumi sahe with balcony, loggia, terrace and eyvan EXCLUDED. A Baku listing quotes umumi sahe INCLUDING them at cl. 3.8 coefficients, and an eyvan enters at 1.0 -- FULL area, not reduced -- so a homeowner's '90 m2' can be several percent more than the rooms they will get. The engine does NOT guess a balcony share back out; it surfaces the reading as an Assumption per C4. Owed by the Brief and the Homeowner surface.",
+        "deductions_inert_in_v1": {
           "balcony_terrace": {
             "v": 0.3,
             "src": "az_area_rules_2012",
             "ref": "cl. 3.8",
             "conf": "verified",
-            "note": "INERT IN V1 -- no balcony in the geometry model."
+            "note": "INERT IN V1 -- no balcony in the geometry model. Kept as data so a balcony later is a data change, not a redesign."
           },
           "loggia_glazed": {
             "v": 0.5,
             "src": "az_area_rules_2012",
             "ref": "cl. 3.8",
             "conf": "verified",
-            "note": "INERT IN V1."
+            "note": "INERT IN V1. Kept as data so a balcony later is a data change, not a redesign."
           },
           "veranda_eyvan": {
             "v": 1.0,
             "src": "az_area_rules_2012",
             "ref": "cl. 3.8",
             "conf": "verified",
-            "note": "Enters at FULL area, not reduced. INERT IN V1."
+            "note": "Enters at FULL area, not reduced. INERT IN V1. Kept as data so a balcony later is a data change, not a redesign."
           },
           "mansard_low": {
             "v": 0.7,
             "src": "az_area_rules_2012",
             "ref": "cl. 3.8",
             "conf": "verified",
-            "note": "INERT IN V1 -- no ceiling height."
+            "note": "INERT IN V1 -- no ceiling height. Kept as data so a balcony later is a data change, not a redesign."
           }
         },
-        "the_one_clause_that_binds_v1": {
-          "v": "finished inner face of walls and partitions, at floor level, skirtings excluded",
-          "src": "az_area_rules_2012",
-          "ref": "cl. 3.2",
-          "conf": "verified",
-          "note": "ADR 0001 erodes t_int/2 from a centreline, which yields the STRUCTURAL inner face. Finishes run 10-20 mm per face, so publishing our figure as umumi sahe systematically OVERSTATES area. Every other divergent clause is inert in v1; this one is not."
-        }
+        "housing_code_delta": "az_housing_code art. 12.5 EXCLUDES balconies outright where cl. 3.8 includes them at a coefficient. Both statutory, both in force. INERT in v1 -- no balcony, no ceiling height -- so the two compute the same number today. The moment a balcony or a storey height enters the model this becomes load-bearing and the instrument choice above starts to bite.",
+        "there_is_no_zhilaya_ploshchad": "THE FINDING THAT MATTERS. Azerbaijan publishes no living-area metric. The modern instruments did not ADD a total-area figure alongside a living-area one -- they REPLACED the pair. The ticket's framing of the handoff as a PAIR is wrong."
       },
       "ship_gates": {
-        "adr_0004_even_thickness": "PASS -- every shipped thickness even. Asserted by experiments/region-profile/gate_check.py.",
+        "adr_0004_even_thickness": "PASS -- every shipped thickness even, TOTALS AND LEAVES ALIKE: 15, 120, 150, 250, 280, 380, 500. ADR 0001 needs erode(rect, t_int/2) in integer millimetres and 150/2 = 75. Asserted by experiments/region-profile/gate_check.py -- RE-RUN OWED at the new t_int.",
         "adr_0004_even_opening": "PASS -- every shipped OPENING dimension even. Block sizes excluded and never keyed off.",
-        "adr_0007_single_t_int_decision": "DECIDED HERE, and the arithmetic forced it. The ticket offered three shapes -- a single internal thickness, per-thickness minima, or forcing the grid question open. Taken: A SINGLE t_int OF 120 mm. Per-thickness minima was rejected because it needs N copies of every dimensional minimum AND a Plan carrying its construction type for life, extending profile_carried_for_life, for a fidelity gain v1 cannot show a Homeowner. The grid question is left open where ADR 0007 left it.",
+        "adr_0007_single_t_int_decision": "DECIDED HERE, and the arithmetic forced it. The ticket offered three shapes -- a single internal thickness, per-thickness minima, or forcing the grid question open. Taken: A SINGLE t_int, now 150 mm total (ADR 0010). Per-thickness minima was rejected because it needs N copies of every dimensional minimum AND a Plan carrying its construction type for life, extending profile_carried_for_life, for a fidelity gain v1 cannot show a Homeowner. The grid question is left open where ADR 0007 left it.",
         "adr_0007_scope_carve_out": "STILL OWED, and narrower than ADR 0009. ADR 0009 exempts the ergonomic LAYER; ADR 0007 still binds region profiles, and as written it binds 'every dimensional minimum published in a region profile'. Only a linear minimum the solver posts on a room's CLEAR rect is eroded by t_int. AREAS in m2, STOREY HEIGHTS, DOOR CLEAR WIDTHS and WHEELCHAIR TURNING SQUARES must NOT be aligned. Moot for AZ, which publishes no hard linear minimum at all, but owed before a second profile publishes one.",
-        "adr_0007_unresolved_collision": "RESOLVED, and not by this ticket. ADR 0007's move is to publish the largest admissible value AT OR BELOW the source's figure, justified by reading that figure as nominal or centreline-to-centreline. That is a UNIT CONVERSION and is available only for a number quoted from a source. A body-derived ergonomic clearance is already clear by definition, so there is nothing to convert -- and az_azdtn_2_7_2 cl. 5.6 puts EVERY intra-apartment linear minimum in that invariant layer, so this is where all of them are. Measured: 36 of the 36 hard linear minima in the `ergonomic` layer miss the residue class. ADR 0009 (*Ergonomic minima and the constraint table's missing half*, accepted 2026-08-21) settles it the same way from the other side: the congruence rule is a REGION-PROFILE SHIP GATE ONLY, the ergonomic layer is exempt, published minima stay millimetre-exact, the solver's ceiling absorbs the remainder, and the v1 grid stays at 250 mm. NOTE that ADR 0009 also refutes the feared cost: ADR 0007's 4-/5-/6-room deletion tracked the minima's MAGNITUDE against the placeholder table, not the congruence, and does not reproduce at the derived floor. The real cost of snapping is the WC, whose whole real width distribution spans under two grid steps: 23.0 percent rejected becomes 56.1 percent."
+        "adr_0007_unresolved_collision": "RESOLVED, and not by this ticket. ADR 0007's move is to publish the largest admissible value AT OR BELOW the source's figure, justified by reading that figure as nominal or centreline-to-centreline. That is a UNIT CONVERSION and is available only for a number quoted from a source. A body-derived ergonomic clearance is already clear by definition, so there is nothing to convert -- and az_azdtn_2_7_2 cl. 5.6 puts EVERY intra-apartment linear minimum in that invariant layer, so this is where all of them are. Measured: 36 of the 36 hard linear minima in the `ergonomic` layer miss the residue class. ADR 0009 (*Ergonomic minima and the constraint table's missing half*, accepted 2026-08-21) settles it the same way from the other side: the congruence rule is a REGION-PROFILE SHIP GATE ONLY, the ergonomic layer is exempt, published minima stay millimetre-exact, the solver's ceiling absorbs the remainder, and the v1 grid stays at 250 mm. NOTE that ADR 0009 also refutes the feared cost: ADR 0007's 4-/5-/6-room deletion tracked the minima's MAGNITUDE against the placeholder table, not the congruence, and does not reproduce at the derived floor. The real cost of snapping is the WC, whose whole real width distribution spans under two grid steps: 23.0 percent rejected becomes 56.1 percent.",
+        "adr_0010_measurement_plane": "DECIDED by ticket 17. The Space boundary is the innermost finish face; t_int is a total. Consequence carried openly: ticket 19's room-count deletion analysis (the 4/5/6-room deletion narrowing to {5, and 6 unknown}) was computed at t_int = 120 and is RE-OWED at 150. Direction not guessed."
       },
       "what_could_not_be_obtained": {
         "azs_481_2011_and_azs_476_2011": "Azerbaijan's own brick and limestone standards -- sold, not published. Brick and stone modules are cited to gost_530_2012 and gost_4001_84 instead, and the profile says so.",

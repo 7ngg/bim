@@ -61,3 +61,34 @@ verdict is negative, the named failure modes. Renderer belongs in
 **Why now.** It blocks nothing formally, and it is the cheapest possible check on
 the most load-bearing transformation on the map. Everything the Proposer will ever
 learn about arrangement comes through this conversion.
+
+## Inherited from *Area measurement convention* — one thing to look at that nobody has
+
+ADR 0010 moved the Space boundary to the **finished** face, and in doing so
+exposed a gap in a number this map already treats as settled.
+
+*Ergonomic minima and the constraint table's missing half* validated the hard
+floor against Swiss Dwellings — *"the published floor rejects 0.0% of real living
+rooms and bedrooms, 1.2% of kitchens, 4.6% of WCs and 7.8% of storerooms"*, and
+the `BATHROOM` refutation that re-fitted the split at 2.4 m². **Every one of those
+figures was measured against corpus polygons whose own face convention is
+unrecorded.** Swiss Dwellings does not say, and nothing on this map has asked,
+whether its space polygons are drawn to structural faces or to finished ones.
+
+**It matters, and the direction is known even though the magnitude is not.** If
+the corpus polygons are **structural**, every real room in the validation set was
+roughly 30 mm larger per axis than the room a person actually occupies, so the
+published ergonomic floor is **slightly lenient** — small, systematic, and in the
+wrong direction, which is the same sentence ADR 0010 wrote about our own areas.
+If they are **finished**, nothing moves and that is a clean result worth having.
+
+Add to this ticket's looking: **for a handful of converted dwellings, check
+whether the corpus's wall thicknesses and space polygons are mutually consistent
+with a bare structural leaf or with a finished build-up.** The corpus records
+both, so the question is answerable by arithmetic on data already on disk — the
+wall thickness between two spaces against the gap between their polygons. A
+negative result (the corpus does not distinguish, or is internally inconsistent)
+is itself the finding.
+
+This is a looking task, not a re-fit. If it shows the floor is lenient, the re-fit
+is owed by whoever holds the ergonomic layer, not by this ticket.

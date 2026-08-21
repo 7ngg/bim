@@ -32,7 +32,7 @@ and that is the failure this table exists to catch.
 
 | Component | | Owed by |
 |---|---|---|
-| Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings | settled | ⚠️ its *one box per Room* premise was never weighed — *Whether a Room may be more than one rectangle* |
+| Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ⚠️ its *one box per Room* premise was never weighed — *Whether a Room may be more than one rectangle* |
 | Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
 | Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus* |
 | Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts* |
@@ -41,12 +41,12 @@ and that is the failure this table exists to catch.
 | DXF export | settled | — |
 | Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by |
 | Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
-| Acceptance bar — 37 predicates, enforcement sites, conformance test | partial | **19 of 37 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Opening rules need *Opening placement rules* |
+| Acceptance bar — 38 predicates, enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Opening rules need *Opening placement rules* |
 | Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*. Also *One internal thickness, against a corpus that has no module at all* |
-| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing — *The annotation spec is US-shaped and the drawing is now Azerbaijani* |
-| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | **open** | nothing written — *Brief schema and parsing contract*, itself waiting on *Area measurement convention* |
-| **Area measurement convention** — what a m² means everywhere it travels | **open** | *Area measurement convention*. Upstream of the Brief, the bar and the exports |
-| **IFC export** — the Destination's second named output | **open** | ⚠️ **was unowned until the done-test ran.** `IFC` appears in no spec file; *BIM and CAD export stack* proved the tooling, never the content — *What IFC the engine actually emits* |
+| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani* |
+| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | **open** | nothing written, but **unblocked** and now handed its two area fields — *Brief schema and parsing contract* |
+| Area measurement convention — what a m² means everywhere it travels | settled | ⚠️ its plane rests on a 15 mm `engine_choice` finish — *What an Azerbaijani finish layer actually is* |
+| **IFC export** — the Destination's second named output | **open** | ⚠️ **was unowned until the done-test ran.** `IFC` appears in no spec file; *BIM and CAD export stack* proved the tooling, never the content — *What IFC the engine actually emits*, now **unblocked** and handed its quantity and its wall layers |
 | **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, waiting on the Brief |
 | **Room-count promise** — what the product says it covers, against C13's 4–10 | **open** | *The room-count envelope v1 promises* |
 
@@ -74,10 +74,10 @@ order** — the done-test decides order:
 
 | Artifact | Claimed by |
 |---|---|
-| `CONTEXT.md` | 10, 17, 21, 31 |
-| `data/standards/room-constraints.json` | 16, 17, 31, 32 |
+| `CONTEXT.md` | 10, 21, 31 |
+| `data/standards/room-constraints.json` | 16, 31, 32 |
 | `data/acceptance/rules.json` | 16, 20, 26 |
-| `docs/spec/acceptance-bar.md` | 17, 26, 28 |
+| `docs/spec/acceptance-bar.md` | 26, 28 |
 | `docs/spec/proposer.md` | 23, 28, 30 — 28 and 30 both amend §1, so **30 is blocked by 28** |
 | `docs/spec/annotation.md` | 28, 32 |
 
@@ -116,8 +116,8 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region — but that was freedom, not an obligation to serve everywhere. v1 ships **exactly one** profile and it is **`AZ`**; `UK` survives as a test fixture and is never selectable. |
 | C13 | **v1's Proposer serves 4–10 Brief-named rooms**, 92% of the corpus; retrieval dies at 11+. What the *product* promises is *The room-count envelope v1 promises*. |
-| C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. Now populated: **one construction type, `t_int` 120 mm brick**, drawing in Azerbaijani. ADR 0006. |
-| C15 | **Two arithmetic ship gates, and they bind different layers.** ADR 0004 — every wall thickness **even** — is global. ADR 0007 — `min + t_int ≡ 0 (mod grid)` — binds **region profiles only**; ADR 0009 exempts the region-invariant ergonomic layer, whose minima are *derived* rather than quoted and so have no nominal-to-clear conversion to apply. Asserted, not claimed: `experiments/region-profile/gate_check.py`, 28 assertions. |
+| C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. Now populated: **one construction type, brick, `t_int` 150 mm — a layer set, 120 structural + 2 × 15 finish**, drawing in Azerbaijani. It also owns the **area convention**, and every published number measures to that finish plane. ADR 0006, ADR 0010. |
+| C15 | **Two arithmetic ship gates, and they bind different layers.** ADR 0004 — every wall thickness **even** — is global. ADR 0007 — `min + t_int ≡ 0 (mod grid)` — binds **region profiles only**; ADR 0009 exempts the region-invariant ergonomic layer, whose minima are *derived* rather than quoted and so have no nominal-to-clear conversion to apply. Asserted, not claimed: `experiments/region-profile/gate_check.py` — **33 gates, all pass** after ADR 0010 moved the residue class from 130 to 100 mod 250 and sharpened ADR 0004 to bind on **totals, not layer components**. |
 
 **Evidence that shaped the map** — read before re-litigating C10:
 
@@ -225,7 +225,8 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   graphics**, unasked. A **Drawing check** of eleven predicates gates whether a file is
   written — deliberately *not* in `rules.json`. ⚠️ Corrected in four places by *Solver
   timing variance sweep*; ⚠️ its US NCS / AIA defaults are contested by *The annotation
-  spec is US-shaped*.
+  spec is US-shaped*; ⚠️ **its one centreline number is dead** — ADR 0010 took tier 1
+  to the finished inner face, so the sheet now carries no centreline dimension at all.
 - [Acquire the datasets](tickets/12-acquire-the-datasets.md) — **the ≥16-room tail is
   empty.** Two corpora on disk and hash-verified; inventory
   `docs/research/dataset-inventory.md`, loaders `experiments/corpus-smoke/`. 63,800
@@ -323,6 +324,24 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   4-/5-/6-room deletion narrows to **{5, and 6 unknown}**, so 250 mm is charging the
   5-room case. ⚠️ **Refutes the `BATHROOM` split it was handed** — fitted to fixture
   ground truth at **2.4 m²** instead. `study` is the weakest number in the file.
+  ⚠️ **Its room-count deletion analysis is re-owed** — the *{5, and 6 unknown}*
+  narrowing was computed at `t_int` 120, and ADR 0010 makes it 150.
+- [Area measurement convention](tickets/17-area-measurement-convention.md) — **the
+  convention was never the hard part; the plane was.** ADR 0010,
+  `docs/spec/acceptance-bar.md` §8, `CONTEXT.md`, `rules.json` (37 → **38 rules**).
+  Four documents claimed published numbers measured **finished** faces while ADR
+  0001 eroded half a **bare** leaf — and `bathroom.min_clear_long` is 1700 *because
+  a bath is 1700*, delivering 1670. So a **Wall's thickness is a layer set**, its
+  **total** is the only number anything consumes, and `t_int` goes **120 → 150**.
+  Relabelling was refuted by arithmetic, not taste. The metric is `ümumi sahə` per
+  **Area Qaydalar cl. 3.8** — which **sums room areas and does not count
+  partitions**, so it is *not* GIA, and the total-area gate changed **quantity**,
+  not tolerance, by roughly the width of the gate itself. New hard rule
+  `area.convention_agrees`: **presence of a convention was never agreement.**
+  ⚠️ ADR 0004's one centreline number — tier 1 to a party-wall centreline — is
+  **dead**, as ADR 0004 §4 pre-authorised. ⚠️ The whole plane rests on
+  `t_finish` = 15 mm `engine_choice`, corroborated only by being what the shipped
+  `t_party` acoustic derivation already assumed.
 
 ## Not yet specified
 
@@ -337,7 +356,12 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   are shown, and how a Homeowner chooses. Carries one **deliberately unpatched
   asymmetry** — an invented Envelope gets 2–3 aspect ratios as a diversity axis, a
   stated one gets none, so flats get *less* variety than bungalows, backwards from where
-  the demand is. Envelope jitter was rejected as the patch; the fix belongs here.
+  the demand is. Envelope jitter was rejected as the patch; the fix belongs here. **Sharpened by
+  *Area measurement convention*:** the total-area gate now measures Σ Space area, not
+  GIA, so an invented Envelope can no longer be sized by setting its inner area to
+  `target_area` — the partition footprint, ~4–5%, is only known after the solve. How
+  the Envelope is sized against that target is part of this patch and did not exist
+  before ADR 0010.
 - **What a corpus-shaped product looks like** — the room-count half is now a ticket. Fog
   is the rest: whether the **Brief's defaults** come from the corpus rather than the
   standards table, whether generation is **biased toward corpus-typical shapes**, and
@@ -397,7 +421,9 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   the deletion narrows to {5, and 6 unknown}, so **250 mm is charging the 5-room case** —
   the bottom of C13's band and the corpus's commonest dwelling size. Nothing published is
   snapped to 250 mm, which makes a finer grid **strictly easier to adopt later, never
-  harder**. Only the solve-time side is still unmeasured.
+  harder**. Only the solve-time side is still unmeasured. ⚠️ **And the deletion figure itself is
+  now stale** — it was computed at `t_int` 120, which ADR 0010 makes 150, moving the
+  residue class from 130 to 100 mod 250. Recompute before quoting it again.
 
 ## Out of scope
 

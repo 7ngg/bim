@@ -85,3 +85,28 @@ and the same harness, reported against the guillotine baseline in
 `docs/research/solver-formulation.md` Part II. If nothing moves, that is a
 one-paragraph finding and a real de-risking. If something moves, ADR 0007's
 arithmetic and the shipped 15 s / τ = 4 are both in play.
+
+## Inherited from *Area measurement convention* — a second sweep to ride along
+
+ADR 0010 moved `t_int` from **120 to 150** — it is now a layer-set total, 120
+structural + 2 × 15 finish. **Every solver number on this map was fitted at
+`t_int` = 120**, alongside the 250 mm grid and the 100%-exterior-exposure caveat
+this ticket already carries.
+
+Most of it is expected to move very little: ADR 0001's erosion is a constant, and
+*Solver timing variance sweep* found solve time is barely sensitive to Proposal
+quality, let alone to a 30 mm constant. **One result is not safe to assume
+unchanged**, and it should be recomputed while `experiments/solver-toy/` is
+already open:
+
+**Ticket 19's room-count deletion.** Its finding — the 4/5/6-room deletion
+narrowing to *{5, and 6 unknown}*, so **250 mm is charging the 5-room case** —
+falls straight out of `250w − t ≥ min_w` and therefore out of `t`. At 150 the ADR
+0007 residue class is **100 mod 250**, not 130. Whether the deleted set grows,
+shrinks or moves is **not obvious and is deliberately not guessed anywhere on this
+map**. It feeds *Whether the solve grid should be finer than 250 mm*, which is the
+one fog patch already flagged as load-bearing rather than curious.
+
+This is a second sweep in the same harness, not a redesign of this ticket. Its own
+question — that every solve so far has been over guillotine-cuttable layouts — is
+untouched by any of the above and stays the headline.

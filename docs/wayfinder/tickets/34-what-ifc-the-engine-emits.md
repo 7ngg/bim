@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:grilling]
 status: open
 assignee:
-blocked_by: [17]
+blocked_by: []
 writes:
   - docs/spec/ifc-export.md (new)
 ---
@@ -96,3 +96,39 @@ Deliverable: a spec section — `docs/spec/ifc-export.md`, or a new section in a
 existing spec — naming the model view, the entity mapping per Plan concept, the
 property and quantity sets with their sources, the unit and georeferencing
 declaration, and the validity check.
+
+## Inherited from *Area measurement convention* — blocker discharged, and item 3 gains a decided number
+
+`blocked_by: [17]` is discharged. ADR 0010 settles the quantity; this ticket still
+owns the encoding.
+
+**The number is decided; how it is written is not.** The Plan's area convention is
+`az_umumi_sahə` — Area Qaydalar cl. 3.8, measured per cl. 3.2 between **finished**
+faces at floor level, skirtings excluded — and it is the **sum of Space areas**,
+which does **not** count internal partitions.
+
+- **Write `Qto_SpaceBaseQuantities.NetFloorArea`** from the Space polygon. Under
+  ADR 0010 that polygon *is* the finished-face plane, so the mapping is exact and
+  needs no adjustment on export.
+- **Do not write `GrossFloorArea`.** It would require attributing half of each
+  bounding partition to the space, which is a different convention from the one
+  the drawing quotes and from the one the acceptance bar gates on. A file whose
+  quantity disagrees with the room tag beside it is the defect item 4 of this
+  ticket already worries about, arriving through the quantity set instead of
+  through annotation.
+- **Carry the convention as a property**, so the file self-describes rather than
+  relying on a reader assuming IFC's own default reading. Where it goes —
+  `Pset_SpaceCommon`, a custom `Pset`, or `IfcPropertySet` on the building — is
+  this ticket's call.
+
+**ADR 0010 also changes item 2, and in this ticket's favour.** A Wall's thickness
+is now a **layer set**, not a scalar: `t_int` 150 = 120 mm structural leaf +
+2 × 15 mm finish, and the structural twin is kept as data precisely so that
+`IfcWallStandardCase` can carry `IfcMaterialLayerSetUsage` with real layers.
+Emitting a homogeneous 150 mm wall where a real one has three layers is the file
+that opens and gets thrown away — the C2 failure this ticket names in its own
+preamble. The layers exist in the profile now; use them.
+
+Shipping thicknesses, totals and leaves alike: `t_int` 150 / 120 structural,
+`t_party` 280 / 250 structural, `t_ext_total` 500 (380 leaf + 100 insulation +
+20 finish).

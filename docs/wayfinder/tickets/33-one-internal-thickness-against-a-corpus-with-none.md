@@ -77,3 +77,29 @@ because ADR 0001 re-derives geometry from our own `t_int`. The corpus is the
 acceptance thresholds. This is about whether the geometry itself is plausible.
 
 **Not the region choice.** `AZ` is settled and does not depend on this.
+
+## Inherited from *Area measurement convention* — the number you are investigating moved
+
+ADR 0010 changed what `t_int` **means** before this ticket got to say what it
+should **be**. It is now a **layer set total**: `t_int` = 150 = `t_int_structural`
+120 (half-brick, `verified`) + 2 × `t_finish` 15 (`engine_choice`).
+
+Three things follow for this ticket:
+
+1. **The corpus question is unchanged and is still the point.** Swiss Dwellings'
+   near-continuous 50–600 mm distribution has no module, and that finding does not
+   care which plane our own thickness is measured to. Do not re-open it.
+2. **But the comparison does.** If corpus wall thicknesses are **structural** and
+   ours is now a **total**, then every corpus-versus-profile comparison this ticket
+   makes is off by 2 × `t_finish`. Which of the two the corpus records is
+   **unknown** and is exactly the check *Look at the converted corpus* has just
+   been handed. Coordinate rather than duplicating it: the arithmetic is the same
+   — a wall's recorded thickness against the gap between the two space polygons it
+   separates.
+3. **The single-`t_int` argument is unaffected.** It rests on residue classes mod
+   250 over 19 sourced candidates, and adding a uniform finish to all of them
+   translates the whole set without changing which pairs share a class. The
+   residue itself moved 130 → 100; the *conclusion* did not.
+
+The finish constant itself is **not** this ticket's to settle — *What an
+Azerbaijani finish layer actually is* owns it, and it is a sibling, not a blocker.

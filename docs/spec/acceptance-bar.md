@@ -2,7 +2,7 @@
 
 Resolves [Acceptance validator spec](../wayfinder/tickets/07-acceptance-validator-spec.md).
 
-Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 37 rules.
+Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 38 rules.
 This document is a *reading* of that file, not a second source. Where the two
 disagree, the registry wins.
 
@@ -37,7 +37,7 @@ potential adjacency is unevaluable on a finished Plan without inverting it.
 
 **The shared artifact is a registry, not a function.** Each rule declares an
 **enforcement site** — `solver`, `validator`, or `both` — and drift is prevented
-by a **conformance test over the `both` subset**, which is 14 of the 37 rules. The
+by a **conformance test over the `both` subset**, which is 14 of the 38 rules. The
 test is: for a generated population of Plans spanning feasible and infeasible
 Briefs, the solver's satisfaction of each `both` rule and the validator's
 evaluation of it agree on every Plan. Disagreement is a test failure.
@@ -56,7 +56,7 @@ the number came from decides it.** `ergonomic_min` is hard, `market_default` is
 soft. That is the C10 split — model proposes, solver projects — expressed in the
 constraint table rather than restated in the validator.
 
-Rejecting on 28 of 37 rules sounds aggressive; it is not, because every hard
+Rejecting on 29 of 38 rules sounds aggressive; it is not, because every hard
 number is either a physical impossibility (a door that does not fit its wall, two
 Spaces overlapping) or the point at which the room cannot contain its function.
 The ticket's own test applies: *a rule that rejects 99% of candidates is a bug in
@@ -232,15 +232,50 @@ belongs to *Opening placement rules*.
 
 **Total-area agreement — two rules, because `Envelope` has two modes.**
 
+**The quantity is the sum of Space areas**, not GIA. *Area measurement
+convention* / ADR 0010: v1 measures `az_umumi_sahə` per Area Qaydalar cl. 3.8,
+which **sums room areas** and therefore does **not** count internal partitions.
+GIA counts them. On a 90 m² dwelling that difference is roughly **4–5%** — the
+width of the gate below — so this was a change of *quantity*, not of tolerance,
+and the earlier "GIA" wording is struck rather than adjusted.
+
 | Envelope | Rule | Why |
 |---|---|---|
-| **Invented** (house) | GIA within **5%** of `target_area`, hard; 2% soft | the engine chose the footprint, so drift is the engine's fault |
-| **Given** (flat) | **warn only**, surfaced against the Brief | area is fixed by the Envelope, so *every* candidate drifts identically. Rejecting would reject 100% of them for a fault none caused — the ticket's own 99%-rejection test, at its limit |
+| **Invented** (house) | Σ Space area within **5%** of `target_area`, hard; 2% soft | the engine chose the footprint, so drift is the engine's fault |
+| **Given** (flat) | **warn only**, surfaced against the Brief | area is fixed by the Envelope, so *every* candidate drifts nearly identically. Rejecting would reject 100% of them for a fault none caused — the ticket's own 99%-rejection test, at its limit |
 
-Both sides stamped with `area_convention`. A `target_area` without one is
-meaningless — Wohnfläche grades by headroom and counts balconies at 25–50%, UK GIA
-is binary, and the same building differs by 20–30% between them. Missing
-convention is a **hard Brief error**: it rejects the request, not the candidates.
+Two consequences of the quantity change, both recorded rather than smoothed:
+
+- **The invented-Envelope gate stops being near-vacuous.** Against GIA an engine
+  that sets the Envelope inner area to `target_area` passes by construction.
+  Against Σ Space it must also control the partition footprint, which is not
+  known until the layout is solved. The 5% is unchanged and remains **unfitted**
+  — it was never measured against the old quantity either — and it is now a
+  materially harder gate. Re-fit once a real Proposer has run. How an *invented*
+  Envelope is sized against this target is fog, under *Variant generation and
+  ranking*.
+- **The given-Envelope rule's stated reason is now only mostly true.** Σ Space is
+  *not* fixed by the Envelope: it falls as the layout adds partitions, so unlike
+  GIA it does vary between candidates of one Envelope. It stays a warn, because
+  that variation is small against the Brief-versus-Envelope gap that dominates
+  it — but the justification is weaker than it reads.
+
+Both sides stamped with `area_convention`, and **presence is not agreement**.
+`area.convention_declared` checks a `target_area` carries one at all;
+`area.convention_agrees` checks it is *the same one* as the Plan's region
+profile. Presence without agreement is the silent failure this whole section
+exists to prevent — two numbers compared that are not the same quantity, with
+nothing raising a hand. v1 does not convert between conventions, because the
+deductions that separate them (balcony coefficients, headroom grading) are
+unrepresentable in a model with no balcony and no ceiling height. So a mismatch
+is a **hard Brief error**: it rejects the request, not the candidates.
+
+**What `target_area` means to a Homeowner** is settled and belongs on the Brief:
+interior `ümumi sahə`, **balcony, loggia, terrace and *eyvan* excluded**. A Baku
+listing quotes `ümumi sahə` *including* them at cl. 3.8 coefficients, and an
+*eyvan* enters at **1.0 — full area, not reduced**. The engine does not guess a
+balcony share back out of the number; it surfaces the reading as an Assumption
+(C4).
 
 ## 9. Model integrity, and the tolerance question that was deleted
 
@@ -297,7 +332,9 @@ point of the bar; relaxing the hard set to fill a gallery makes it advisory, and
 Homeowner cannot judge a plan annotated with three defects.
 
 The diagnosis is **arithmetic, not search**: the sum of hard minimum areas for the
-Brief's rooms, plus a circulation allowance, is a lower bound on a feasible GIA.
+Brief's rooms, plus a circulation allowance, is a lower bound on a feasible
+**Σ Space area** — which, since ADR 0010, is exactly what `target_area` means, so
+the two sides of the comparison need no conversion between them.
 
 > *Three bedrooms, a bathroom and a kitchen need at least 58 m². Your brief says
 > 45 m².*

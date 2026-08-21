@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "id": "bim-engine/acceptance/rules",
   "generated": "2026-08-18",
-  "ticket": "docs/wayfinder/tickets/07-acceptance-validator-spec.md",
+  "ticket": "docs/wayfinder/tickets/07-acceptance-validator-spec.md; total-area quantity and convention agreement by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010)",
   "spec": "docs/spec/acceptance-bar.md",
   "constraints": "data/standards/room-constraints.json",
   "disclaimer": "Neufert-grade dimensional standards (C8). Design data, not a building code. No legal code-compliance claim is made or implied by any rule in this file. Rules citing a regulatory document cite it as a source of dimensional fact, not as a compliance target.",
@@ -148,7 +148,7 @@
       "scope": "plan",
       "src": "derived",
       "conf": "derived",
-      "note": "UNBLOCKED by ticket 19. Values are per room type in the ergonomic layer, region-free, in m2 to one decimal, and each is short x long rounded DOWN so the rule cannot reject the rectangle it was derived from. Measured against Swiss Dwellings: the published floor rejects 0.0% of real living rooms and bedrooms, 1.2% of kitchens, 4.6% of WCs and 7.8% of storerooms. It binds independently of the two dimension rules because a room can clear both sides and still be long and thin; dim.aspect_ratio_hard catches that.",
+      "note": "UNBLOCKED by ticket 19. Values are per room type in the ergonomic layer, region-free, in m2 to one decimal, and each is short x long rounded DOWN so the rule cannot reject the rectangle it was derived from. Measured against Swiss Dwellings: the published floor rejects 0.0% of real living rooms and bedrooms, 1.2% of kitchens, 4.6% of WCs and 7.8% of storerooms. It binds independently of the two dimension rules because a room can clear both sides and still be long and thin; dim.aspect_ratio_hard catches that. PLANE NAMED by ticket 17 / ADR 0010: the Space polygon is now the FINISHED face, which is what the ergonomic minima always claimed to be and were not -- bathroom.min_clear_long is 1700 because a bath is 1700, and against a bare-masonry rectangle the bath did not fit. CAUTION carried rather than smoothed: the Swiss Dwellings validation quoted above measured corpus polygons whose own face convention is unrecorded. If those polygons are structural, the published floor is slightly LENIENT -- small, systematic, and in the wrong direction. Owed by *Look at the converted corpus*.",
       "value_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/min_area",
       "ref": "ergonomic layer, derived from fixture footprints + body zone"
     },
@@ -290,7 +290,7 @@
     {
       "id": "circ.fraction_soft",
       "item": "7",
-      "statement": "Prefer a total circulation Space area between 8 and 18 percent of GIA.",
+      "statement": "Prefer a total circulation Space area between 8 and 18 percent of the sum of Space areas.",
       "severity": "soft",
       "site": "validator",
       "scope": "plan",
@@ -300,19 +300,19 @@
       ],
       "src": "engine_choice",
       "conf": "engine_choice",
-      "note": "C6 item 7's sane fraction. NO surveyed source supplies one. Placeholder pending a fit against the corpora. Soft, so a wrong placeholder costs ranking quality and rejects nothing."
+      "note": "C6 item 7's sane fraction. NO surveyed source supplies one. Placeholder pending a fit against the corpora. Soft, so a wrong placeholder costs ranking quality and rejects nothing. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way."
     },
     {
       "id": "circ.fraction_hard",
       "item": "7",
-      "statement": "Total circulation Space area does not exceed 30 percent of GIA.",
+      "statement": "Total circulation Space area does not exceed 30 percent of the sum of Space areas.",
       "severity": "hard",
       "site": "validator",
       "scope": "plan",
       "value": 0.3,
       "src": "engine_choice",
       "conf": "engine_choice",
-      "note": "An outer bound, not a quality bar. Set where it only ever catches Plans that are visibly broken, so it cannot become the 99-percent-rejection rule the ticket warns about."
+      "note": "An outer bound, not a quality bar. Set where it only ever catches Plans that are visibly broken, so it cannot become the 99-percent-rejection rule the ticket warns about. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way."
     },
     {
       "id": "entry.exists",
@@ -433,7 +433,7 @@
       "src": "az_azdtn_2_7_2",
       "ref": "cl. 9.13",
       "conf": "verified",
-      "note": "Re-sourced by ticket 25 off the dangling de_baybo key, which pointed at a deleted region. AzDTN 2.7-2 cl. 9.13 sets 1:8 as a LOWER bound for living rooms and kitchens, with NO upper cap -- read first-hand. The value is unchanged at 0.125, which two independent regulatory traditions now agree on. The 1:5.5 figure sometimes quoted alongside it is a MAXIMUM-glazing cap and belongs to SNiP 2.08.01-89*, repealed for AZ on 2021-11-30. The solver's soft objective target is the profile's 0.154, not this floor. Explicitly NOT hard: making it hard would encode one country's method as universal."
+      "note": "Re-sourced by ticket 25 off the dangling de_baybo key, which pointed at a deleted region. AzDTN 2.7-2 cl. 9.13 sets 1:8 as a LOWER bound for living rooms and kitchens, with NO upper cap -- read first-hand. The value is unchanged at 0.125, which two independent regulatory traditions now agree on. The 1:5.5 figure sometimes quoted alongside it is a MAXIMUM-glazing cap and belongs to SNiP 2.08.01-89*, repealed for AZ on 2021-11-30. The solver's soft objective target is the profile's 0.154, not this floor. Explicitly NOT hard: making it hard would encode one country's method as universal. 'Space net floor area' is the finished-face polygon, ADR 0010."
     },
     {
       "id": "win.kitchen_windowless",
@@ -480,41 +480,53 @@
       "scope": "brief",
       "src": "engine_choice",
       "conf": "derived",
-      "note": "A BRIEF error, not a Plan error: it rejects the request, not the candidates. An area value without its convention is meaningless and differs by 20 to 30 percent for the same building. Findings section 5.7: the Wohnflaechenverordnung grades by headroom and counts balconies at 25 to 50 percent, UK GIA is binary. Propagates to Brief schema and parsing contract."
+      "note": "A BRIEF error, not a Plan error: it rejects the request, not the candidates. An area value without its convention is meaningless and differs by tens of percent for the same building. Ticket 17 re-sourced the example off the deleted DE/UK framing: the live case is a Baku listing quoting az_umumi_sahe INCLUDING an eyvan at coefficient 1.0 -- full area -- against a v1 target_area that excludes it. Propagates to Brief schema and parsing contract."
+    },
+    {
+      "id": "area.convention_agrees",
+      "item": "extra",
+      "statement": "The Brief target_area_convention equals the area_convention of the Plan's region profile.",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "brief",
+      "src": "engine_choice",
+      "conf": "derived",
+      "note": "ADDED by ticket 17 / ADR 0010, and it is the rule the ticket existed to produce. area.convention_declared only checks that a convention is PRESENT; presence without agreement is exactly the silent failure -- two numbers compared that are not the same quantity, with nothing raising a hand. A BRIEF error: v1 does not convert between conventions, because the deductions that separate them are unrepresentable here, so a mismatch has no honest resolution but to ask. With one shipping profile this can only fire when a Homeowner names a foreign convention, which is rare and is precisely when a silent pass would be worst."
     },
     {
       "id": "area.invented_envelope_hard",
       "item": "extra",
-      "statement": "Where the Envelope is invented, the Plan GIA is within 5 percent of the Brief target_area, both stated in the same area_convention.",
+      "statement": "Where the Envelope is invented, the sum of Space areas is within 5 percent of the Brief target_area, both stated in the same area_convention.",
       "severity": "hard",
       "site": "validator",
       "scope": "plan",
       "value": 0.05,
       "src": "engine_choice",
       "conf": "engine_choice",
-      "note": "Applies to houses. The engine chose the footprint, so drift is the engine's fault and is rejectable."
+      "note": "Applies to houses. The engine chose the footprint, so drift is the engine's fault and is rejectable. QUANTITY CHANGED by ticket 17 / ADR 0010: was 'Plan GIA'. az_umumi_sahe sums room areas and does NOT count internal partitions; GIA does. On a 90 m2 dwelling that difference is roughly 4-5 percent -- the width of this gate. Under the old quantity the rule was near-vacuous, because an engine that sets the Envelope inner area to target passes by construction. Under this one it must control the partition footprint too, which is only known after the solve. The 5 percent is unchanged and remains UNFITTED -- it was never measured against the old quantity either, and it is now a harder gate. Re-fit when a real Proposer has run."
     },
     {
       "id": "area.invented_envelope_soft",
       "item": "extra",
-      "statement": "Where the Envelope is invented, prefer a GIA within 2 percent of target_area.",
+      "statement": "Where the Envelope is invented, prefer a sum of Space areas within 2 percent of target_area.",
       "severity": "soft",
       "site": "validator",
       "scope": "plan",
       "value": 0.02,
       "src": "engine_choice",
-      "conf": "engine_choice"
+      "conf": "engine_choice",
+      "note": "Quantity changed with area.invented_envelope_hard. Ticket 17 / ADR 0010."
     },
     {
       "id": "area.given_envelope_warn",
       "item": "extra",
-      "statement": "Where the Envelope is given, warn when the Plan GIA differs from the Brief target_area, and surface it against the Brief.",
+      "statement": "Where the Envelope is given, warn when the sum of Space areas differs from the Brief target_area, and surface it against the Brief.",
       "severity": "warn",
       "site": "validator",
       "scope": "brief",
       "src": "engine_choice",
       "conf": "derived",
-      "note": "Applies to flats. Total area is fixed by the given Envelope, so EVERY candidate drifts by the same amount, and rejecting on it would reject 100 percent of them for a fault none of them caused. The ticket names a rule that rejects 99 percent as a bug in the rule; this is the 100 percent case, and it is a Brief inconsistency the layout cannot fix."
+      "note": "Applies to flats. Total area is fixed by the given Envelope, so EVERY candidate drifts by the same amount, and rejecting on it would reject 100 percent of them for a fault none of them caused. The ticket names a rule that rejects 99 percent as a bug in the rule; this is the 100 percent case, and it is a Brief inconsistency the layout cannot fix. QUANTITY CHANGED by ticket 17 / ADR 0010, and the change BITES HERE: the sum of Space areas is NOT fixed by the Envelope -- it falls as the layout adds partitions -- so unlike GIA this quantity does vary between candidates of one Envelope. It stays a warn, because the variation is small against the Brief-versus-Envelope gap that dominates it, but the stated reason is now only mostly true and is recorded as such rather than smoothed."
     }
   ],
   "homeowner_surface": {

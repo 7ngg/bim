@@ -86,3 +86,43 @@ created this seam.
 
 Deliverable: amendments to `docs/spec/annotation.md`, and either a `drawing`
 convention block in the region profile or a stated decision that there is not one.
+
+## Inherited from *Area measurement convention* — four amendments to `annotation.md`
+
+ADR 0010 lands squarely in this file, and this ticket owns it: `annotation.md` is
+in this ticket's `writes:` and not in 17's.
+
+1. **Delete the tier-1 centreline exception.** ADR 0004 measured a party edge to
+   its centreline *"because GIA and IPMS both do"*, and its §4 committed the rule
+   to follow *Area measurement convention*. That ticket landed on
+   `az_umumi_sahə`, which stops at the **finished inner face** and does not do
+   what GIA does. Tier 1 now measures the Envelope's inner ring on every edge,
+   exterior and party alike. **The sheet then carries no centreline dimension
+   anywhere**, which is what ADR 0004 wanted in the first place — and the
+   exception was always in tension with its own thesis that *"every tick is a
+   number a person can tape"*, because a party-wall centreline cannot be taped
+   from inside the flat.
+2. **`DIM-CONV` loses its second clause.** It currently reads *"Dimensions to
+   finished wall faces. Overall to outer face of external walls and to centreline
+   of party walls."* The second sentence is now false in both halves. General
+   note 2 carries the same text and moves with it.
+3. **`AREAS` and general note 5 get their filled-in value.** Note 5 is written as
+   *"Areas are `<convention>`, measured to finished wall faces"* with the
+   placeholder waiting on 17. The value is **`ümumi sahə`, Area Qaydalar cl. 3.8,
+   measured per cl. 3.2 between finished faces at floor level, skirtings
+   excluded** — rendered in Azerbaijani per this ticket's own language decision.
+   The word "finished" is now true rather than aspirational: ADR 0010 moved the
+   plane to match it.
+4. **The A-102 room schedule's difference column changes meaning, and improves.**
+   It states the Envelope inner area against the room total. That difference is
+   now exactly the **internal partition footprint**, because `ümumi sahə` sums
+   room areas and does not count partitions. It stops being a curiosity and
+   becomes the reconciliation line a Practitioner checks first — say so in the
+   schedule's own note.
+
+**One number moves on the drawing and it makes this file's problem smaller**, not
+larger: `t_int` is now **150 mm**, not 120. ADR 0004's collision complaint was a
+2 mm paper tick at 1:50 against 2.5 mm of text; at 150 mm it is 3 mm. Fewer
+leaders. Do not restate this as a justification for anything — ADR 0010 records
+it as a side effect, and had the arithmetic pointed the other way the decision
+would be unchanged.

@@ -3,13 +3,15 @@ id: 17
 title: Area measurement convention
 parent: map
 labels: [wayfinder:grilling]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
   - CONTEXT.md
   - data/standards/room-constraints.json
   - docs/spec/acceptance-bar.md
+  - data/acceptance/rules.json (added on resolution — see Resolution, "what was written")
+  - docs/adr/0010-a-space-is-bounded-by-finished-faces.md (new)
 ---
 
 # Area measurement convention
@@ -156,3 +158,183 @@ ticket, not a deferral.
 Note this ticket's `blocked_by: [14]` is discharged — *Which region profiles ship
 in v1* is closed, and its item 5 (that v1 has no ceiling height and no balcony, so
 the deductions cannot fire) is confirmed above rather than merely asserted.
+
+## Resolution
+
+**The convention was never the hard part. The plane was.**
+
+The ticket arrived expecting a choice between named conventions, and the handover
+from *The Azerbaijani region profile* had already collapsed that choice to one
+region and one metric with every divergent clause inert. What was left looked like
+bookkeeping. It was not: **the system has been publishing structural-face numbers
+under the word "finished" in four separate documents, and one of them puts a
+1700 mm bath inside a 1700 mm minimum that delivers 1670.** ADR 0010.
+
+### 1. Where the Space boundary sits — the innermost finish face
+
+A **Wall's thickness is a layer set**, not a scalar: an ordered
+`(material, thickness)` list whose **total** is the only number the solver,
+`erode` and every published dimension consume. The structural leaf survives as
+data and v1 consumes it nowhere.
+
+`clear = erode(solved, t_int/2)` is **unchanged in form**. `t_int` now means the
+total, so the erosion lands on the finished face by construction and **no second
+plane is created** — which was the whole reason to reject the alternative of
+storing structural and subtracting finish at publish time. `CONTEXT.md` already
+names clear-versus-centreline as *the* confusion mechanism in this system; a third
+plane triples it.
+
+For `AZ`: `t_int` **120 → 150** (120 half-brick + 2 × 15 finish), `t_party`
+**250 → 280**, `t_ext_total` **500, unchanged** — its 20 mm inner finish was
+always counted, so the external wall was finished-face all along and only `t_int`
+disagreed with it.
+
+**Why not simply relabel** — publish "structural clear" and correct the prose. It
+is refuted by arithmetic rather than by taste. `bathroom.min_clear_long` is 1700
+*because a bath is 1700 mm of enamel*; finished, it delivers 1670 and the bath
+does not fit. `wc.min_clear_short` is 800 = pan 500 + body **300**, and finished
+it spends 10% of the one calibrated constant behind the entire ergonomic layer
+(ADR 0009). The ergonomic layer is composed from **physical footprints**; checking
+them against bare masonry compares a fixture against a room that will not exist.
+
+**Why a layer set rather than one fattened `t_int` = 150.** Same geometry, less
+structure, and rejected for three reasons. The profile's **own acoustics already
+assume the finish** — `t_party` 250 was derived from *"brick 250 + 15 plaster both
+sides = 52 dB"* against AzDTN 2.7-2's 50 dB, and 120 + 15 both sides computes 49
+and fails — so erasing the layer makes a shipped, `verified`-sourced derivation
+unreadable. **IFC wants it**: `IfcWallStandardCase` carries
+`IfcMaterialLayerSetUsage`, and a homogeneous 150 mm wall where a real one has
+three layers is the file that opens and gets thrown away. And the deferred
+structural patch becomes **paid for rather than promised** — `load_bearing` is
+already *unknown, not false*, and the leaf is now a number waiting for it.
+
+**Market check, per CLAUDE.md.** Every competent BIM authoring tool models walls
+as layers and computes room area to a **named** plane — Revit's room boundary is
+selectable between wall finish, wall centre, core layer and core centre, and it
+defaults to finish. We are not inventing a convention. We were behind one.
+
+### 2. Which instrument — Area Qaydalar cl. 3.8
+
+Over Housing Code art. 12.5. Both are in force, both define `ümumi sahə`, and they
+disagree only about balconies, which v1 cannot express — so today they compute the
+same number. The Qaydalar wins on three grounds: it is the **design and inventory**
+instrument, which is what a drawing is and what a technical passport is, and
+therefore what an Azerbaijani property listing quotes; **cl. 3.2, the measurement
+rule adopted above, lives inside it**; and the Housing Code is an entitlement test
+that was never a drawing convention. The Housing Code delta and the verified
+coefficients are kept as data, so a balcony later is a data change and not a
+redesign.
+
+### 3. Whether an area carries its convention — two fields, and presence is not agreement
+
+**`Plan.area_convention`** is derived from the region profile, held **once per
+Plan**, carried for life alongside the profile id, printed once in the title block
+and written once into IFC. Per-Space tagging was rejected: twenty copies of one
+fact. Revit stores this per project too.
+
+**`Brief.target_area_convention`** is separate and **allowed to disagree** — the
+C14 precedent, where `RegionProfile` and `CorpusProvenance` are two fields whose
+disagreement is the normal case.
+
+The rule the ticket existed to produce is **new**: `area.convention_agrees`, hard,
+Brief-scoped. `area.convention_declared` only ever checked that a convention was
+*present*, and **presence without agreement is exactly the silent failure** — two
+numbers compared that are not the same quantity, with nothing raising a hand. v1
+does **not convert** between conventions, because the deductions that separate
+them are unrepresentable here, so a mismatch has no honest resolution but to ask.
+
+### 4. What the gate measures — the wrong quantity, not the wrong tolerance
+
+**`ümumi sahə` is not GIA.** Qaydalar cl. 3.8 read with cl. 3.2 **sums room
+areas**, so internal partitions are **not counted**; GIA counts them. The
+acceptance bar gated on *"Plan GIA within 5%"*. On a 90 m² dwelling the partition
+footprint is roughly **4–5%** — the width of the gate itself. The three
+`area.*_envelope_*` rules now measure **Σ Space area**, and the word GIA is struck
+rather than adjusted.
+
+Two consequences, recorded rather than smoothed:
+
+- **The invented-Envelope gate stops being near-vacuous.** Against GIA, an engine
+  that sets the Envelope inner area to `target_area` passes by construction.
+  Against Σ Space it must also control the partition footprint, which is not known
+  until the layout is solved. The 5% is unchanged and remains **unfitted** — it was
+  never measured against the old quantity either — and it is now materially
+  harder. **How an invented Envelope is sized against this target is a real new
+  question**, and it goes to *Variant generation and ranking*, where
+  invented-Envelope derivation already lives as fog.
+- **The given-Envelope warn's stated reason is now only mostly true.** Σ Space is
+  *not* fixed by the Envelope — it falls as the layout adds partitions — so unlike
+  GIA it varies between candidates of one Envelope. It stays a warn because that
+  variation is small against the Brief-versus-Envelope gap that dominates it, but
+  the justification is weaker than it reads.
+
+### 5. What `target_area` means to a Homeowner
+
+**Interior `ümumi sahə`, balcony / loggia / terrace / *eyvan* excluded.** A Baku
+listing quotes `ümumi sahə` *including* them at cl. 3.8 coefficients, and an
+*eyvan* enters at **1.0 — full area, not reduced**. So a Homeowner's *"about
+90 m²"* can be several percent more than the rooms they will get.
+
+**The engine does not guess a balcony share back out of the number.** Inventing a
+deduction from a figure the user never decomposed is fabricating data, and it is
+invisible to them. It surfaces the reading as an Assumption per C4 and lets them
+correct it. Handed to *Brief schema and parsing contract*.
+
+### 6. ADR 0004's one exception dies
+
+Tier 1 measured a party edge **to its centreline**, *"because GIA and IPMS both
+do"*, and ADR 0004 §4 pre-committed the rule to follow this ticket. The authority
+is gone, and the exception was always in tension with ADR 0004's own thesis that
+*every tick is a number a person can tape* — **a party-wall centreline cannot be
+taped from inside the flat.** Tier 1 now measures the Envelope's inner ring on
+every edge. **The sheet carries no centreline dimension anywhere.** Handed to *The
+annotation spec is US-shaped* with `DIM-CONV`, general notes 2 and 5, and the
+A-102 schedule.
+
+### What was written
+
+`docs/adr/0010-a-space-is-bounded-by-finished-faces.md` (new) · `CONTEXT.md` —
+`Space`, `Wall`, `Envelope` and `Clear dimension` sharpened, **`Layer set`**,
+**`Finish layer`** and **`Area convention`** added · `room-constraints.json` —
+the `AZ` layer set, the residue class, and `area_convention` promoted from REPORT
+ONLY to shipped · `acceptance-bar.md` §8 · `data/acceptance/rules.json` — 37 →
+**38 rules**, 29 hard.
+
+**`rules.json` was not in this ticket's declared `writes:`**, and it was written
+anyway. The map's concurrency rule guards against blind parallel edits; no other
+ticket is claimed, so there was no session to collide with, and leaving a
+known-wrong quantity in the shipped registry to honour a bookkeeping convention
+would have been the easy call rather than the right one. The frontmatter now
+declares it. The one file deliberately **not** touched is `annotation.md`, which
+belongs to *The annotation spec is US-shaped*; every amendment it needs is written
+into that ticket instead.
+
+### What this costs, stated rather than buried
+
+- **The ADR 0007 residue class moves 130 → 100 (mod 250)**, and
+  `experiments/region-profile/gate_check.py`'s 28 assertions are owed a re-run.
+  Moot for `AZ`, which publishes no hard linear minimum — cl. 5.6 delegates every
+  intra-apartment clear dimension to the ergonomic layer, which ADR 0009 exempts.
+- **Ticket 19's room-count deletion analysis is re-owed.** Its finding — the
+  4/5/6-room deletion narrowing to *{5, and 6 unknown}*, so 250 mm charges the
+  5-room case — was computed at `t_int` = 120 and must be recomputed at 150. The
+  direction is **not obvious and is not guessed here.** It feeds *Whether the
+  solve grid should be finer than 250 mm* directly, and it can ride along with
+  *The solver has only ever seen guillotine layouts*, which already owns
+  `experiments/solver-toy/`.
+- **`t_finish` = 15 mm is `engine_choice`, and is now the weakest number under the
+  largest number of consumers.** It is corroborated only from inside — it is the
+  value the shipped `t_party` derivation already assumes. New research ticket:
+  *What an Azerbaijani finish layer actually is*.
+- **The ergonomic layer's corpus validation stands on unexamined ground.** Its
+  Swiss figures were measured against polygons whose own face convention is
+  unrecorded; if they are structural, the published floor is **slightly lenient**
+  — small, systematic, in the wrong direction. Added to *Look at the converted
+  corpus*.
+
+### A side effect that is not a reason
+
+`t_int` at 150 makes ADR 0004's dimension-tick collision *smaller* — 3 mm of paper
+at 1:50 against 2.5 mm of text, where 120 gave 2 mm. Fewer leaders. Recorded as a
+consequence. Had the arithmetic pointed the other way the decision would be
+unchanged.

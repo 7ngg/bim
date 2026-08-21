@@ -113,3 +113,47 @@ vocabulary landed in `CONTEXT.md`.
   the ergonomic-minima lower bound is compared against **a real area**, not just a
   room-sum — so "six bedrooms in 9 by 7 m" is refused at parse time rather than
   after zero candidates survive. Same sentence, earlier.
+
+## Inherited from *Area measurement convention* — the blocker is discharged, and it lands two fields
+
+`blocked_by: [17]` is discharged. ADR 0010 settles what an area *is*; what remains
+here is what the Brief carries and what the Homeowner is told.
+
+**Two fields, not one.**
+
+- `Brief.target_area_convention` — the convention the Homeowner's number is in.
+  Separate from `Plan.area_convention`, which is **derived from the region
+  profile**, held once per Plan, and never per Space. The two are allowed to
+  disagree, and a disagreement is a **hard Brief error**: `area.convention_agrees`
+  in `rules.json`. v1 does not convert between conventions, because the deductions
+  that separate them are unrepresentable in a model with no balcony and no ceiling
+  height, so a mismatch has no honest resolution but to ask.
+- `Brief.target_area` — defined as **interior `ümumi sahə`, with balcony, loggia,
+  terrace and *eyvan* excluded.**
+
+**The default is the interesting part, and it is an Assumption in C4's exact
+sense.** A Baku property listing quotes `ümumi sahə` per Area Qaydalar cl. 3.8,
+which **includes** an *eyvan* at coefficient **1.0 — full area, not reduced** —
+and a balcony at 0.3, a loggia at 0.5. v1 has no such element. So a Homeowner
+saying *"about 90 m²"* from their listing is quoting a number that may be several
+percent larger than the rooms they will actually get.
+
+The engine **does not guess a balcony share back out of the number.** Inventing a
+deduction from a figure the user did not decompose is fabricating data, and it
+would be invisible to them. It surfaces the reading instead — *"read as 90 m² of
+rooms; if that figure came from a listing it may have included a balcony or
+eyvan, in which case your rooms will be larger than that listing's"* — and lets
+them correct it. That is an Assumption on `target_area`, surfaced like any other.
+
+**The retrieval-line question this sharpens.** *What a corpus-shaped product looks
+like* asks what a Homeowner is told when their Brief crosses a line the engine can
+see at parse time. This is a second instance of the same shape and the same
+answer: the engine knows the convention gap exists, cannot resolve it, and says
+so.
+
+**One consequence for the total-area gate**, which this ticket's feasibility
+pre-check should know: the gate now measures **Σ Space area**, not GIA, so
+`target_area` is compared against the sum of rooms rather than the Envelope
+interior. The two differ by the partition footprint — roughly **4–5%** on a 90 m²
+dwelling. Item 5's pre-check must sum against the same quantity or it will
+pre-approve Briefs the bar then rejects.

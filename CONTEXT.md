@@ -23,9 +23,10 @@ consumes.
 prose. Always surfaced to the Homeowner. An invented *room* and an invented
 *area* are assumptions of different kinds.
 
-**Envelope** — the boundary a plan is laid out inside, taken at the **inner face**
-of the external wall. It *is* the interior clear region, so a Homeowner's tape
-measurement of their flat is the Envelope with nothing added or removed. Not the
+**Envelope** — the boundary a plan is laid out inside, taken at the **finished
+inner face** of the external wall. It *is* the interior clear region, so a
+Homeowner's tape measurement of their flat is the Envelope with nothing added or
+removed — and a tape reads finish, which is why the plane is named. Not the
 footprint and not a centreline — those are derived from it. Rectilinear in v1.
 
 An Envelope is an **ordered ring of edges**, and the order matters: a flat with
@@ -129,10 +130,10 @@ declared and never inferred — without the declaration, "every room is reachabl
 without passing through a bedroom" rejects every plan with an ensuite; with it,
 an ensuite that opens onto the hall correctly fails.
 
-**Space** — a room as *geometry*: the polygon bounded by the inner faces of the
-walls around it. Derived, never authored. **Room** and **Space** are not
-interchangeable, and a sentence that uses "room" for both is the usual way a
-clear dimension gets confused with a centreline one.
+**Space** — a room as *geometry*: the polygon bounded by the **finished** inner
+faces of the walls around it — see [[Finish layer]]. Derived, never authored.
+**Room** and **Space** are not interchangeable, and a sentence that uses "room"
+for both is the usual way a clear dimension gets confused with a centreline one.
 
 **Wall** — a centreline and a thickness. The body straddles the centreline; the
 winding records which side is which. A Wall is the **maximal straight run** of
@@ -142,6 +143,21 @@ from the Envelope, and **Partition**, which comes from two rooms meeting.
 A party wall is External — its **boundary condition** selects its thickness, which
 is why two classes are still enough. Load-bearing is *unknown*, not false — v1
 makes no structural claim, on a party wall least of all.
+
+Its thickness is a **[[Layer set]]**, never a scalar.
+
+**Layer set** — a Wall's build-up as an ordered list of `(material, thickness)`,
+innermost first. Its **total** is the only thickness the solver, the erosion and
+every dimension consume; the structural leaf survives as data and v1 consumes it
+nowhere. The split is not decoration: a party wall's thickness is *derived from
+an acoustic requirement that already assumes plaster on both faces*, so a single
+scalar makes that derivation unreadable, and `IfcWallStandardCase` carries the
+layers whether or not we do.
+
+**Finish layer** — the innermost layer of a [[Layer set]]: what the occupant
+actually touches, and the plane every published number measures to. Small,
+systematic, and in the wrong direction if ignored — a bath is 1700 mm of enamel,
+and a 1700 mm room measured to bare masonry does not hold one.
 
 **Wall segment** — the stretch of one Wall that separates one specific pair —
 two Rooms, or a Room and the outside. Derived from the Room tiling. This is the
@@ -242,7 +258,21 @@ a real home, not a defect.
 
 **Clear dimension** — a distance between the *finished faces* of the walls that
 bound a room. What a Homeowner would measure with a tape, what a minimum room
-dimension means, and what the Acceptance bar is stated in.
+dimension means, and what the Acceptance bar is stated in. "Finished" is
+load-bearing and was for a long time not true: the erosion subtracts half a
+[[Layer set]]'s **total**, and it once subtracted half a bare structural leaf,
+which is a different plane by two [[Finish layer]]s per axis. ADR 0010.
+
+**Area convention** — the named rule by which an area is measured, without which
+an area is not a quantity. Two different conventions on one building differ by
+tens of percent, so a number that has lost its convention cannot be compared,
+gated or printed. Held **once per Plan**, derived from the [[Region profile]] and
+carried for life; the Brief holds its own, separately, because a Homeowner quotes
+whatever their property listing quotes and the two are allowed to disagree — the
+disagreement is a Brief error, and a silent agreement that was never checked is
+the failure this term exists to prevent. v1 ships `az_umumi_sahe`: the sum of
+Space areas, measured to finished faces at floor level, partitions **not**
+counted.
 
 **Centreline dimension** — the same distance measured between wall *axes*. Larger
 than the clear dimension by half a wall on each side. What the solver works in.

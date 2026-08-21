@@ -4,6 +4,10 @@ Two arithmetic constraints have to hold before a profile ships (map C15):
 
   ADR 0004  every wall thickness is an even number of millimetres, so that
             `erode(rect, t_int/2)` and the tier-1 `t_party/2` stay integral.
+            ADR 0010 makes a thickness a LAYER SET, which sharpens this: the
+            rule binds on the numbers that get HALVED -- the totals -- and not
+            on a layer component, which only ever enters a total doubled. A
+            15 mm finish is legal and a 15 mm wall is not.
   ADR 0007  every *hard linear* minimum satisfies `min + t_int == 0 (mod grid)`
             for every `t_int` the profile offers, so the clear reading does not
             cost a whole grid unit per room per axis.
@@ -31,11 +35,30 @@ def main():
     cat = az["construction"]["catalogue"]
 
     # ---- ADR 0004, thicknesses -------------------------------------------
+    # ADR 0010: a thickness is a layer set. Evenness binds on what is halved.
+    HALVED_NOWHERE = {"t_finish"}
     for ctype, fields in cat.items():
         for name, cell in fields.items():
             t = cell["v"]
+            if name in HALVED_NOWHERE:
+                check(isinstance(t, int),
+                      f"ADR 0004 exempt (enters doubled) {ctype}.{name} = {t}")
+                continue
             check(isinstance(t, int) and t % 2 == 0,
                   f"ADR 0004 even thickness {ctype}.{name} = {t}")
+
+    # ---- ADR 0010, the layer arithmetic actually closes -------------------
+    for ctype, fields in cat.items():
+        if "t_finish" not in fields:
+            continue
+        f = fields["t_finish"]["v"]
+        for total, leaf in (("t_int", "t_int_structural"),
+                            ("t_party", "t_party_structural")):
+            if total in fields and leaf in fields:
+                check(fields[total]["v"] == fields[leaf]["v"] + 2 * f,
+                      f"ADR 0010 {ctype}.{total} = {leaf} + 2 x t_finish",
+                      f"{fields[total]['v']} vs "
+                      f"{fields[leaf]['v']} + 2 x {f}")
 
     # ---- ADR 0004, openings ----------------------------------------------
     # The mark encodes decimetres; the opening itself is nominal + 10 mm both
