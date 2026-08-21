@@ -1,0 +1,541 @@
+738 rows from results/P6.jsonl
+
+A -- dose-response, guarded   (Proposal = ground truth; only the relation set is corrupted)
+-------------------------------------------------------------------------------------------
+  n   k  base posted cycdrop violated  INFEAS survivor valid_at p50  wall p50
+  8   0    26   25.0    0.00     0.00    0.0%   100.0%        0.128     0.149
+  8   1    26   25.0    0.00     0.80   60.0%    20.0%        0.117     0.037
+  8   2    26   24.8    0.20     1.80   80.0%     0.0%             -     0.014
+  8   3    26   24.6    0.40     2.80  100.0%     0.0%             -     0.009
+  8   4    26   23.4    1.60     3.20  100.0%     0.0%             -     0.012
+  8   6    26   23.8    1.20     5.60  100.0%     0.0%             -     0.011
+  8   8    26   23.8    1.20     7.20  100.0%     0.0%             -     0.011
+  8  12    26   23.2    1.80    10.00  100.0%     0.0%             -     0.011
+  8  16    26   21.6    3.40    13.00  100.0%     0.0%             -     0.011
+  8  24    26   22.2    2.80    20.20  100.0%     0.0%             -     0.010
+ 12   0    58   57.2    0.00     0.00    0.0%   100.0%        0.368     0.384
+ 12   1    58   57.2    0.00     0.80   40.0%    40.0%        0.424     0.369
+ 12   2    58   56.0    1.20     1.80  100.0%     0.0%             -     0.035
+ 12   3    58   57.2    0.00     2.20   60.0%     0.0%             -     0.043
+ 12   4    58   56.6    0.60     3.40  100.0%     0.0%             -     0.028
+ 12   6    58   55.6    1.60     5.20  100.0%     0.0%             -     0.033
+ 12   8    58   52.2    5.00     6.60  100.0%     0.0%             -     0.026
+ 12  12    58   53.6    3.60    10.40  100.0%     0.0%             -     0.027
+ 12  16    58   51.8    5.40    12.60  100.0%     0.0%             -     0.025
+ 12  24    58   51.2    6.00    19.20  100.0%     0.0%             -     0.025
+ 24   0   251  246.4    0.00     0.00    0.0%   100.0%        2.909     3.281
+ 24   1   251  245.2    1.20     0.80   60.0%    20.0%        3.363     0.118
+ 24   2   251  246.0    0.40     1.80   80.0%     0.0%             -     0.154
+ 24   3   251  245.0    1.40     2.80   80.0%     0.0%             -     0.170
+ 24   4   251  245.2    1.20     3.40  100.0%     0.0%             -     0.124
+ 24   6   251  245.6    0.80     5.00  100.0%     0.0%             -     0.165
+ 24   8   251  240.8    5.60     5.80  100.0%     0.0%             -     0.116
+ 24  12   251  237.4    9.00     9.20  100.0%     0.0%             -     0.119
+ 24  16   251  237.4    9.00    10.60  100.0%     0.0%             -     0.119
+ 24  24   251  231.8   14.60    16.80  100.0%     0.0%             -     0.116
+
+A2 -- dose-response, UNGUARDED   (Proposal = ground truth; only the relation set is corrupted)
+----------------------------------------------------------------------------------------------
+  n   k  base posted cycdrop violated  INFEAS survivor valid_at p50  wall p50
+  8   2    26   25.7    0.00     2.00  100.0%     0.0%             -     0.012
+  8   4    26   25.7    0.00     4.00  100.0%     0.0%             -     0.011
+  8   8    26   25.7    0.00     6.67  100.0%     0.0%             -     0.010
+  8  16    26   25.7    0.00    15.33  100.0%     0.0%             -     0.010
+ 12   2    58   57.0    0.00     1.67   66.7%    33.3%        2.195     0.055
+ 12   4    58   57.0    0.00     4.00  100.0%     0.0%             -     0.028
+ 12   8    58   57.0    0.00     8.00  100.0%     0.0%             -     0.026
+ 12  16    58   57.0    0.00    14.33  100.0%     0.0%             -     0.026
+ 24   2   251  247.3    0.00     1.67   66.7%     0.0%             -     0.135
+ 24   4   251  247.3    0.00     3.00  100.0%     0.0%             -     0.154
+ 24   8   251  247.3    0.00     7.33  100.0%     0.0%             -     0.133
+ 24  16   251  247.3    0.00    13.67  100.0%     0.0%             -     0.128
+
+THE HEADLINE -- survival against violated relations actually posted
+-------------------------------------------------------------------
+A relation flipped to a direction the truth still happens to satisfy is not
+a violated relation. `violated` counts only the ones the truth contradicts.
+
+  n violated  runs  INFEAS survivor valid_at p50
+  8        0     6    0.0%   100.0%        0.128
+  8        1     5   60.0%     0.0%             -
+  8        2     5  100.0%     0.0%             -
+  8        3     8  100.0%     0.0%             -
+  8        4     1  100.0%     0.0%             -
+  8        5     2  100.0%     0.0%             -
+  8        6     4  100.0%     0.0%             -
+  8        7     2  100.0%     0.0%             -
+  8        8     3  100.0%     0.0%             -
+  8       10     4  100.0%     0.0%             -
+  8       11     1  100.0%     0.0%             -
+  8       12     1  100.0%     0.0%             -
+  8       14     1  100.0%     0.0%             -
+  8       15     2  100.0%     0.0%             -
+  8       19     2  100.0%     0.0%             -
+  8       20     1  100.0%     0.0%             -
+  8       21     1  100.0%     0.0%             -
+  8       22     1  100.0%     0.0%             -
+ 12        0     6    0.0%   100.0%        0.367
+ 12        1    12   50.0%    25.0%        0.489
+ 12        2    14   85.7%     0.0%             -
+ 12        3     4  100.0%     0.0%             -
+ 12        4     8  100.0%     0.0%             -
+ 12        5     2  100.0%     0.0%             -
+ 12        6     4  100.0%     0.0%             -
+ 12        7     3  100.0%     0.0%             -
+ 12       10     3  100.0%     0.0%             -
+ 12       11     3  100.0%     0.0%             -
+ 12       12     1  100.0%     0.0%             -
+ 12       13     2  100.0%     0.0%             -
+ 12       14     1  100.0%     0.0%             -
+ 12       17     1  100.0%     0.0%             -
+ 12       19     1  100.0%     0.0%             -
+ 12       20     3  100.0%     0.0%             -
+ 24        0     6    0.0%   100.0%        3.136
+ 24        1    12   58.3%     0.0%             -
+ 24        2    11   81.8%     0.0%             -
+ 24        3     8  100.0%     0.0%             -
+ 24        4     9  100.0%     0.0%             -
+ 24        5     3  100.0%     0.0%             -
+ 24        6     2  100.0%     0.0%             -
+ 24        7     1  100.0%     0.0%             -
+ 24        8     2  100.0%     0.0%             -
+ 24        9     2  100.0%     0.0%             -
+ 24       10     4  100.0%     0.0%             -
+ 24       11     3  100.0%     0.0%             -
+ 24       15     1  100.0%     0.0%             -
+ 24       16     1  100.0%     0.0%             -
+ 24       17     1  100.0%     0.0%             -
+ 24       18     2  100.0%     0.0%             -
+
+The same, pooled over sizes -- is one violated relation already fatal?
+----------------------------------------------------------------------
+violated  runs  INFEAS survivor
+       0    18    0.0%   100.0%
+       1    29   55.2%    10.3%
+       2    30   86.7%     0.0%
+       3    20  100.0%     0.0%
+       4    18  100.0%     0.0%
+       5     7  100.0%     0.0%
+     >=6    64  100.0%     0.0%
+
+PREDICTION -- does the metric call the outcome, run by run?
+-----------------------------------------------------------
+
+  violated (asserted and FALSE of the truth)  [all sizes, n=210]
+                     survivor  no survivor
+     violated == 0         80           12
+     violated >  0         36           82
+    accuracy  77.1%   false-alarm 36/118  missed 12/92
+
+  violated (asserted and FALSE of the truth)  [24 rooms only, n=70]
+                     survivor  no survivor
+     violated == 0         13           12
+     violated >  0          6           39
+    accuracy  74.3%   false-alarm 6/45  missed 12/25
+
+  argmin-wrong (5.1 read literally)  [all sizes, n=210]
+                     survivor  no survivor
+    argmin_wrong == 0         51            3
+    argmin_wrong >  0         65           91
+    accuracy  67.6%   false-alarm 65/156  missed 3/54
+
+  argmin-wrong (5.1 read literally)  [24 rooms only, n=70]
+                     survivor  no survivor
+    argmin_wrong == 0          8            3
+    argmin_wrong >  0         11           48
+    accuracy  80.0%   false-alarm 11/59  missed 3/11
+
+  abstained  [all sizes, n=210]
+                     survivor  no survivor
+    abstained == 0         26           35
+    abstained >  0         90           59
+    accuracy  40.5%   false-alarm 90/149  missed 35/61
+
+  abstained  [24 rooms only, n=70]
+                     survivor  no survivor
+    abstained == 0          5           15
+    abstained >  0         14           36
+    accuracy  58.6%   false-alarm 14/50  missed 15/20
+
+PREDICTION -- a rate compounds. What a 'small' rate costs at 24 rooms
+---------------------------------------------------------------------
+A per-pair rate p over m asserted pairs leaves a Proposal clean with
+probability (1-p)^m. m is quadratic in rooms, so the same rate is a
+different product at 8 rooms and at 24.
+
+ per-pair rate          8         12         24
+    asserted m         25         59        253
+         0.001      97.6%      94.3%      77.6%   <- P(clean Proposal)
+         0.002      95.2%      88.9%      60.2%   <- P(clean Proposal)
+         0.005      88.4%      74.5%      28.1%   <- P(clean Proposal)
+         0.010      78.1%      55.4%       7.8%   <- P(clean Proposal)
+         0.020      60.8%      30.5%       0.6%   <- P(clean Proposal)
+         0.050      28.3%       4.9%       0.0%   <- P(clean Proposal)
+
+B -- abstain. Dropping relations, not flipping them
+---------------------------------------------------
+f = 1.0 is every relation dropped: the unamended C10 form ticket 4 refuted.
+
+  n  drop f posted  INFEAS survivor valid_at p50  first p50  wall p50
+  8     0.0   25.0    0.0%   100.0%        0.112      0.112     0.125
+  8     0.1   22.6    0.0%   100.0%        0.123      0.123     0.138
+  8    0.25   18.8    0.0%   100.0%        0.151      0.151     0.158
+  8     0.5   12.4    0.0%   100.0%        0.175      0.175     0.189
+  8    0.75    6.2    0.0%   100.0%        0.178      0.178     0.190
+  8     1.0    0.0    0.0%   100.0%        0.165      0.165     0.173
+ 12     0.0   57.2    0.0%   100.0%        0.361      0.361     0.381
+ 12     0.1   51.4    0.0%   100.0%        0.363      0.363     0.383
+ 12    0.25   43.0    0.0%   100.0%        0.384      0.384     0.405
+ 12     0.5   28.6    0.0%   100.0%        0.408      0.408     0.419
+ 12    0.75   14.2    0.0%   100.0%        0.389      0.389     0.398
+ 12     1.0    0.0    0.0%   100.0%        0.352      0.352     0.372
+ 24     0.0  246.4    0.0%   100.0%        2.786      2.786     3.161
+ 24     0.1  222.0    0.0%   100.0%        3.717      3.132     3.846
+ 24    0.25  184.8    0.0%    80.0%        3.085      3.238     3.475
+ 24     0.5  123.2    0.0%   100.0%        4.324      3.018    12.525
+ 24    0.75   61.6    0.0%    80.0%        4.619      4.767     5.329
+ 24     1.0    0.0    0.0%    80.0%        4.684      2.833    14.134
+
+C -- realistic noise, shipped configuration, no injection
+---------------------------------------------------------
+  n  sigma asserted abstain% cyclic argwrong%  viol%  violN  INFEAS survivor valid_at p50
+  8    0.0     25.0    10.71   0.00      0.00   0.00   0.00    0.0%   100.0%        0.114
+  8   0.25     24.8    11.43   0.00      0.00   0.00   0.00    0.0%   100.0%        0.179
+  8    0.5     23.8    15.00   0.00      0.71   0.71   0.20    0.0%   100.0%        0.290
+  8   0.75     23.2    17.14   0.00      2.14   1.43   0.40    0.0%   100.0%        0.406
+  8    1.0     22.2    20.71   0.00      6.43   4.29   1.20    0.0%   100.0%        0.146
+  8    1.5     21.2    24.29   0.00     13.57  10.00   2.80   80.0%    20.0%        0.263
+ 12    0.0     57.2    13.33   0.00      0.00   0.00   0.00    0.0%   100.0%        0.369
+ 12   0.25     56.6    14.24   0.00      0.00   0.00   0.00    0.0%   100.0%        3.741
+ 12    0.5     55.2    16.36   0.00      2.12   0.30   0.20    0.0%   100.0%        2.787
+ 12   0.75     53.4    19.09   0.00      4.24   1.52   1.00    0.0%   100.0%        2.163
+ 12    1.0     55.0    16.67   0.00      8.18   3.94   2.60   20.0%    80.0%        3.713
+ 12    1.5     57.0    13.64   0.00     16.97  11.52   7.60   80.0%     0.0%             -
+ 24    0.0    246.4    10.72   0.00      0.00   0.00   0.00    0.0%   100.0%        2.715
+ 24   0.25    245.8    10.94   0.00      0.14   0.00   0.00    0.0%    60.0%       13.031
+ 24    0.5    244.2    11.52   0.00      1.30   0.29   0.80   20.0%    60.0%       13.234
+ 24   0.75    242.4    12.17   0.00      3.12   0.36   1.00   20.0%    20.0%       13.625
+ 24    1.0    243.6    11.74   0.00      6.30   1.74   4.80   20.0%     0.0%             -
+ 24    1.5    241.8    12.39   0.00     10.65   3.70  10.20   40.0%     0.0%             -
+
+C -- which number separates a survivor from a failure?
+------------------------------------------------------
+Group means over every C run, split by outcome. A metric that predicts
+shows a gap here; one that does not, does not.
+
+                metric  survivors   failures    ratio
+             agreement     0.8324     0.7674     0.92
+          abstain rate     0.1478     0.1408     0.95
+     argmin-wrong rate     0.0198     0.0918     4.64
+         violated rate     0.0095     0.0499     5.23
+      violated (count)     0.4355     4.8929    11.24
+        cyclic (count)     0.0000     0.0000     0.00
+
+C -- separation, run by run: does violated == 0 ever fail, and does violated > 0 ever survive?
+----------------------------------------------------------------------------------------------
+  n violated  runs survivor
+  8        0    18   100.0%
+  8        1     6   100.0%
+  8        2     4    50.0%
+  8        4     1     0.0%
+  8        5     1     0.0%
+ 12        0    16   100.0%
+ 12        1     3   100.0%
+ 12        2     4   100.0%
+ 12        4     3    33.3%
+ 12        7     2     0.0%
+ 12        8     2     0.0%
+ 24        0    16    62.5%
+ 24        1     2   100.0%
+ 24        2     1     0.0%
+ 24        3     2     0.0%
+ 24        4     1     0.0%
+ 24        5     2     0.0%
+ 24        7     1     0.0%
+ 24        8     5     0.0%
+
+E -- cause, not correlation
+---------------------------
+sufficient : post ONLY the flipped relations. INFEASIBLE means they alone explain it.
+necessary  : post everything EXCEPT the flipped ones, which is what abstaining
+             on those pairs would have done. A survivor means the flips are what
+             killed it.
+Sufficiency is only readable at 8 and 12 rooms: with almost no relations posted
+the 24-room model is the unamended C10 form, which ticket 4 showed finds nothing.
+
+  n   k  viol        full        suff         nec nec survivor core=posted
+  8   1     1  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   1     1  INFEASIBLE     OPTIMAL     OPTIMAL         True        True
+  8   1     1     OPTIMAL     OPTIMAL     OPTIMAL         True       False
+  8   2     2  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   2     1  INFEASIBLE     OPTIMAL     OPTIMAL         True        True
+  8   2     2  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   3     3  INFEASIBLE     OPTIMAL     OPTIMAL         True        True
+  8   3     3  INFEASIBLE     OPTIMAL     OPTIMAL         True        True
+  8   3     3  INFEASIBLE     OPTIMAL     OPTIMAL         True        True
+  8   4     3  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   4     3  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   4     3  INFEASIBLE     OPTIMAL     OPTIMAL         True        True
+  8   6     6  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   6     5  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   6     6  INFEASIBLE     OPTIMAL     OPTIMAL         True        True
+  8   8     7  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+  8   8     8  INFEASIBLE  INFEASIBLE     OPTIMAL         True        True
+  8   8     6  INFEASIBLE  INFEASIBLE     OPTIMAL         True        True
+ 12   1     1  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   1     0     OPTIMAL     OPTIMAL     OPTIMAL         True       False
+ 12   1     1    FEASIBLE    FEASIBLE     OPTIMAL         True       False
+ 12   2     2  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   2     2  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   2     1     OPTIMAL     OPTIMAL     OPTIMAL         True       False
+ 12   3     3  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   3     3  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   3     3  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   4     3  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   4     4  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   4     3    FEASIBLE    FEASIBLE     OPTIMAL         True       False
+ 12   6     5  INFEASIBLE  INFEASIBLE     OPTIMAL         True        True
+ 12   6     6  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   6     5  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   8     6  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   8     7  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 12   8     7  INFEASIBLE    FEASIBLE     OPTIMAL         True        True
+ 24   1     1  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   1     1    FEASIBLE        SKIP     OPTIMAL         True       False
+ 24   1     1  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   2     1    FEASIBLE        SKIP     OPTIMAL         True       False
+ 24   2     0     OPTIMAL        SKIP     OPTIMAL         True       False
+ 24   2     1  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   3     1  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   3     3  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   3     1    FEASIBLE        SKIP     OPTIMAL         True       False
+ 24   4     4  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   4     4  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   4     3  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   6     6  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   6     5  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   6     6  INFEASIBLE        SKIP    FEASIBLE        False        True
+ 24   8     7  INFEASIBLE        SKIP    FEASIBLE        False        True
+ 24   8     7  INFEASIBLE        SKIP     OPTIMAL         True        True
+ 24   8     8  INFEASIBLE        SKIP     OPTIMAL         True        True
+
+E -- summary
+------------
+runs with >=1 violated relation posted : 52
+  of which the full set is INFEASIBLE  : 45 (87%)
+  deleting just the flips restores a survivor : 43/45 (96%)
+  flips alone are INFEASIBLE (8 and 12 rooms) : 3/31 (10%)
+CP-SAT's assumption core is the ENTIRE posted set in 45/54 runs -- it discriminates nothing.
+
+F -- the interaction: does abstaining more buy a wrong relation back?
+---------------------------------------------------------------------
+Suite E showed a flipped relation is rarely infeasible alone. If it
+is only fatal in company, loosening the company should rescue it.
+
+  n  drop f   k posted violated  INFEAS survivor  A survivor at same k
+  8    0.25   1   19.3     1.00   66.7%     0.0%                 20.0%
+  8    0.25   2   19.3     2.00   66.7%     0.0%                  0.0%
+  8    0.25   4   19.0     3.33  100.0%     0.0%                  0.0%
+  8     0.5   1   12.7     0.67   33.3%    66.7%                 20.0%
+  8     0.5   2   12.7     2.00   66.7%     0.0%                  0.0%
+  8     0.5   4   12.3     3.67  100.0%     0.0%                  0.0%
+ 12    0.25   1   42.3     0.67   33.3%    33.3%                 40.0%
+ 12    0.25   2   41.3     2.00  100.0%     0.0%                  0.0%
+ 12    0.25   4   42.3     3.67  100.0%     0.0%                  0.0%
+ 12     0.5   1   28.3     1.00    0.0%    66.7%                 40.0%
+ 12     0.5   2   28.3     1.33   33.3%    66.7%                  0.0%
+ 12     0.5   4   27.0     3.33  100.0%     0.0%                  0.0%
+ 24    0.25   1  184.0     0.67   33.3%    33.3%                 20.0%
+ 24    0.25   2  183.7     2.00  100.0%     0.0%                  0.0%
+ 24    0.25   4  185.3     3.67   66.7%     0.0%                  0.0%
+ 24     0.5   1  123.0     0.67   33.3%    33.3%                 20.0%
+ 24     0.5   2  123.3     1.33   66.7%     0.0%                  0.0%
+ 24     0.5   4  123.3     2.67  100.0%     0.0%                  0.0%
+
+A2 -- what the acyclicity guard is worth
+----------------------------------------
+Same flips, guard off, so the posted set may contain a directed cycle.
+The shipping extractor cannot produce one; this is the counterfactual.
+
+  n   k  guarded INFEAS  unguarded INFEAS  guarded surv  unguarded surv
+  8   2           66.7%            100.0%          0.0%            0.0%
+  8   4          100.0%            100.0%          0.0%            0.0%
+  8   8          100.0%            100.0%          0.0%            0.0%
+  8  16          100.0%            100.0%          0.0%            0.0%
+ 12   2          100.0%             66.7%          0.0%           33.3%
+ 12   4          100.0%            100.0%          0.0%            0.0%
+ 12   8          100.0%            100.0%          0.0%            0.0%
+ 12  16          100.0%            100.0%          0.0%            0.0%
+ 24   2           66.7%             66.7%          0.0%            0.0%
+ 24   4          100.0%            100.0%          0.0%            0.0%
+ 24   8          100.0%            100.0%          0.0%            0.0%
+ 24  16          100.0%            100.0%          0.0%            0.0%
+
+A3 -- does the kind of wrongness matter?
+----------------------------------------
+  n     mode   k violated  INFEAS survivor
+ 12     axis   1     1.00    0.0%    66.7%
+ 12     axis   2     2.00   66.7%     0.0%
+ 12     axis   4     3.00  100.0%     0.0%
+ 12  reverse   1     1.00  100.0%     0.0%
+ 12  reverse   2     2.00  100.0%     0.0%
+ 12  reverse   4     4.00  100.0%     0.0%
+ 24     axis   1     1.00   33.3%     0.0%
+ 24     axis   2     1.67   33.3%     0.0%
+ 24     axis   4     4.00  100.0%     0.0%
+ 24  reverse   1     1.00  100.0%     0.0%
+ 24  reverse   2     2.00  100.0%     0.0%
+ 24  reverse   4     3.00  100.0%     0.0%
+
+D -- a directed cycle, posted unguarded
+---------------------------------------
+  n cycle len  runs  INFEAS  wall p50
+  8         3     2  100.0%     0.011
+  8         4     2  100.0%     0.011
+  8         5     2  100.0%     0.011
+ 12         3     2  100.0%     0.037
+ 12         4     2  100.0%     0.033
+ 12         5     2  100.0%     0.030
+ 24         3     2  100.0%     0.150
+ 24         4     2  100.0%     0.178
+ 24         5     2  100.0%     0.172
+
+############ severity6 ############
+Realistic Proposals, broken down by KIND of disagreement
+(mean per Proposal; `violated` = the truth contradicts the assertion)
+
+ rig   n  sigma  tau  runs asserted reversal rev viol   swap swap viol  sev sum survivor
+   C   8    0.0    4     5     25.0     0.00     0.00   0.00      0.00      0.0   100.0%
+   C   8   0.25    4     5     24.8     0.00     0.00   0.00      0.00      0.0   100.0%
+   C   8    0.5    4     5     23.8     0.00     0.00   0.20      0.20      0.6   100.0%
+   C   8   0.75    4     5     23.2     0.00     0.00   0.60      0.40      1.4   100.0%
+   C   8    1.0    4     5     22.2     0.00     0.00   1.80      1.20      9.2   100.0%
+   C   8    1.5    4     5     21.2     0.80     0.80   3.00      2.00     29.4    20.0%
+  C2   8   0.25    0     5     28.0     0.00     0.00   2.00      0.20      0.8   100.0%
+  C2   8   0.25    4     5     23.8     0.00     0.00   0.20      0.00      0.0   100.0%
+  C2   8    0.5    0     5     28.0     0.00     0.00   2.60      0.20      0.8   100.0%
+  C2   8    0.5    4     5     24.0     0.00     0.00   1.00      0.00      0.0   100.0%
+  C2   8    1.0    0     5     28.0     0.20     0.20   4.40      1.80     22.2    20.0%
+  C2   8    1.0    4     5     22.4     0.00     0.00   2.40      0.60      5.2    60.0%
+  C2   8    2.0    0     5     28.0     1.20     1.20   8.40      4.60     73.6    20.0%
+  C2   8    2.0    4     5     22.2     0.80     0.80   5.80      3.20     52.4    40.0%
+   C  12    0.0    4     5     57.2     0.00     0.00   0.00      0.00      0.0   100.0%
+   C  12   0.25    4     5     56.6     0.00     0.00   0.00      0.00      0.0   100.0%
+   C  12    0.5    4     5     55.2     0.00     0.00   1.40      0.20      0.8   100.0%
+   C  12   0.75    4     5     53.4     0.00     0.00   2.80      1.00      4.0   100.0%
+   C  12    1.0    4     5     55.0     0.00     0.00   5.40      2.60     15.0    80.0%
+   C  12    1.5    4     5     57.0     0.80     0.80  10.40      6.80     70.2     0.0%
+  C2  12   0.25    0     5     66.0     0.00     0.00   2.00      0.60      1.2   100.0%
+  C2  12   0.25    4     5     56.0     0.00     0.00   0.00      0.00      0.0   100.0%
+  C2  12    0.5    0     5     66.0     0.00     0.00   5.20      2.40     11.2    40.0%
+  C2  12    0.5    4     5     55.2     0.00     0.00   1.60      0.20      0.8   100.0%
+  C2  12    1.0    0     5     66.0     0.40     0.40   9.80      4.80     37.8    20.0%
+  C2  12    1.0    4     5     55.4     0.00     0.00   5.80      2.60     15.0    40.0%
+  C2  12    2.0    0     5     66.0     1.20     1.20  17.60     11.40    151.6     0.0%
+  C2  12    2.0    4     5     57.4     0.80     0.80  14.60      9.60    116.0     0.0%
+   C  24    0.0    4     5    246.4     0.00     0.00   0.00      0.00      0.0   100.0%
+   C  24   0.25    4     5    245.8     0.00     0.00   0.40      0.00      0.0    60.0%
+   C  24    0.5    4     5    244.2     0.00     0.00   3.60      0.80      3.4    60.0%
+   C  24   0.75    4     5    242.4     0.00     0.00   8.60      1.00      3.6    20.0%
+   C  24    1.0    4     5    243.6     0.00     0.00  17.40      4.80     30.4     0.0%
+   C  24    1.5    4     5    241.8     0.00     0.00  29.40     10.20     66.4     0.0%
+  C2  24   0.25    0     5    276.0     0.00     0.00   6.00      1.00      1.2    60.0%
+  C2  24   0.25    4     5    245.8     0.00     0.00   0.40      0.00      0.0    20.0%
+  C2  24    0.5    0     5    276.0     0.00     0.00  14.40      3.20      8.0    40.0%
+  C2  24    0.5    4     5    244.2     0.00     0.00   3.60      0.80      3.4    20.0%
+  C2  24    1.0    0     5    276.0     0.00     0.00  32.80     11.60     74.8     0.0%
+  C2  24    1.0    4     5    243.6     0.00     0.00  17.40      4.80     30.4     0.0%
+  C2  24    2.0    0     5    276.0     1.80     1.80  58.60     26.80    274.2     0.0%
+  C2  24    2.0    4     5    244.6     1.40     1.40  41.60     17.60    184.2     0.0%
+
+Which definition calls the outcome?  [all sizes, n=210]
+  argmin-wrong (5.1 literal)         clean&survived  51  clean&failed   3  dirty&survived  65  dirty&failed  91   acc  67.6%
+  violated (either kind)             clean&survived  80  clean&failed  12  dirty&survived  36  dirty&failed  82   acc  77.1%
+  violated REVERSAL only             clean&survived 116  clean&failed  68  dirty&survived   0  dirty&failed  26   acc  67.6%
+  reversal, violated or not          clean&survived 116  clean&failed  68  dirty&survived   0  dirty&failed  26   acc  67.6%
+  violated SWAP only                 clean&survived  80  clean&failed  12  dirty&survived  36  dirty&failed  82   acc  77.1%
+  severity sum > 0                   clean&survived  80  clean&failed  12  dirty&survived  36  dirty&failed  82   acc  77.1%
+  severity sum >= 2 grid units       clean&survived  82  clean&failed  12  dirty&survived  34  dirty&failed  82   acc  78.1%
+  severity sum >= 4 grid units       clean&survived  89  clean&failed  16  dirty&survived  27  dirty&failed  78   acc  79.5%
+  severity sum >= 8 grid units       clean&survived  98  clean&failed  16  dirty&survived  18  dirty&failed  78   acc  83.8%
+  severity sum >= 16 grid units      clean&survived 111  clean&failed  25  dirty&survived   5  dirty&failed  69   acc  85.7%
+
+Which definition calls the outcome?  [8 and 12 rooms (v1's band), n=140]
+  argmin-wrong (5.1 literal)         clean&survived  43  clean&failed   0  dirty&survived  54  dirty&failed  43   acc  61.4%
+  violated (either kind)             clean&survived  67  clean&failed   0  dirty&survived  30  dirty&failed  43   acc  78.6%
+  violated REVERSAL only             clean&survived  97  clean&failed  25  dirty&survived   0  dirty&failed  18   acc  82.1%
+  reversal, violated or not          clean&survived  97  clean&failed  25  dirty&survived   0  dirty&failed  18   acc  82.1%
+  violated SWAP only                 clean&survived  67  clean&failed   0  dirty&survived  30  dirty&failed  43   acc  78.6%
+  severity sum > 0                   clean&survived  67  clean&failed   0  dirty&survived  30  dirty&failed  43   acc  78.6%
+  severity sum >= 2 grid units       clean&survived  67  clean&failed   0  dirty&survived  30  dirty&failed  43   acc  78.6%
+  severity sum >= 4 grid units       clean&survived  72  clean&failed   0  dirty&survived  25  dirty&failed  43   acc  82.1%
+  severity sum >= 8 grid units       clean&survived  80  clean&failed   0  dirty&survived  17  dirty&failed  43   acc  87.9%
+  severity sum >= 16 grid units      clean&survived  92  clean&failed   6  dirty&survived   5  dirty&failed  37   acc  92.1%
+
+Which definition calls the outcome?  [24 rooms (outside C13), n=70]
+  argmin-wrong (5.1 literal)         clean&survived   8  clean&failed   3  dirty&survived  11  dirty&failed  48   acc  80.0%
+  violated (either kind)             clean&survived  13  clean&failed  12  dirty&survived   6  dirty&failed  39   acc  74.3%
+  violated REVERSAL only             clean&survived  19  clean&failed  43  dirty&survived   0  dirty&failed   8   acc  38.6%
+  reversal, violated or not          clean&survived  19  clean&failed  43  dirty&survived   0  dirty&failed   8   acc  38.6%
+  violated SWAP only                 clean&survived  13  clean&failed  12  dirty&survived   6  dirty&failed  39   acc  74.3%
+  severity sum > 0                   clean&survived  13  clean&failed  12  dirty&survived   6  dirty&failed  39   acc  74.3%
+  severity sum >= 2 grid units       clean&survived  15  clean&failed  12  dirty&survived   4  dirty&failed  39   acc  77.1%
+  severity sum >= 4 grid units       clean&survived  17  clean&failed  16  dirty&survived   2  dirty&failed  35   acc  74.3%
+  severity sum >= 8 grid units       clean&survived  18  clean&failed  16  dirty&survived   1  dirty&failed  35   acc  75.7%
+  severity sum >= 16 grid units      clean&survived  19  clean&failed  19  dirty&survived   0  dirty&failed  32   acc  72.9%
+
+############ mechanism6 ############
+Control: the truth's own relation set, which describes a real tiling
+  n  need_x    W  need_y    H   dead
+  8      26   40      24   32  False
+ 12      34   52      23   40  False
+ 24      47   72      39   56  False
+
+Injected sets: is the model dead by counting, before any search?
+`dead` means one axis needs more Envelope than there is, or the set is cyclic.
+
+suite   n   k  runs INFEASIBLE dead by chain  cyclic chain explains
+    A   8   0     5          0             0       0              -
+    A   8   1     5          3             2       0            33%
+    A   8   2     5          4             2       0            25%
+    A   8   3     5          5             2       0            40%
+    A   8   4     5          5             2       0            40%
+    A   8   6     5          5             4       0            80%
+    A   8   8     5          5             5       0           100%
+    A   8  12     5          5             5       0           100%
+    A   8  16     5          5             5       0           100%
+    A   8  24     5          5             5       0           100%
+    A  12   0     5          0             0       0              -
+    A  12   1     5          2             0       0             0%
+    A  12   2     5          5             0       0             0%
+    A  12   3     5          3             1       0            33%
+    A  12   4     5          5             3       0            60%
+    A  12   6     5          5             2       0            40%
+    A  12   8     5          5             3       0            60%
+    A  12  12     5          5             5       0           100%
+    A  12  16     5          5             5       0           100%
+    A  12  24     5          5             4       0            80%
+    A  24   0     5          0             0       0              -
+    A  24   1     5          3             0       0             0%
+    A  24   2     5          4             0       0             0%
+    A  24   3     5          4             3       0            50%
+    A  24   4     5          5             1       0            20%
+    A  24   6     5          5             2       0            40%
+    A  24   8     5          5             2       0            40%
+    A  24  12     5          5             3       0            60%
+    A  24  16     5          5             5       0           100%
+    A  24  24     5          5             5       0           100%
+   A2   8   2     3          3             2       2            67%
+   A2   8   4     3          3             2       1            67%
+   A2   8   8     3          3             3       3           100%
+   A2   8  16     3          3             3       3           100%
+   A2  12   2     3          2             1       1             0%
+   A2  12   4     3          3             1       1            33%
+   A2  12   8     3          3             3       3           100%
+   A2  12  16     3          3             3       3           100%
+   A2  24   2     3          2             2       2            50%
+   A2  24   4     3          3             0       0             0%
+   A2  24   8     3          3             1       1            33%
+   A2  24  16     3          3             3       3           100%
+
+Overall: 95/157 (61%) of INFEASIBLE runs are already dead on the chain bound alone.

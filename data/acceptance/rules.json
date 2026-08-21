@@ -5,16 +5,13 @@
   "ticket": "docs/wayfinder/tickets/07-acceptance-validator-spec.md",
   "spec": "docs/spec/acceptance-bar.md",
   "constraints": "data/standards/room-constraints.json",
-
   "disclaimer": "Neufert-grade dimensional standards (C8). Design data, not a building code. No legal code-compliance claim is made or implied by any rule in this file. Rules citing a regulatory document cite it as a source of dimensional fact, not as a compliance target.",
-
   "units": {
     "length": "mm",
     "area": "m2",
     "ratio": "dimensionless",
     "note": "All lengths integer millimetres, per ADR 0001. There are no tolerances in this file: junction closure, coincidence and zero-area are integer equalities, not epsilon comparisons. Tolerance exists only at import boundaries, which this file does not describe."
   },
-
   "rule_format": {
     "description": "Every rule is an object. The registry is the canonical statement of the Acceptance bar; the prose spec is a reading of it, not a second source.",
     "keys": {
@@ -42,236 +39,335 @@
       "both": "posted and evaluated. Only these rules can be asserted to agree, and the conformance test asserts exactly this subset."
     }
   },
-
   "region_binding": {
     "comment": "The hard rule set carries NO region. This is a v1 decision and it is load-bearing: the hard floor is the ergonomic minimum, which is body-derived and therefore region-invariant, so the predicates that reject a Plan are the same in every region. Region parameterises soft objectives only.",
     "hard_set_is_region_free": true,
-    "region_touches": ["dim.market_default_area", "win.area_ratio", "model.thickness_in_catalogue", "open.fits_segment"],
+    "region_touches": [
+      "dim.market_default_area",
+      "win.area_ratio",
+      "model.thickness_in_catalogue",
+      "open.fits_segment"
+    ],
     "consequence": "Adding a region cannot change which Plans are rejected, only which are preferred. A region we have never surveyed still gets a defensible hard bar, which is what makes shipping without a settled region list possible."
   },
-
   "tier_binding": {
     "comment": "data/standards/room-constraints.json defines four tiers. The validator reads two. The other two stay in the schema, unread, so adopting them later is a configuration change rather than a rewrite.",
-    "hard_reject_below": "ergonomic_min",
+    "hard_reject_below": "ergonomic",
     "soft_objective_target": "market_default",
-    "unread_in_v1": ["statutory_floor", "accessible"],
-    "supersedes": "room-constraints.json tier_model.validator_binding, which named statutory_floor as the hard tier. That binding is unusable: statutory_floor is null for the default region because German law prescribes no minimum room areas, so it yields an empty hard set. See docs/spec/acceptance-bar.md section 3.",
+    "unread_in_v1": [
+      "statutory_floor",
+      "accessible"
+    ],
+    "supersedes": "room-constraints.json tier_model.validator_binding, which named statutory_floor as the hard tier. That binding is unusable: statutory_floor is null for the default region because German law prescribes no minimum room areas, so it yields an empty hard set. See docs/spec/acceptance-bar.md section 3. Ticket 19 authored the layer and the key is `ergonomic`; both files now carry the same string, and the conformance test asserts it.",
     "consequence": "Ticket 07's hard-or-soft question is answered per-value by which tier the number came from. No rule carries a separate hard/soft flag for its dimensional numbers."
   },
-
   "rules": [
     {
       "id": "model.single_storey",
       "item": "model",
       "statement": "The Plan has exactly one Storey.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "C5. Inherited from Canonical geometry model, which made Storey explicit precisely so the bar could say this rather than leave it implied."
     },
     {
       "id": "model.walls_orthogonal",
       "item": "6",
       "statement": "Every Wall centreline is axis-aligned: its endpoints share an x or share a y.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "v1 scope. Non-orthogonal geometry is fog on the map, not a relaxation of this rule."
     },
     {
       "id": "model.thickness_in_catalogue",
       "item": "6",
       "statement": "Every Wall thickness is a member of the active region profile's thickness catalogue for its class.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "Standard thickness means catalogue membership, not a range. The UK values in the corpus are themselves ENGINE_CHOICE: findings section 5.6 records that no UK source prescribes them."
     },
     {
       "id": "model.junctions_closed",
       "item": "6",
       "statement": "Every Wall centreline endpoint is integer-coincident with another Wall centreline or with the Envelope boundary. No endpoint is dangling.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "Integer equality, not tolerance. ADR 0001 deleted this question rather than answering it. A T-junction does not split the through wall; it records ATPATH."
     },
     {
       "id": "model.no_space_overlap",
       "item": "6",
       "statement": "For every pair of Spaces, the integer area of their rectangle intersection is zero.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "derived",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "Derived from ADR 0001. Spaces are eroded rectangles in integer millimetres, so bounding-box overlap and true-polygon overlap are the same computation. The sibling project's bbox-versus-polygon comparison is discharged by construction; no C11 re-measurement is owed."
     },
     {
       "id": "model.no_unassigned_area",
       "item": "6",
       "statement": "The union of all Space polygons and all Wall bodies equals the Envelope interior exactly.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "derived",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "The validator form of the solver's soft-coverage amendment. Posted soft in the solver for search speed and checked hard here: identical semantics, and the place where a 29x-faster search is prevented from shipping a hole. The 24-room INVALID row in the solver findings, 141 cells unassigned, is exactly what this catches."
     },
     {
       "id": "model.space_matches_erosion",
       "item": "6",
       "statement": "Every Space polygon equals its solved centreline rectangle eroded by t_int/2.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "engine_choice", "conf": "derived",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "The honesty check on a cheap derivation. Inherited verbatim from Canonical geometry model. It fails the day internal wall thickness stops being uniform, which is the point of keeping it."
     },
-
     {
       "id": "dim.min_area",
       "item": "2",
       "statement": "Every Space area is at least the ergonomic minimum area for its Room type.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "pending", "conf": "pending",
-      "note": "BLOCKED ON NUMBERS. The ergonomic layer is one of the sections missing from data/standards/room-constraints.json. Structure is final; values are not authored. See the ticket Ergonomic minima and the constraint table's missing half."
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "derived",
+      "conf": "derived",
+      "note": "UNBLOCKED by ticket 19. Values are per room type in the ergonomic layer, region-free, in m2 to one decimal, and each is short x long rounded DOWN so the rule cannot reject the rectangle it was derived from. Measured against Swiss Dwellings: the published floor rejects 0.0% of real living rooms and bedrooms, 1.2% of kitchens, 4.6% of WCs and 7.8% of storerooms. It binds independently of the two dimension rules because a room can clear both sides and still be long and thin; dim.aspect_ratio_hard catches that.",
+      "value_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/min_area",
+      "ref": "ergonomic layer, derived from fixture footprints + body zone"
     },
     {
       "id": "dim.min_clear_width",
       "item": "2",
-      "statement": "Every Space shorter clear dimension is at least the ergonomic minimum width for its Room type.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "pending", "conf": "pending",
-      "note": "Clear, not centreline. BLOCKED ON NUMBERS, as dim.min_area."
+      "statement": "Every Space shorter clear dimension is at least min_clear_short for its Room type.",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "derived",
+      "conf": "derived",
+      "note": "UNBLOCKED by ticket 19. Clear, not centreline, per ADR 0001. The pair is (shorter side, longer side), NOT (x, y): a room has no canonical orientation, and stating the rule over the shorter and longer dimension is what lets a single pair describe a room that may sit either way round.",
+      "value_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/min_clear_short",
+      "ref": "ergonomic layer"
     },
     {
       "id": "dim.min_clear_depth",
       "item": "2",
-      "statement": "Every Space longer clear dimension is at least the ergonomic minimum depth for its Room type.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "pending", "conf": "pending",
-      "note": "Distinct from width only for bathroom and wc, whose fixture footprints are genuinely directional. BLOCKED ON NUMBERS."
+      "statement": "Every Space longer clear dimension is at least min_clear_long for its Room type.",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "derived",
+      "conf": "derived",
+      "note": "UNBLOCKED by ticket 19. This rule's previous note -- 'distinct from width only for bathroom and wc, whose fixture footprints are genuinely directional' -- is WITHDRAWN. The directional/orientation-free distinction findings section 8 drew does not survive the derivation: because the rule is stated over the shorter and longer dimension rather than over x and y, no room type needs an axis binding, and once fixtures actually drive the rectangle most types are non-square, not two. Only corridor is square, and only because it has no second dimension of its own.",
+      "value_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/min_clear_long",
+      "ref": "ergonomic layer"
     },
     {
       "id": "dim.corridor_min_width",
       "item": "2",
       "statement": "Every Space of type corridor or hall has a clear width of at least 900 mm.",
-      "severity": "hard", "site": "both", "scope": "plan",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
       "value": 900,
-      "src": "uk_adm1_2015", "ref": "M4(2) 2.22a; Table 1.1",
+      "src": "uk_adm1_2015",
+      "ref": "M4(2) 2.22a; Table 1.1",
       "conf": "verified",
-      "note": "Resolves C6 item 2's no-sub-1m-corridors placeholder. AD M's 750 mm relief for a localised obstruction over no more than 2 m, 2.22b, is DROPPED: a Space is a rectangle and has no localised anything, so the allowance could never fire. Corridors are pre-sized conservatively from the region profile's worst-case door arrangement, per Canonical geometry model, which is what keeps opening placement post-solve."
+      "note": "Resolves C6 item 2's no-sub-1m-corridors placeholder. AD M's 750 mm relief for a localised obstruction over no more than 2 m, 2.22b, is DROPPED: a Space is a rectangle and has no localised anything, so the allowance could never fire. Corridors are pre-sized conservatively from the region profile's worst-case door arrangement, per Canonical geometry model, which is what keeps opening placement post-solve. CROSS-CHECKED by ticket 19: the ergonomic floor gives hall a min_clear_short of 900 as well, so this rule and the ergonomic floor agree on both types named here rather than one silently subsuming the other."
     },
     {
       "id": "dim.aspect_ratio_hard",
       "item": "2",
       "statement": "For every habitable or wet Space, the ratio of its longer to its shorter clear dimension is at most 3.0.",
-      "severity": "hard", "site": "both", "scope": "plan",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
       "value": 3.0,
-      "exempt_types": ["corridor", "hall", "storage"],
-      "src": "engine_choice", "conf": "engine_choice",
+      "exempt_types": [
+        "corridor",
+        "hall",
+        "storage"
+      ],
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "No surveyed source states an aspect rule. Added because nothing in C6's seven items catches a room that meets its minimum area and its minimum width by being long: 2750 x 8250 is a compliant, unliveable bedroom, and it is the most likely way a passing Plan still reads as generated. corridor, hall and storage are exempt, being legitimately high-aspect."
     },
     {
       "id": "dim.aspect_ratio_soft",
       "item": "2",
       "statement": "Prefer habitable and wet Spaces with an aspect ratio at or below 2.2.",
-      "severity": "soft", "site": "validator", "scope": "plan",
+      "severity": "soft",
+      "site": "validator",
+      "scope": "plan",
       "value": 2.2,
-      "exempt_types": ["corridor", "hall", "storage"],
-      "src": "engine_choice", "conf": "engine_choice",
+      "exempt_types": [
+        "corridor",
+        "hall",
+        "storage"
+      ],
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "Ranking term. Same exemptions as dim.aspect_ratio_hard."
     },
     {
       "id": "dim.market_default_area",
       "item": "2",
       "statement": "Prefer Spaces at or above the market_default area for their Room type.",
-      "severity": "soft", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "soft",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "The soft half of the C10 split, and region-dependent. A Plan built to the hard floor is valid and unliveable; this is the term that stops the solver settling there."
     },
-
     {
       "id": "circ.potential_reachability",
       "item": "1",
       "statement": "Over the contact graph, every Room receives flow from the entry Room, where a contact edge exists iff the shared wall run is at least the structural opening width plus t_int.",
-      "severity": "hard", "site": "solver", "scope": "plan",
-      "src": "engine_choice", "conf": "derived",
+      "severity": "hard",
+      "site": "solver",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "Solver-only by construction: it runs before any Opening exists. This is potential circulation, and it asserts only that a door COULD be placed. Formulation and contact threshold inherited from Solver formulation for layout projection and Canonical geometry model."
     },
     {
       "id": "circ.realised_reachability",
       "item": "1",
       "statement": "Over the opening graph, every Space is reachable from the entry Space, where an edge exists iff the WallSegment between the pair hosts at least one passable Opening.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "passable_kinds": ["door", "sliding_door", "cased_opening", "entrance_door"],
-      "src": "engine_choice", "conf": "derived",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "passable_kinds": [
+        "door",
+        "sliding_door",
+        "cased_opening",
+        "entrance_door"
+      ],
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "Validator-only by construction: Openings are placed after the solve. A window is never an edge. This is the rule that catches a valid solve handed no door, which potential circulation cannot see."
     },
     {
       "id": "circ.no_private_transit",
       "item": "1",
       "statement": "Every Space is reachable from the entry Space by at least one path traversing no Space whose Room has is_private true, except that a dependent Room is reached through its declared host.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "derived",
-      "note": "Solver form: private rooms may receive flow but never forward it. C6 item 1 as originally stated rejects every Plan with an ensuite, because an ensuite is reachable only through a bedroom and both are private. The dependent-room exception is what makes the rule survivable, and it makes it stronger: an ensuite reached from the hall now fails, which it should."
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "derived",
+      "note": "Solver form: private rooms may receive flow but never forward it. C6 item 1 as originally stated rejects every Plan with an ensuite, because an ensuite is reachable only through a bedroom and both are private. The dependent-room exception is what makes the rule survivable, and it makes it stronger: an ensuite reached from the hall now fails, which it should.",
+      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/is_private"
     },
     {
       "id": "circ.dependent_room_host",
       "item": "1",
       "statement": "A Room declaring access_via has exactly one passable Opening, and it connects that Room to its declared host.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "access_via is a Brief field, not a geometric inference: access-through is program, not geometry. Propagates to Brief schema and parsing contract."
     },
     {
       "id": "circ.fraction_soft",
       "item": "7",
       "statement": "Prefer a total circulation Space area between 8 and 18 percent of GIA.",
-      "severity": "soft", "site": "validator", "scope": "plan",
-      "value": [0.08, 0.18],
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "soft",
+      "site": "validator",
+      "scope": "plan",
+      "value": [
+        0.08,
+        0.18
+      ],
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "C6 item 7's sane fraction. NO surveyed source supplies one. Placeholder pending a fit against the corpora. Soft, so a wrong placeholder costs ranking quality and rejects nothing."
     },
     {
       "id": "circ.fraction_hard",
       "item": "7",
       "statement": "Total circulation Space area does not exceed 30 percent of GIA.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "value": 0.30,
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "value": 0.3,
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "An outer bound, not a quality bar. Set where it only ever catches Plans that are visibly broken, so it cannot become the 99-percent-rejection rule the ticket warns about."
     },
-
     {
       "id": "entry.exists",
       "item": "extra",
       "statement": "At least one Opening of kind entrance_door is hosted on an External WallSegment of the pair {room, EXTERIOR}.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice"
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice"
     },
     {
       "id": "entry.single_primary",
       "item": "extra",
       "statement": "Exactly one entrance_door carries is_primary true. It is the source node of the realised circulation graph.",
-      "severity": "hard", "site": "validator", "scope": "plan",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
       "value": 1,
-      "src": "engine_choice", "conf": "engine_choice",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "One by default, more allowed: a house may have a back door with is_primary false. A flat gets exactly one, because its Envelope is given and a second exterior door is a Brief error rather than a layout choice. Which Room holds the entrance, and where on its segment the door sits, are ASSUMPTIONS the engine defaults and surfaces rather than Brief requirements; the defaulting rule belongs to Opening placement rules."
     },
-
     {
       "id": "open.fits_segment",
       "item": "3",
       "statement": "Every Opening structural width plus twice the minimum jamb return does not exceed the length of the WallSegment hosting it.",
-      "severity": "hard", "site": "validator", "scope": "plan",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
       "value": 100,
-      "src": "engine_choice", "conf": "engine_choice",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "The door-fits-its-wall half of C6 item 3, and also the rule that catches a window too wide for its exterior segment. value is the minimum jamb return per side. ENGINE_CHOICE: no surveyed source gives a minimum return."
     },
     {
       "id": "open.swing_within_space",
       "item": "3",
       "statement": "Every hinged Opening swing footprint lies entirely within the Space it opens into.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "engine_choice", "conf": "derived",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "Swing footprint is the leaf-side square of side leaf_width anchored at the hinge: the bounding box of the swept quarter-disc. Conservative, integer, and evaluable with no fixture or furniture model, which v1 does not have."
     },
     {
       "id": "open.swings_disjoint",
       "item": "3",
       "statement": "No two swing footprints overlap.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "uk_adm1_2015", "ref": "2.22i",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "uk_adm1_2015",
+      "ref": "2.22i",
       "conf": "derived",
       "note": "Generalises AD M's 1500 mm between lobby doors and between their swings. Expressed as footprint disjointness rather than as a distance, because disjointness is the property the distance was protecting, and it holds for every door arrangement rather than only for lobbies."
     },
@@ -279,113 +375,154 @@
       "id": "open.leading_edge_nib",
       "item": "3",
       "statement": "A 300 mm nib is clear at the leading edge of every door, maintained 1200 mm back into the receiving Space.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "value": [300, 1200],
-      "src": "uk_adm1_2015", "ref": "M4(2) 2.22; also BS 9266 for all rooms",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "value": [
+        300,
+        1200
+      ],
+      "src": "uk_adm1_2015",
+      "ref": "M4(2) 2.22; also BS 9266 for all rooms",
       "conf": "verified"
     },
     {
       "id": "open.wc_door_outward_pan_overlap",
       "item": "3",
       "statement": "An entrance-level WC door opens outwards, with the opening overlapping the pan by 250 mm.",
-      "severity": "deferred", "site": "validator", "scope": "plan",
+      "severity": "deferred",
+      "site": "validator",
+      "scope": "plan",
       "value": 250,
-      "src": "uk_adm1_2015", "ref": "1.17d and Diagram 1.3",
+      "src": "uk_adm1_2015",
+      "ref": "1.17d and Diagram 1.3",
       "conf": "verified",
       "note": "DEFERRED, not dropped. The predicate needs a pan, and fixtures are still fog on the map. Recorded with its source so that adopting it when fixtures land is a data change. A validator that silently omits a rule it cannot evaluate is indistinguishable from one that never knew about it."
     },
-
     {
       "id": "win.habitable_touches_exterior",
       "item": "4",
       "statement": "Every Space whose Room has is_habitable true shares at least one WallSegment with the EXTERIOR.",
-      "severity": "hard", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice"
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
+      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/is_habitable"
     },
     {
       "id": "win.habitable_has_window",
       "item": "4",
       "statement": "Every Space whose Room has needs_window true hosts at least one window Opening on an External WallSegment of that Space.",
-      "severity": "hard", "site": "validator", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
-      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment."
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
+      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment.",
+      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/needs_window"
     },
     {
       "id": "win.area_ratio",
       "item": "4",
       "statement": "Prefer a total window structural-opening area of at least the region profile's fraction of the Space net floor area.",
-      "severity": "soft", "site": "validator", "scope": "plan",
+      "severity": "soft",
+      "site": "validator",
+      "scope": "plan",
       "value": 0.125,
-      "src": "de_baybo", "ref": "Art. 45(2)",
+      "src": "az_azdtn_2_7_2",
+      "ref": "cl. 9.13",
       "conf": "verified",
-      "note": "Soft and region-parameterised. Default one eighth on the structural opening, per Bayern, read first-hand. Explicitly NOT hard: making it hard would encode one country's method as universal, and would be unsatisfiable for the JP stub by construction."
+      "note": "Re-sourced by ticket 25 off the dangling de_baybo key, which pointed at a deleted region. AzDTN 2.7-2 cl. 9.13 sets 1:8 as a LOWER bound for living rooms and kitchens, with NO upper cap -- read first-hand. The value is unchanged at 0.125, which two independent regulatory traditions now agree on. The 1:5.5 figure sometimes quoted alongside it is a MAXIMUM-glazing cap and belongs to SNiP 2.08.01-89*, repealed for AZ on 2021-11-30. The solver's soft objective target is the profile's 0.154, not this floor. Explicitly NOT hard: making it hard would encode one country's method as universal."
     },
     {
       "id": "win.kitchen_windowless",
       "item": "4",
       "statement": "Warn when a kitchen Space has no window.",
-      "severity": "warn", "site": "validator", "scope": "plan",
-      "src": "de_baybo", "ref": "Art. 46(1)",
+      "severity": "warn",
+      "site": "validator",
+      "scope": "plan",
+      "src": "az_azdtn_2_7_2",
+      "ref": "cl. 9.12",
       "conf": "verified",
-      "note": "The constraint table sets needs_window false for kitchen, following BayBO's allowance of a windowless kitchen where effective ventilation is provided. We do not model ventilation. A Homeowner shown a windowless kitchen with no comment will not trust the tool again, so the permission is honoured and the fact is surfaced."
+      "note": "Re-sourced by ticket 25 off the dangling de_baybo key. THE PREMISE INVERTED. This rule was a warn because BayBO PERMITTED a windowless kitchen where ventilation is provided, so the table set needs_window false for kitchen. Azerbaijan does not permit it: AzDTN 2.7-2 cl. 9.12 REQUIRES natural light in living rooms and kitchens, force statutory, corroborated for houses by AzDTN 2.7-3 cl. 8.14. So in the only region v1 ships, a windowless kitchen is a breach, not an allowance -- and the disclosure wording must derive from that force field, per ticket 14. Held at warn rather than promoted to hard because C14 forbids a region changing which Plans are REJECTED. Flipping needs_window true for kitchen would be region-invariant and is the honest fix; it belongs to the invariant room table and is handed to *Ergonomic minima and the constraint table's missing half*."
     },
-
     {
       "id": "wet.plumbing_group_count",
       "item": "5",
       "statement": "The wet Spaces form at most two plumbing groups, where a group is a maximal set connected by shared WallSegments.",
-      "severity": "hard", "site": "both", "scope": "plan",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
       "value": 2,
-      "src": "engine_choice", "conf": "engine_choice",
-      "note": "Resolves a real disagreement between the two consumers. Solver formulation posts wet clustering as hard flow over the wet subset, which demands ONE group and so rejects a kitchen at the front with a bathroom at the back: a real home, not a defect. Scoring it purely soft lets a candidate through with five isolated stacks. A bound on the group COUNT stays postable as a hard constraint and matches the shape real dwellings take."
+      "src": "engine_choice",
+      "conf": "engine_choice",
+      "note": "Resolves a real disagreement between the two consumers. Solver formulation posts wet clustering as hard flow over the wet subset, which demands ONE group and so rejects a kitchen at the front with a bathroom at the back: a real home, not a defect. Scoring it purely soft lets a candidate through with five isolated stacks. A bound on the group COUNT stays postable as a hard constraint and matches the shape real dwellings take.",
+      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/is_wet"
     },
     {
       "id": "wet.shared_wall_length",
       "item": "5",
       "statement": "Prefer greater total shared WallSegment length between wet Spaces.",
-      "severity": "soft", "site": "both", "scope": "plan",
-      "src": "engine_choice", "conf": "engine_choice",
+      "severity": "soft",
+      "site": "both",
+      "scope": "plan",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "The quality gradient inside the hard bound of wet.plumbing_group_count."
     },
-
     {
       "id": "area.convention_declared",
       "item": "extra",
       "statement": "The Brief target_area carries an area_convention.",
-      "severity": "hard", "site": "validator", "scope": "brief",
-      "src": "engine_choice", "conf": "derived",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "brief",
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "A BRIEF error, not a Plan error: it rejects the request, not the candidates. An area value without its convention is meaningless and differs by 20 to 30 percent for the same building. Findings section 5.7: the Wohnflaechenverordnung grades by headroom and counts balconies at 25 to 50 percent, UK GIA is binary. Propagates to Brief schema and parsing contract."
     },
     {
       "id": "area.invented_envelope_hard",
       "item": "extra",
       "statement": "Where the Envelope is invented, the Plan GIA is within 5 percent of the Brief target_area, both stated in the same area_convention.",
-      "severity": "hard", "site": "validator", "scope": "plan",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "plan",
       "value": 0.05,
-      "src": "engine_choice", "conf": "engine_choice",
+      "src": "engine_choice",
+      "conf": "engine_choice",
       "note": "Applies to houses. The engine chose the footprint, so drift is the engine's fault and is rejectable."
     },
     {
       "id": "area.invented_envelope_soft",
       "item": "extra",
       "statement": "Where the Envelope is invented, prefer a GIA within 2 percent of target_area.",
-      "severity": "soft", "site": "validator", "scope": "plan",
+      "severity": "soft",
+      "site": "validator",
+      "scope": "plan",
       "value": 0.02,
-      "src": "engine_choice", "conf": "engine_choice"
+      "src": "engine_choice",
+      "conf": "engine_choice"
     },
     {
       "id": "area.given_envelope_warn",
       "item": "extra",
       "statement": "Where the Envelope is given, warn when the Plan GIA differs from the Brief target_area, and surface it against the Brief.",
-      "severity": "warn", "site": "validator", "scope": "brief",
-      "src": "engine_choice", "conf": "derived",
+      "severity": "warn",
+      "site": "validator",
+      "scope": "brief",
+      "src": "engine_choice",
+      "conf": "derived",
       "note": "Applies to flats. Total area is fixed by the given Envelope, so EVERY candidate drifts by the same amount, and rejecting on it would reject 100 percent of them for a fault none of them caused. The ticket names a rule that rejects 99 percent as a bug in the rule; this is the 100 percent case, and it is a Brief inconsistency the layout cannot fix."
     }
   ],
-
   "homeowner_surface": {
     "principle": "A predicate id is never shown. Every rule maps to a plain-language message and, where one exists, the Brief field whose edit would resolve it.",
-    "shown_plan_carries": ["warn", "soft"],
+    "shown_plan_carries": [
+      "warn",
+      "soft"
+    ],
     "no_survivors": {
       "behaviour": "diagnose; never show a failing Plan",
       "rationale": "CONTEXT.md states that a Plan failing the bar is not shown, and that invariant is the whole point of the bar. A Homeowner cannot judge a plan annotated with three defects, and relaxing the hard set to fill a gallery would make the bar advisory.",
@@ -394,7 +531,6 @@
       "also": "report the dominant hard failure across the rejected batch, in Homeowner language, leading with the Brief field to edit"
     }
   },
-
   "conformance": {
     "comment": "The written-once-consumed-twice guarantee is bought here, not by shared code. The solver posts inequalities over centreline grid coordinates before geometry exists; the validator evaluates finished geometry in clear millimetres; rules about Openings are unpostable because Openings are placed after the solve. Two implementations are structural, so agreement is tested rather than assumed.",
     "asserted_over": "every rule with site = both",

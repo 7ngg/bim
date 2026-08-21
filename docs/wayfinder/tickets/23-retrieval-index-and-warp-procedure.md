@@ -124,3 +124,64 @@ one field that can say so.
 **One thing this does not hand over.** The fit does not know exterior from party,
 so item 6's exposure-ring matching gets no help from it — what was measured is
 boundary contact, not window frontage.
+
+## Item 5 now has a unit, from *Validate the arrangement metric against the solver*
+
+The section above says the admissibility gate is stated in the wrong units and
+that nothing connects `±10 % / ±15 %` to the solver's actual tolerance. It now
+does, and the connecting quantity is **not** per-corner noise. It is
+**confident-wrong severity**:
+
+> Σ `sep_cost(truth, relation)` over the asserted relations the source dwelling
+> contradicts, in millimetres. `docs/spec/proposer.md` §5.2,
+> `experiments/solver-toy/arrangement.py`.
+
+That ticket validated the metric by injection and found the relation channel is
+where a Proposal actually reaches the constraint set: **one** relation the truth
+contradicts makes the model INFEASIBLE 56 % of the time and **two** takes the
+survivor rate to zero, while dropping *every* relation still yields a Plan. In
+the 4–10-room band, severity below **2 000 mm** implied a survivor in 80 runs of
+80.
+
+So **this patch of fog is closed and the question is now sharp**: the fidelity
+axis for item 5 is not "how far did rooms move", it is "how much separation
+direction did the warp destroy".
+
+**What item 5 must measure.** Sweep the gate — area beyond ±10 %, aspect beyond
+±15 % — and for each warped Proposal report severity, confident-wrong count,
+**reversal count** and abstain rate against the source dwelling. Then state the
+curve as *coverage bought per millimetre of severity admitted*, and put the gate
+where it turns over. The corpus-side ±10 % per-room area band above is the same
+trade in a second coordinate and gets the same treatment.
+
+**Three things that change how item 5 should be run.**
+
+1. **Report reversals separately, and expect a warp to be safe from them.** A
+   *same-axis reversal* — the source dwelling puts the two rooms the other way
+   round — was INFEASIBLE at **100 %** of every dose tested. A cross-axis swap at
+   the same dose is 0–33 %. A coherent anisotropic stretch should produce **no**
+   reversals at all, which if true is the strongest possible argument for a
+   generous area budget: the warp's errors would be structurally of the mild
+   kind. That is a prediction this ticket can falsify cheaply, and it is the
+   crux of whether the gate can be loosened.
+2. **The conversion's 15.7 % invented assertions are the obvious severity
+   source.** The section above already flags them as the pairs the warp is least
+   entitled to trust. They are now measurable in the same units as everything
+   else, so item 4's per-room confidence can be *calibrated* rather than asserted.
+3. **Never publish the rate.** A per-pair rate compounds over a quadratic number
+   of pairs: 0.5 % confident-wrong leaves a Proposal clean 88 % of the time at 8
+   rooms and 28 % at 24. Report per Proposal.
+
+**And the corner-noise framing above is superseded, not merely refined.** The
+sweep's σ cliff is a symptom; severity is the cause. The same metric explains τ,
+which the sweep fitted for unrelated reasons — at 12 rooms and σ = 0.5 m, τ = 0
+gives severity 2 800 mm and 2 survivors in 5, τ = 4 gives 200 mm and 5 in 5. So a
+warp does not need to be compared against a noise σ at all; it can be scored
+directly.
+
+**One caveat that lands squarely here.** The validation's own corruption model is
+Gaussian corner noise, which produces **almost no reversals**. So the claim
+"reversals are fatal" is measured by injection and the claim "real corruption
+does not produce them" is measured only on noise. A warp is a third thing and has
+never been looked at. Measuring it is this ticket's job, and it is the point at
+which the metric stops being validated on a toy.

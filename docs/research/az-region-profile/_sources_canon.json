@@ -1,0 +1,513 @@
+{
+  "ru_vsn_62_91": {
+    "title": "ВСН 62-91* «Проектирование среды жизнедеятельности с учетом потребностей инвалидов и маломобильных групп населения» (Design of the living environment taking account of the needs of persons with disabilities and low-mobility groups)",
+    "issuer": "USSR State Committee for Architecture and Urban Planning under Gosstroy USSR (Goskomarkhitektura); drafted by TsNIIEP im. B. S. Mezentseva",
+    "date": "approved by order No. 134 of 1991-10-04; in force from 1992-01-01; the trailing asterisk denotes the amendment approved by order No. 166 of 1991-11-29 — the same order the Azerbaijani SİYAHI cites, which confirms AZ carries the amended 62-91* text",
+    "url": "https://files.stroyinf.ru/Data2/1/4294854/4294854753.htm",
+    "licence": "Former-USSR departmental norm, freely mirrored. Read to establish facts; not redistributed.",
+    "force": "recommended",
+    "force_note": "AZERBAIJAN'S ACCESSIBILITY INSTRUMENT, not SNiP 35-01-2001 and not SP 59.13330 — those are Russian and return ZERO hits across all 211 pages of the Azerbaijani SİYAHI. ВСН 62-91* IS carried in the SİYAHI (p. 66) as in force. CRITICAL FOR THE WARN WORDING: the clauses are drafted in the Russian mandatory register («должна быть не менее»), but that is the Soviet drafter's register, not Azerbaijan's — the only Azerbaijani instrument that invokes the document (AzDTN 2.7-3 cl. 4.17) does so with 'tövsiyə edilir' (recommended). So on the AZ side this is RECOMMENDED. The accessible tier's disclosure must never say 'statutory'. Note also that Ukraine repealed this norm in 2006 and Russia largely displaced it with SNiP 35-01-2001; Azerbaijan did neither.",
+    "scope_warning": "cl. 5.1.3 sets communal room areas for дома-интернаты (residential institutions serving a whole living group), NOT rooms in a dwelling. Do not mine it into the wet-room row — a 12 m2 'bathroom' is a shared institutional facility.",
+    "conflict": "cl. 3.1.2* caps specialised residential buildings at 3 storeys; AzDTN 2.7-2 cl. 4.3 sets 5 storeys for buildings for families of persons with disabilities and 9 for older people. AzDTN 2.7-2 wins — it is mandatory AZ law under Art. 14.3 of the Code, whereas ВСН 62 reaches AZ only through a recommendation in a detached-house norm.",
+    "reusable": false
+  },
+  "ru_sp_54_13330": {
+    "title": "СП 54.13330 «СНиП 31-01-2003 Здания жилые многоквартирные» (Multi-apartment residential buildings)",
+    "issuer": "Gosstroy Russia (SNiP 31-01-2003); Minstroy Russia (SP editions 2011, 2016, 2022)",
+    "date": "SNiP 31-01-2003; SP editions 2011, 2016, 2022. Изм. No. 2 to the 2022 edition (Minstroy order No. 938/пр of 27.12.2024, in force 2025-08-22) does not touch cl. 5.11 or 5.12.",
+    "url": "https://rkc56.ru/attach/orenburg/docs/Gosstandart_RF/SP-54.13330.2022-Mnogokvartirnie.pdf",
+    "licence": "Russian normative text, freely published. Read to establish facts; not redistributed.",
+    "force": "foreign_not_applicable",
+    "force_note": "RUSSIAN, NEVER AZERBAIJANI LAW, and absent from the Azerbaijani SİYAHI. Carried here ONLY as the comparator that shows AzDTN 2.7-2 follows the modern SP line rather than the 1989 SNiP, and that the delegation of intra-apartment dimensions to ergonomics is family-wide. NO VALUE FROM THIS SOURCE MAY REACH THE AZ PROFILE, and the validator must never derive an AZ disclosure from it. Its own force in Russia is unsettled and must not be copied by analogy: section 5 was excluded from SNiP 31-01-2003's mandatory introduction; decree No. 815 of 28.05.2021 then listed cl. 5.7/5.8 of the 2016 edition as mandatory; No. 815 was repealed from 2024-09-01 by decree No. 589 of 06.05.2024; and Art. 6 of 384-ФЗ was rewritten by 653-ФЗ from the same date, abolishing the mandatory/voluntary list system in favour of a 'register of requirements'. Whether cl. 5.11 of the 2022 edition sits in that register was not confirmed.",
+    "caution": "The widely-mirrored tiflocentre.ru copy of SP 54.13330.2022 is ABRIDGED — section 5 jumps from 5.2 to section 6 — and reading it yields the false conclusion that the 2022 edition dropped the room minima.",
+    "reusable": false,
+    "read_first_hand": true,
+    "also_keyed_as": [
+      "ru_sp_54_13330_2022",
+      "sp_54_13330_2022"
+    ]
+  },
+  "az_azdtn_2_7_2": {
+    "title": "AzDTN 2.7-2 — Yaşayış binaları. Layihələndirmə normaları (Residential buildings. Design norms)",
+    "issuer": "Azərbaycan Respublikası Dövlət Şəhərsalma və Arxitektura Komitəsi (State Committee on Urban Planning and Architecture of the Republic of Azerbaijan)",
+    "date": "approved 2021-11-30 by Collegium decision No. 03; in force from 2021-11-30; State Register of Legal Acts No. 15202111300003; publication code AzDAK-TN/Q No. 0030-2021; Baku 2021, 28 pp.",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/binalarin-muhendis-sistemleri/zhilye-zdaniya",
+    "licence": "Azerbaijani state normative legal act, published free of charge by the issuing committee; no explicit open licence is asserted. Individual values cited per value; the source's own tables are NOT reproduced and the PDF is NOT redistributed (findings 7.6 items 5-8).",
+    "force": "statutory",
+    "force_note": "A technical normative legal act within the meaning of Art. 3.0.26 of the Urban Planning and Construction Code (Law 392-IVQ of 2012-06-29), listed in the annually published SİYAHI required by Art. 14.2, and made binding by Art. 14.3 ('normativ sənədlərin tələblərinə əməl edilməlidir'). WITHIN the norm, mandatory and recommended provisions are separated by grammatical register per the AzDTN system's governing document: 'az olmamalıdır' / 'edilməlidir' = məcburi (mandatory); 'tövsiyə olunur' = tövsiyə (recommended). Cl. 5.7 (minimum room areas) is mandatory. Cl. 5.1 (recommended apartment totals) is NOT. Applies to new multi-apartment residential buildings up to 75 m in height.",
+    "supersedes": "СНиП 2.08.01-89* «Жилые здания» — expressly terminated on Azerbaijani territory by this norm's entry into force.",
+    "reusable": false,
+    "url_alt": "https://e-qanun.az/framework/48625",
+    "read_first_hand": true,
+    "also_keyed_as": [
+      "az_azdtn_2_7_2_2021",
+      "azdtn_2_7_2"
+    ]
+  },
+  "cis_msn_2_04_05_95": {
+    "title": "МСН 2.04-05-95 / DTN 2.04-05-95 «Естественное и искусственное освещение» (Natural and artificial lighting)",
+    "issuer": "CIS Intergovernmental Council on Construction; brought into force in Azerbaijan by decision No. 13 of 2005-12-15 of the State Committee on Construction and Architecture",
+    "date": "1995; in force in Azerbaijan from 2006-01-01, replacing СНиП II-4-79",
+    "url": null,
+    "url_of_twin_read": "https://files.stroyinf.ru/Data2/1/4294854/4294854801.htm",
+    "licence": "Not obtained from any Azerbaijani-hosted source. The Russian twin text is mirrored on commercial aggregators carrying a 'free for familiarisation, not for commercial use' notice; individual normative values are cited, no text redistributed.",
+    "force": "statutory",
+    "force_note": "IN FORCE in Azerbaijan as a CIS interstate document retained under Cabinet Decision No. 217 of 2008-09-18. AzDTN 2.7-2 cl. 9.15 delegates all normalised daylight indicators (KEO) to it. WE DID NOT OBTAIN THE МСН TEXT — see section 7. Values attributed to this key were read in its Russian twin СНиП 23-05-95* and are therefore `reported`, never `verified`. Two document numbers, two issuing bodies; near-identical is not identical, and we have not checked clause by clause.",
+    "reusable": false,
+    "read_first_hand": false
+  },
+  "gost_11024_2012": {
+    "title": "ГОСТ 11024-2012 — Панели стеновые наружные бетонные и железобетонные для жилых и общественных зданий. Общие технические условия",
+    "issuer": "Interstate standard; in force in Azerbaijan by State Committee decision No. 01 of 2013-03-13",
+    "date": "2012",
+    "url": "https://meganorm.ru/Data2/1/4293774/4293774660.htm",
+    "licence": "Interstate standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "cl. 6.1.1 states thickness as a RULE, not a series: recommended to be multiples of 10, 20 or 50 mm, referred to GOST 28984 modular coordination — so the even property is guaranteed by the rule itself. cl. 6.2.1 sets the minimum bearing-layer thickness of a two-layer bearing panel at 80 mm (heavy concrete) / 100 mm (lightweight). Its predecessor GOST 11024-84 carried an M/4 = 25 mm series containing the odd values 225 / 275 / 325 / 375, which this edition ABOLISHED.",
+    "reusable": true
+  },
+  "az_azdtn_2_7_3": {
+    "title": "AzDTN 2.7-3 — Fərdi yaşayış evləri. Layihələndirmə normaları (Individual dwelling houses. Design norms)",
+    "issuer": "Azərbaycan Respublikası Dövlət Şəhərsalma və Arxitektura Komitəsi",
+    "date": "approved 2023-11-21 by Collegium decision No. 3-35/3-2-6/2023; in force from 2023-12-06 (SİYAHI records 2023-11-23); State Register of Legal Acts No. 15202311235326; publication code AzDAK-TN/Q No. 0040-2023; Baku 2023, 12 pp.",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/binalarin-muhendis-sistemleri/azdtn-27-3-ferdi-yasayis-evleri-layihelendirme-normalari",
+    "licence": "As az_azdtn_2_7_2.",
+    "force": "statutory",
+    "force_note": "Same legal basis as az_azdtn_2_7_2. BUILDING TYPE IS DIFFERENT AND THIS IS LOAD-BEARING: it binds fərdi yaşayış evləri (detached/individual houses of at most 3 storeys and 12 m), NOT multi-apartment buildings. Its numbers are statutory for houses and are at most a market_default proxy for apartments; any value transferred to the apartment case must degrade conf to derived or engine_choice and must NOT be described as a statutory minimum for an apartment. Within cl. 5.1 the AREA list is recommended ('tövsiyə edilir') while the WIDTH list is mandatory ('qəbul edilməlidir').",
+    "reusable": false,
+    "read_first_hand": true,
+    "also_keyed_as": [
+      "az_azdtn_2_7_3_2023"
+    ]
+  },
+  "az_azdtn_2_17_1": {
+    "title": "AzDTN 2.17-1 — Daş və armaturlanmış daş konstruksiyalar. Layihələndirmə normaları (Masonry and reinforced masonry structures. Design norms)",
+    "issuer": "Azərbaycan Respublikasının Dövlət Şəhərsalma və Arxitektura Komitəsi (State Committee on Urban Planning and Architecture of the Republic of Azerbaijan)",
+    "date": "Baku 2016, 63 pp.; approved by Collegium decision No. 05 of 2016-11-21; in force from 2016-12-13; State Register of Legal Acts no. 15201611210005; publication code AzDŞAK-TN/Q No. 0021-2016",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/insaat-konstruksiyalar-sistemi/das-ve-armaturlanmis-das-konstruksiyalar-layihelendirme-normalari",
+    "licence": "Published free of charge by the issuing authority as a RƏSMİ NƏŞR (official publication). No open licence is granted; treat as read-only. Do not redistribute the PDF.",
+    "force": "statutory",
+    "force_note": "A technical normative legal act registered in Azerbaijan's State Register of Legal Acts. Its cover page states that from its entry into force the legal force of СНиП II-22-81* on the territory of the Republic of Azerbaijan is suspended. Adopted for the first time.",
+    "reusable": false
+  },
+  "az_azdtn_1_1_1": {
+    "title": "Azərbaycan Respublikası Dövlət tikinti normativ sənədləri sisteminin Əsas müddəaları (Konsepsiya) — Basic provisions of the system of state construction normative documents",
+    "issuer": "Azərbaycan Respublikası Dövlət Tikinti və Arxitektura Komitəsi (Azərdövləttikintikom)",
+    "date": "Baku, 1994",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/rehberedici-ve-metodiki-senedler/tikinti-normativ-senedleri-sistemlerinin-esas-muddealari",
+    "licence": "As above.",
+    "force": "statutory_guidance",
+    "force_note": "The AzDTN system's own governing document. Sections 3.1, 3.2, 3.4, 3.6 and 5.2 define the məcburi/tövsiyə (mandatory/recommended) split, require it to be textually separated within each norm, state that mandatory norms are expressed as a minimum requirement or maximum limit, and locate enforcement in liability for breach of mandatory requirements. This is the source of the force-classification rule in the findings section 4.2 — it is why 'force' here is derived from the clause's verb rather than from the tier's name. Self-described as a Konsepsiya (concept), so it is the system's methodology, not itself a dimensional norm.",
+    "reusable": false,
+    "also_keyed_as": [
+      "azdtn_1_1_1"
+    ]
+  },
+  "az_register_2026": {
+    "title": "Azərbaycan Respublikasında qüvvədə olan şəhərsalma və tikintiyə dair normativ sənədlərin SİYAHISI (List of urban-planning and construction normative documents in force in the Republic of Azerbaijan), status at 2026-01-01",
+    "issuer": "Azərbaycan Respublikasının Fövqəladə Hallar Nazirliyi (Ministry of Emergency Situations) and Azərbaycan Respublikasının Dövlət Şəhərsalma və Arxitektura Komitəsi",
+    "date": "Baku 2026, 209 pp.; publication code DŞAK-K No. 0009-2026",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler",
+    "licence": "Explicitly NOT reusable — its front matter forbids reproduction or distribution, in whole or in part, without the permission of both issuing bodies. Cite individual entries only; never reproduce its listing.",
+    "force": "statutory_guidance",
+    "force_note": "The official index of what is in force. Its preamble records Cabinet of Ministers Decision No. 217 of 1992-04-15, under which all former-USSR construction normative documents were retained in force in Azerbaijan. Used here to establish which GOSTs apply in Azerbaijan, in which EDITION, and by which dated act.",
+    "reusable": false,
+    "also_keyed_as": [
+      "az_siyahi_2026"
+    ]
+  },
+  "gost_530_2012": {
+    "title": "ГОСТ 530-2012 — Кирпич и камень керамические. Общие технические условия (Ceramic brick and stone. General specifications)",
+    "issuer": "Interstate Council MNTKS (protocol No. 40 of 2012-06-04); put into force in the Russian Federation by Rosstandart order No. 2148-st of 2012-12-27; supersedes GOST 530-2007",
+    "date": "2012, in force 2013-07-01",
+    "url": "https://meganorm.ru/Data2/1/4293782/4293782555.htm",
+    "licence": "Interstate standard text, freely republished. Individual values cited; the standard's own tables are NOT reproduced.",
+    "force": "voluntary_standard",
+    "force_note": "Its preface records that Azerbaijan (country code AZ), through the State Committee on Urban Planning and Architecture, VOTED FOR ADOPTION, and Azerbaijan's own register separately lists it in force. Azerbaijan additionally has AZS 481-2011 (an adoption of GOST 530-2007) which could not be obtained. An adoption vote is not domestic enforceability and no such claim is made here.",
+    "reusable": true
+  },
+  "gost_21501_2018": {
+    "title": "ГОСТ 21.501-2018. СПДС. Правила выполнения рабочей документации архитектурных и конструктивных решений",
+    "issuer": "Interstate Council for Standardization (МГС); enacted in RF by Rosstandart order 1121-ст of 18.12.2018",
+    "date": "2018, in force 2019-06-01",
+    "url": "https://meganorm.ru/Data2/1/4293732/4293732743.htm",
+    "licence": "full text on a third-party mirror. NOT the issuer.",
+    "force": "voluntary_standard",
+    "force_note": "Azerbaijan is NOT among the voting parties (AM, BY, KG, RU, UZ only) — verified from the preface. AZ remains on AZS ГОСТ 21.501-2010. Cited for the ОК1/ОК2 window-mark rule (cl. 5.4.2 fn), the unprefixed door mark (cl. 5.3.2 г), and the room-number substitution (cl. 5.3.2 е), where the AZ edition is silent or less specific.",
+    "reusable": false
+  },
+  "gost_12504_80": {
+    "title": "ГОСТ 12504-80 — Панели стеновые внутренние бетонные и железобетонные для жилых и общественных зданий. Общие технические условия",
+    "issuer": "Gosstroy USSR",
+    "date": "1980",
+    "url": "https://meganorm.ru/Data2/1/4294816/4294816929.htm",
+    "licence": "Soviet-era standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "THIS is the edition Azerbaijan's register lists in force — not the Russian GOST 12504-2015. cl. 2.2 Table 1 sets coordination thickness on module M/5 = 20 mm: 60 to 300 in steps of 20, so every member is even by construction. cl. 2.4 sets the minimum at 100 mm load-bearing and 60 mm non-load-bearing.",
+    "reusable": true
+  },
+  "az_azdtn_2_12_4": {
+    "title": "AzDTN 2.12-4* — Binaların istilik mühafizəsi. Layihələndirmə normaları (Thermal protection of buildings. Design norms), new redaction",
+    "issuer": "Azərbaycan Respublikasının Dövlət Şəhərsalma və Arxitektura Komitəsi",
+    "date": "Approved by Collegium decision MİHO/2.1-3.2-2022-4 of 2022-06-10; in force from 2022-06-10; State Register of Legal Acts no. 15202206100224; new redaction Baku 2025, 64 pp.",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/muhendis-sistemleri/azdtn-212-4-binalarin-istilik-muhafizesi-layihelendirme-normalari",
+    "licence": "Free official publication; no open licence. Do not redistribute the PDF.",
+    "force": "statutory",
+    "force_note": "Suspends the legal force of СНиП II-3-79* in Azerbaijan. Table 4 with formula (1) gives R_req = a*Dd + b; for residential walls a = 0.00035, b = 1.4, with tabulated anchors 2.1 / 2.8 / 3.5 m2*degC/W at Dd = 2000 / 4000 / 6000. It supplies no wall thickness, so any external-wall total derived from it is an engine choice.",
+    "reusable": false
+  },
+  "gost_31360_2007": {
+    "title": "ГОСТ 31360-2007 — Изделия стеновые неармированные из ячеистого бетона автоклавного твердения. Технические условия",
+    "issuer": "Interstate standard; in force in Azerbaijan (register entry), replacing the autoclaved part of GOST 21520-89",
+    "date": "2007",
+    "url": "https://meganorm.ru/Data2/1/4293833/4293833721.htm",
+    "licence": "Interstate standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "cl. 4.2.2 / 4.2.4 give MAXIMA and tolerances only; actual dimensions are set by agreement between manufacturer and customer. So the standard that replaced GOST 21520-89 for autoclaved products publishes NO width series to cite.",
+    "reusable": true
+  },
+  "gost_2316_2008": {
+    "title": "ГОСТ 2.316-2008. ЕСКД. Правила нанесения надписей, технических требований и таблиц на графических документах",
+    "issuer": "Interstate Council for Standardization / Rosstandart",
+    "date": "2008-12-25",
+    "url": "https://vashdom.ru/gost/2.316-2008/",
+    "licence": "full text on a third-party mirror",
+    "force": "voluntary_standard",
+    "force_note": "Cl. 4.4 PROHIBITS abbreviation in drawing captions except those listed in Annex A, which is справочное (informative) and contains zero room-type words. Referenced by AZS ГОСТ 21.101-2010 cl. 5.3 as the base list its Əlavə D extends.",
+    "reusable": false
+  },
+  "gost_23166_99": {
+    "title": "ГОСТ 23166-99. Блоки оконные. Общие технические условия",
+    "issuer": "Interstate Council for Standardization",
+    "date": "in force 2001-01-01, with Amendment 1",
+    "url": "https://meganorm.ru/Data2/1/4294849/4294849159.htm",
+    "licence": "full text on a third-party mirror",
+    "force": "voluntary_standard",
+    "force_note": "IMPORTANT: cl. 4.9 explicitly refuses to fix opening sizes — window and wall-opening dimensions are 'установлены в проектной документации'. Its Table 2 series is only рекомендуемые. If 11214-86 really is cancelled, there is NO live standard fixing a residential opening grid, and our catalogue becomes engine_choice.",
+    "reusable": false
+  },
+  "gost_6629_88": {
+    "title": "ГОСТ 6629-88. Двери деревянные внутренние для жилых и общественных зданий. Типы и конструкция",
+    "issuer": "Gosstroy USSR, decision 325 of 31.12.1987",
+    "date": "in force 1989-01-01; reissued March 1999",
+    "url": "https://meganorm.ru/Data2/1/4294853/4294853218.htm",
+    "licence": "full text and drawings on a third-party mirror. NOT the issuer.",
+    "force": "superseded",
+    "force_note": "SUPERSEDED by ГОСТ 475-2016 from 2017-07-01. Cited as the ANCESTOR standard for the door designation scheme and opening series. Its Azerbaijani status is unverified; AzDTN 1.1-1 cl. 1.5(a) keeps ex-all-Union GOSTs nominally in force. Not an Azerbaijani document.",
+    "reusable": false
+  },
+  "azs_21501_2010": {
+    "title": "AZS ГОСТ 21.501-2010. Tikinti üçün layihə sənədləri sistemi. Memarlıq-tikinti işçi cizgilərinin işlənilməsi qaydaları",
+    "issuer": "Azərbaycan Respublikası Dövlət Şəhərsalma və Arxitektura Komitəsi (ARXKOM)",
+    "date": "approved by order 83 of 29.06.2010; in force by SCSMP order 120 of 12.08.2010",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/yasayis-ictimai-istehsalat-kend-teserrufati-binalari/tikinti-ucun-layihe-senedleri-sistemi-memerliq-tikinti-isci-cizgilerinin-islenilmesi-qaydalari",
+    "licence": "freely published by the issuing state committee; no redistribution right asserted here",
+    "force": "voluntary_standard",
+    "force_note": "Azerbaijani state standard, authentic Azerbaijani translation of the interstate ГОСТ 21.501-93. THE OPERATIVE DOCUMENT for architectural working drawings in Azerbaijan. Read first-hand for this research (51 pp).",
+    "reusable": false
+  },
+  "az_area_rules_2012": {
+    "title": "Tikinti obyektlərinin sahəsinin və həcminin hesablanması qaydaları (Rules for calculating the area and volume of construction objects)",
+    "issuer": "Azərbaycan Respublikasının Dövlət Şəhərsalma və Arxitektura Komitəsi",
+    "date": "approved by Kollegiya decision No. 07 of 2012-12-04; registered 2012-12-14, No. 15201212040007; in force from 2012-12-15",
+    "url": "https://e-qanun.az/framework/25005",
+    "licence": "Azerbaijani state normative legal act on the official State Register of Legal Acts portal. Individual values cited; the coefficient set is stated per value, the source's tables are not reproduced.",
+    "force": "statutory",
+    "force_note": "Status confirmed `Qüvvədədir` (in force) against the register's own metadata on 2026-08-20. This — not AzDTN 2.7-2 — is where the AZ area-calculation rules and the balcony/loggia coefficients live; AzDTN 2.7-2 carries no area appendix.",
+    "reusable": false,
+    "read_first_hand": true
+  },
+  "gost_379_2015": {
+    "title": "ГОСТ 379-2015 — Кирпич, камни, блоки и плиты перегородочные силикатные. Общие технические условия",
+    "issuer": "Interstate Council (protocol No. 74-P of 2015-01-30); Rosstandart order No. 246-st of 2015-04-09",
+    "date": "2015",
+    "url": "https://base.garant.ru/71276714/",
+    "licence": "Interstate standard text, freely republished (definitions accessible; the dimensional annex is paywalled on this host).",
+    "force": "voluntary_standard",
+    "force_note": "Preface records Azerbaijan (AZ, Azstandart) as voting for adoption; the AZ register lists it in force, replacing GOST 379-95. Corroborates the 250 x 120 module in a second unit family.",
+    "reusable": true
+  },
+  "sp_275_2016": {
+    "title": "СП 275.1325800.2016 — Конструкции ограждающие жилых и общественных зданий. Правила проектирования звукоизоляции",
+    "issuer": "Minstroy of the Russian Federation",
+    "date": "2016",
+    "url": "https://meganorm.ru/Data2/1/4293746/4293746919.htm",
+    "licence": "Russian code of practice, freely republished.",
+    "force": "foreign_not_applicable",
+    "force_note": "Russian Svod Pravil. Live law in the Russian Federation, invoked by no Azerbaijani act. Carried only to record the origin of an engine_choice; the validator must never derive an AZ disclosure from it.",
+    "reusable": true
+  },
+  "azs_21101_2010": {
+    "title": "AZS ГОСТ 21.101-2010. Tikinti üçün layihə sənədləri sistemi. Layihə və işçi sənədlərinə əsas tələblər",
+    "issuer": "ARXKOM; prepared by «Azərmemarlayihə» Dövlət Baş Layihə İnstitutu",
+    "date": "approved by ARXKOM order 33 of 17.03.2010; in force by SCSMP order 082 of 03.05.2010",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/yasayis-ictimai-istehsalat-kend-teserrufati-binalari/tikinti-ucun-layihe-senedleri-sistemi-layihe-ve-isci-senedlerine-esas-telebler",
+    "licence": "freely published by the issuing state committee",
+    "force": "voluntary_standard",
+    "force_note": "Authentic Azerbaijani translation of ГОСТ 21.101-97, stated in its own front matter. Carries Əlavə A (drawing-set marks) and Əlavə D (abbreviations, marked `tövsiyə olunan` = recommended). Read first-hand (52 pp).",
+    "reusable": false
+  },
+  "az_azdtn_2_16_1": {
+    "title": "AzDTN 2.16-1 — Beton və dəmir-beton konstruksiyalar. Layihələndirmə normaları (Concrete and reinforced concrete structures. Design norms)",
+    "issuer": "Azərbaycan Respublikasının Dövlət Şəhərsalma və Arxitektura Komitəsi",
+    "date": "Approved by Collegium decision No. 02 of 2015-04-15; new redaction Baku 2018, 126 pp.; supersedes СНиП 2.03.01-84*",
+    "url": "https://arxkom.gov.az/qanunvericilik/normativler/insaat-konstruksiyalar-sistemi/beton-ve-demir-beton-konstruksiyalar-layihelendirme-normalari",
+    "licence": "Free official publication; no open licence. Do not redistribute the PDF.",
+    "force": "statutory",
+    "force_note": "Cited here mainly for a NEGATIVE finding, established first-hand: it publishes no minimum wall thickness for monolithic reinforced concrete, only cover (20 / 25 mm) and reinforcement-spacing rules (cl. 10.3.8: vertical bar spacing <= 2t and <= 400 mm).",
+    "reusable": false
+  },
+  "gost_21520_89": {
+    "title": "ГОСТ 21520-89 — Блоки из ячеистых бетонов стеновые мелкие. Технические условия",
+    "issuer": "Interstate standard; in force in Azerbaijan by State Committee decision No. 01 of 2013-03-13, effective 2013-05-10",
+    "date": "1989",
+    "url": "https://meganorm.ru/Data2/1/4294821/4294821960.htm",
+    "licence": "Soviet-era standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "Table 1 gives TWO thickness series by laying method: mortar-laid 200 / 250 / 300 (even) and thin-bed-glue-laid 195 / 245 / 295 (ALL ODD). Note 1 permits other dimensions by agreement. The glue series fails ADR 0004 and is the reason the block construction type is not recommended for v1.",
+    "reusable": true
+  },
+  "gost_r_21101_2020": {
+    "title": "ГОСТ Р 21.101-2020. СПДС. Основные требования к проектной и рабочей документации",
+    "issuer": "Rosstandart (Russian national standard)",
+    "date": "order 282-ст of 23.06.2020, in force 2021-01-01",
+    "url": "https://meganorm.ru/Data2/1/4293720/4293720404.htm",
+    "licence": "full text on a third-party mirror; official text sold by Standartinform. NOT the issuer.",
+    "force": "voluntary_standard",
+    "force_note": "Russian national standard, voluntary application under FZ-162 art. 26 unless invoked by a technical regulation or contract. NO force in Azerbaijan. Cited only as the clearest normative statement of the decimal-comma rule (cl. 5.4.1, 5.4.3), corroborating the Azerbaijani standards.",
+    "reusable": false
+  },
+  "gost_4001_84": {
+    "title": "ГОСТ 4001-84 — Камни стеновые из горных пород. Технические условия (Natural rock wall blocks. Specifications)",
+    "issuer": "Gosstroy USSR, decree No. 74 of 1984-05-10, in force from 1985-07-01; reissued with Amendment 1 approved by Gosstroy of Russia decree No. 115 of 2000-12-04",
+    "date": "1984, am. 2000",
+    "url": "https://meganorm.ru/Data2/1/4294853/4294853180.htm",
+    "licence": "Soviet-era interstate standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "Listed in Azerbaijan's register as in force, alongside its Azerbaijani adoption AZS 476-2011 (not obtained). Superseded in the Russian system by GOST 4001-2013, which was not obtained; Azerbaijan lists the 1984 edition, which is the one read.",
+    "reusable": true
+  },
+  "su_snip_2_08_01_89": {
+    "title": "СНиП 2.08.01-89* «Жилые здания» (Residential buildings)",
+    "issuer": "Gosstroy USSR; amendments 1-4 to 2000 (Amdt. 4 — Gosstroy RF res. No. 112 of 2000-11-20)",
+    "date": "1989, 2000 reissue with amendments 1-4",
+    "url": "https://files.stroyinf.ru/Data2/1/4294854/4294854790.htm",
+    "licence": "Soviet-era normative text, freely mirrored. Read to establish provenance of the 1:5.5 figure; not the source of any AZ value.",
+    "force": "superseded",
+    "force_note": "SUPERSEDED IN AZERBAIJAN — legal force on AZ territory terminated 2021-11-30 by AzDTN 2.7-2. Separately repealed in Russia by Gosstroy RF res. No. 109 of 2003-06-23. Carried here ONLY to explain where the reported 1:5.5 to 1:8 band came from and to document that it no longer binds AZ. NO value in our data may cite this source as current AZ practice.",
+    "reusable": false,
+    "read_first_hand": true
+  },
+  "sp_430_2018": {
+    "title": "СП 430.1325800.2018 — Монолитные конструктивные системы. Правила проектирования",
+    "issuer": "Minstroy of the Russian Federation; introduced for the first time",
+    "date": "2018",
+    "url": "https://files.stroyinf.ru/Data2/1/4293730/4293730490.htm",
+    "licence": "Russian code of practice, freely republished.",
+    "force": "foreign_not_applicable",
+    "force_note": "Russian Svod Pravil. Live law in the Russian Federation, invoked by no Azerbaijani act. Carried only to record the origin of an engine_choice; the validator must never derive an AZ disclosure from it.",
+    "reusable": true
+  },
+  "gost_24698_81": {
+    "title": "ГОСТ 24698-81. Двери деревянные наружные для жилых и общественных зданий. Типы, конструкция и размеры",
+    "issuer": "Gosstroy USSR, decision 51 of 1981",
+    "date": "in force 1984-01-01; reissued Standartinform 2009",
+    "url": "https://files.stroyinf.ru/Data2/1/4294853/4294853205.htm",
+    "licence": "full text on a third-party mirror",
+    "force": "status_unverified",
+    "force_note": "Search prose claims cancellation by an order of 12.05.2009, which conflicts with the 2009 reissue. NOT verified against a registry. Cited as ancestor only.",
+    "reusable": false
+  },
+  "sp_15_2020": {
+    "title": "СП 15.13330.2020 — Каменные и армокаменные конструкции. СНиП II-22-81*",
+    "issuer": "Minstroy of the Russian Federation, order No. 902/pr of 2020-12-30, in force from 2021-07-01",
+    "date": "2020, am. 2024",
+    "url": "https://meganorm.ru/mega_doc/norm/polozhenie_polozheniya/0/sp_15_13330_2020_svod_pravil_kamennye_i_armokamennye.html",
+    "licence": "Russian code of practice, freely republished.",
+    "force": "foreign_not_applicable",
+    "force_note": "Russian Svod Pravil. Live law in the Russian Federation, invoked by no Azerbaijani act. Carried only to record the origin of an engine_choice; the validator must never derive an AZ disclosure from it.",
+    "reusable": true
+  },
+  "gost_11118_2009": {
+    "title": "ГОСТ 11118-2009 — Панели из автоклавных ячеистых бетонов для наружных стен зданий. Технические требования",
+    "issuer": "Interstate standard; in force in Azerbaijan by State Committee order No. 59 of 2010-05-20",
+    "date": "2009",
+    "url": "https://meganorm.ru/Data2/1/4293823/4293823725.htm",
+    "licence": "Interstate standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "Publishes no thickness series; thickness appears only inside marking examples (320, 400). Not normative values.",
+    "reusable": true
+  },
+  "gost_11214_86": {
+    "title": "ГОСТ 11214-86. Окна и балконные двери деревянные с двойным остеклением. Типы, конструкция и размеры",
+    "issuer": "Gosstroy USSR, decision 191 of 14.11.1985",
+    "date": "in force 1987-01-01",
+    "url": "https://meganorm.ru/Data1/3/3482/index.htm",
+    "licence": "full text and drawings on a third-party mirror",
+    "force": "status_unverified",
+    "force_note": "Search prose claims cancellation by Minregion order of 16.03.2015 without replacement. NOT verified. Cited as ancestor for the window designation scheme and residential opening series.",
+    "reusable": false
+  },
+  "sp_70_2012": {
+    "title": "СП 70.13330.2012 — Несущие и ограждающие конструкции. Актуализированная редакция СНиП 3.03.01-87",
+    "issuer": "Ministry of Regional Development / Minstroy of the Russian Federation",
+    "date": "2012, with amendments",
+    "url": "https://meganorm.ru/Data2/1/4293782/4293782487.htm",
+    "licence": "Russian code of practice, freely republished.",
+    "force": "foreign_not_applicable",
+    "force_note": "Russian Svod Pravil. Live law in the Russian Federation, invoked by no Azerbaijani act. Carried only to record the origin of an engine_choice; the validator must never derive an AZ disclosure from it.",
+    "reusable": true
+  },
+  "gost_9574": {
+    "title": "ГОСТ 9574 — Панели гипсобетонные для перегородок. Технические условия (1990 and 2018 editions)",
+    "issuer": "Gosstroy USSR / Interstate standard",
+    "date": "1990; 2018",
+    "url": "https://meganorm.ru/Data2/1/4294851/4294851970.htm",
+    "licence": "Standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "NEGATIVE finding: cl. 1.2.2 (1990) / cl. 4.2.2 (2018) say only that the shape and dimensions of panels shall correspond to the working drawings. There is NO dimension table. The widely quoted 80 mm appears solely inside a marking example and must not be cited as a standard value.",
+    "reusable": true
+  },
+  "ru_snip_23_05_95": {
+    "title": "СНиП 23-05-95* «Естественное и искусственное освещение»",
+    "issuer": "Minstroy of Russia / Gosstroy",
+    "date": "1995, with amendments",
+    "url": "https://files.stroyinf.ru/Data2/1/4294854/4294854801.htm",
+    "licence": "Freely mirrored normative text; individual values cited, no tables reproduced.",
+    "force": "superseded",
+    "force_note": "The Russian twin of МСН 2.04-05-95, read first-hand to obtain the KEO figures AZ's own lighting norm is presumed to carry. Superseded in Russia by СП 52.13330. Carried ONLY as the read-source behind the `reported` KEO values; it is NOT the instrument in force in Azerbaijan.",
+    "reusable": false,
+    "read_first_hand": true
+  },
+  "az_sehersalma_mecellesi_2012": {
+    "title": "Azərbaycan Respublikasının Şəhərsalma və Tikinti Məcəlləsi (Urban Planning and Construction Code of the Republic of Azerbaijan)",
+    "issuer": "Milli Məclis of the Republic of Azerbaijan, approved by Law No. 392-IVQ",
+    "date": "2012-06-29",
+    "url": "https://fhn.gov.az/storage/pages/217/3922012.pdf",
+    "licence": "Azerbaijani legislation, published by state bodies. Short clause quotation only.",
+    "force": "statutory",
+    "force_note": "The instrument that gives every AzDTN its binding force. Art. 3.0.26 defines normative documents as technical normative legal acts; Art. 14.3 requires compliance; Art. 14.2 requires annual publication of the list; Art. 15.1.5 places design norms inside the system. This is the source the acceptance validator's 'statutory' force wording ultimately rests on for AZ.",
+    "reusable": false
+  },
+  "ru_sp_55_13330_2016": {
+    "title": "СП 55.13330.2016 «Дома жилые одноквартирные» (Single-family dwelling houses)",
+    "issuer": "Minstroy Russia",
+    "date": "2016",
+    "url": "https://meganorm.ru/Data2/1/4293748/4293748498.htm",
+    "licence": "Russian normative text, freely published. Read to establish facts; not redistributed.",
+    "force": "foreign_not_applicable",
+    "force_note": "RUSSIAN, NEVER AZERBAIJANI LAW. Carried only to locate where the SNiP-family clear widths actually live: cl. 6.1, single-family houses, and even there only as a relaxation for RECONSTRUCTED houses. This is the exact structural parallel to AzDTN 2.7-3 carrying widths while AzDTN 2.7-2 does not, and it is why transferring house widths onto apartments must degrade conf.",
+    "reusable": false
+  },
+  "azs_481_2011": {
+    "title": "AZS 481-2011 (ГОСТ 530-2007) — Keramik kərpic və daşlar. Ümumi texniki şərtlər",
+    "issuer": "Azərbaycan Respublikasının Fövqəladə Hallar Nazirliyi (order No. 088, 2011); registered by the State Committee for Standardization, Metrology and Patents, order No. 204 of 2011-12-30",
+    "date": "2011, in force in Azerbaijan from 2011-12-30",
+    "url": null,
+    "licence": "Sold by the national standards body; not published free of charge.",
+    "force": "voluntary_standard",
+    "force_note": "GAP, and the most consequential one. This is the instrument AzDTN 2.17-1 cl. 2 actually references for ceramic brick dimensions. Its text was NOT obtained, so the brick module is cited to GOST 530-2012 instead. The two are not the same document and no value claims otherwise.",
+    "reusable": false
+  },
+  "gost_6428_83": {
+    "title": "ГОСТ 6428-83 — Плиты гипсовые для перегородок. Технические условия (Plaster slabs for partitions. Specifications)",
+    "issuer": "Gosstroy USSR, decree No. 299 of 1983-11-02, in force from 1985-01-01; supersedes GOST 6428-74",
+    "date": "1983",
+    "url": "https://meganorm.ru/Data2/1/4294853/4294853235.htm",
+    "licence": "Soviet-era standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "Listed in Azerbaijan's register as in force by State Committee order No. 09 of 2010-02-01. Table 1 gives partition-plate thicknesses of 80 and 100 mm — both even.",
+    "reusable": true
+  },
+  "az_housing_code": {
+    "title": "Azərbaycan Respublikasının Mənzil Məcəlləsi (Housing Code of the Republic of Azerbaijan)",
+    "issuer": "Milli Məclis (Parliament of the Republic of Azerbaijan)",
+    "date": "2009 (as amended)",
+    "url": "https://frameworks.e-qanun.az/0/c_c_19.html",
+    "licence": "Statute published on the official state legal information portal e-qanun.az.",
+    "force": "statutory",
+    "force_note": "Primary legislation. Art. 12.5 defines `yaşayış sahəsinin ümumi sahəsi` for housing-law purposes and EXCLUDES balconies and eyvans outright — which CONTRADICTS the 0.3/1.0 inclusion in az_area_rules_2012 cl. 3.8. Two in-force AZ definitions of `total area` for two different purposes. See section 4.3.",
+    "reusable": false,
+    "read_first_hand": true
+  },
+  "gost_6133_99": {
+    "title": "ГОСТ 6133-99 — Камни бетонные стеновые. Технические условия",
+    "issuer": "Interstate standard; in force in Azerbaijan from 2011-12-30 (register entry); normatively referenced by AzDTN 2.17-1 cl. 2",
+    "date": "1999",
+    "url": "https://meganorm.ru/Data2/1/4294819/4294819374.htm",
+    "licence": "Interstate standard text, freely republished.",
+    "force": "voluntary_standard",
+    "force_note": "cl. 4.5 Table 1 gives wall-stone widths 288 / 190 / 138 and partition-stone width 90 — all even. The safest block family if a block construction type is ever wanted.",
+    "reusable": true
+  },
+  "az_expertise_rules_2014": {
+    "title": "Tikinti layihələrinin ekspertizadan keçirilməsi Qaydaları",
+    "issuer": "President of the Republic of Azerbaijan (decree under Urban Planning and Construction Code Art. 90.4)",
+    "date": "2014-11-17",
+    "url": "https://president.az/az/articles/view/13427",
+    "licence": "official state publication, openly accessible",
+    "force": "statutory",
+    "force_note": "Cl. 8.1: construction projects submitted for expertise must be drawn up in the state language. Expertise is mandatory under Code Art. 88.1 for essentially every permit-bearing object. Does NOT bind our PRELIMINARY output; establishes the register the builder reads.",
+    "reusable": false
+  },
+  "az_state_language_law_2002": {
+    "title": "Azərbaycan Respublikasında dövlət dili haqqında Azərbaycan Respublikasının Qanunu, No 365-IIQ",
+    "issuer": "Milli Məclis / President of the Republic of Azerbaijan",
+    "date": "2002-09-30, consolidated through 2020 amendments",
+    "url": "https://e-qanun.az/framework/1865",
+    "licence": "official legal database, open",
+    "force": "statutory",
+    "force_note": "Art. 1.4 record-keeping in the state language across all legal persons; Art. 14 alphabet is Latin-script Azerbaijani; Art. 15.3 Cyrillic only in special cases. Contains NO article on technical documentation or standards — verified by full-text scan.",
+    "reusable": false
+  },
+  "us_ncs_uds5": {
+    "title": "United States National CAD Standard, UDS Module 5: Terms and Abbreviations",
+    "issuer": "National Institute of Building Sciences with CSI and AIA",
+    "date": "V6 (2014) / V7",
+    "url": "https://www.nationalcadstandard.org/ncs6/pdfs/ncs6_uds5.pdf",
+    "licence": "PAYWALLED — only the introduction is free. No values from its tables are stated in this research.",
+    "force": "voluntary_standard",
+    "force_note": "The only published English architectural abbreviation set found. Its own §5.1.2 discourages abbreviating: 'When the meaning of an abbreviation is in doubt, spell it out!' GSA, VA and USACE adopt it by reference and republish nothing.",
+    "reusable": false
+  },
+  "iso_4157_2": {
+    "title": "ISO 4157-2:1998. Construction drawings — Designation systems — Part 2: Room names and numbers",
+    "issuer": "ISO/TC 10/SC 8",
+    "date": "2nd edition 1998-12-01, confirmed 2023",
+    "url": "https://www.iso.org/standard/26190.html",
+    "licence": "paid; the normative text was read via a publicly published preview",
+    "force": "voluntary_standard",
+    "force_note": "Cited as the INDEPENDENT corroboration that the published fallback for a room name that will not fit is number-plus-table, not abbreviation (cl. 4.3.1-4.3.2). Shares no lineage with SPDS, which is what makes the agreement meaningful.",
+    "reusable": false
+  },
+  "azs_476_2011": {
+    "title": "AZS 476-2011 (ГОСТ 4001-84) — Dağ süxurlarından divar daşları. Texniki şərtlər",
+    "issuer": "Azərbaycan Respublikasının Fövqəladə Hallar Nazirliyi (order No. 088, 2011)",
+    "date": "2011",
+    "url": null,
+    "licence": "Sold by the national standards body; not published free of charge.",
+    "force": "voluntary_standard",
+    "force_note": "GAP. The Azerbaijani adoption of GOST 4001-84. Not obtained; stone dimensions are cited to GOST 4001-84 itself, which the AZ register also lists in force.",
+    "reusable": false
+  },
+  "cldr_az": {
+    "title": "Unicode CLDR locale data, az.xml (numbers/latn/symbols)",
+    "issuer": "Unicode Consortium",
+    "date": "CLDR main branch, © 1991-2026",
+    "url": "https://raw.githubusercontent.com/unicode-org/cldr/main/common/main/az.xml",
+    "licence": "Unicode-3.0 (SPDX)",
+    "force": "informative",
+    "force_note": "The civil/locale convention, read first-hand: decimal ',' and group '.'. Agrees with the drafting standards on the decimal; the group separator is irrelevant because drawings never group thousands.",
+    "reusable": true
+  },
+  "ezdxf_probe_local": {
+    "title": "DXF encoding and font probes, ezdxf 1.4.4, run on this machine",
+    "issuer": "this research (C11)",
+    "date": "2026-08-20",
+    "url": "experiments/az-drawing/dxf_encoding_probe.py, experiments/az-drawing/dxf_font_probe.py",
+    "licence": "ours",
+    "force": "informative",
+    "force_note": "Source of every claim in §5 marked verified: per-version round-trip, code-page coverage, the cp1251/superscript-two conflict, the R2010->R2000 downgrade, DIMDSEP round-trip, and DIMDSEP being inert at DIMDEC=0.",
+    "reusable": true
+  }
+}

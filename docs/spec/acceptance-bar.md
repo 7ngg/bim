@@ -101,6 +101,16 @@ later is a configuration change, not a rewrite.
 > authored.** One further consequence: `win.area_ratio` cites `de_baybo`, which is
 > a dangling key until the DE sources land. Ticketed as *Ergonomic minima and the
 > constraint table's missing half*.
+>
+> ✅ **The `de_baybo` half is closed.** *The Azerbaijani region profile* re-sourced
+> both consumers to **AzDTN 2.7-2**, read first-hand: `win.area_ratio` to cl. 9.13
+> (1:8, a *lower* bound with no cap — value unchanged at 0.125, now agreed by two
+> independent regulatory traditions) and `win.kitchen_windowless` to cl. 9.12. That
+> second one **inverted its own premise**: the rule was a warn because Bayern
+> *permitted* a windowless kitchen, and Azerbaijan *requires* the window. It stays
+> a warn only because C14 forbids a region changing the reject set; flipping the
+> table's `needs_window` for kitchen is the region-invariant fix and is owed by the
+> ticket named above. The three `conf: pending` rules are untouched.
 
 ## 4. Circulation — two graphs, not one
 
@@ -300,7 +310,8 @@ language, leading with the Brief field to edit.
 | What | Where it goes |
 |---|---|
 | The **ergonomic layer** — the entire hard number set | *Ergonomic minima and the constraint table's missing half* — blocks the numeric half of this spec |
-| `de_baybo` is a dangling source key | same ticket |
+| ~~`de_baybo` is a dangling source key~~ — **closed** by *The Azerbaijani region profile*; both consumers re-sourced to AzDTN 2.7-2 | — |
+| The table's `needs_window: false` for kitchen, which AZ contradicts | *Ergonomic minima and the constraint table's missing half* |
 | Aspect thresholds, circulation fraction, plumbing group count, jamb return — all `ENGINE_CHOICE` placeholders | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, blocked on *Acquire the datasets* |
 | `open.wc_door_outward_pan_overlap` | `deferred` until fixtures leave the fog |
 | Where the entrance door actually goes | *Opening placement rules* |

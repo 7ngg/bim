@@ -18,7 +18,7 @@ The honest caveats, all of which shape the geometry model:
 |---|---|
 | DXF dimensions are **rendered by ezdxf, not by the CAD app** — the geometry block is authored by us | Our renderer's output *is* the drawing. Dimension appearance is our responsibility, and a stale block will not self-heal in every viewer. |
 | `DIMLFAC` on every shipped `EZ_*` dimstyle is **100.0** | A 4000 mm wall dimensions as **"400000"** out of the box. Unit convention must be fixed globally and the dimstyle built to match. This is the single easiest way to ship a wrong drawing. |
-| DXF **R2000 (AC1015) is the hard floor** | R12 rejects `MTEXT`, `LWPOLYLINE` and `HATCH` outright. |
+| DXF **R2007 (AC1021) is the hard floor** | R12 rejects `MTEXT`, `LWPOLYLINE` and `HATCH` outright, which sets R2000 as the *entity* floor. R2000/R2004 are then ruled out on *encoding*: they are code-page formats and no legacy code page encodes `ə`. Raised from R2000 by *The Azerbaijani region profile*; see §2.5 and the note in §3. |
 | IFC4 authoring works and validates clean — but only after `ObjectPlacement` is set | An IfcProduct with a representation and no placement **fails** the IFC4 WR1 rule. |
 | Revit's IFC import is the weak link, not the authoring | See §4. |
 | ezdxf's PDF backend **vectorises all text** | No selectable or searchable text in the PDF. |
@@ -281,6 +281,16 @@ Two things to note. First, **island/hole support works**: the solid wall-poché 
 ### 2.7 MTEXT room tags
 
 `add_mtext()` with `char_height`, a text `style`, and `set_location(..., attachment_point=5)` (middle-centre) works; `\P` is the MTEXT hard line break, so a two-line room tag (`"LIVING\\P18.2 m²"`) is a single entity. Non-ASCII (`²`) survived the round trip — R2000+ DXF is unicode-capable.
+
+> ⚠️ **That last clause is false in general, and *The Azerbaijani region profile*
+> measured it.** R2000 and R2004 are *code-page* formats, not Unicode ones; `²`
+> survived only because the probe's code page happened to encode it. **No legacy
+> code page anywhere encodes `ə`** — not even Turkish cp1254, which carries every
+> other Azerbaijani letter — so an Azerbaijani drawing is unrepresentable at
+> R2000. Russian is worse, not better: cp1251 cannot encode `²`. **R2007 (AC1021)
+> is the real floor**, and the ticket's language decision makes that binding
+> rather than academic. Nothing shipped is broken — §2.5 already defaults to
+> R2010. Probes in `experiments/az-drawing/`.
 
 ### 2.8 Paper space, viewports at scale, and title blocks
 

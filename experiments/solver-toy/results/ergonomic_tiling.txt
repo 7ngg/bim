@@ -1,0 +1,11 @@
+Exact tiling at 9.65 m2 per room. `*` marks seeds where no Brief
+could be built at all -- the deletion ADR 0007 measured.
+
+reading                                          n=4     n=5     n=6     n=7     n=8    n=10    n=12
+placeholder table, minima on solved rect         8/8     7/8     7/8     6/8     7/8     7/8     6/8
+placeholder table, clear rect, unaligned        0/8*    0/8*    0/8*     6/8     7/8     7/8     6/8
+DERIVED floor,     minima on solved rect         8/8     8/8    0/8*     7/8     8/8     7/8     8/8
+DERIVED floor,     clear rect, unaligned         8/8     0/8    0/8*     7/8     7/8     8/8     8/8
+
+Row 4 is what shipping the derived ergonomic layer at the 250 mm grid
+with honest, un-rounded-down minima actually costs.

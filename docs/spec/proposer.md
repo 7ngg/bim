@@ -251,50 +251,168 @@ anything comparing against a clear-dimension threshold must erode first.
 Assigned to this ticket by *Proposer architecture survey* §7.1: no published
 metric measures what the solver actually consumes.
 
+**Validated, and redefined in the process**, by *Validate the arrangement metric
+against the solver*. Everything below is the post-validation definition;
+`docs/research/arrangement-metric.md` holds the measurements, and
+`experiments/solver-toy/arrangement.py` is the reference implementation.
+
 ### 5.1 Definition
 
-Run the **solver's own extractor** on both sides, so the metric cannot drift from
-the thing it predicts. For each unordered pair (i, j) of Brief Rooms:
+Run the **solver's own extractor** on both sides, so the metric cannot drift
+from the thing it predicts. This is now literal rather than aspirational:
+`solver.rank_relations` and `solver.select_relations` are module-level functions
+that `LayoutProjector._add_relations` and the metric both call. For each
+unordered pair (i, j) of Brief Rooms:
 
 1. compute the four separation costs — left-of, right-of, above, below
 2. `direction = argmin`; `margin = second_best − best`
 3. `margin < τ` → the pair **abstains**: the solver leaves it free
 4. otherwise the pair is **asserted**
 
-Ground truth is the same extractor over the held-out real dwelling's
-rectangularised rooms.
-
-### 5.2 What is reported — three numbers, never one
+An asserted relation is then scored against the ground-truth dwelling's
+rectangularised rooms:
 
 | | |
 |---|---|
-| **agreement** | asserted, and matches truth |
+| **agreeing** | the truth **satisfies** the asserted separation — `sep_cost(truth, relation) ≤ 0` |
+| **confident-wrong** | the truth **contradicts** it — `sep_cost(truth, relation) > 0` |
+
+⚠️ **This is not "the asserted direction is the truth's `argmin`", and the
+difference is not pedantic.** Two disjoint boxes can be separated on *both* axes
+— every diagonal neighbour in a tiling is such a pair — so a relation can differ
+from the truth's `argmin` and still be one the truth satisfies. The solver
+cannot tell the difference, because the constraint holds either way. Scoring by
+`argmin` over-reports confident-wrong by **1.5× at 8 rooms and 3.6× at 24**, and
+predicts survival worse (61.4 % against 78.6 %). Earlier drafts of this section
+said `argmin`; `CONTEXT.md` always said "backwards", and `CONTEXT.md` was right.
+
+### 5.2 What is reported
+
+Four numbers, per Proposal, never one and never as a per-pair rate.
+
+| | |
+|---|---|
+| **severity** | Σ `sep_cost(truth, relation)` over confident-wrong relations, in millimetres — **the headline** |
+| **confident-wrong count** | how many relations the truth contradicts |
+| **reversal count** | of those, how many are *same-axis* reversals (see below) |
 | **abstain rate** | pairs below τ |
-| **confident-wrong** | asserted, and contradicts truth — **the headline** |
 
-Collapsing these into a single accuracy figure hides the only failure that costs
-a candidate. An abstain leaves the solver free. A **confident-wrong relation
-becomes a hard constraint and makes the model INFEASIBLE in under 0.1 s.**
+**Severity, not count, is the gate.** A relation the truth violates by one grid
+unit and one it violates by ten are the same number in a count and are not the
+same defect. Measured over 140 realistic Proposals in the 4–10-room band,
+**severity below 2 000 mm implied a survivor in 80 runs out of 80**, at 87.9 %
+accuracy against a count's 78.6 %. Treat 2 000 mm as a starting threshold fitted
+on a toy, not a shipped constant.
 
-Plus **cycle rate** — the fraction of Proposals whose asserted relation set is
-unrealisable, because a directed cycle in the implied x- or y-ordering is
-infeasible however correct each pair looks alone.
+**Report per Proposal, never as a per-pair rate.** A rate compounds over pairs
+and the pair count is quadratic in rooms: a 0.5 % confident-wrong rate leaves a
+Proposal clean 88 % of the time at 8 rooms and **28 %** at 24. "99.5 % correct"
+and "loses seven Proposals in ten" are the same number, and only one of them
+gets quoted.
 
-### 5.3 The metric must be validated before it is trusted
+**Split reversals out.** A *same-axis reversal* — the truth puts the two rooms
+the other way round — was INFEASIBLE at **100 %** of injected doses tested. A
+*cross-axis swap* at the same dose is 0–33 % at one relation. They are different
+defects, and a source that emits one is failing differently from a source that
+emits the other.
 
-It is a proxy, and this map has already been bitten once by an unvalidated one
-(overlap). Before any architecture is scored on it: inject confident-wrong
-relations at known rates into ground-truth Proposals and show solve failure rises
-with the rate. **If it does not, the metric is wrong and gets redefined, not
-excused.** `experiments/solver-toy/probe5.py` already runs infeasible Proposals,
-so the harness exists.
+**The asymmetry with abstain is why these are never one number.** An abstain
+leaves the solver free and costs **time**: at 8 and 12 rooms, dropping *every*
+relation still produced a survivor in 5 runs of 5, at worst 6× slower. A
+confident-wrong relation costs the **candidate**: one is enough to make the
+model INFEASIBLE 56 % of the time, and two takes the survivor rate to zero.
+Never collapse a slowdown and a failure into one figure.
 
-### 5.4 τ belongs to the solver, not here
+**No cycle rate.** The earlier definition asked for the fraction of Proposals
+whose asserted set is unrealisable through a directed cycle. `select_relations`
+adds relations greedily in increasing separation cost and **skips any that would
+close a per-axis cycle**, so the asserted set is acyclic by construction and the
+number is identically zero — on real noisy Proposals the guard never fires at
+all. Posting a cycle around the guard is INFEASIBLE in 0.01–0.18 s, so the
+mechanism is real and unreachable; removing the guard changes no outcome
+measurably. Keep the guard, delete the number.
 
-τ is the same margin the solver uses to decide which relations to fix hard, and
-it trades solve time against infeasibility: high τ fixes fewer relations, so the
-search is freer and slower; low τ fixes more, so it is faster and fails more.
-That is a timing question. New obligation on *Solver timing variance sweep*.
+### 5.3 What it predicts, and where it stops
+
+The metric predicts **feasibility**, not survival. Those coincide only while the
+solve sits comfortably inside the time limit.
+
+- In the **4–10-room band this Proposer serves** (§3, C13): zero confident-wrong
+  relations implied a survivor in **67 runs of 67**, and no severity threshold
+  up to 2 000 mm ever missed a failure.
+- At **24 rooms**, out of band: **40 %** of Proposals with zero confident-wrong
+  relations still fail, by reaching the 15 s limit without one. Every missed
+  failure in the whole validation is at 24 rooms.
+
+So the metric is a **training and evaluation** instrument, scoped to the band.
+It is not a serving-time gate and cannot be — at serving time there is no ground
+truth to score against.
+
+One check *is* available without a truth, and belongs in the Proposer rather
+than here. A posted relation is an edge in a per-axis digraph; along any directed
+path the rooms sit side by side, so the Envelope must be at least the sum of
+their minimum widths. The heaviest path is a lower bound, computable in
+O(pairs):
+
+```
+need_x = max over directed paths of Σ min_w      need_x ≤ Envelope width
+need_y = max over directed paths of Σ min_h      need_y ≤ Envelope height
+```
+
+It condemns **62 %** of infeasible relation sets with no solver and no truth. It
+is sufficient and not necessary — it catches nothing at doses of one or two
+relations — so it is a free pre-filter, not a substitute for the solve.
+`experiments/solver-toy/mechanism6.py`.
+
+### 5.4 Validation — what was done, and what it does not cover
+
+The proxy was tested the only way a proxy can be: Proposals the solver is known
+to project, corrupted at known doses on the relation channel alone, with
+geometry, objective and hint all held at ground truth.
+
+- **It tracks, and as a step rather than a slope.** 0 confident-wrong → 100 %
+  survivor; 1 → 6 %; 2 → 0 %, with 88 % proved INFEASIBLE. The ticket asked how
+  steeply failure rises with the rate; the answer is that it is not a slope.
+- **It is causal.** Deleting only the injected relations restores OPTIMAL in
+  **43 of 45** cases. The injected relations *alone* are infeasible in only
+  10 %, so a confident-wrong relation is fatal **in company** — which means the
+  better the rest of a Proposal, the more each individual error costs. A source
+  that abstains freely buys tolerance for the assertions it does make: at 12
+  rooms, abstaining on half the pairs takes two confident-wrong relations from
+  0 % survivable to 67 %.
+
+Two limits on that evidence, both material.
+
+1. **The corruption is Gaussian corner noise**, which produces almost no
+   reversals (0.00 per Proposal at 24 rooms up to σ = 1.5 m). A learned
+   generator that misplaces a room entirely will emit exactly the reversal that
+   noise cannot, so the realistic arm understates the danger and the injected
+   arm overstates it.
+2. **Neither source has been measured.** This validates the instrument, not
+   retrieval-and-warp and not the trained model.
+
+### 5.5 τ belongs to the solver, and here is what it does
+
+τ is the same margin the solver uses to decide which relations to fix hard.
+*Solver timing variance sweep* fitted it to **4** and found it a feasibility
+knob rather than a timing one. This ticket supplies the mechanism: **what low τ
+admits is confident-wrong relations, and severity is the quantity τ filters.**
+At that ticket's own rig, 12 rooms, σ = 0.5 m:
+
+| τ | asserted | confident-wrong | severity | survivors |
+|---|---|---|---|---|
+| 0 | 66.0 | 2.40 | **2 800 mm** | 2 / 5 |
+| 4 | 55.2 | 0.20 | **200 mm** | 5 / 5 |
+
+The τ = 0 row reproduces that ticket's "3 of 5 already fail at 12 rooms at
+σ = 0.5 m" exactly. τ does not make the solver cleverer; it drops ambiguous
+pairs before they can be asserted wrongly, and the ambiguous pairs are where
+the errors are.
+
+⚠️ **This inverts at 24 rooms**, where higher τ frees the search, slows it, and
+loses candidates to the time limit: at σ = 0.25 m, τ = 0 gives 3 survivors of 5
+and τ = 4 gives 1 of 5. Consistent with that ticket's "free at 8 rooms and
+unaffordable at 24", and out of band either way.
 
 ---
 
@@ -319,11 +437,17 @@ and *Fit the ENGINE_CHOICE acceptance thresholds*.
 So it does not become an open-ended sink. All measured on held-out dwellings, in
 the 4–10 band:
 
-1. **Confident-wrong rate ≤ retrieval's**, on Briefs where retrieval has a pool.
+1. **Confident-wrong severity ≤ retrieval's**, on Briefs where retrieval has a
+   pool. Restated in §5.2's units by *Validate the arrangement metric against
+   the solver*: a *rate* compounds over a quadratic number of pairs, so a rate
+   comparison flatters whichever source serves the smaller dwellings. Compare
+   **per-Proposal severity distributions**, and compare the **reversal counts**
+   separately — a source that emits reversals is failing differently from one
+   that emits cross-axis swaps, and only the first is reliably fatal.
 2. **It does not collapse where it is needed** — confident-wrong on the ~11 % of
-   Briefs retrieval blanks must not exceed its own in-pool rate by more than a
-   fitted margin. A model that is only good where it is redundant has not earned
-   its place.
+   Briefs retrieval blanks must not exceed its own in-pool severity by more than
+   a fitted margin. A model that is only good where it is redundant has not
+   earned its place.
 3. **After *Ergonomic minima* lands**: `hard_pass_rate` from model Proposals ≥
    retrieval's on the covered subset.
 
@@ -347,7 +471,8 @@ surfaced to the Homeowner as a C4 Assumption.
 - ***Ergonomic minima and the constraint table's missing half*** — must also
   settle the **WC-versus-bathroom area threshold** (§4.2). The corpus has one
   label for both and both routes need the split.
-- ***Solver timing variance sweep*** — must fit **τ** (§5.4).
+- ***Solver timing variance sweep*** — fitted **τ = 4**; §5.5 now carries the
+  mechanism, which is that τ filters confident-wrong severity.
 - ***The room-count envelope v1 promises*** — unblocked, and the route makes its
   answer largely factual: retrieval covers 4–10, dies at 11+, and source B's
   reach past 10 is unmeasured until it is trained.
@@ -355,6 +480,11 @@ surfaced to the Homeowner as a C4 Assumption.
   gates §6.1's terminal metric.
 - New: ***The retrieval index and warp procedure***, ***Rectangularising real
   rooms***, ***Validate the arrangement metric against the solver***.
+- ***The retrieval index and warp procedure*** and the trained model's first
+  eval — §5.4 validated the *instrument*; neither source has been scored on it.
+  Both must report **severity, count, reversals and abstain rate** per Proposal,
+  and a warped Proposal's severity is the natural fidelity axis the warp-budget
+  question was missing.
 
 ## 8. Honest limits
 

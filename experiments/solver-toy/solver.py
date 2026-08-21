@@ -138,6 +138,89 @@ class _Trace(cp_model.CpSolverSolutionCallback):
         self.rows.append((time.perf_counter() - self.t0, int(self.ObjectiveValue())))
 
 
+# ---------------------------------------------------------------------------
+# The relation extractor
+#
+# Shared by the solver (which posts what it returns as hard constraints) and by
+# the arrangement metric in `docs/spec/proposer.md` 5, which is *defined* as
+# this function run over both the Proposal and the truth. One definition, so
+# the metric cannot drift from the thing it claims to predict.
+# ---------------------------------------------------------------------------
+
+# The four ways to pull two boxes apart. Each entry is the cost of that
+# separation: <= 0 means the boxes already satisfy it.
+def separation_options(boxes: Sequence[Rect], i: int, j: int):
+    p = boxes
+    return [
+        (p[i].x2 - p[j].x1, "x", i, j),   # i left of j
+        (p[j].x2 - p[i].x1, "x", j, i),   # j left of i
+        (p[i].y2 - p[j].y1, "y", i, j),   # i below j
+        (p[j].y2 - p[i].y1, "y", j, i),   # j below i
+    ]
+
+
+def rank_relations(boxes: Sequence[Rect]) -> List[Tuple[int, int, str, int, int]]:
+    """Steps 1-2 of the metric: per pair, `(cost, margin, axis, a, b)`.
+
+    `cost` is the cheapest separation, `margin` is second-best minus best. One
+    row per unordered pair, in pair order.
+    """
+    n = len(boxes)
+    out = []
+    for i in range(n):
+        for j in range(i + 1, n):
+            opts = separation_options(boxes, i, j)
+            cost, axis, a, b = min(opts)
+            second = sorted(c for c, _, _, _ in opts)[1]
+            out.append((cost, second - cost, axis, a, b))
+    return out
+
+
+def _reaches(g: Dict[int, set], a: int, b: int) -> bool:
+    seen, stack = {a}, [a]
+    while stack:
+        u = stack.pop()
+        if u == b:
+            return True
+        for v in g[u]:
+            if v not in seen:
+                seen.add(v)
+                stack.append(v)
+    return False
+
+
+def select_relations(ranked, tau: int, n: int):
+    """Steps 3-4: which ranked relations actually get asserted.
+
+    Greedy in increasing separation cost, skipping any pair whose margin is
+    below `tau` (it abstains) and any relation that would close a directed cycle
+    on its axis. Returns `(chosen, abstained, cyclic)`.
+
+    Note the cycle guard: the posted set is acyclic **by construction**, so no
+    Proposal can hand this solver a cyclic relation set.
+    """
+    cands = sorted(ranked, key=lambda t: (t[0], -t[1]))
+    succ = {"x": {i: set() for i in range(n)},
+            "y": {i: set() for i in range(n)}}
+    chosen, abstained, cyclic = [], [], []
+    for cost, margin, axis, a, b in cands:
+        if margin < tau:
+            abstained.append((cost, margin, axis, a, b))
+            continue
+        g = succ[axis]
+        if _reaches(g, b, a):
+            cyclic.append((cost, margin, axis, a, b))
+            continue
+        g[a].add(b)
+        chosen.append((axis, a, b))
+    return chosen, abstained, cyclic
+
+
+def extract_relations(boxes: Sequence[Rect], tau: int = 0):
+    """The whole extractor: boxes in, `(chosen, abstained, cyclic)` out."""
+    return select_relations(rank_relations(boxes), tau, len(boxes))
+
+
 class LayoutProjector:
     def __init__(self, brief: Brief, proposal: Proposal, cfg: SolveConfig):
         self.brief = brief
@@ -290,57 +373,24 @@ class LayoutProjector:
     def _add_relations(self):
         """Freeze the Proposal's relative arrangement as linear separations.
 
-        For each pair, the cheapest of the four ways to pull the Proposal's
-        boxes apart (i left of j, j left of i, i below j, j below i) is taken as
-        the intended relation. Relations are added greedily in increasing cost
-        and only when they keep the per-axis relation digraph acyclic, so the
-        confident ones are fixed and the ambiguous ones are left to
-        AddNoOverlap2D's disjunction. That is the "dual for topology, CP-SAT for
-        metric" hybrid, with the Proposal standing in for the dual.
+        The extraction itself lives in `extract_relations` at module level, so
+        the arrangement metric (`docs/spec/proposer.md` 5.1) can run *the
+        solver's own extractor* rather than a copy of it. This method is only
+        the posting half.
         """
-        p = self.proposal.boxes
-        cands = []
-        for i in range(self.n):
-            for j in range(i + 1, self.n):
-                opts = [
-                    (p[i].x2 - p[j].x1, "x", i, j),   # i left of j
-                    (p[j].x2 - p[i].x1, "x", j, i),
-                    (p[i].y2 - p[j].y1, "y", i, j),   # i below j
-                    (p[j].y2 - p[i].y1, "y", j, i),
-                ]
-                cost, axis, a, b = min(opts)
-                second = sorted(c for c, _, _, _ in opts)[1]
-                cands.append((cost, second - cost, axis, a, b))
-        cands.sort(key=lambda t: (t[0], -t[1]))
+        chosen, _abstained, _cyclic = extract_relations(
+            self.proposal.boxes, self.cfg.relation_confidence
+        )
+        for axis, a, b in chosen:
+            self.post_relation(axis, a, b)
 
-        succ = {"x": {i: set() for i in range(self.n)},
-                "y": {i: set() for i in range(self.n)}}
-
-        def reaches(g, a, b):
-            seen, stack = {a}, [a]
-            while stack:
-                u = stack.pop()
-                if u == b:
-                    return True
-                for v in g[u]:
-                    if v not in seen:
-                        seen.add(v)
-                        stack.append(v)
-            return False
-
-        lo = self.cfg.relation_confidence
-        for cost, margin, axis, a, b in cands:
-            if margin < lo:
-                continue                       # Proposal is not confident here
-            g = succ[axis]
-            if reaches(g, b, a):
-                continue                       # would close a cycle
-            g[a].add(b)
-            if axis == "x":
-                self.m.Add(self.x2[a] <= self.x1[b])
-            else:
-                self.m.Add(self.y2[a] <= self.y1[b])
-            self.fixed_relations += 1
+    def post_relation(self, axis: str, a: int, b: int) -> None:
+        """Post one separation: `a` is left of / below `b` on `axis`."""
+        if axis == "x":
+            self.m.Add(self.x2[a] <= self.x1[b])
+        else:
+            self.m.Add(self.y2[a] <= self.y1[b])
+        self.fixed_relations += 1
 
     # -- reified geometric contact ----------------------------------------
     def _reify_le(self, expr, name: str) -> cp_model.IntVar:

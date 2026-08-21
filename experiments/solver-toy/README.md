@@ -20,6 +20,10 @@ python probe2.py               # does the model admit the known-good ground trut
 python probe3.py               # 12-room ablation, 60 s
 python probe4.py               # the recommended configuration, all three sizes
 python probe5.py               # hostile Proposals and an impossible Brief
+python probe6.py               # ticket 24: does confident-wrong predict failure?
+python report6.py              # its tables
+python severity6.py            # which definition of confident-wrong predicts
+python mechanism6.py           # *why* a wrong relation kills a solve
 ```
 
 No other dependencies. `probe3` and `probe4` take a few minutes each; the rest
@@ -40,6 +44,10 @@ the stable part.
 | `solver.py` | The CP-SAT projection model. `LayoutProjector` / `SolveConfig` / `project()`. |
 | `validate.py` | Independent checker. **Shares no code with the solver** beyond raw geometry — deliberately, so the two can disagree. |
 | `smoke.py`, `probe1..5.py` | The runs behind the findings doc. |
+| `arrangement.py` | `docs/spec/proposer.md` §5's metric, and the machinery to inject a known dose of confident-wrong into a Proposal the solver accepts. Ticket 24. |
+| `probe6.py` / `report6.py` | Ten suites and their tables. `results/P6.jsonl`, `results/report_P6.txt`. |
+| `severity6.py` | Which reading of "confident-wrong" actually predicts survival. |
+| `mechanism6.py` | The chain bound — a necessary condition on a relation set, checkable with no solver and no ground truth. |
 
 ## How a scenario is built, and why it matters
 
@@ -90,6 +98,12 @@ configuration — the extracted relations *are* constraints, and the ticket-15
 sweep measured a merely noisy Proposal going INFEASIBLE (5 of 5 seeds at 24
 rooms at σ = 1.0 m). See `docs/research/solver-formulation.md` Part II.0.
 
+Ticket 24 sized the hole: **one** relation the truth contradicts is enough to
+make the model INFEASIBLE 56 % of the time, and two takes the survivor rate to
+zero — while dropping *every* relation still yields a Plan. The Proposal's route
+into the constraint set is narrow and it is sharp.
+See `docs/research/arrangement-metric.md`.
+
 ## Knobs worth turning
 
 `SolveConfig` in `solver.py`:
@@ -100,7 +114,7 @@ rooms at σ = 1.0 m). See `docs/research/solver-formulation.md` Part II.0.
 | `soft=("coverage", ...)` | Which constraint families degrade with a penalty instead of failing. `"coverage"` alone is the recommended default. |
 | `objective` | `"corners"` (recommended), `"centroid"`, or `"corners+order"`. |
 | `time_limit_s` | Treat as a product parameter. Runs terminate at `FEASIBLE`, not `OPTIMAL` — take the best Plan found. |
-| `relation_confidence` | Fix only relations where the Proposal's best separation direction beats its second-best by this margin. |
+| `relation_confidence` | Fix only relations where the Proposal's best separation direction beats its second-best by this margin. This is τ; ticket 15 fitted it to 4 and ticket 24 found what it filters — confident-wrong severity. |
 | `arc_radius` | Prune candidate adjacency pairs by Proposal distance. Implemented, never benchmarked. |
 
 ## Known gaps
@@ -112,5 +126,10 @@ rooms at σ = 1.0 m). See `docs/research/solver-formulation.md` Part II.0.
 - ~~Every timing is a **single run at one seed**. No variance estimate.~~
   **Closed** by ticket 15: `sweep.py` / `report.py`, ~1 000 solves, Part II.
 - Grid resolution was never swept — everything ran at 250 mm. *Still true.*
+- ~~The Proposal's relation channel is untested.~~ **Closed** by ticket 24:
+  `probe6.py`, `docs/research/arrangement-metric.md`. Its residue is that the
+  corruption model is Gaussian corner noise, which produces almost no *same-axis
+  reversals* — the one kind of error that is fatal every time. A learned
+  generator will.
 - Minimum dimensions and areas are not in the softenable set, so a Brief that is
   impossible because the rooms cannot fit fails hard with no explanation.

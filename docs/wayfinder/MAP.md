@@ -47,14 +47,14 @@ dimension in this system has to declare):
 | C5 | **Single-dwelling residential, single storey.** Flats and houses — *confirmed, and both ship through one code path*: dwelling type is a preset over the Envelope's edge ring, not a branch. Product copy states two limits, not one: **single storey only**, and **house layouts come from apartment priors** because every corpus is flats. See *Building scope and envelope handling*. |
 | C6 | Acceptance bar (7 items) is a **hard filter**: generate many, reject most, show survivors. See *Acceptance validator spec*. **On solver expiry**, a candidate whose best objective is ≥ `soft_weight` has unassigned floor and is **not a survivor** — discard it, never show it (*Solver timing variance sweep*). |
 | C7 | Post-generation, v1 is **edit-the-brief-and-regenerate**. Direct wall manipulation with re-solve is designed-for but deferred. |
-| C15 | **The standards table carries two arithmetic constraints.** ADR 0004: every wall thickness even. ADR 0007: every published minimum satisfies `min + t_int ≡ 0 (mod grid)`, because ADR 0001's clear reading otherwise costs a whole grid unit per room per axis and **provably deletes 4-, 5- and 6-room dwellings**. Both are ship gates on a region profile. |
+| C15 | **The standards table carries two arithmetic constraints.** ADR 0004: every wall thickness even. ADR 0007: every published minimum satisfies `min + t_int ≡ 0 (mod grid)`, because ADR 0001's clear reading otherwise costs a whole grid unit per room per axis and **provably deletes 4-, 5- and 6-room dwellings**. Both are ship gates on a region profile, and both are now **asserted** rather than claimed -- `experiments/region-profile/gate_check.py`, 28 assertions. *Amended by **ADR 0009**, and the amendment matters*: the two constraints apply to **different layers**. Even-thickness is global. **Congruence binds region profiles only** -- the region-invariant ergonomic layer is exempt, because its numbers are derived from fixture footprints rather than quoted from a source, so there is no nominal-to-clear conversion to apply and rounding one down deletes the fixture that defines the room. The 4-/5-/6-room deletion tracked the minima's **magnitude**, not the congruence. |
 | C8 | **Neufert-grade dimensional standards. No legal code-compliance claim, ever.** Say so in the product copy. *Neufert now names the grade, not the source* — *Which region profiles ship in v1* found that building a profile out of it is the one copyright move the research forbids, and the shipping profile draws on freely-published regulatory text instead. |
 | C9 | **Non-commercial project.** Research-only datasets and weights are available. Licence is not a gate; data quality and regional convention are. |
 | C10 | **Model proposes, solver projects** — *amended, and the amendment is load-bearing.* The Proposal must carry **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints), and exact tiling must be posted **soft, not hard**. The loose form — hand the solver boxes and let it project them — is **refuted by measurement**: it finds nothing at 24 rooms in 30 s. Amended, 6.25 s. A **two-phase fallback for infeasible Proposals is mandatory** — and *Solver timing variance sweep* moved this from prudence to operational necessity: `fix_relations` posts the Proposal's relations as **hard constraints**, so a merely **noisy** Proposal goes INFEASIBLE (5 of 5 seeds at 24 rooms at σ = 1.0 m, against σ = 0.5 m in every published run). The formulation doc's boxed claim that the Proposal *cannot* make the model infeasible is **false as written**. Shipped parameters: **time limit 15 s, τ = 4**. See *Solver formulation for layout projection*. **And "the model" is two things**: v1's Proposer has two sources — retrieval-and-warp and a trained transformer — behind one Proposal contract, with the Acceptance bar arbitrating. The split it names is proposal-versus-projection, not one generator versus another. See *What the model proposes, and how it is trained* and ADR 0005. |
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region. Combine corpora where it can be made to work. *Amended: that was freedom, not a requirement to serve everywhere.* v1 ships **exactly one** region profile and it is **`AZ`**; `UK` is retained as a test fixture and is never selectable. See C14. |
 | C13 | **v1's Proposer serves 4–10 Brief-named rooms.** 92% of the corpus. Set by *What the model proposes*, which measured retrieval dying at 11+ (67.7% blank). What the *product* promises is *The room-count envelope v1 promises*; this is what the Proposer covers. |
-| C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, holding `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. See *Which region profiles ship in v1* and ADR 0006. |
+| C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, holding `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. See *Which region profiles ship in v1* and ADR 0006. **Now populated** by *The Azerbaijani region profile*, and it ships **one construction type and one `t_int` (120 mm brick)** because at a 250 mm grid no two plausible thicknesses share an ADR 0007 residue class. `statutory_floor` is non-null for the first time, and the drawing is **in Azerbaijani**. |
 
 **Evidence that shaped the map** — read before re-litigating C10:
 
@@ -83,7 +83,14 @@ dimension in this system has to declare):
   weak link* cites a **§4 that was never written** — sections 4 (Revit import) and 5
   (`hypar-io/Elements`) are both absent from the findings doc. Treat as an open
   question, not a finding. The Elements half is closed by *Language and runtime
-  split*; the Revit half is not.
+  split*; the Revit half is not. ⚠️ **Its DXF version floor is also wrong, and *The
+  Azerbaijani region profile* measured it.** R2000/R2004 are *code-page* formats,
+  not Unicode ones — the doc's line that *"`²` survived — R2000+ is
+  unicode-capable"* generalises one lucky probe. **No legacy code page anywhere
+  encodes `ə`**, not even Turkish cp1254, so an Azerbaijani drawing is
+  unrepresentable at R2000, and Russian is worse rather than better (cp1251 cannot
+  encode `²`). **The floor is R2007.** Corrected in place; nothing shipped is
+  broken, because *Dimensioning and annotation rules* §11 already writes R2010.
 - [Dimensional standards corpus](tickets/05-dimensional-standards-corpus.md) — a
   **`region` parameter is required on the convention-derived half of the table,
   and every cell also needs a tier**; England alone yields five different minimum
@@ -450,6 +457,199 @@ dimension in this system has to declare):
   thinness *Acquire the datasets* already found above 10 rooms and lands on
   *The room-count envelope v1 promises* as well as on retrieval.
 
+- [Validate the arrangement metric against the solver](tickets/24-validate-the-arrangement-metric.md)
+  — **the metric predicts, and it was defined wrong in three places.** Findings
+  `docs/research/arrangement-metric.md`, spec rewritten at
+  `docs/spec/proposer.md` §5.1–5.5, harness `experiments/solver-toy/`
+  (`arrangement.py`, `probe6.py`, 724 runs). With the Proposal held at ground
+  truth so the relation set is the only corrupted channel: **0 relations the
+  truth contradicts → 100% survivor; 1 → 6%; 2 → 0%**, 88% of those proved
+  INFEASIBLE. The ticket asked how steeply failure rises with the rate and the
+  answer is that **there is no slope** — one wrong relation is most of the damage
+  and two is all of it. It is **causal**: deleting only the injected relations
+  restores OPTIMAL in 43 of 45, while those relations *alone* are infeasible in
+  just 10% — so a confident-wrong relation is fatal **in company**, and the
+  better the rest of a Proposal the more each error costs. Three defects in the
+  definition. **The cycle rate is identically zero and cannot be otherwise** —
+  the extractor adds relations greedily and skips any that would close a per-axis
+  cycle, so the asserted set is acyclic *by construction*, the guard never fires
+  on real Proposals, and removing it changes nothing measurable; the ticket's own
+  suspect — *cycles, not pairs, kill a solve* — is refuted by the strongest route
+  available, the number cannot be non-zero. **§5.1 read literally over-counts by
+  up to 3.6×**, because two boxes can be separated on *both* axes and asserting
+  the non-`argmin` one is not wrong in any way the solver can feel — 6.30%
+  against 1.74% at 24 rooms — and `CONTEXT.md`'s "asserted, and **backwards**"
+  was right all along, so the **spec had drifted from the domain model**. And
+  **counting is the wrong unit**: severity — the millimetres of overlap the
+  assertion demands — beats it, with **severity below 2 000 mm implying a
+  survivor in 80 runs of 80** in band; a *rate* is the wrong shape entirely,
+  since it compounds over a quadratic pair count (0.5% leaves a Proposal clean
+  88% of the time at 8 rooms and **28%** at 24). Beyond the ask: **the kind of
+  wrongness matters more than the count** — a same-axis **reversal** is INFEASIBLE
+  at 100% of every dose tested while a cross-axis swap is 0–33%, and **Gaussian
+  corner noise, the corruption behind every published number on this map, emits
+  essentially no reversals**, so every σ result understates a learned generator's
+  real danger. The **abstain** interaction is confirmed with a far larger
+  asymmetry than claimed — **not one abstain run at any size was INFEASIBLE**, and
+  dropping *every* relation still yields a survivor at 8 and 12 rooms — but only
+  after the first attempt was found **confounded by the solution hint** and
+  re-run without it; abstain costs **seconds**, confident-wrong costs the
+  **candidate**, and at 12 rooms abstaining on half the pairs takes two wrong
+  relations from 0% survivable to 67%. **One number now explains two knobs**: at
+  *Solver timing variance sweep*'s own rig, 12 rooms, σ = 0.5 m, τ = 0 gives
+  severity 2 800 mm and 2 survivors of 5 — **reproducing that ticket's "3 of 5
+  already fail" exactly** — and τ = 4 gives 200 mm and 5 of 5, so **what τ filters
+  is confident-wrong severity**. ⚠️ **The metric predicts feasibility, not
+  survival**: in C13's 4–10-room band zero confident-wrong implied a survivor 67
+  times in 67, but at 24 rooms **40% of clean Proposals still fail on the 15 s
+  limit** and τ inverts — every missed failure in the validation is at 24 rooms.
+  It is therefore a **training and evaluation instrument only**; at serving time
+  there is no ground truth. What can run without one is a **chain bound** —
+  along any directed path rooms sit side by side, so the Envelope must exceed
+  their summed minimum widths — which condemns **62%** of infeasible relation
+  sets with no solver, though **0%** at the doses of one or two that matter.
+  Housekeeping: the extractor is now **module level** so the metric runs the
+  solver's own (verified behaviour-identical, 24 comparisons, 0 mismatches), and
+  **`solver._core` cannot blame a relation** — it rebuilds from `cfg` and drops
+  them — while CP-SAT's assumption core returns the entire set in 45 of 54 runs,
+  the same non-minimality ticket 15 found, by a second construction. **Replicated
+  on fresh draws**, which also exposed that the harness's RNG key changed
+  mid-sweep — so the two result files are independent samples, not one run
+  repeated — and that **CP-SAT's survivor verdict is stable (96%) while its
+  status is not (87%)**: runs slide between INFEASIBLE and timeout without
+  changing whether a candidate appeared, so every headline here rests on the
+  survivor verdict.
+
+- [The Azerbaijani region profile](tickets/25-the-azerbaijani-region-profile.md) —
+  **the profile is populated, every load-bearing value is `verified` against an
+  Azerbaijani document read first-hand, and the ticket's own instruction was the
+  wrong one.** `data/standards/room-constraints.json` → `profiles.AZ`, findings
+  `docs/research/az-region-profile.md`, gates
+  `experiments/region-profile/gate_check.py` (**28 assertions, all pass**). The
+  ticket said to fall back on SNiP/SP ancestors labelled `REPORTED`; `arxkom.gov.az`
+  serves the AzDTN PDFs on an unauthenticated GET, and **the fallback would have
+  been actively wrong** — *AzDTN 2.7-2 terminated СНиП 2.08.01-89\*'s legal force in
+  Azerbaijan on 2021-11-30*, so its "classic numbers" are folklore *and* repealed
+  (living room 14/16 not 12, kitchen 8 not 6, 1.4 m is the *передняя* and the
+  corridor is 0.85 m). Publishing them would have asserted a 2500 mm storey height
+  where AZ requires 2700 and an 850 mm **statutory** corridor floor — the exact C8
+  breach the ticket existed to prevent. **Generalise: `REPORTED` off an ancestor is
+  not a safe degradation of `VERIFIED`**; where the descendant repealed the
+  ancestor it is a false claim. Catalogue: **`brick` alone, `t_int` 120**, bearing
+  250, `t_ext` leaf 380 (total 500 **provisional**, blocked on Baku's `Dd`),
+  `t_party` **250** derived from AZ's **50 dB** (not Russia's 52), where 120 mm
+  computes to 49 and fails. **One `t_int` is forced arithmetic, not preference** —
+  over 19 candidates the set of pairs sharing a residue class mod 250 is **empty**,
+  structurally, since brick steps by 130 and RC panels by 20; the ticket's
+  `{100,200}` was the general case. The even rule nearly killed AZ too:
+  **ГОСТ 21520-89 gives cellular blocks two series by laying method and the
+  thin-bed-glue one — the modern default — is 195/245/295, all odd**, so the
+  `block` type is excluded. **`statutory_floor` is non-null for the first time on
+  this map** and the force chain was read link by link to art. 14.3; but **nine of
+  thirteen area cells and all six width cells are `null` by design**, because
+  AzDTN cl. 5.6 delegates every intra-apartment width to *erqonomika* **by name** —
+  Azerbaijani law points at the invariant layer. ⚠️ **ADR 0007 turns out to have no
+  consumer inside a region profile at all** (`hard linear minima published by
+  profile AZ: 0`, asserted): its scope is too broad — areas, storey heights, door
+  widths and turning squares must not be aligned — and every value it governs sits
+  in the region-**invariant** layer, which cannot carry a per-profile `t_int`.
+  Its escape does not generalise either: publishing below the source's figure is a
+  *unit conversion*, available for a quoted number and not for a body-derived one.
+  **Measured once the `ergonomic` layer landed mid-session: 36 of its 36 hard
+  linear minima miss the residue class**, up to +242 mm per room per axis, worst on
+  `corridor` and `hall`. ✅ **Settled concurrently by *Ergonomic minima and the
+  constraint table's missing half***, which reached the same distinction from the
+  other side and wrote **ADR 0009** — congruence is a *region-profile* ship gate
+  only, the ergonomic layer is exempt, the grid stays 250 mm. A ticket drafted for
+  it here was **retracted rather than filed**. ⚠️ ADR 0009 also **refutes** the
+  scarier half of this: rounding up does *not* trigger ADR 0007's 4-/5-/6-room
+  deletion, because **that deletion tracked the minima's magnitude, not the
+  congruence** — it was measured against the placeholder table, and the derived
+  floor is about half of it. The real cost is the **WC**, whose whole width
+  distribution spans under two grid steps (23.0% → 56.1% rejected if snapped). Drawing is **Azerbaijani**, and choosing it made
+  the spec *smaller* — **no published room-name abbreviation set exists in any
+  candidate language**, so the ladder's step 2 is deleted in favour of the room
+  number + schedule that SPDS and ISO 4157-2 independently prescribe and §6 already
+  ships. Also: decimal **comma**, no thousands grouping, `DIMDSEP` **inert as
+  specified**; opening marks are **two-level** where the spec models one; openings
+  even but **blocks odd** (2071/2085/2175). Closes **`de_baybo`** — both consumers
+  re-sourced to AzDTN 2.7-2, and `win.kitchen_windowless` **inverted its premise**
+  (Bayern permitted a windowless kitchen; AZ requires the window). Hands *Area
+  measurement convention* a reframed question: **there is no *жилая площадь* in
+  Azerbaijan** — the pair was replaced, not extended — and what AZ has is **two
+  in-force contradicting definitions of *ümumi sahə***, of which only the
+  finished-versus-structural face binds v1.
+
+- [Ergonomic minima and the constraint table's missing half](tickets/19-ergonomic-minima-and-the-tables-missing-half.md)
+  — **the hard floor is authored, and the ticket's own method had to be corrected
+  twice before one number could be published.** Data
+  `data/standards/room-constraints.json` key `ergonomic` (generated, not typed, by
+  `experiments/region-profile/build_ergonomic_layer.py`, so the numbers and the
+  arithmetic cannot drift apart), findings `docs/research/ergonomic-minima.md`,
+  ADR [0009](../adr/0009-a-derived-minimum-is-not-rounded-onto-the-solve-grid.md),
+  harnesses in `experiments/region-profile/`. **A derived floor is not
+  self-justifying**: composed from the clearances the sources actually state, the
+  `bathroom` floor lands at 4.0 m² and **rejects 36% of real Swiss bathrooms** —
+  because **every clearance in the entire source corpus is an accessibility
+  figure** (AD M's 750 mm is a *wheelchair transfer space*), regulators being the
+  only people who write clearances down, and the ordinary private bathroom having
+  no regulator. That is §5.1's "our own choices" arriving as a measurement. **And
+  the low tail is real**, so there is no fragments escape hatch: checked against
+  the corpus's own `BATHTUB`/`SHOWER`/`TOILET` entities, **0% of `wc` rooms fail to
+  hold a pan and 0.8% of `bathroom` rooms fail to hold a 1700 mm bath** — and the
+  corpus's `bathroom` long-side p1 of **1717 mm is the bath**, confirming AD M's
+  footprint without being asked. So: **structure derived, one constant
+  calibrated** — footprints plus `u`, the body zone that cannot be *shared* with
+  another fixture's zone (zones may overlap each other, never another fixture's
+  footprint, which is most of why the first derivation came out too big). Fitted
+  to ~5% max rejection, `u` lands on **300 mm**, which is also **Neufert's stated
+  minimum** from a pan's free side to a wall — fitted and cited agree. The corpus
+  may **falsify** a number and never supply one. 18 room types, clear,
+  `(shorter, longer)`: `wc` 800×1000/0.8 m², `bathroom` 1000×1700/1.7,
+  `bedroom_double` 1650×1900/3.1, `living` 1850×2000/3.7. **Floors, not targets** —
+  `living`'s 3.7 against a corpus median of 20.6 is correct, C14 having already
+  put liveability in the profile. **§8's directional/orientation-free split
+  dissolves**: the rules bind the *shorter* and *longer* dimension, not x and y, so
+  no type needs an axis binding and most are non-square once fixtures drive the
+  rectangle — only `corridor` is square, having no second dimension of its own.
+  Composite rooms publish a **permissive envelope** over their packings, because a
+  `(short, long)` pair cannot say "contains packing A *or* B" and under-rejecting
+  is the correct error direction for a hard floor. **The four flags now exist as
+  data** — `is_habitable`/`is_wet`/`is_private`/`needs_window` were prose in §8
+  while four registry rules consumed them, and a flag the registry cannot read is
+  a predicate that silently does not fire; `study` `is_private` flips to **true**,
+  per `CONTEXT.md`'s Private room class. All three `pending` rules flipped by JSON
+  pointer, so **`rules.json` now carries zero**, and `hard_reject_below` reads
+  `ergonomic` in **both** files where they previously disagreed. The HITL decision:
+  **ADR 0007 rounds *down*, and its justification is a unit conversion that a
+  derived number has nothing to apply** — a derived 1700 *is* the bath — so this
+  layer can only round **up**, which is arithmetically the row ADR 0007 measured as
+  fatal. Obeying it costs the `wc` floor **23.0% → 56.1%** of real WCs, because
+  **the whole real WC width distribution, p1 744 to p50 1099, spans less than two
+  grid steps**. Exempted; grid held at 250 mm; see C15 and ADR 0009. ⚠️ **And the
+  corroborating measurement came back mixed, which is reported rather than
+  smoothed**: re-running ADR 0007's own counts at 8 seeds, the derived floor
+  **recovers n = 4 outright** (0/8 → 8/8) and **still loses n = 5 entirely**
+  (8/8 → 0/8), while n = 6 is **not assessable** because the derived table fails it
+  under the baseline reading too. The deletion narrows from `{4,5,6}` to `{5, and 6
+  unknown}` — it is **not removed**, and the magnitude hypothesis is half right. So
+  *whether the solve grid should be finer than 250 mm* gains a **measured cost of
+  staying**: the 5-room case, the bottom of C13's band and the corpus's commonest
+  dwelling size, is what 250 mm is currently charging. ⚠️ **Refutes
+  an obligation it was given**: *What the model proposes* handed it the `BATHROOM`
+  split on the reasoning that the threshold "falls out of the table" as the
+  boundary between two minima. **It cannot** — two floors are both floors (`wc`
+  0.8, `shower_room` 1.4) and a threshold there misclassifies 19%; the classes
+  differ in **distribution**, not minimum. Fitted to **fixture ground truth**
+  instead over 66,386 labelled rooms: **2.4 m²**, 5.9% error, against 23.3% for the
+  3.6 m² the derivation implied. Also: **`de_baybo` was closed better by *The
+  Azerbaijani region profile***, concurrently — re-sourcing both consumers to AzDTN
+  caught that **AZ requires the kitchen window where Bayern permitted its
+  absence**, an inverted premise adding the missing block would have hidden; the
+  block added here was withdrawn. Leaves `study` as **the weakest number in the
+  file** (one-desk programme, no corpus label, no source), and hands
+  *Two room vocabularies in one file* the collision the parallel sessions created.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -577,33 +777,6 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   training floor. Retrieval's measured **9.5–12.4% blank rate** in that band is why
   it cannot be the only source. Not fog — settled.
 
-- **Where warp fidelity actually breaks.** New, and it is the fog patch with the
-  most product value on the map: every point of retrieval coverage bought is a
-  Brief that does not fall through to a model. *What the model proposes* stated
-  ±10% area / ±15% aspect as the admissibility gate and was explicit that the
-  numbers are **the budget coverage was measured at, not a fitted value**.
-  Loosening raises coverage and lowers fidelity, and nobody has measured the
-  trade. Sharp enough to be a sub-question of *The retrieval index and warp
-  procedure* and not yet sharp enough to be its own ticket, because what "fidelity"
-  means here needs the arrangement metric validated first. **Now has a second
-  coordinate and one measured curve.** *Rectangularising real rooms* posts a
-  **±10% per-room area band** in the corpus conversion — stricter than the ±10%
-  *total*-area warp budget, chosen so the corpus is not looser than the gate it
-  feeds — and it costs **17.6 points of corpus**: relaxing it takes conversion
-  from 73.6% to 91.2%. Same trade, different axis, and the same ticket owns both.
-
-- **Whether a discrete thickness catalogue reproduces real dwelling geometry.**
-  New, and it is the residue of *Which region profiles ship in v1*'s negative
-  result. Real surveyed walls have **no module** — near-continuous 50–600 mm, p25
-  109 / p50 169 / p75 267 — while every Plan this engine emits will draw from a
-  chosen catalogue of perhaps eight even values. An 8-entry catalogue matches 58.5%
-  of real walls within ±10 mm and a 12-entry one 70.9%, but nothing says whether
-  the *dwellings* built from a discretised catalogue read as real, or whether the
-  areas they enclose drift systematically against the corpus. Adjacent to *Fit the
-  ENGINE_CHOICE acceptance thresholds to the corpora* and not owned by it: that
-  ticket fits acceptance thresholds, this is about whether the geometry itself is
-  plausible. Sharpens once *The Azerbaijani region profile* names actual values to
-  test.
 
 - **The Proposal-quality floor, and how often the fallback fires.** New, and it is
   the fog patch the sweep created. *Solver timing variance sweep* found the
@@ -612,12 +785,22 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   not at 24. What stays fog is the number that matters commercially: **how often a
   real Proposer lands past the cliff**, which decides whether the two-phase
   fallback is a rare safety net or a routine second solve — and therefore how many
-  candidates must be launched to get a survivor. Neither source has been measured
-  against the solver: retrieval-and-warp's admissibility gate is stated in area and
-  aspect, not in the corner noise this cliff is measured in, and the trained model
-  has no measured noise figure at all. Sharpens the moment *The retrieval index and
-  warp procedure* produces real warped Proposals, and it feeds the economics
-  question under *Variant generation and ranking* directly.
+  candidates must be launched to get a survivor. Sharpens the moment *The retrieval
+  index and warp procedure* produces real warped Proposals, and it feeds the
+  economics question under *Variant generation and ranking* directly.
+  **The unit problem is now solved, and the cliff is a symptom rather than the
+  thing.** *Validate the arrangement metric against the solver* found that what a
+  noisy Proposal actually loses is separation directions: one relation the truth
+  contradicts makes the model INFEASIBLE 56% of the time, and **severity** — the
+  millimetres of overlap the wrong assertions demand — is the quantity that
+  predicts, explaining τ and σ with one number. So neither source has to be
+  expressed in corner noise any more; both can be scored directly, and *The
+  retrieval index and warp procedure* now says how. What stays fog is the
+  **distribution** — nobody has run a real Proposer and counted how many of its
+  Proposals land past the threshold. One caution the validation hands this patch:
+  the reliably fatal error is a **same-axis reversal**, and Gaussian corner noise,
+  the model behind every σ number on this map, emits almost none — so the cliff's
+  shape may not survive contact with a generator that misplaces a room outright.
 
 - **Whether the solve grid should be finer than 250 mm.** Long deferred as
   "optional curiosity"; ADR 0007 gives it a price. The clear-reading rounding loss
@@ -626,7 +809,25 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   congruence rule. Nobody has measured what a finer grid costs the solve — the
   variance sweep ran entirely at 250 mm — so the trade is one measured cost against
   one unmeasured one. It also collides with a profile offering **two** internal
-  thicknesses, which ADR 0007 shows has no common solution at 250 mm.
+  thicknesses, which ADR 0007 shows has no common solution at 250 mm. ⚠️ **This is
+  now load-bearing rather than curious, and it has an owner.** *The Azerbaijani
+  region profile* found the two-thickness collision is not a corner case: over 19
+  sourced candidates **no pair shares a residue class mod 250**, structurally,
+  because the brick series steps by 130 and the RC-panel series by 20. And the
+  alignment problem turned out not to live in region profiles at all — **36 of the
+  36 hard linear minima in the region-invariant `ergonomic` layer miss the class**.
+  **ADR 0009 then held the grid at 250 mm** and exempted that layer instead, on the
+  ground that a derived minimum has no nominal-to-clear conversion to apply — and it
+  priced the alternatives: a 50 mm grid makes the congruence vacuous and every
+  derived minimum exactly representable, a 125 mm grid still cannot represent the
+  1700 mm bath, and **every solver number on this map was fitted at 250 mm**. So the
+  patch stays fog, with two inputs it did not have. Nothing published is snapped to
+  250 mm, which makes a finer grid **strictly easier to adopt later, never harder**.
+  And *Ergonomic minima* then measured what the exemption costs: the deletion
+  narrows to `{5, and 6 unknown}` rather than clearing, so **250 mm is charging the
+  5-room case** — the bottom of C13's promised band and the commonest dwelling size
+  in the corpus. The trade is no longer one measured cost against one unmeasured
+  one; both sides now have a number, and only the solve-time side is missing.
 
 ## Out of scope
 

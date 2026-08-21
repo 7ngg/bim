@@ -261,14 +261,40 @@ how close its boxes landed.
 **Asserted** and **abstained** — a Room pair whose separation direction is claimed
 firmly enough to become a constraint, against one left open. The two are not
 symmetric and must never be reported as one number: an abstention leaves the
-solver free, and a **confident-wrong** pair — asserted, and backwards — is the
-failure that costs a candidate outright.
+solver free and costs **time**, while a **confident-wrong** pair — asserted, and
+backwards — costs the **candidate**. Measured: dropping every relation still
+yields a Plan; asserting one backwards makes the model infeasible over half the
+time, and two ends it. "Backwards" means *the truth contradicts the assertion*,
+not merely that the truth would have picked another direction — two rooms can be
+separated on both axes at once, and asserting the other one costs nothing.
+
+**Severity** — how far backwards a confident-wrong pair is: the overlap, in
+millimetres, that the assertion demands be closed against the truth. Summed over
+a Proposal it is what predicts whether the solver can project it, and it is the
+quantity **τ** filters. A pair wrong by a hand's breadth and a pair wrong by a
+room are one number in a count and are not the same defect.
 
 **Ergonomic minimum** — the smallest clear rectangle a room's required fixtures
-and their body clearances occupy. Region-invariant, because bodies are. It is the
+and their [[Body zone]]s occupy. Region-invariant, because bodies are. It is the
 floor the Acceptance bar rejects below, standing in for a legal minimum: most
 regions prescribe none, and the regions that do disagree with each other by
-nearly a factor of two.
+nearly a factor of two. Stated as a **shorter side and a longer side**, never as
+a width and a depth — a room has no canonical orientation, so binding the pair to
+axes would assert a direction no fixture implies. It is a **floor, not a target**:
+it sits far below what anyone builds, and the liveable number is the [[Region
+profile]]'s. A minimum is *derived* — composed from published footprints — and
+never transcribed from a table; the corpus is allowed to falsify it and never to
+supply it.
+
+**Body zone** — the depth of body in front of a fixture that cannot be shared
+with another fixture's zone. The one calibrated constant behind every [[Ergonomic
+minimum]]; everything else in the composition is a published footprint. Two
+fixtures used one at a time may *share* one zone, but no zone may overlap another
+fixture's footprint — which is why an ergonomic minimum is smaller than the sum of
+its parts. Deliberately **not** any published clearance: every clearance the
+sources state is an *accessibility* figure, because those are the ones regulators
+write down, and composing a private bathroom out of them yields a floor that
+rejects a third of real homes.
 
 **Region profile** — the set of *conventional* values a Plan is built and drawn
 to: the thickness catalogue, the decimal separator, the room-name abbreviations,

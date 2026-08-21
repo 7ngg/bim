@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:grilling]
 status: open
 assignee:
-blocked_by: [14]
+blocked_by: []
 ---
 
 # Area measurement convention
@@ -107,3 +107,48 @@ the Plan's number silently disagreeing.
 **The pair itself belongs here, not to the profile ticket.** *The Azerbaijani
 region profile* is instructed to surface the two terms and hand them over rather
 than decide between them.
+
+## Handed over by *The Azerbaijani region profile* — and it reframes the question
+
+That ticket was told to gather the *общая площадь* / *жилая площадь* pair and hand
+it here without deciding. It gathered it, and **the pair does not exist.** Sources
+read first-hand; detail in `docs/research/az-region-profile.md` §7 and
+`docs/research/az-region-profile/daylight.md` §4.
+
+**1. There is no *жилая площадь* in Azerbaijan.** As a summed metric,
+`yaşayış sahəsi` appears in neither the 2012 area Qaydalar nor AzDTN 2.7-2, and
+СП 54.13330 does not define it either. The modern instruments did not *add* a
+total-area figure alongside a living-area one — **they replaced the pair**. So this
+ticket's inherited framing, a choice between two metrics, is not the question.
+
+**2. What AZ has instead is two in-force, mutually contradicting statutory
+definitions of the *same* metric, *ümumi sahə*:**
+
+| | Housing Code art. 12.5 | Area Qaydalar cl. 3.8 |
+|---|---|---|
+| purpose | housing-law entitlement | design / inventory |
+| balcony, *eyvan* | **excluded outright** | **included**, at a coefficient |
+| force | statutory | statutory |
+
+Coefficients verified: balcony/terrace **0.3**, loggia/glazed enclosure **0.5**,
+veranda/*eyvan* **1.0** (full, not reduced), mansard below 2.7 m **0.7**. The
+ticket's reported 0.3/0.5 is confirmed. **That disagreement is the real question**,
+and it is a choice between two Azerbaijani legal instruments, not between two
+conventions.
+
+**3. Every divergent clause is inert in v1 — except one.** v1 has no balcony and
+no ceiling height, so the balcony coefficients, the mansard 0.7 and the 1.6 m
+under-stair rule **cannot fire**, and the two definitions currently compute *the
+same number*. This is cheap to defer, and stays cheap only until a balcony or a
+ceiling height enters the model.
+
+**4. The one clause that binds now.** Qaydalar cl. 3.2 measures **between finished
+wall faces at floor level**, skirtings excluded. ADR 0001 erodes `t_int/2` from a
+centreline, which yields the **structural** face. Finishes run 10–20 mm per face,
+so publishing our figure as *ümumi sahə* **systematically overstates area** — every
+room, every plan, in the one region v1 ships. That is a live decision for this
+ticket, not a deferral.
+
+Note this ticket's `blocked_by: [14]` is discharged — *Which region profiles ship
+in v1* is closed, and its item 5 (that v1 has no ceiling height and no balcony, so
+the deductions cannot fire) is confirmed above rather than merely asserted.
