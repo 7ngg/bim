@@ -6,6 +6,8 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - docs/spec/proposer.md
 ---
 
 # The retrieval index and warp procedure

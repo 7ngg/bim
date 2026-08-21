@@ -6,6 +6,9 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - data/standards/room-constraints.json
+  - CONTEXT.md
 ---
 
 # Two room vocabularies in one file, and nothing maps between them

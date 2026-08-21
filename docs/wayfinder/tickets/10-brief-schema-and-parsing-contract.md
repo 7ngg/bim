@@ -6,6 +6,9 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: [5, 9, 17]
+writes:
+  - docs/spec/brief.md (new)
+  - CONTEXT.md
 ---
 
 # Brief schema and parsing contract

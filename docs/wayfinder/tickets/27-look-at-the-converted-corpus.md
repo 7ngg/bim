@@ -6,6 +6,8 @@ labels: [wayfinder:prototype]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - experiments/rectangularise/ — no shared artifact
 ---
 
 # Look at the converted corpus

@@ -6,6 +6,11 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - docs/adr/
+  - docs/spec/proposer.md
+  - docs/spec/acceptance-bar.md
+  - docs/spec/annotation.md
 ---
 
 # Whether a Room may be more than one rectangle

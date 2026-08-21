@@ -6,6 +6,8 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: [17]
+writes:
+  - docs/spec/ifc-export.md (new)
 ---
 
 # What IFC the engine actually emits

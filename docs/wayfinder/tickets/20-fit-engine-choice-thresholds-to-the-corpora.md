@@ -6,6 +6,8 @@ labels: [wayfinder:task]
 status: open
 assignee:
 blocked_by: [12, 19]
+writes:
+  - data/acceptance/rules.json
 ---
 
 # Fit the ENGINE_CHOICE acceptance thresholds to the corpora

@@ -6,6 +6,9 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - docs/spec/annotation.md
+  - data/standards/room-constraints.json
 ---
 
 # The annotation spec is US-shaped and the drawing is now Azerbaijani

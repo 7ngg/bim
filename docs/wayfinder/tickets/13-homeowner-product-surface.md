@@ -6,6 +6,8 @@ labels: [wayfinder:prototype]
 status: open
 assignee:
 blocked_by: [9, 10]
+writes:
+  - prototype only — no shared artifact
 ---
 
 # Homeowner product surface

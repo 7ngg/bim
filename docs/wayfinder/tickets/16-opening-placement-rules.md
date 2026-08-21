@@ -6,6 +6,10 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: [7, 14]
+writes:
+  - docs/spec/openings.md (new)
+  - data/standards/room-constraints.json
+  - data/acceptance/rules.json
 ---
 
 # Opening placement rules

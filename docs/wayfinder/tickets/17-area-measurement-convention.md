@@ -6,6 +6,10 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - CONTEXT.md
+  - data/standards/room-constraints.json
+  - docs/spec/acceptance-bar.md
 ---
 
 # Area measurement convention

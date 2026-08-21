@@ -6,6 +6,9 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: [19]
+writes:
+  - data/acceptance/rules.json
+  - docs/spec/acceptance-bar.md
 ---
 
 # H8 and the single-aspect flat

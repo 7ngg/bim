@@ -5,7 +5,9 @@ parent: map
 labels: [wayfinder:grilling]
 status: open
 assignee:
-blocked_by: []
+blocked_by: [28]
+writes:
+  - docs/spec/proposer.md
 ---
 
 # The Proposal cannot express zoning
@@ -72,6 +74,12 @@ asks whether the soft-rule score correlates with human judgement. That is an
 contract, as specified, has no vocabulary in which zoning can be stated, so no
 amount of eval will surface it and no training run can learn it. A metric can be
 fixed later; a contract that cannot express the property has to be reopened.
+
+**Blocked by *Whether a Room may be more than one rectangle*.** Both tickets amend
+the same object — `docs/spec/proposer.md` §1, the Proposal contract — and 28 changes
+its shape rather than adding to it: if a Room may be *k* boxes, "exactly *n*
+axis-aligned boxes, one per Brief Room" is no longer the contract a zoning
+amendment would be written against. Settle the shape first, then what it carries.
 
 **Deliverable.** A decision on where zoning lives, and if it enters the Proposal,
 the amendment to `docs/spec/proposer.md` §1 and the constraint form for the

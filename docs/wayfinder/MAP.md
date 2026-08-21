@@ -56,6 +56,36 @@ and that is the failure this table exists to catch.
 `## Resolution`. The line here exists only to tell you whether to open it — do not
 restate a resolution here, link it. A ⚠️ marks a claim not to take at face value.
 
+**Check `writes:` before you claim.** Every open ticket declares in its frontmatter
+which artifacts it authors. **Do not start a ticket that shares a `writes:` entry
+with one already claimed** — take another from the frontier instead, or finish the
+first. This is a *concurrency* rule, not a dependency: the tickets can be worked in
+either order, just not at once.
+
+It exists because two of them already went wrong that way. *Two room vocabularies in
+one file* and *The annotation spec is US-shaped and the drawing is now Azerbaijani*
+are both pure rework, created by parallel sessions writing the same file blind to
+each other — "two tickets populated it in parallel and neither could see the other's
+keys". The graph is nearly flat, so almost anything can be claimed at once, and
+nothing but this rule stops it happening again.
+
+Six artifacts have more than one claimant. Read this as a **conflict map, not an
+order** — the done-test decides order:
+
+| Artifact | Claimed by |
+|---|---|
+| `CONTEXT.md` | 10, 17, 21, 31 |
+| `data/standards/room-constraints.json` | 16, 17, 31, 32 |
+| `data/acceptance/rules.json` | 16, 20, 26 |
+| `docs/spec/acceptance-bar.md` | 17, 26, 28 |
+| `docs/spec/proposer.md` | 23, 28, 30 — 28 and 30 both amend §1, so **30 is blocked by 28** |
+| `docs/spec/annotation.md` | 28, 32 |
+
+Only one of these became a blocking edge, and deliberately: sharing a file is a
+merge hazard, sharing a *decision* is a dependency. 28 changes the Proposal
+contract's shape rather than adding to it, so 30 would otherwise be amending a
+contract about to move.
+
 **Skills every session should consult:** `grilling` and `domain-modeling` by
 default. `research` for `wayfinder:research` tickets. `prototype` for
 `wayfinder:prototype` tickets.

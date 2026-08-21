@@ -6,6 +6,8 @@ labels: [wayfinder:grilling]
 status: open
 assignee:
 blocked_by: [8]
+writes:
+  - CONTEXT.md
 ---
 
 # The room-count envelope v1 promises

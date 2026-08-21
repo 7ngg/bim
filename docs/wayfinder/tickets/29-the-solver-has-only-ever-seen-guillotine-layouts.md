@@ -6,6 +6,9 @@ labels: [wayfinder:task]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - docs/research/solver-formulation.md
+  - experiments/solver-toy/
 ---
 
 # The solver has only ever seen guillotine layouts

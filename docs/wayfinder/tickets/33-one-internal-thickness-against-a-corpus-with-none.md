@@ -6,6 +6,8 @@ labels: [wayfinder:research]
 status: open
 assignee:
 blocked_by: []
+writes:
+  - docs/research/ (new findings doc) — read-only on the profile
 ---
 
 # One internal thickness, against a corpus that has no module at all
