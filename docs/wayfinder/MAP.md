@@ -46,7 +46,8 @@ and that is the failure this table exists to catch.
 | Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three* |
 | **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme* |
 | Area measurement convention — what a m² means everywhere it travels | settled | — |
-| **IFC export** — the Destination's second named output | **open** | ⚠️ **was unowned until the done-test ran.** `IFC` appears in no spec file; *BIM and CAD export stack* proved the tooling, never the content — *What IFC the engine actually emits*, now **unblocked** and handed its quantity and its wall layers |
+| **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not |
+| **Vertical dimensions** — the height the model has never had | **open** | ⚠️ **unowned until IFC export ran, and not an IFC problem.** No storey, ceiling, opening or sill height exists in any file; `annotation.md` already ships **three schedule columns that cannot be filled**, and `CONTEXT.md`'s Storey exists "because the model would otherwise have to invent it on export" while carrying no height — *The Plan has no vertical dimension, and three artefacts already assume one* — **one grilling ticket, not two**: where a height lives changes which height you need |
 | **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, **now unblocked**: the Brief is settled and hands it an `engine_view` block to read rather than recompute |
 | **Room-count promise** — what the product says it covers, against C13's 4–10 | **open** | *The room-count envelope v1 promises* |
 
@@ -69,23 +70,56 @@ each other — "two tickets populated it in parallel and neither could see the o
 keys". The graph is nearly flat, so almost anything can be claimed at once, and
 nothing but this rule stops it happening again.
 
-Five artifacts have more than one claimant. Read this as a **conflict map, not an
+Seven artifacts have more than one claimant. Read this as a **conflict map, not an
 order** — the done-test decides order:
 
 | Artifact | Claimed by |
 |---|---|
-| `CONTEXT.md` | 21, 31 |
-| `data/standards/room-constraints.json` | 16, 31, 32 |
+| `CONTEXT.md` | 21, 31, 39 |
+| `data/standards/room-constraints.json` | 16, 31, 32, 39 |
 | `data/acceptance/rules.json` | 16, 20, 26 |
 | `docs/spec/acceptance-bar.md` | 26, 28 |
 | `docs/spec/proposer.md` | 23, 28, 30 — 28 and 30 both amend §1, so **30 is blocked by 28** |
 | `docs/spec/annotation.md` | 28, 32 |
+| `docs/spec/openings.md` | 16, 39 — 39 draws the catalogue-versus-instance line 16 then fills |
 | `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see |
+
+⚠️ **39 has the widest write-set on the map** — three shared artifacts. It is not
+blocked by any of them, but it collides with more tickets than anything else, so
+claim it when the frontier is quiet rather than alongside 16, 31 or 32.
 
 Only one of these became a blocking edge, and deliberately: sharing a file is a
 merge hazard, sharing a *decision* is a dependency. 28 changes the Proposal
 contract's shape rather than adding to it, so 30 would otherwise be amending a
 contract about to move.
+
+**The environment is pinned, and the pins are load-bearing.** `requirements.txt`
+carries the direct dependencies with the *reason* for each pin;
+`requirements.lock.txt` carries the resolved set including transitives. Install
+from the lock file, never from PyPI latest:
+
+```
+python -m venv venv
+./venv/Scripts/python.exe -m pip install -r requirements.lock.txt
+./venv/Scripts/python.exe experiments/environment/env_check.py     # 28 gates
+```
+
+Exact pins rather than ranges, because **every measured number on this map was
+produced by a specific version** — the solver timings by `ortools` 9.15.6755, the
+thickness census and rectangularisation by that `shapely` and `numpy`, and the
+whole IFC surface by `ifcopenshell` **0.8.5 specifically**, whose documented API
+(`feature` not `void`, the near-empty `drawing` module, the missing
+`boundary.add_boundary`) a bump invalidates rather than merely ages. `pytest` is
+a **runtime** dependency, not a test one: `ifcopenshell.validate(express_rules=True)`
+imports `_pytest.assertion` and the IFC check cannot run without it.
+
+`env_check.py` is `gate_check.py` one layer down — it asserts the *toolchain*
+still supports the decisions taken against it. **28 gates, all pass.** Two of them
+re-measured claims this map rests on: the `add_door_representation` metre-only bug
+**reproduces** (so ADR 0001 §6 is verified, not inherited), and the missing-`ObjectPlacement`
+WR1 trap **is** caught by the express rules, which demoted one IFC-check assertion
+from load-bearing to belt-and-braces. A failure here means a document on this map
+now says something untrue.
 
 **Skills every session should consult:** `grilling` and `domain-modeling` by
 default. `research` for `wayfinder:research` tickets. `prototype` for
@@ -106,7 +140,7 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 |---|---|
 | C1 | Destination is a **spec + decisions**, not a prototype and not a build. |
 | C2 | **Homeowner is the v1 user**; the internal geometry model is built to Practitioner grade from day one. The Homeowner never sees that layer. |
-| C3 | Hard output floor: **dimensioned 2D vector plan** — walls with thickness, doors, windows, room tags, dimension strings — to DXF/PDF. IFC/BIM is the stated export path. |
+| C3 | Hard output floor: **dimensioned 2D vector plan** — walls with thickness, doors, windows, room tags, dimension strings — to DXF/PDF. IFC/BIM is the stated export path. Now specified and **split by job**: the IFC is **IFC4 Reference View, one-way, annotation-free**, and **the DXF is the exact export while the IFC is the interoperable one** — integer-millimetre exactness does not survive the metre declaration. ADR 0011. |
 | C4 | Input is **prompt → LLM-parsed structured brief**, gaps filled from standards, every assumption surfaced. The brief stays editable; it is the real interface. |
 | C5 | **Single-dwelling residential, single storey.** Flats and houses ship through **one code path** — dwelling type is a preset over the Envelope's edge ring, not a branch. Product copy states two limits: single storey only, and **house layouts come from apartment priors**, because every corpus is flats. |
 | C6 | Acceptance bar is a **hard filter**: generate many, reject most, show survivors. On solver expiry, a candidate whose best objective is ≥ `soft_weight` has unassigned floor and is **not a survivor** — discard it, never show it. |
@@ -345,7 +379,10 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   not tolerance, by roughly the width of the gate itself. New hard rule
   `area.convention_agrees`: **presence of a convention was never agreement.**
   ⚠️ ADR 0004's one centreline number — tier 1 to a party-wall centreline — is
-  **dead**, as ADR 0004 §4 pre-authorised. ✅ Its one `engine_choice` was
+  **dead**, as ADR 0004 §4 pre-authorised. ⚠️ **ADR 0010's own IFC justification
+  names a deprecated entity** — `IfcWallStandardCase` is superseded by `IfcWall`
+  in IFC4.3, per *What IFC the engine actually emits*; the layer-set reasoning it
+  supports is untouched. ✅ Its one `engine_choice` was
   discharged the same day — see below.
 - [What an Azerbaijani finish layer actually is](tickets/35-what-an-azerbaijani-finish-layer-is.md)
   — **15 mm, and it is now `verified`.** `docs/research/az-finish-layer.md`,
@@ -435,6 +472,35 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   `brief.md` §7 owed, ⚠️ on which the two corpora **disagree by ~40 %** at three
   bedrooms, from labelling rather than market.
 
+- [What IFC the engine actually emits](tickets/34-what-ifc-the-engine-emits.md) —
+  **Reference View, and the file asserts only what the engine knows.**
+  `docs/spec/ifc-export.md`, ADR 0011. The ticket's own item 1 has **one live
+  branch**: buildingSMART say *"Design Transfer View never materialised into an
+  official MVD"*, **zero** products are certified for it, and Revit's IFC4
+  certification is **Reference View 1.2, export only** — so the view C2's
+  round-trip promise was going to buy does not exist to be bought. RV costs less
+  than its reputation (swept solids, Psets, Qtos, layer sets all in scope) and its
+  two real restrictions are absorbed: **no Boolean appears in the file**, because
+  ADR 0001's axis-aligned walls and rectangular openings decompose **exactly** into
+  a set of extrusions. **Space boundaries are refused for a reason that is not the
+  restriction** — 2nd level exists for energy/lighting/CFD and this engine holds no
+  U-values, so authoring them asserts a capability we do not have; 1st level loses
+  nothing, because exact integer geometry makes adjacency derivable. One rule
+  decides most of the file — **present is a claim, absent is unknown** — and it is
+  **asserted by the gate**, not merely stated, over `LoadBearing`,
+  `AcousticRating` (derived from 50 dB, never tested) and `HandicapAccessible`
+  (accessibility was *refused*, so both values are wrong). A **third gate** joins
+  `rules.json` and the Drawing check, on the Drawing check's own reasoning: it
+  judges the *file*, not the *Plan*. ⚠️ **Its hardest finding is not about IFC: the
+  Plan has no vertical dimension at all**, and `annotation.md` was already shipping
+  three unfillable schedule columns — re-owed by *The Plan has no vertical
+  dimension*. ⚠️ **ADR 0010's `IfcWallStandardCase` is dead** — IFC4.3 deprecates
+  it in favour of `IfcWall`; the layer-set reasoning stands. ⚠️ **Integer-mm
+  exactness dies at this boundary** (ADR 0001's metres), so the DXF is the exact
+  export. ⚠️ C2's Revit round-trip is **still priced at zero** — the research
+  section that was to price it was never written, and one concrete untested risk is
+  named instead (`IfcIndexedPolyCurve` vs `IfcPolyline` on Revit import).
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -486,7 +552,12 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
 - **Structural and services reality** — load-bearing walls, plumbing stacks, risers. The
   hook is deliberate: a wall's `load_bearing` is **unknown, not false**, and party walls
   now exist in the model still carrying `None`, so the hook is paying for something
-  concrete rather than being merely prudent.
+  concrete rather than being merely prudent. **It has now been charged a second time and
+  in public:** `Pset_WallCommon.LoadBearing` is an `IfcBoolean` with no third state, so
+  every exported wall **omits** it, and the IFC gate asserts the omission — the unknown
+  is visible in the shipped artefact, not just in the model. ⚠️ Note the profile already
+  publishes `t_int_bearing` = 250 as a `verified` catalogue value that **no wall type
+  ships**, so the structural question has a number waiting as well as a field.
 - **Frontend rendering and manipulation** — *viewing* is largely settled: Next.js/TS over
   a JSON BFF, an eager SVG preview per survivor, one `Drawing` with two presentations and
   an audience per element, so the preview is a filter and not a second annotation engine.
@@ -497,7 +568,15 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   and store *are* this patch. Expect the transport to move when it clears.
 - **Revit round-trip specifics** — C2 promises the engine won't preclude it. ⚠️ The
   research section that was supposed to price it **was never written**, so this patch
-  currently rests on nothing.
+  currently rests on nothing. **Sharpened by *What IFC the engine actually emits*, and
+  the news is bad:** the model view that would have carried a round-trip does not
+  exist — buildingSMART say *"Design Transfer View never materialised into an official
+  MVD"*, **zero** products are certified for it, and its own documentation calls it a
+  *one-way* transfer. Revit is certified for **Reference View 1.2, export only**. So a
+  round-trip is not something an MVD choice can buy, and whatever this patch turns out
+  to be, it is not "pick the other view". One concrete pre-build test is now named
+  rather than fog: whether Revit's importer handles `IfcIndexedPolyCurve` identically
+  to `IfcPolyline`, which *"could not be confirmed"* from primary sources.
 - **The unverified solver literature** — MIP, rectangular-dual theory and `kiwisolver`,
   all `[UNVERIFIED]`. Cold while CP-SAT holds; sharpens only when C7's interactive
   re-solve is picked up.
@@ -554,6 +633,15 @@ Ruled beyond this destination. Does not graduate; returns only as a fresh effort
   raster plan is *Rectangularising real rooms* pointed at an image with none of the
   corpus's ground truth. Recorded so a redraw starts from the fact rather than
   rediscovering it.
+- **Analysis-grade IFC — 2nd-level space boundaries, and any energy, lighting or CFD
+  model.** Ruled out by *What IFC the engine actually emits*. `IfcRelSpaceBoundary` is
+  outside Reference View, and the level worth having exists for *"energy analysis,
+  lighting analysis, fluid dynamics"* — analyses this engine cannot supply inputs for:
+  no U-values, no glazing specification, and a `t_ext_total` that is itself
+  `engine_choice` and provisional. Authoring them would assert a capability we do not
+  have. **Precluded by nothing**, and that is the point: `CONTEXT.md`'s **Wall segment**
+  *is* a 2nd-level boundary with its corresponding twin across the wall, so the data is
+  already materialised and one spec section is all that stands between it and the file.
 - **A second region profile in v1, and any claim of regional *layouts*.** Ruled out by
   *Which region profiles ship in v1*. A second *standards* profile is ~30 numbers in a
   data file; a second *layout* region is a corpus that does not exist. Shipping one

@@ -268,6 +268,17 @@ gates whether a Plan is *shown* and has two consumers, this gates whether a file
 is *written* and has one. A failure here is our defect, not the Plan's — the Plan
 already passed the bar — so it raises rather than degrading.
 
+**IFC check** — the same shape as the **Drawing check**, one export along. The
+predicates an authored IFC file must satisfy before it is written: schema
+validity, plus the assertions a schema cannot make — that the header declares the
+view it was built to, that no omitted property has quietly been filled in, and
+that the areas in the file equal the areas on the sheet. Like the Drawing check it
+judges the *file*, never the Plan, so it raises rather than degrading; and like the
+Drawing check it is deliberately not in the Acceptance bar, because a Plan must
+never be rejected for an exporter's defect. **Three gates exist and they ask three
+different questions:** is this Plan good, is this sheet issuable, is this file
+honest.
+
 **Acceptance bar** — the set of predicates a Plan must satisfy to be shown. One
 **declaration**, two consumers: a hard filter on finished candidates, and the
 constraint set the solver projects onto. Not one implementation — the solver
