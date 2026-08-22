@@ -1,0 +1,44 @@
+# bim-engine — direct dependencies, pinned exact.
+#
+# Pinned rather than bounded on purpose. Every measured number on this map — the
+# solver timings, the thickness census, the rectangularisation IoU, the wall-weight
+# distribution — was produced by a specific version of these libraries, and a range
+# makes those numbers unreproducible. Resolve with requirements.lock.txt.
+#
+#   python -m venv venv
+#   ./venv/Scripts/python.exe -m pip install -r requirements.lock.txt
+#   ./venv/Scripts/python.exe experiments/environment/env_check.py
+#
+# Python 3.12 (3.12.10 verified). venv/ and .venv/ are gitignored.
+
+# --- solver ---------------------------------------------------------------
+# CP-SAT. Releases the GIL, which is what makes candidates threadable
+# (1.99x measured) — see Language and runtime split.
+ortools==9.15.6755
+
+# --- geometry and data ----------------------------------------------------
+numpy==2.5.2
+shapely==2.1.2
+pandas==3.0.5
+
+# --- export ---------------------------------------------------------------
+# DXF. R2007 is the version floor: no legacy code page encodes "ə".
+ezdxf==1.4.4
+
+# IFC. PINNED HARD, and not to latest. docs/research/bim-cad-export-stack.md
+# documents the 0.8.5 API surface exactly — `feature` not `void`, the near-empty
+# `drawing` module, the missing `boundary.add_boundary` — and a version bump
+# invalidates those findings rather than merely aging them.
+ifcopenshell==0.8.5
+
+# NOT a test-only dependency. ifcopenshell.validate(..., express_rules=True)
+# imports _pytest.assertion at runtime and raises ModuleNotFoundError without it.
+# Undocumented upstream; found by hitting it. The IFC check (ifc-export.md §10)
+# cannot run without this line.
+pytest==9.1.1
+
+# --- raster and PDF -------------------------------------------------------
+pillow==12.3.0
+pypdf==6.16.1
+pymupdf==1.28.2
+matplotlib==3.11.1
