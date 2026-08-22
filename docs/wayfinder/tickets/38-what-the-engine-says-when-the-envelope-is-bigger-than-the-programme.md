@@ -78,3 +78,33 @@ survivors with no explanation**. §9.4 exists precisely so that never happens.
 - **Not envelope sizing.** How an *invented* Envelope is sized against
   `target_area` is the map's **Variant generation and ranking** fog patch. This is
   the **given** Envelope case, which is the one that cannot be fixed by resizing.
+
+---
+
+## Handed in by *The room-count envelope v1 promises* (ADR 0013)
+
+**§9.4 grows from two bounds and two severities to four bounds and three.** You
+hold `brief.md`; this is yours to write. Both new bounds are room-count, not area,
+and both belong in the *same function* so §11's same-sentence guarantee keeps
+holding by construction:
+
+| bound | severity | rule |
+|---|---|---|
+| existing | hard | sum of **realisable** ergonomic minima |
+| existing | warn | sum of `market_default` |
+| **new** | **hard refusal** | engine room count outside **3–10** |
+| **new** | **warn** | inside 3–10 but outside **1–4 otaq** |
+
+Two things to carry rather than re-derive:
+
+- The hard one **must be explicit**. `acceptance-bar.md` §11's zero-survivor
+  diagnosis is arithmetic over *areas* and cannot voice a room-count failure — so
+  without this check a Homeowner past the ceiling is handed an area sentence that
+  is not the real reason. A wrong explanation, not a missing one.
+- **The two bounds are in different units on purpose** (ADR 0013). The gate is
+  engine rooms, post-`resolve`, including invented circulation. The warn is otaq,
+  habitable rooms only. Do not convert one into the other by a constant — the
+  spread at each otaq is two to three engine rooms wide.
+
+The refusal names the count. `CONTEXT.md` **Supported band**, **Engine room
+count**, **Otaq**.

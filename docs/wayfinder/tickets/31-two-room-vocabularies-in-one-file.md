@@ -106,3 +106,22 @@ one vocabulary gap it is the right owner for. Source:
    measurement with its limit attached, **not** as a default for `hall`. Whether
    the three collapse, and if so to what, is a vocabulary decision — which is
    this ticket.
+
+---
+
+## Handed in by *The room-count envelope v1 promises* (ADR 0013)
+
+**`room-constraints.json` needs a `habitable` flag per ergonomic key.** Same
+shape as the `brief_nameable` flag `brief.md` §3 already asks you for, and for a
+related reason: otaq — the unit v1's supported band is *stated* in — is the count
+of habitable Rooms only (bedrooms and living rooms; never kitchen, bathroom,
+corridor or store), and nothing in the file can currently compute it from a Brief.
+
+Note it lands on the **ergonomic** layer, not on `profiles.AZ`, even though the
+convention is Azerbaijani: what counts as a habitable room is not a construction
+system or a drawing convention, so C14 keeps it out of the profile.
+
+Corroboration for the three-into-one gap you already hold: Swiss Dwellings has
+**no `HALL` or `LOBBY` subtype at all** — 53,295 `CORRIDOR` rooms absorb every
+one of them. So the corpus cannot distinguish the three either, and any mapping
+that needs to must come from the profile side.

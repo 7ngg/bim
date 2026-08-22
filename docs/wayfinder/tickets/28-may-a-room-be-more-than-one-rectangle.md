@@ -158,3 +158,34 @@ third of rooms past k = 2, the corpus conversion should consider **cleaning them
 before fitting** rather than trying to honour them at a 250 mm grid it cannot
 represent them on anyway. That is a change to *Rectangularising real rooms*'
 pipeline and should be decided here, since it only matters if k > 1.
+
+---
+
+## Handed in by *The room-count envelope v1 promises* (ADR 0013)
+
+**A dependency nobody had drawn: `resolve` must choose how many circulation
+Rooms to invent, before the solver runs — and whether it can safely fix that at
+one is your question, not its.**
+
+`brief.md` §3 has `resolve` invent `corridor` / `entrance_lobby` because
+`model.no_unassigned_area` means circulation must be Brief Rooms or the Envelope
+cannot be tiled. It does not say **how many**. Measured over 46,800 Swiss
+dwellings (`experiments/room-count-envelope/circulation_split.py`):
+
+```
+k=0  6.55%    k=1 75.11%    k=2 16.69%    k>=3 1.65%
+```
+
+and the right k rises with the programme — at 6 named rooms k=1 is 77.7 % and
+k=2 is 18.9 %; at 9 named rooms k=2 is 26.0 %.
+
+If **a Room may be more than one rectangle**, `resolve` fixes k = 1 and an
+L-shaped corridor reaches the wing a single rectangle cannot. If it may not,
+`resolve` has to *guess* k from the programme before any geometry exists, and a
+wrong guess is not recoverable: too few leaves the Envelope untileable, too many
+fragments circulation the solver then has to justify against
+`circ.fraction_hard`.
+
+This also moves your own arithmetic. k is inside the **engine room count**, which
+ADR 0013 hard-gates at 3–10 — so a `resolve` that over-invents circulation spends
+the ceiling on corridors and refuses Briefs that would otherwise have fitted.

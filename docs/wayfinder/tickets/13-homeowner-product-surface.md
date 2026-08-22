@@ -71,3 +71,29 @@ Two consequences the prototype should react to rather than re-derive:
   it does not say they cannot read `4.40 × 3.40 m` in the middle of a room, which is
   what every estate-agent plan shows. Whether that holds is a question for the
   prototype, and it is a cheap one to put in front of someone.
+
+---
+
+## Handed in by *The room-count envelope v1 promises* (ADR 0013)
+
+**Item 1 gets a stated limit, and item 6 gets a case that is not a solver
+failure.** The third product limit, beside C5's two:
+
+> **We plan flats and houses of one to four rooms** — one storey, and house
+> layouts come from apartment priors.
+
+Three things the prototype should react to rather than re-derive:
+
+- **The copy counts otaq** — habitable rooms only, how a Baku flat is advertised.
+  The engine gate counts something else (engine Rooms, including circulation the
+  Homeowner never mentioned) and refuses outside 3–10. **Do not show the engine
+  count anywhere**, and do not convert between the two by a constant: one otaq is
+  a *median* of four engine Rooms with a spread of two to three.
+- **There is a middle zone**, 4.3 % of real dwellings: inside the gate, outside
+  the promise. It runs and warns. What that warning says to someone who cannot
+  read a plan is a surface question, and it is yours.
+- **Refusal happens at parse time, before any waiting screen** — so item 6's
+  "nothing to show" case splits in two. A room-count refusal is instant and
+  names the count; a zero-survivor rejection comes after the wait and is
+  arithmetic about areas. They are different screens, and conflating them tells
+  a Homeowner the wrong thing about which field to edit.

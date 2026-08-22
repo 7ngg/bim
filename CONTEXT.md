@@ -152,6 +152,27 @@ plan pass every check with a room several times the size anyone would build it:
 the interior must be tiled exactly, so surplus is compulsory and lands wherever
 the solver finds it cheapest.
 
+**Engine room count** — the number of Rooms in a `ResolvedBrief`, including the
+circulation `resolve` invents. The count the solver, retrieval and the supported
+band are all measured in, and the only one that binds anything. A Homeowner has
+never said it out loud: circulation is invented in 93.5% of real dwellings.
+_Avoid_: "Brief-named rooms", which it is not — no Brief names a corridor.
+
+**Otaq** — habitable rooms only: bedrooms and living rooms, never a kitchen,
+bathroom, corridor or store. The AzDTN 2.7-2 counting convention, how a flat is
+advertised in Baku, and the unit the product's supported band is **stated** in.
+`AZ` already keys two statutory floors on it. One otaq is a median of four engine
+Rooms — see [[Engine room count]], and never convert by assuming a constant.
+_Avoid_: "habitable room count", "room count" unqualified.
+
+**Supported band** — what v1 claims, and what it refuses, and they are not the
+same edge. The **gate** is a hard refusal outside 3–10 [[Engine room count]],
+taken at parse time and naming the count. The **promise** is 1–4 [[Otaq]], which
+is narrower: between them lies a zone the engine serves and the copy declines to
+claim, and a Brief landing there runs with a warning. ADR 0013.
+_Avoid_: collapsing the two into one number — it can only over-refuse or
+over-claim.
+
 **Dependent room** — a Room the Brief says is entered *through* another Room
 rather than from circulation: an ensuite, a walk-in wardrobe, a utility off the
 kitchen. It names its host. Access-through is **program**, not geometry, so it is

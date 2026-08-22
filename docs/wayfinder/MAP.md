@@ -49,7 +49,7 @@ and that is the failure this table exists to catch.
 | **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not. ✅ its vertical hole is **closed** by ADR 0012 — §12 drops from four inputs to two — but ⚠️ **§5 and §12 contradict each other**: §5 extrudes `IfcSpace.Body` to *storey height* where §12 assigns `h_clear`, and a Space is floor-to-ceiling. **Unowned** |
 | **Vertical dimensions** — the height the model has never had | settled | `docs/research/vertical-dimensions.md`, ADR 0012, gates 33 → **67**. **One datum, `h_clear`;** `h_storey` **deleted** — AzDTN 2.7-2 publishes none, and its only two consumers were empty. ⚠️ the ticket's premise was **half false**: two of the four inputs were already shipped and `verified`. ⚠️ **the `Fall barrier` trigger is refused, not chosen** — it turns on the drop below the window, and v1 has one Storey at elevation 0 with no site, so the model cannot evaluate it at all |
 | **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, **now unblocked**: the Brief is settled and hands it an `engine_view` block to read rather than recompute |
-| **Room-count promise** — what the product says it covers, against C13's 4–10 | **open** | *The room-count envelope v1 promises* |
+| **Room-count promise** — the band v1 claims, and what it refuses | settled | ADR 0013, `experiments/room-count-envelope/`. **Gate 3–10 engine rooms, promise 1–4 otaq** — two numbers in two units, on purpose. ⚠️ **C13's "Brief-named" was false**: no Brief names a corridor, and 93.5 % of real dwellings have one. A Homeowner naming 10 rooms is out of band **99.8 %** of the time. ⚠️ The band's *edges* were also wrong — per-`n` coverage puts **n = 2 as the worst regime below 11**, worse than the n = 10 the old band included, and **n = 1 retrieves better than n = 4**. **Unowned** |
 
 ## Notes
 
@@ -70,12 +70,12 @@ each other — "two tickets populated it in parallel and neither could see the o
 keys". The graph is nearly flat, so almost anything can be claimed at once, and
 nothing but this rule stops it happening again.
 
-Seven artifacts have more than one claimant. Read this as a **conflict map, not an
+Six artifacts have more than one claimant. Read this as a **conflict map, not an
 order** — the done-test decides order:
 
 | Artifact | Claimed by |
 |---|---|
-| `CONTEXT.md` | 21, 31 |
+| `CONTEXT.md` | 31 — **sole claimant now**, 21 closed |
 | `data/standards/room-constraints.json` | 16, 31, 32 |
 | `data/acceptance/rules.json` | 16, 20, 26 |
 | `docs/spec/acceptance-bar.md` | 26, 28 |
@@ -148,7 +148,7 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 | C10 | **Model proposes, solver projects** — amended, and the amendment is load-bearing. The Proposal carries **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints) and exact tiling is posted **soft**. The loose form is refuted by measurement. A **two-phase fallback is mandatory**: a merely *noisy* Proposal goes INFEASIBLE. Shipped: **15 s, τ = 4**. And "the model" is **two sources** behind one Proposal contract — ADR 0005. |
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region — but that was freedom, not an obligation to serve everywhere. v1 ships **exactly one** profile and it is **`AZ`**; `UK` survives as a test fixture and is never selectable. |
-| C13 | **v1's Proposer serves 4–10 Brief-named rooms**, 92% of the corpus; retrieval dies at 11+. What the *product* promises is *The room-count envelope v1 promises*. |
+| C13 | **The gate and the promise are two numbers in two units.** The engine hard-refuses outside **3–10 engine rooms** — every Space including the circulation `resolve` invents — and the product promises **1–4 otaq**, habitable rooms, the unit AzDTN and the Baku market count in. Between them is a zone the engine serves and the copy declines to claim: 89.9 % promised, 4.3 % served-unpromised, 5.9 % refused. *"Brief-named rooms" is struck* — no Brief names a corridor. Retrieval dies at 11+ (58.0 % blank) and the 24-room case is **demoted to headroom evidence, quotable as a ceiling by nothing**. ADR 0013. |
 | C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. Now populated: **one construction type, brick, `t_int` 150 mm — a layer set, 120 structural + 2 × 15 finish, every term `verified`**, drawing in Azerbaijani. It also owns the **area convention**, and every published number measures to that finish plane. ADR 0006, ADR 0010. |
 | C15 | **Two arithmetic ship gates, and they bind different layers.** ADR 0004 — every wall thickness **even** — is global. ADR 0007 — `min + t_int ≡ 0 (mod grid)` — binds **region profiles only**; ADR 0009 exempts the region-invariant ergonomic layer, whose minima are *derived* rather than quoted and so have no nominal-to-clear conversion to apply. Asserted, not claimed: `experiments/region-profile/gate_check.py` — **67 gates, all pass** (33 before ADR 0012 added the vertical section) after ADR 0010 moved the residue class from 130 to 100 mod 250 and sharpened ADR 0004 to bind on **totals, not layer components**. |
 
@@ -527,6 +527,38 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   invents floor-to-ceiling), which is what makes one hard **Brief-sited** predicate
   possible; and `openings.md` was **deliberately not created**.
 
+- [The room-count envelope v1 promises](tickets/21-the-room-count-envelope-v1-promises.md)
+  — **the gate and the promise are two numbers in two units, and the unit was the
+  whole problem.** ADR 0013, `CONTEXT.md`, `experiments/room-count-envelope/`.
+  Gate: hard refusal outside **3–10 engine rooms**. Promise: **1–4 otaq**. Between
+  them a zone the engine serves and the copy declines to claim — 89.9 % promised,
+  4.3 % served-unpromised, 5.9 % refused. ⚠️ **C13's "Brief-named rooms" was
+  false**, and it is the finding: `brief.md` §3 has `resolve` *invent* circulation
+  and `dataset-inventory.md` §1.3 never excluded `CORRIDOR`, so every coverage
+  figure on this map counts rooms **no Brief names** — k = 1 in 75.1 % of real
+  dwellings, k = 2 in 16.7 %. Stated in a Homeowner's own units the old band was a
+  false claim: **naming 10 rooms is out of band 99.8 % of the time**, naming 9,
+  31.9 %. ⚠️ **The edges were wrong too.** `proposer.md` §2.1's three bands hid the
+  shape; per room count, **n = 2 is the worst regime anywhere below 11** — worse
+  than the n = 10 the old band included and worse than the n = 3 it excluded — and
+  **n = 1 retrieves better than n = 4**, so excluding studios never was a coverage
+  argument. The floor moved to **3 because the shipped profile forced it**:
+  `living_room_1room_flat` and `wardrobe_1room_entry` are two `verified` AzDTN
+  floors that exist *only* for the one-otaq case, and a floor of 4 makes them
+  permanently unreachable — the dead-data defect ADR 0012 deleted `h_storey` for.
+  **Refusal is hard because §11 cannot voice it**: the zero-survivor diagnosis is
+  arithmetic over *areas*, so without an explicit check a Homeowner past the
+  ceiling gets an explanation that is wrong rather than missing. **24 rooms is
+  demoted** to headroom evidence — one dwelling in 63,800, measured at an exposure
+  no real flat has — and nothing may quote it as the ceiling. ⚠️ **It also drew a
+  dependency nobody had**: `resolve` must pick k *before* the solver runs, and
+  fixing k = 1 is safe only if a Room may be more than one rectangle — handed to
+  *Whether a Room may be more than one rectangle*, along with §9.4's third and
+  fourth bounds to *What the engine says when the Envelope is bigger than the
+  programme* and a `habitable` flag to *Two room vocabularies in one file*.
+  ⚠️ Every number here is **Swiss**; the otaq convention is Azerbaijani — C14's
+  two-tradition split showing up in the counting unit now, not just the thicknesses.
+
 
 ## Not yet specified
 
@@ -560,6 +592,12 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   `ResolvedBrief` carries `retrieval_pool_size` in its `engine_view`, so **what a
   Homeowner is told** is now purely a surface question for *Homeowner product surface*.
   Fog is what remains: whether generation is **biased toward corpus-typical shapes**.
+  **Sharpened by *The room-count envelope v1 promises*, with a concrete instance:** the
+  corpus's own room-count distribution is *not* the Brief distribution. 948 Swiss dwellings
+  hold one interior room and 317 hold two, but a Brief that names a habitable room, a
+  kitchen and a bathroom is at three before `resolve` adds anything — so that mass is
+  `apartment_id` grouping, not a market. Any statistic taken off the corpus and shown to a
+  Homeowner inherits that gap, and the band's floor is the first place it was noticed.
 - **Plan quality beyond the validator** — there now *is* a ranking signal (six soft
   rules, two warns, including the aspect-ratio term added because a plan can pass
   everything and still read as generated). Fog is whether it correlates with human
