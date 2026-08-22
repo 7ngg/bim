@@ -16,6 +16,7 @@ Run:  python experiments/region-profile/gate_check.py
 """
 import json
 import pathlib
+import re
 import sys
 
 GRID = 250
@@ -98,6 +99,53 @@ def main():
             hard_in_profile.append((room, cell["v"]))
     for room, m in hard_in_profile:
         check((m + t_int) % GRID == 0, f"ADR 0007 hard linear minimum {room} = {m}")
+
+    # ---- ADR 0012, the vertical datum -----------------------------------
+    # v1 has ONE vertical datum, h_clear, and one derived head line. These
+    # gates assert the datum actually holds the file up: with h_storey
+    # deleted there is no floor-to-floor left to hide a bad opening in.
+    ch = az["rooms"]["clear_heights_mm"]
+    h_clear = ch["habitable_room_and_kitchen"]["v"]
+    op = az["openings"]
+    head = op["head_datum_mm"]["v"]
+    guard = op["fall_barrier_mm"]["v"]
+
+    check(ch["storey_height_mm"]["v"] is None,
+          "ADR 0012 h_storey is NULL -- AzDTN 2.7-2 prescribes no storey height")
+    check(ch["corridor_hall_antresol"]["v"] <= h_clear,
+          f"ADR 0012 corridor allowance {ch['corridor_hall_antresol']['v']} <= h_clear {h_clear}")
+    check("fall_barrier_trigger_mm" not in op,
+          "ADR 0012 the guarding TRIGGER is refused, not chosen -- fall_barrier_when_required")
+    check(op["fall_barrier_mm"]["conf"] == "verified",
+          f"ADR 0012 guarding height {guard} is verified (cl. 8.3, mandatory register)")
+    check(guard < h_clear, f"ADR 0012 fall barrier {guard} < h_clear {h_clear}")
+    check(head <= h_clear, f"ADR 0012 head datum {head} <= h_clear {h_clear}")
+
+    # A GOST opening mark is <type> <HEIGHT dm>-<width dm>. Height comes first.
+    def mark_h(cell):
+        m = re.search(r"([0-9]+)\s*-", cell["v"])
+        return int(m.group(1)) * 100 if m else None
+
+    sills = {}
+    for key, cell in op["catalogue"].items():
+        h = mark_h(cell)
+        if h is None:
+            check(False, f"ADR 0012 catalogue {key} mark parses a height", cell["v"])
+            continue
+        check(h <= h_clear, f"ADR 0012 {key} ({cell['v']}) head {h} <= h_clear {h_clear}")
+        check(h % 2 == 0, f"ADR 0004 {key} opening height {h} is even")
+        if key.startswith("window_"):
+            check(h <= head, f"ADR 0012 {key} ({cell['v']}) H {h} <= head datum {head}")
+            sill = head - h
+            sills[key] = sill
+            check(sill % 2 == 0, f"ADR 0004 {key} derived sill {sill} is even")
+
+    check(sills["window_kitchen"] > sills["window_living"],
+          f"ADR 0012 kitchen sill {sills['window_kitchen']} is above living "
+          f"{sills['window_living']} -- the short window clears a counter")
+    check(min(sills.values()) > 0 and max(sills.values()) < h_clear,
+          f"ADR 0012 every derived sill is inside the room: {sorted(sills.values())}")
+
 
     print("\n".join(notes))
     print()

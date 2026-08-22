@@ -46,8 +46,8 @@ and that is the failure this table exists to catch.
 | Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three* |
 | **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme* |
 | Area measurement convention — what a m² means everywhere it travels | settled | — |
-| **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not |
-| **Vertical dimensions** — the height the model has never had | **open** | ⚠️ **unowned until IFC export ran, and not an IFC problem.** No storey, ceiling, opening or sill height exists in any file; `annotation.md` already ships **three schedule columns that cannot be filled**, and `CONTEXT.md`'s Storey exists "because the model would otherwise have to invent it on export" while carrying no height — *The Plan has no vertical dimension, and three artefacts already assume one* — **one grilling ticket, not two**: where a height lives changes which height you need |
+| **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not. ✅ its vertical hole is **closed** by ADR 0012 — §12 drops from four inputs to two — but ⚠️ **§5 and §12 contradict each other**: §5 extrudes `IfcSpace.Body` to *storey height* where §12 assigns `h_clear`, and a Space is floor-to-ceiling. **Unowned** |
+| **Vertical dimensions** — the height the model has never had | settled | `docs/research/vertical-dimensions.md`, ADR 0012, gates 33 → **67**. **One datum, `h_clear`;** `h_storey` **deleted** — AzDTN 2.7-2 publishes none, and its only two consumers were empty. ⚠️ the ticket's premise was **half false**: two of the four inputs were already shipped and `verified`. ⚠️ **the `Fall barrier` trigger is refused, not chosen** — it turns on the drop below the window, and v1 has one Storey at elevation 0 with no site, so the model cannot evaluate it at all |
 | **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, **now unblocked**: the Brief is settled and hands it an `engine_view` block to read rather than recompute |
 | **Room-count promise** — what the product says it covers, against C13's 4–10 | **open** | *The room-count envelope v1 promises* |
 
@@ -75,18 +75,16 @@ order** — the done-test decides order:
 
 | Artifact | Claimed by |
 |---|---|
-| `CONTEXT.md` | 21, 31, 39 |
-| `data/standards/room-constraints.json` | 16, 31, 32, 39 |
+| `CONTEXT.md` | 21, 31 |
+| `data/standards/room-constraints.json` | 16, 31, 32 |
 | `data/acceptance/rules.json` | 16, 20, 26 |
 | `docs/spec/acceptance-bar.md` | 26, 28 |
 | `docs/spec/proposer.md` | 23, 28, 30 — 28 and 30 both amend §1, so **30 is blocked by 28** |
 | `docs/spec/annotation.md` | 28, 32 |
-| `docs/spec/openings.md` | 16, 39 — 39 draws the catalogue-versus-instance line 16 then fills |
+| `docs/spec/openings.md` | 16 — **sole claimant now.** 39 closed without creating it: the catalogue-versus-instance line is in `CONTEXT.md`'s **Opening** and **Head datum** terms and in the profile data, so 16 inherits it |
 | `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see |
 
-⚠️ **39 has the widest write-set on the map** — three shared artifacts. It is not
-blocked by any of them, but it collides with more tickets than anything else, so
-claim it when the frontier is quiet rather than alongside 16, 31 or 32.
+✅ **39 is closed and its collisions are gone.** It had the widest write-set on the map and was taken when the frontier was quiet, exactly as this note directed; it then **dropped `openings.md` rather than author a file 16 owns**, so the count it was warned about fell from three shared artifacts to two.
 
 Only one of these became a blocking edge, and deliberately: sharing a file is a
 merge hazard, sharing a *decision* is a dependency. 28 changes the Proposal
@@ -152,7 +150,7 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 | C12 | Not tied to any region — but that was freedom, not an obligation to serve everywhere. v1 ships **exactly one** profile and it is **`AZ`**; `UK` survives as a test fixture and is never selectable. |
 | C13 | **v1's Proposer serves 4–10 Brief-named rooms**, 92% of the corpus; retrieval dies at 11+. What the *product* promises is *The room-count envelope v1 promises*. |
 | C14 | **A region profile is a construction system plus a drawing convention, and it never rejects a Plan.** It owns the thickness catalogue, decimal separator, room-name abbreviations, opening catalogue keys, two soft area targets and one soft window fraction; every hard dimensional floor is the region-invariant ergonomic minimum. **`RegionProfile` and `CorpusProvenance` are two fields**, `AZ` and `CH`, and their disagreement is the normal case — v1 draws **Swiss-shaped layouts to Azerbaijani conventions, permanently**, and says so. Now populated: **one construction type, brick, `t_int` 150 mm — a layer set, 120 structural + 2 × 15 finish, every term `verified`**, drawing in Azerbaijani. It also owns the **area convention**, and every published number measures to that finish plane. ADR 0006, ADR 0010. |
-| C15 | **Two arithmetic ship gates, and they bind different layers.** ADR 0004 — every wall thickness **even** — is global. ADR 0007 — `min + t_int ≡ 0 (mod grid)` — binds **region profiles only**; ADR 0009 exempts the region-invariant ergonomic layer, whose minima are *derived* rather than quoted and so have no nominal-to-clear conversion to apply. Asserted, not claimed: `experiments/region-profile/gate_check.py` — **33 gates, all pass** after ADR 0010 moved the residue class from 130 to 100 mod 250 and sharpened ADR 0004 to bind on **totals, not layer components**. |
+| C15 | **Two arithmetic ship gates, and they bind different layers.** ADR 0004 — every wall thickness **even** — is global. ADR 0007 — `min + t_int ≡ 0 (mod grid)` — binds **region profiles only**; ADR 0009 exempts the region-invariant ergonomic layer, whose minima are *derived* rather than quoted and so have no nominal-to-clear conversion to apply. Asserted, not claimed: `experiments/region-profile/gate_check.py` — **67 gates, all pass** (33 before ADR 0012 added the vertical section) after ADR 0010 moved the residue class from 130 to 100 mod 250 and sharpened ADR 0004 to bind on **totals, not layer components**. |
 
 **Evidence that shaped the map** — read before re-litigating C10:
 
@@ -500,6 +498,35 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   export. ⚠️ C2's Revit round-trip is **still priced at zero** — the research
   section that was to price it was never written, and one concrete untested risk is
   named instead (`IfcIndexedPolyCurve` vs `IfcPolyline` on Revit import).
+- [The Plan has no vertical dimension, and three artefacts already assume one](tickets/39-the-plan-has-no-vertical-dimension.md)
+  — **one vertical datum, and it is the clear height.** ADR 0012,
+  `docs/research/vertical-dimensions.md`, `profiles.AZ`, gates 33 → **67, all pass**.
+  ⚠️ **The ticket's premise was half false**: two of `ifc-export.md` §12's four
+  inputs were already shipped and `verified` — ticket 25 landed `clear_heights_mm`,
+  and the catalogue marks always carried head heights. The IFC session grepped for
+  *names*, not values. **`h_storey` is deleted, not deferred**: AzDTN 2.7-2
+  prescribes no storey height, its 2,8 m appears only as a **lift-traffic modelling
+  assumption** the norm itself says to recompute, and both consumers §12 claimed are
+  empty — one storey at `Elevation = 0.0`, and **no `IfcSlab` or `IfcRoof`
+  anywhere**, so nothing rests on a wall. The cheap answer was **unavailable**: an
+  extrusion cannot omit its depth, so ADR 0011's *absent is unknown* does not reach
+  it, and the choice was forced between a statutory `verified` figure and an
+  unsourced build-up. **A wall body is floor-to-ceiling, declared, not
+  slab-to-slab**, and a Wall gains **no** height field. Sills are **derived** —
+  `sill = head_datum − catalogue H`, the datum being the **balcony door's own
+  catalogue head**, because it shares a lintel with the window beside it — giving
+  700 / 700 / **1000**, the kitchen clearing a 900 mm counter. ⚠️ **The `Fall
+  barrier` trigger is refused, and that is the finding**: cl. 8.3's 1,2 m is
+  statutory, but *which* windows are "places with a risk of falling" turns on the
+  **drop below them**, and v1 has one Storey at elevation 0 with no site — a
+  ground-floor window and an eighth-floor one are **indistinguishable in this
+  model** — so the column reads `—` and the refusal is **gated**. ⚠️ **The gate
+  corrected the ticket twice**: a GOST mark is *height*-then-width, and a drafted
+  1000 mm trigger guarded every window in the catalogue. ⚠️ Two reversals
+  mid-session — the Brief **may** state a ceiling height (an architect never
+  invents floor-to-ceiling), which is what makes one hard **Brief-sited** predicate
+  possible; and `openings.md` was **deliberately not created**.
+
 
 ## Not yet specified
 
@@ -620,7 +647,12 @@ Ruled beyond this destination. Does not graduate; returns only as a fresh effort
   correct convention, and a detail asserts a construction build-up this system does not
   model and C8 forbids it claiming.
 - **The site: plot boundaries, setbacks, and any solar or daylight model.** Ruled out by
-  *Building scope and envelope handling*. The Envelope is stated or derived from the
+  *Building scope and envelope handling*. **Charged a second time by *The Plan has no
+  vertical dimension*, and this time it costs a shipped column:** whether a window needs a fall
+  barrier turns on the drop below it, so with no site and one Storey at elevation 0 the engine
+  cannot evaluate AzDTN 2.7-2 cl. 8.3's trigger at all, and `annotation.md`'s `Fall barrier`
+  column reads `—` for every window. The guarding *height* is statutory and shipped; only the
+  *when* is unknowable, and it stays unknowable while this is out of scope. The Envelope is stated or derived from the
   programme and fixed before the solve; the Acceptance bar's window rules are
   topological, never solar. A **north angle is still stored**, used only for the north
   arrow and as a soft Brief preference.

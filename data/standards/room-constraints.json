@@ -1028,19 +1028,27 @@
           }
         },
         "clear_heights_mm": {
-          "comment": "NOT subject to ADR 0007 -- see ship_gates.adr_0007_scope_carve_out. A storey height is not eroded by an internal partition.",
+          "comment": "NOT subject to ADR 0007 -- see ship_gates.adr_0007_scope_carve_out. A clear height is not eroded by an internal partition. THE PLANE IS QUOTED, NOT INFERRED: cl. 5.8 parenthesises the measurement as '(döşəmədən tavanadək)' -- floor to ceiling -- so this is h_clear in the source's own words, and ADR 0012 adopts it as v1's single vertical datum.",
           "habitable_room_and_kitchen": {
             "v": 2700,
             "src": "az_azdtn_2_7_2",
             "ref": "cl. 5.8",
             "conf": "verified",
-            "note": "Nationally, with no climatic carve-out."
+            "note": "Nationally, with no climatic carve-out. Verbatim cl. 5.8: «Yaşayış otaqlarının və mətbəxin hündürlüyü 2,7 m-dən az olmamalıdır.» Register 'az olmamalıdır' = məcburi, so STATUTORY per source_force_vocabulary. The same clause fixes the mansard high side at 2,7 m «(döşəmədən tavanadək)» -- floor to ceiling -- which is where the PLANE is stated rather than inferred."
           },
           "corridor_hall_antresol": {
             "v": 2100,
             "src": "az_azdtn_2_7_2",
             "ref": "cl. 5.8",
-            "conf": "verified"
+            "conf": "verified",
+            "note": "INERT IN V1 -- see ADR 0012. Verbatim cl. 5.8: «Mənzildaxili dəhlizlərin, holların, antresolların (və onların alt hissələrinin) hündürlükləri insanların hərəkətinin təhlükəsizliyini təmin etmək şərtilə 2,1 m-dən az olmamalıdır.» That is a CONDITIONAL ALLOWANCE TO REDUCE (\"provided the safety of people's movement is ensured\"), not a second requirement, and exercising it asserts a safety judgement this engine cannot make. Kept as data so a dropped ceiling later is a data change, not a redesign -- the same posture as area_convention's balcony coefficients."
+          },
+          "storey_height_mm": {
+            "v": null,
+            "src": "az_azdtn_2_7_2",
+            "ref": "searched: cl. 5.8, sec. 8, lift table note 2",
+            "conf": "verified",
+            "note": "EXPLICITLY NULL, AND THAT IS THE FINDING. AzDTN 2.7-2 PRESCRIBES NO STOREY HEIGHT. 'mərtəbə hündürlüyü' occurs only (a) in sec. 3 definitions, as the term that classifies zirzəmi/kürsülük storeys, and (b) in the passenger-lift table's Note 2: «Cədvəl adambaşına 18 m2 ümumi mənzil sahəsi, mərtəbənin hündürlüyünün 2,8 m, liftin hərəkət intervalının 81-100 s olması hesabı ilə tərtib edilmişdir.» -- the table was COMPILED ON THE BASIS OF a 2,8 m storey height, and Note 3 then directs that the lift count be recomputed where it differs. That 2,8 is a LIFT-TRAFFIC MODELLING ASSUMPTION, not a construction requirement. Publishing it as h_storey would be ticket 25's trap in a new costume: a real number, from the right LIVE document, doing a job it was never written for. It also fails arithmetically -- 2,8 floor-to-floor over a 2,7 clear implies a ~100 mm slab plus floor build-up, which no RC slab is. ADR 0012 therefore DELETES h_storey from v1 rather than sourcing it."
           }
         }
       },
@@ -1200,7 +1208,23 @@
           }
         },
         "sizes_that_do_not_exist": "gost_6629_88 heights are 21 and 24 dm ONLY; 21-series widths 7/8/9/10/12/13 dm. There is no 20 dm or 23 dm size -- 20-7 appears only inside a cl. 1.5 EXAMPLE STRING and in no size drawing. Do not ship it.",
-        "catalogue_may_be_dead": "OPEN QUESTION. gost_6629_88 is superseded and the live successors explicitly REFUSE to fix an opening grid -- gost_23166_99 cl. 4.9 makes it a project decision. If that holds, the opening catalogue is engine_choice bounded by the old series, not verified."
+        "catalogue_may_be_dead": "OPEN QUESTION. gost_6629_88 is superseded and the live successors explicitly REFUSE to fix an opening grid -- gost_23166_99 cl. 4.9 makes it a project decision. If that holds, the opening catalogue is engine_choice bounded by the old series, not verified.",
+        "head_datum_mm": {
+          "v": 2200,
+          "src": "engine_choice",
+          "ref": "the balcony door's own catalogue head; see docs/research/vertical-dimensions.md",
+          "conf": "engine_choice",
+          "note": "ONE CONSTANT, AND EVERY WINDOW SILL IS DERIVED FROM IT -- ADR 0012. AzDTN 2.7-2 publishes NO window sill height ('pəncərə altlığı': ZERO occurrences in the full 2021 text), so a sill cannot be quoted, and a per-room-type table would be four invented numbers. Instead ONE datum, and it is NOT invented: 2200 is the balcony door's own catalogue head (BS 22-7,5), taken because A BALCONY DOOR AND THE WINDOW BESIDE IT SHARE A LINTEL -- the ordinary post-Soviet living-room composition -- so the tallest catalogue opening sets the head line and every window hangs from it. sill = head_datum - catalogue H. Structure derived, one constant chosen from the catalogue rather than from nowhere: ADR 0009's shape. Doors sit 100 mm below the line at their own 2100, which is what a real elevation does. Gated: head_datum <= h_clear, and every window H <= head_datum."
+        },
+        "sill_rule": "DERIVED, NEVER STORED PER INSTANCE. sill = openings.head_datum_mm - catalogue H. On the shipped catalogue: window_living (OR 15-15, H 1500) = 700; window_bedroom (OR 15-12, H 1500 -- the mark is HEIGHT-width, so 1500 x 1200) = 700; window_kitchen (OS 12-9, H 1200) = 1000, which clears a 900 mm kitchen counter and is why the kitchen window is the short one. All even, so ADR 0004 holds on derived sills as well as on openings. Fills annotation.md's window-schedule 'Sill height' column. A sill is NOT a catalogue column: the same OR 15-15 sits at one height in a living room and another over a counter, so the catalogue fixes H x W and the datum fixes placement.",
+        "fall_barrier_mm": {
+          "v": 1200,
+          "src": "az_azdtn_2_7_2",
+          "ref": "cl. 8.3",
+          "conf": "verified",
+          "note": "STATUTORY. Verbatim cl. 8.3: «Pilləkən, balkon, lociya, terras, dam və yıxılma təhlükəsi olan digər yerlərdə məhəccərlərin hündürlüyü 1,2 m-dən az olmamalıdır.» Register 'az olmamalıdır' = məcburi. Corroborated at cl. 8.10 (1,2 m məhəccər on trafficable flat roofs). WINDOWS ARE NOT NAMED: the clause reaches them only through «yıxılma təhlükəsi olan digər yerlər» -- other places where there is a risk of falling -- so the HEIGHT is verified and the TRIGGER is not. Fills annotation.md's window-schedule 'Fall barrier' column and finally supplies CONTEXT.md's Fall barrier term, which until now was defined with nothing behind it."
+        },
+        "fall_barrier_when_required": "REFUSED, NOT CHOSEN, AND THE REASON IS THE MODEL'S SCOPE. cl. 8.3 fixes the guarding HEIGHT and reaches windows only through «yıxılma təhlükəsi olan digər yerlər» -- other places where there is a RISK OF FALLING. Whether a window is such a place depends on the DROP BELOW IT, which depends on which storey the dwelling sits on and what is outside. v1 has exactly one Storey at Elevation 0.0, IfcSite is out of scope, and the map rules out the site entirely -- so this engine cannot evaluate the trigger AT ALL. A ground-floor window needs no barrier; the same window on the eighth floor does; nothing in the model distinguishes them. So v1 publishes the height and refuses the trigger: annotation.md's 'Fall barrier' column reads '—' for every window, which that spec already provides for ('where the model holds one, and — where it does not'). Picking a sill threshold here would have been a SAFETY claim with no source and no way to evaluate it -- the exact C8 breach ticket 25 exists to prevent. This is a refusal in the same class as accessibility and as the ergonomic layer's height."
       },
       "drawing": {
         "language": {
@@ -1440,7 +1464,8 @@
         "baku_degree_days": "Blocks a defensible t_ext_total; that value is flagged provisional rather than guessed.",
         "msn_2_04_05_95_text": "In force in AZ, unobtainable from any Azerbaijani source. KEO is reported off the Russian twin and NOT implemented.",
         "market_practice": "No Baku market or MIDA space standard. market_default -- the DEFAULT tier and the solver's target -- therefore rests entirely on regulator recommendation transferred from a detached-house norm. This is the weakest part of the profile and it is the default one.",
-        "az_accessibility_instructions_2001_02": "Appear unpublished online."
+        "az_accessibility_instructions_2001_02": "Appear unpublished online.",
+        "az_window_sill_and_guarding_trigger": "AzDTN 2.7-2 publishes NEITHER a window sill height NOR the sill threshold at which guarding becomes mandatory. Both searched first-hand in the full 2021 text: 'pəncərə altlığı' zero hits; no window-specific məhəccər clause; no child-safety clause. The guarding HEIGHT (cl. 8.3, 1,2 m) is verified; sill and trigger are engine_choice and say so. A measured negative, in the same class as ticket 14's 'the corpus has no module at all'."
       }
     },
     "UK": {

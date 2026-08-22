@@ -215,18 +215,53 @@ An Opening has **three widths and they are not the same number**: the *structura
 opening* that voids the wall, the *leaf* that is manufactured, and the *clear*
 width you can carry furniture through. Which one is meant is always stated.
 
+An Opening's **height is catalogue and its placement is not.** The catalogue mark
+fixes height and width together — a GOST mark reads *height*-then-*width*, so `OR
+15-12` is 1500 × 1200 and not the reverse — while where the opening sits
+vertically is fixed by the [[Head datum]] and never stored per instance. The same
+window sits at one height in a living room and another over a kitchen counter, so
+the catalogue could not carry it and an invented per-instance sill would be the
+same tell as an invented width.
+
+**Head datum** — the single line every window hangs from, and the reason a sill is
+derived rather than stored: `sill = head datum − opening height`. It is the
+tallest opening in the region catalogue, because a balcony door and the window
+beside it share a lintel. Doors sit below it at their own catalogue height. ADR
+0012.
+
 **Fall barrier** — guarding at a window, held separately from the window's sill
 height, because the height that protects against a fall and the height that lets a
 seated person see out are in direct conflict and no single number satisfies both.
+
+Its **height is known and its trigger is refused**. The region profile publishes a
+statutory guarding height, but *which* windows need one depends on the drop below
+them — which storey, and what is outside. v1 has one Storey at elevation zero and
+no site, so the model cannot tell a ground-floor window from an eighth-floor one
+and does not pretend to. Every window's Fall barrier reads *unknown*, and the
+schedule prints `—`. ADR 0012.
 
 **Swing footprint** — the region a door leaf sweeps, taken as the leaf-side
 square anchored at the hinge. Deliberately the bounding box of the swept
 quarter-disc rather than the disc: conservative, integer, and checkable before
 any fixture or furniture exists.
 
-**Storey** — the level a Plan's geometry sits on. Exactly one in v1, and the
-Acceptance bar says so. It exists because the model would otherwise have to
-invent it on export.
+**Storey** — the level a Plan's geometry sits on, and **the only thing in this
+model that has a height**. Exactly one in v1, and the Acceptance bar says so. It
+used to exist only so export would not have to invent it; it now carries the
+[[Clear height]] every Wall and Space reads, so there is nothing left to invent.
+
+**Clear height** — floor to finished ceiling, and **v1's single vertical datum**.
+One number per Plan, stated in the Brief or assumed from the region profile. Every
+other vertical quantity is expressed against it or refused: a Wall body is
+extruded to it, a Space's volume is its area times it, and a window's sill is the
+[[Head datum]] minus the opening's height. Named for the same reason [[Clear
+dimension]] is — it measures **finished** faces, and the source says so in its own
+words.
+
+**Floor-to-floor** is deliberately **absent**, not merely unmeasured. Nothing in
+v1 rests on a slab, so publishing a slab-to-slab height would assert a build-up
+this model does not carry. A Wall body is therefore floor-to-ceiling, and that is
+an understatement the export declares rather than pads. ADR 0012.
 
 **Drawing** — a Plan, a **Sheet set**, and the annotation resolved over them:
 plan graphics, dimension chains, room tags, schedules, title block. **Derived**
