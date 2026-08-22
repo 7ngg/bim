@@ -41,13 +41,13 @@ and that is the failure this table exists to catch.
 | DXF export | settled | — |
 | Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by |
 | Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
-| Acceptance bar — 38 predicates, enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Opening rules need *Opening placement rules* |
+| Acceptance bar — 38 predicates, enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Opening rules need *Opening placement rules*. ⚠️ **a 40 m² WC passes all 38** — no non-circulation Space has a maximum area, and the surplus is compulsory — *What a room's area is allowed to be* |
 | Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*. ✅ its thickness is now measured-vindicated: 150 lands **4 mm from the corpus-optimal 146** |
 | Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three* |
-| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | **open** | nothing written, but **unblocked** and now handed its two area fields — *Brief schema and parsing contract* |
+| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ⚠️ its **band** — a target area is two-sided, not a floor — has no numbers yet; they arrive with the Acceptance bar row's ticket |
 | Area measurement convention — what a m² means everywhere it travels | settled | — |
 | **IFC export** — the Destination's second named output | **open** | ⚠️ **was unowned until the done-test ran.** `IFC` appears in no spec file; *BIM and CAD export stack* proved the tooling, never the content — *What IFC the engine actually emits*, now **unblocked** and handed its quantity and its wall layers |
-| **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, waiting on the Brief |
+| **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, **now unblocked**: the Brief is settled and hands it an `engine_view` block to read rather than recompute |
 | **Room-count promise** — what the product says it covers, against C13's 4–10 | **open** | *The room-count envelope v1 promises* |
 
 ## Notes
@@ -69,12 +69,12 @@ each other — "two tickets populated it in parallel and neither could see the o
 keys". The graph is nearly flat, so almost anything can be claimed at once, and
 nothing but this rule stops it happening again.
 
-Six artifacts have more than one claimant. Read this as a **conflict map, not an
+Five artifacts have more than one claimant. Read this as a **conflict map, not an
 order** — the done-test decides order:
 
 | Artifact | Claimed by |
 |---|---|
-| `CONTEXT.md` | 10, 21, 31 |
+| `CONTEXT.md` | 21, 31 |
 | `data/standards/room-constraints.json` | 16, 31, 32 |
 | `data/acceptance/rules.json` | 16, 20, 26 |
 | `docs/spec/acceptance-bar.md` | 26, 28 |
@@ -382,6 +382,30 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   — while leaving the conclusion standing on ADR 0001 instead. ⚠️ **Swiss Dwellings
   records one plane and no finish layer**, so the corpus can never say whether it is
   structural or finished.
+- [Brief schema and parsing contract](tickets/10-brief-schema-and-parsing-contract.md)
+  — **the Brief is two objects, and the parser is the only untestable component.**
+  `docs/spec/brief.md`, `CONTEXT.md`. `StatedBrief` (sparse, what the prose said)
+  and `ResolvedBrief` (dense) joined by a pure `resolve`, so the Assumption set is
+  **derived** rather than a second list, editing *is* re-resolution, and **the model
+  is never asked to invent a number** — which is what deletes the retry loop
+  entirely: structured outputs cannot fail schema, and a semantic problem is the
+  Homeowner's to see. The Brief speaks the **ergonomic 18 verbatim** with a
+  display-only `label`, so *Two room vocabularies* has one mapping to build, not
+  three; open-plan is a **type**, not an adjacency. Relations are three — hard
+  `access_via`, soft `adjacency_wish`, hard `adjacency_veto` — and **neither of the
+  last two has a predicate today**. Defaults ladder `market_default` → **corpus
+  median** → absent, because `AZ` is silent on `wc`/`hall` and 63,800 dwellings are
+  on disk. ⚠️ **The finding that bites hardest is a defect in the bar, not in this
+  ticket: a 40 m² WC passes all 38 rules** — every area predicate is a floor or a
+  total, and `model.no_unassigned_area` makes the surplus *compulsory*, so it lands
+  wherever the objective is cheapest. Re-owed by *What a room's area is allowed to
+  be*. ⚠️ **The feasibility pre-check must sum realisable minima**, not published
+  ones — ADR 0009's erosion still governs, so `bedroom_double` is 3.9 m², not 3.1,
+  **25 % higher**; the circulation-allowance constant is deleted rather than fitted,
+  and `acceptance-bar.md` §11's 58 m² is **not reproducible** from the shipped table.
+  ⚠️ Its inherited *"`statutory_floor` is null in the default region"* is **stale** —
+  `AZ`'s are populated and `verified`; the conclusion survives on C14 instead.
+  Accessibility is **refused, not ignored**.
 
 ## Not yet specified
 
@@ -402,12 +426,13 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   `target_area` — the partition footprint, ~4–5%, is only known after the solve. How
   the Envelope is sized against that target is part of this patch and did not exist
   before ADR 0010.
-- **What a corpus-shaped product looks like** — the room-count half is now a ticket. Fog
-  is the rest: whether the **Brief's defaults** come from the corpus rather than the
-  standards table, whether generation is **biased toward corpus-typical shapes**, and
-  **what a Homeowner is told when their Brief crosses the retrieval line**. That line is
-  already knowable at Brief-parse time, since retrieval's gate is a lookup — nothing yet
-  says whether it should be shown.
+- **What a corpus-shaped product looks like** — **two of its three parts have closed.**
+  *Brief schema and parsing contract* answered whether the **Brief's defaults** come
+  from the corpus: they do, as the ladder's second rung, where the region profile is
+  silent. And the retrieval line is no longer a computation nobody owns — the
+  `ResolvedBrief` carries `retrieval_pool_size` in its `engine_view`, so **what a
+  Homeowner is told** is now purely a surface question for *Homeowner product surface*.
+  Fog is what remains: whether generation is **biased toward corpus-typical shapes**.
 - **Plan quality beyond the validator** — there now *is* a ranking signal (six soft
   rules, two warns, including the aspect-ratio term added because a plan can pass
   everything and still read as generated). Fog is whether it correlates with human
@@ -486,6 +511,15 @@ Ruled beyond this destination. Does not graduate; returns only as a fresh effort
   programme and fixed before the solve; the Acceptance bar's window rules are
   topological, never solar. A **north angle is still stored**, used only for the north
   arrow and as a soft Brief preference.
+- **An existing plan as input — image, PDF or DWG.** Ruled out by *Brief schema and
+  parsing contract*, and it is the one place the market has clearly settled somewhere
+  we have not: **every** Homeowner-facing product surveyed takes one — Maket (plan
+  image or PDF), Snaptrude (RFP and code PDFs), Synaps (DWG/DXF with layers and
+  dimension styles preserved). Out of scope rather than fog because it is a second
+  *input modality*, not a step on the route to this Destination: understanding a
+  raster plan is *Rectangularising real rooms* pointed at an image with none of the
+  corpus's ground truth. Recorded so a redraw starts from the fact rather than
+  rediscovering it.
 - **A second region profile in v1, and any claim of regional *layouts*.** Ruled out by
   *Which region profiles ship in v1*. A second *standards* profile is ~30 numbers in a
   data file; a second *layout* region is a corpus that does not exist. Shipping one

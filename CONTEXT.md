@@ -19,9 +19,21 @@ areas, envelope, adjacencies, occupancy. Editable, and the real interface to the
 system. The prompt is the front door; the Brief is what everything downstream
 consumes.
 
-**Assumption** — a Brief value the system invented rather than read from the
-prose. Always surfaced to the Homeowner. An invented *room* and an invented
-*area* are assumptions of different kinds.
+It is **two objects, not one**. A **Stated brief** is sparse — a field is present
+only if the prose asserted it, and the parser is never asked for more than that. A
+**Resolved brief** is dense, every field the pipeline needs filled by a pure
+function of the stated one, the region profile and the standards. The split is
+what makes the set of invented values *derivable* rather than a second list
+somebody has to keep in step, and it is why editing and regenerating are the same
+operation.
+
+**Assumption** — a Brief value the Homeowner should check, always surfaced. Three
+kinds, and the third is not a **Provenance** value: an invented *room*, an
+invented *value*, and a **reading** — a value they *did* state, interpreted. A
+listing's "90 m²" is stated and still a reading, because the published figure
+counts an *eyvan* at full area and this system has no such element. Naming the
+reading is how the engine says what it assumed without inventing a deduction the
+user never made.
 
 **Envelope** — the boundary a plan is laid out inside, taken at the **finished
 inner face** of the external wall. It *is* the interior clear region, so a
@@ -54,6 +66,11 @@ reason the Envelope is not defined here instead: the thicknesses differ per edge
 system. Held per field, not per object: someone who says "a corner flat, about 9 m
 wide" has stated an exposure and one dimension and invented the rest. An invented
 value is an **Assumption**.
+
+**Editing a value makes it stated; acknowledging one does not.** The distinction
+is load-bearing rather than pedantic — whether the area-determining fields were
+stated decides whether a plan missing its target area is rejected or merely
+flagged, so "they looked at it" and "they chose it" cannot be the same value.
 
 **Solve domain** — the region the solver actually tiles: the interior clear region
 **dilated outward by half an internal wall thickness**. Not the Envelope, and not
@@ -123,12 +140,32 @@ and spaces. The single representation every layer reads or writes. Annotation is
 **Room** — a room as *program*: a name, a type, a target area, and an identity
 that comes from the Brief. Has no geometry of its own. Survives a regenerate.
 
+Its **type** and its **label** are different things and only the type is
+load-bearing. The type is one of a closed set the minima, the schedule, the
+retrieval key and the solver all read; the label is the Homeowner's own word,
+printed on the tag and nowhere else. "Nursery" and "guest room" are labels on a
+typed Room, which is how a real drawing schedule already works, and it is what
+lets a Homeowner's vocabulary be kept without any of it becoming a number.
+
+A **target area is a band, not a floor.** Stating only a minimum is what lets a
+plan pass every check with a room several times the size anyone would build it:
+the interior must be tiled exactly, so surplus is compulsory and lands wherever
+the solver finds it cheapest.
+
 **Dependent room** — a Room the Brief says is entered *through* another Room
 rather than from circulation: an ensuite, a walk-in wardrobe, a utility off the
 kitchen. It names its host. Access-through is **program**, not geometry, so it is
 declared and never inferred — without the declaration, "every room is reachable
 without passing through a bedroom" rejects every plan with an ensuite; with it,
 an ensuite that opens onto the hall correctly fails.
+
+**Adjacency wish** and **Adjacency veto** — the two pairwise relations a
+Homeowner may state about Rooms that are not host and dependent. They are not
+symmetric and must not be one field: a wish is a *preference* and can never empty
+the gallery, because "the kitchen near the dining" is said casually; a veto is
+*hard*, because a prohibition the engine accepts and then ignores is worse than
+offering none. Neither can express a set against a set — "the bedrooms, away from
+the entrance" is a different shape of statement and is not expressible here.
 
 **Space** — a room as *geometry*: the polygon bounded by the **finished** inner
 faces of the walls around it — see [[Finish layer]]. Derived, never authored.
@@ -315,6 +352,15 @@ it sits far below what anyone builds, and the liveable number is the [[Region
 profile]]'s. A minimum is *derived* — composed from published footprints — and
 never transcribed from a table; the corpus is allowed to falsify it and never to
 supply it.
+
+**Realisable minimum** — an [[Ergonomic minimum]] after the solve grid and the
+wall have been paid for: the smallest clear dimension the solver can actually
+produce at or above it. A published minimum and a realisable one are different
+numbers because a room is solved in whole grid cells and then eroded by a wall,
+so a floor of 1650 mm is delivered as 1850. Named because every arithmetic done
+*before* a solve — above all the check that says whether a Brief is possible at
+all — has to use the realisable number, and using the published one quietly
+approves briefs the solver cannot build.
 
 **Body zone** — the depth of body in front of a fixture that cannot be shared
 with another fixture's zone. The one calibrated constant behind every [[Ergonomic
