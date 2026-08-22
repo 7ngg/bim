@@ -34,17 +34,17 @@ and that is the failure this table exists to catch.
 |---|---|---|
 | Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ⚠️ its *one box per Room* premise was never weighed — *Whether a Room may be more than one rectangle* |
 | Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
-| Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus* |
+| Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus*, now also handed a **labelling defect in `swiss_fit.json`**: `fit_rects.py` labels from the unfiltered list and **1.23 % of fitted dwellings are off by one** |
 | Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts* |
 | Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | — |
 | Runtime and process split — engine / proposer service / BFF, job model, threads, JSON | settled | ⚠️ the honest end state (queue + result store) is fog, under *Persistence, accounts, hosting* |
 | DXF export | settled | — |
 | Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by |
 | Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
-| Acceptance bar — 38 predicates, enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Opening rules need *Opening placement rules*. ⚠️ **a 40 m² WC passes all 38** — no non-circulation Space has a maximum area, and the surplus is compulsory — *What a room's area is allowed to be* |
-| Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*. ✅ its thickness is now measured-vindicated: 150 lands **4 mm from the corpus-optimal 146** |
+| Acceptance bar — 38 predicates, enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists |
+| Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*, now also handed the silent-type medians and the **`hall` / `entrance_lobby` / `corridor` three-into-one gap**. ✅ its thickness is now measured-vindicated: 150 lands **4 mm from the corpus-optimal 146** |
 | Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three* |
-| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ⚠️ its **band** — a target area is two-sided, not a floor — has no numbers yet; they arrive with the Acceptance bar row's ticket |
+| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme* |
 | Area measurement convention — what a m² means everywhere it travels | settled | — |
 | **IFC export** — the Destination's second named output | **open** | ⚠️ **was unowned until the done-test ran.** `IFC` appears in no spec file; *BIM and CAD export stack* proved the tooling, never the content — *What IFC the engine actually emits*, now **unblocked** and handed its quantity and its wall layers |
 | **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, **now unblocked**: the Brief is settled and hands it an `engine_view` block to read rather than recompute |
@@ -80,6 +80,7 @@ order** — the done-test decides order:
 | `docs/spec/acceptance-bar.md` | 26, 28 |
 | `docs/spec/proposer.md` | 23, 28, 30 — 28 and 30 both amend §1, so **30 is blocked by 28** |
 | `docs/spec/annotation.md` | 28, 32 |
+| `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see |
 
 Only one of these became a blocking edge, and deliberately: sharing a file is a
 merge hazard, sharing a *decision* is a dependency. 28 changes the Proposal
@@ -406,6 +407,33 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   ⚠️ Its inherited *"`statutory_floor` is null in the default region"* is **stale** —
   `AZ`'s are populated and `verified`; the conclusion survives on C14 instead.
   Accessibility is **refused, not ignored**.
+- [What a room's area is allowed to be](tickets/37-what-a-rooms-area-is-allowed-to-be.md)
+  — **a maximum is enforceable, it is free in the solver, and the anchor is the
+  Room's own `target_area`.** `docs/research/room-area-bands.md`,
+  `experiments/room-area-bands/`. The anchor is settled by an **identity**, not a
+  measurement: §9.2 sets a silent Room's target from a per-type constant, so
+  "against the target" and "against the type absolutely" are the same rule for
+  every Room a Homeowner does not size by hand. A **fraction of the dwelling is
+  refuted** — the loosest anchor tested, on 7 of 9 Swiss classes. Three rules
+  handed to `rules.json`'s holder, and the second is the one nobody was looking
+  for: **`dim.market_default_area` is a cause, not a bystander** — it prefers
+  Spaces *at or above* market default, so the objective **actively rewards
+  bloat** and a maximum alone just relocates it to under the cap. The absorber
+  needs **no Brief field**: rank the classes by dispersion and the ordering *is*
+  the absorber ordering. **A Swiss bedroom does not grow with the dwelling at
+  all** — r² **0.000**, +0.08 m² per 40 m² — a bigger flat has *more* rooms, a
+  bigger living room and more corridor. ⚠️ **The first WC cap was circular** and
+  correcting it moved the number **2.2×**: the class `wc` *is* `BATHROOM < 2.4`,
+  so every percentile returned the splitter; fixture ground truth puts a real
+  WC's p99 at **5.29 m²** and **19.3 % of real WCs above the splitter**. ⚠️ **A
+  hard maximum can make a Brief unsatisfiable**, at 4 rooms and only there — and
+  it surfaces as zero survivors, not INFEASIBLE, because H3 is soft. ⚠️ **The
+  ticket's own instruction points the wrong way**: the converted geometry is on
+  the **centreline** plane and ADR 0010 wants the finished face, and the gap is
+  **not a constant** — 1.17× for a living room, 1.58× for a WC. Also delivered:
+  the silent-`AZ` medians and the bedroom-count → total-area joint distribution
+  `brief.md` §7 owed, ⚠️ on which the two corpora **disagree by ~40 %** at three
+  bedrooms, from labelling rather than market.
 
 ## Not yet specified
 
@@ -425,7 +453,13 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   GIA, so an invented Envelope can no longer be sized by setting its inner area to
   `target_area` — the partition footprint, ~4–5%, is only known after the solve. How
   the Envelope is sized against that target is part of this patch and did not exist
-  before ADR 0010.
+  before ADR 0010. **Sharpened again by *What a room's area is allowed to be*:** the
+  per-type growth curve is now measured, so an invented Envelope no longer has to guess
+  how a bigger box distributes — 40 m² more dwelling buys the living room **+7.99 m²**,
+  circulation **+4.00**, and a bedroom **+0.08**. And the diversity asymmetry gets a
+  second reading: an aspect-ratio axis varies the *box*, while what actually varies
+  between real dwellings of one size is **which room absorbs** — a diversity axis a
+  **stated** Envelope can have too, which is exactly the case that currently gets none.
 - **What a corpus-shaped product looks like** — **two of its three parts have closed.**
   *Brief schema and parsing contract* answered whether the **Brief's defaults** come
   from the corpus: they do, as the ladder's second rung, where the region profile is

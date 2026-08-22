@@ -106,3 +106,46 @@ Also relevant: *Acquire the datasets* §6 flagged that geometric validity was
 unmeasured and this ticket would hit it first. Partly discharged — 46 invalid
 polygons in 296,653 were repaired by `make_valid`, none dropped
 (`experiments/rectangularise/measure_swiss.py`).
+
+---
+
+## Handed here by *What a room's area is allowed to be* (2026-08-22)
+
+**A new rule, not a threshold fit — but it lands in this file and this ticket
+holds it.** Full measurement and reasoning: `docs/research/room-area-bands.md`
+§6. Harness: `experiments/room-area-bands/`. Do not re-derive any of it.
+
+1. **`dim.max_area`** — new, **hard**, site **`both`**. Bound is
+   `k[type] x Room.target_area`, falling back to `absolute_cap[type]` where the
+   Room has no target at all. Table in §6.1. The solver side is **free**: H4
+   already builds `a = w*h` via `AddMultiplicationEquality` for the minimum, and
+   an upper bound on a product tightens propagation on `w` and `h` rather than
+   weakening it.
+2. **`dim.market_default_area` must become two-sided.** It is soft and prefers
+   Spaces *at or above* market default, so the objective **actively rewards
+   bloat** while `model.no_unassigned_area` makes the surplus compulsory. A
+   maximum alone relocates the bloat to just under the cap. Replace the reward
+   with `soft_w[type] x |area - target|`; `soft_w` is measured, §3.1.
+3. **`dim.stated_target_implausible`** — new, **warn**, when a *stated* target
+   exceeds `absolute_cap[type]`. Keeps the Homeowner sovereign; catches an LLM
+   decimal slip.
+
+**Two cautions that change the numbers, not just the confidence.**
+
+- The caps are the corpus **p99.5** and the percentile is not free: p95 rejects
+  **26.6 %** of real dwellings, p99 **6.0 %**, p99.5 **3.1 %**. This corpus is the
+  retrieval and training population, so a rejection here is coverage lost.
+  p99.5 is also the percentile at which the 4-room case stops being
+  inexpressible (§5.1) — chosen twice, independently.
+- **Every number is Swiss and the profile is `AZ`.** Third instance of C14's
+  `RegionProfile` / `CorpusProvenance` mismatch, disclosed per value as
+  `src: swiss_dwellings_p99_5`. A maximum is **not** region-free the way
+  `dim.min_area` is: the ergonomic floor is region-free because a body is a body,
+  and a maximum is a market fact with no such defence.
+
+⚠️ **`circ.fraction_hard`'s 30 % is now cross-checked from a second direction.**
+Corridor share of Σ Space area measures p50 **0.11**, p95 **0.20**, p99 **0.26**
+on 42,986 Swiss dwellings, so 30 % does sit past the tail as its note claims.
+But corridor is also the **second-largest absorber** (+4.00 m² per 40 m² of
+dwelling), so tightening it moves slack into the living room. Fit the two
+together, not separately.

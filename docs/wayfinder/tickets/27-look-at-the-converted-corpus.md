@@ -117,3 +117,29 @@ Two consequences, and the second is the one worth looking at:
 
 `experiments/thickness-fidelity/` did the arithmetic (see its README, *"A corpus
 room polygon is not offset from its wall"*); do not repeat it.
+
+---
+
+## Handed here by *What a room's area is allowed to be* (2026-08-22)
+
+⚠️ **A labelling defect in `swiss_fit.json`, found while reading it.**
+`fit_rects.py` line 727 labels a fitted dwelling with
+`[t for t, _ in dw[k]][:n]` — the **unfiltered** head of the source list — while
+`load_swiss_geoms` (line 628) has already dropped polygons below
+`MIN_ROOM_AREA`. Where a dropped polygon is not last, **every label after it is
+off by one**.
+
+Measured against `measure_swiss`'s correctly-filtered list
+(`experiments/room-area-bands/plane_check.py`): **22 of 1,787 fitted dwellings,
+1.23 %**. This ticket renders converted dwellings, so it will render
+mislabelled rooms unless it relabels from `swiss_rects.json` — which is keyed
+identically and filters correctly. Fix the source or work around it, but do not
+read `swiss_fit.json`'s `types` as-is.
+
+**Also relevant to what this ticket is looking for.** The fitted rectangles are
+on the **watershed / centreline** plane and the corpus polygons are on the
+corpus's own (clear-ish) plane. The ratio is **1.243** at dwelling level but runs
+**1.17× for `living_dining` to 1.58× for `wc`** — a small room's share of the
+walls around it is a much larger share of its own floor. A rendering that
+overlays the two without saying which plane is which will look like the
+conversion inflated the wet rooms. It did not; that is the plane.

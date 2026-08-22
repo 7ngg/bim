@@ -74,3 +74,35 @@ drift across the 14 `both` rules.
 
 Note this is a **schema and vocabulary** question, not a numbers question. Neither
 set of numbers is in doubt and neither should be re-derived here.
+
+---
+
+## Handed here by *What a room's area is allowed to be* (2026-08-22)
+
+**Two corpus measurements this ticket should consume rather than re-derive**, and
+one vocabulary gap it is the right owner for. Source:
+`docs/research/room-area-bands.md`.
+
+1. **`ergonomic.corpus_label_split` records medians and no upper tail, and the
+   tail is where it matters.** Re-measured from Swiss Dwellings' **fixture**
+   ground truth — toilet present, no bath or shower, 13,436 in-band rooms — a
+   real WC runs p50 **1.85** / p95 **3.71** / p99 **5.29** / p99.5 **6.20** /
+   max **18.23 m²**; a real bathroom p50 **4.10** / p99 **8.23** / max **24.52**.
+   The p50s reconcile exactly with what the key already records.
+   ⚠️ **The 2.4 m² splitter cannot see the tail**: **19.3 % of real WCs sit at or
+   above it**. Anything read *through* the splitter is truncated at 2.4 by
+   construction — a cap fitted that way came back as 2.40 at p95, p99, p99.5
+   *and* p99.9 before the circularity was caught.
+
+2. **The silent-profile medians for `brief.md` §9.2's ladder rung 2.** `wc` =
+   **1.85 m²** (fixture). `kitchen_niche` and `wardrobe_1room_entry` have **no
+   corpus type at all**, so rung 2 is empty and they fall through to absent, as
+   §9.2 already specifies.
+
+3. ⚠️ **`hall` is the vocabulary gap and it is yours.** The ergonomic layer
+   carries `hall`, `entrance_lobby` **and** `corridor` as three distinct types.
+   Swiss Dwellings carries **one** label, `CORRIDOR`; ResPlan carries **none**.
+   The 7.58 m² median measured is all three merged, and is offered as a
+   measurement with its limit attached, **not** as a default for `hall`. Whether
+   the three collapse, and if so to what, is a vocabulary decision — which is
+   this ticket.
