@@ -136,3 +136,60 @@ The measurement that would decide it is the same single-aspect arithmetic
 already in this ticket, re-run with a leg allowed. Whatever is chosen, the H8
 predicate's row in `rules.json` needs a line saying **which part it binds**,
 because §9.1 now makes that a question every dimensional rule has to answer.
+
+---
+
+## Handed in by *Homeowner product surface*
+
+**"Dead from 7 rooms" is confounded with the envelope that 7 rooms selects.**
+
+Measured while re-solving the prototype's layouts at corpus-median exposure
+(`experiments/homeowner-surface/probe_exposure.py`, on branch
+`prototype/homeowner-surface`). Five seeds per cell; the cell counts how many
+produced a **Brief** at all — `make_brief`'s CP-SAT type assignment, which must
+satisfy H8 together with wet clustering and circulation. It is upstream of the
+solve, so this is not a timing result.
+
+| n | detached | terrace_mid | flat_corner | corpus_median | flat_single_aspect |
+|---|---|---|---|---|---|
+| 4 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
+| 5 | 5/5 | 5/5 | 5/5 | 5/5 | 5/5 |
+| **6** | 5/5 | 3/5 | 3/5 | **0/5** | **0/5** |
+| 7 | 5/5 | 5/5 | 5/5 | 5/5 | 0/5 |
+| 8 | 5/5 | 5/5 | 5/5 | 5/5 | 0/5 |
+| 9 | 5/5 | 5/5 | 5/5 | 5/5 | 1/5 |
+| **10** | 5/5 | 5/5 | 5/5 | 5/5 | **5/5** |
+
+**The failure is not monotone in n, which is the finding.** `flat_single_aspect`
+fails at 6, 7 and 8, mostly fails at 9, and then **succeeds at 10** — and n = 10
+is where `envelope_for` switches from an **L to a U**, whose second notch adds
+exterior run on the one live edge. So the quantity that binds is *how much
+exterior run the envelope offers*, and `envelope_for(n)` varies that
+non-monotonically. Any statement of the form "dead from n rooms" is measuring
+the envelope n happens to select, not n.
+
+**Two things this ticket should not take at face value from it:**
+
+- ⚠️ **n = 6 fails at corpus median too**, not only at single aspect — and
+  corpus median is *the case a spec should quote as typical*
+  (`geometry.py`'s own comment). That is worse than the map's framing, which
+  files H8 as a single-aspect problem.
+- ⚠️ **This is the toy's generator, not the shipped ergonomic layer** — the same
+  caveat *Whether a Room may be more than one rectangle* attached to its own
+  sub-7-room finding. It corroborates a direction and settles no number.
+
+**And it hands you a second-order consequence with a number on it.** Holding the
+envelope *geometry* identical and varying only the edge ring's typing,
+`probe_diversity.py` measures how different six survivors of **one** Brief are —
+mean pairwise fraction of floor cells whose room kind differs:
+
+| n | detached | corpus_median |
+|---|---|---|
+| 5 | 0.517 | **0.283** |
+| 7 | 0.757 | **0.563** |
+
+H8 pins habitable rooms to the exterior run, so the fewer exterior edges, the
+fewer arrangements are distinguishable. See the *Variant generation and ranking*
+patch — this is a **second, independent** cause of the flat-versus-house
+diversity gap that patch records, and the aspect-ratio axis it proposes does not
+touch it.

@@ -33,7 +33,7 @@ and that is the failure this table exists to catch.
 | Component | | Owed by |
 |---|---|---|
 | Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ✅ its *one box per Room* premise is **weighed and reversed**: a Space is **one or two rectangles** and the Proposal decides which — ADR 0014. ⚠️ ADR 0001's erosion is untouched and is now **asserted** rather than inherited, but `acceptance-bar.md` §9's sliver *argument* is dead and replaced |
-| Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
+| Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*, **now handed a measured table and a correction**: Brief feasibility over exposure × room count is **non-monotonic** — single-aspect fails at 6, 7, 8, mostly at 9 and **succeeds at 10**, where `envelope_for` switches L → U — so *"dead from 7 rooms"* is measuring the envelope n selects, not n. ⚠️ And **n = 6 fails at corpus-median exposure too**, which is the case the toy's own comment calls typical, so H8 is not only a single-aspect problem. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
 | Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus*, now also handed a **labelling defect in `swiss_fit.json`**: `fit_rects.py` labels from the unfiltered list and **1.23 % of fitted dwellings are off by one**, and a second defect: **`why_k.clean()` does not do what it says** and its 58.3 % / 31.03 % clean-up figures are an artefact. ⚠️ **The 31 % conversion drop is re-owed** — it was paid for a one-rectangle constraint ADR 0014 removed — *Re-measure the conversion at two rectangles per Room* |
 | Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts* |
 | Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | — |
@@ -647,7 +647,14 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   converted number. ⚠️ The prototype's plans are **not solves of its own
   Briefs**, so the second defect is **observed, not measured** — it follows from
   `CONTEXT.md`'s Room/Space split regardless. ⚠️ Whether a Homeowner reads
-  `4,40 × 3,40 m` was **rendered but never tested on a person**.
+  `4,40 × 3,40 m` was **rendered but never tested on a person**. ⚠️ **Its first cut
+  ran at `detached` — 100 % exterior — and the plans read as bungalows**; re-solved at
+  **corpus median** (the toy's own "typical") they read as flats, and the re-run
+  produced two findings that outlive the prototype: H8's failure over exposure × room
+  count is **non-monotonic** and therefore confounded with `envelope_for(n)`'s shape
+  choice (handed to *H8 and the single-aspect flat*), and the flat-versus-house
+  **diversity gap is caused by H8 directly**, measured at 0.517 → 0.283, which the
+  aspect-ratio axis *Variant generation and ranking* proposes does not address.
 
 
 ## Not yet specified
@@ -675,6 +682,17 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   second reading: an aspect-ratio axis varies the *box*, while what actually varies
   between real dwellings of one size is **which room absorbs** — a diversity axis a
   **stated** Envelope can have too, which is exactly the case that currently gets none.
+  ⚠️ **And the asymmetry now has a number, and a second cause the proposed patch does
+  not reach.** Holding the envelope *geometry* identical and varying only the edge
+  ring's typing, six survivors of one Brief differ by (mean pairwise fraction of floor
+  cells whose room kind differs) **0.517 detached against 0.283 corpus-median at 5
+  rooms**, and **0.757 against 0.563 at 7** — a flat's variants are 26–45 % less
+  different than a house's *before any diversity axis is handed out*. The mechanism is
+  **H8**: habitable rooms are pinned to the exterior run, so fewer exterior edges means
+  fewer distinguishable arrangements. Adding an aspect-ratio axis to stated Envelopes
+  therefore closes at most half of this, and the half it does not close is the half that
+  applies to every flat. `experiments/homeowner-surface/probe_diversity.py` on branch
+  `prototype/homeowner-surface`.
   **Sharpened a third time by *Homeowner product surface*:** the wait screen is settled —
   survivors stream in and the **reject count is shown**, because C6's *generate many,
   reject most* is the product story and someone who has watched fourteen examined and
