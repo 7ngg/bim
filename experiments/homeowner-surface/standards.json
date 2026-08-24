@@ -1,0 +1,366 @@
+{
+ "fixtures_mm": {
+  "bath": [
+   700,
+   1700
+  ],
+  "wc_pan": [
+   500,
+   700
+  ],
+  "basin": [
+   450,
+   600
+  ],
+  "shower_tray": [
+   900,
+   900
+  ],
+  "bed_single": [
+   900,
+   1900
+  ],
+  "bed_double": [
+   1350,
+   1900
+  ],
+  "bed_principal": [
+   1500,
+   2000
+  ],
+  "settee_3": [
+   850,
+   1850
+  ],
+  "armchair": [
+   850,
+   850
+  ],
+  "desk": [
+   500,
+   1050
+  ],
+  "table_4p": [
+   1000,
+   1200
+  ],
+  "unit_depth": [
+   600,
+   600
+  ],
+  "sink_drainer": [
+   600,
+   900
+  ],
+  "appliance": [
+   600,
+   600
+  ]
+ },
+ "fixtures_src": "uk_adm1_2015 Appendix D (verified)",
+ "body_zone": 300,
+ "rooms": {
+  "living": {
+   "min_short": 1850,
+   "min_long": 2000,
+   "min_area": null,
+   "note": "3-seat settee 850 deep + body 300 + armchair 850 deep = 2000 across; settee 1850 long"
+  },
+  "dining": {
+   "min_short": 1300,
+   "min_long": 1500,
+   "min_area": null,
+   "note": "4-person table 1000 x 1200 (Neufert 600 x 400 per place + 200 serving strip) + body 300 on the served side of each axis"
+  },
+  "kitchen": {
+   "min_short": 900,
+   "min_long": 2100,
+   "min_area": null,
+   "note": "base-unit run 600 deep + body 300 across the aisle; Neufert's work sequence store-wash-prepare-cook = fridge 600 + sink/drainer 900 + hob 600 along the run"
+  },
+  "bedroom_principal": {
+   "min_short": 2100,
+   "min_long": 2300,
+   "min_area": null,
+   "note": "principal double 1500 x 2000 + body 300 to BOTH sides and the foot (AD M M4(2) 2.25 gives the principal double both sides)"
+  },
+  "bedroom_double": {
+   "min_short": 1650,
+   "min_long": 1900,
+   "min_area": null,
+   "note": "double bed 1350 x 1900 + body 300 to one side (AD M M4(2) 2.25)"
+  },
+  "bedroom_single": {
+   "min_short": 1200,
+   "min_long": 1900,
+   "min_area": null,
+   "note": "single bed 900 x 1900 + body 300 to one side (AD M M4(2) 2.25)"
+  },
+  "study": {
+   "min_short": 800,
+   "min_long": 1050,
+   "min_area": null,
+   "note": "desk 500 x 1050 (AD M Appendix D 'table and chair') + body 300"
+  },
+  "bathroom": {
+   "min_short": 1000,
+   "min_long": 1700,
+   "min_area": null,
+   "note": "bath 700 deep + body 300 alongside; bath 1700 long. Pan and basin occupy the same strip as the body zone, which is shared"
+  },
+  "shower_room": {
+   "min_short": 1000,
+   "min_long": 1400,
+   "min_area": null,
+   "note": "tray 900 beside pan 500 = 1400 along the wall; across, the deeper of the 900 tray and pan 700 + body 300"
+  },
+  "wc": {
+   "min_short": 800,
+   "min_long": 1000,
+   "min_area": null,
+   "note": "pan and cistern 500 x 700 + body 300 to one side and in front"
+  },
+  "utility": {
+   "min_short": 900,
+   "min_long": 1500,
+   "min_area": null,
+   "note": "unit run 600 deep + body 300; sink/drainer 900 + washing machine 600"
+  },
+  "hall": {
+   "min_short": 900,
+   "min_long": 1138,
+   "min_area": null,
+   "note": "AD M M4(2) 2.22a clear width 900; entrance leaf 838 + body 300 for the swing"
+  },
+  "entrance_lobby": {
+   "min_short": 900,
+   "min_long": 1138,
+   "min_area": null,
+   "note": "as hall; the two differ in programme, not in geometry"
+  },
+  "corridor": {
+   "min_short": 900,
+   "min_long": 900,
+   "min_area": null,
+   "note": "AD M M4(2) 2.22a clear width 900, both axes. A corridor has no second dimension of its own"
+  },
+  "storage": {
+   "min_short": 600,
+   "min_long": 900,
+   "min_area": null,
+   "note": "shelf depth 600; shelf 600 + body 300 to reach it"
+  },
+  "living_dining": {
+   "min_short": 1850,
+   "min_long": 3150,
+   "min_area": null,
+   "note": "permissive envelope over the packings of living + dining: 1850 x 3300; 2000 x 3150"
+  },
+  "kitchen_dining": {
+   "min_short": 1300,
+   "min_long": 2200,
+   "min_area": null,
+   "note": "permissive envelope over the packings of kitchen + dining: 1300 x 3600; 1500 x 3400; 2100 x 2200"
+  },
+  "living_dining_kitchen": {
+   "min_short": 1850,
+   "min_long": 4050,
+   "min_area": null,
+   "note": "permissive envelope over the packings of living + dining + kitchen: 1850 x 5400; 2000 x 5250; 2100 x 4050"
+  }
+ },
+ "az_areas": {
+  "living_room_1room_flat": {
+   "statutory_floor": {
+    "v": 15.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified"
+   },
+   "market_default": {
+    "v": 16.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": null
+  },
+  "living_room_2plus": {
+   "statutory_floor": {
+    "v": 16.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified"
+   },
+   "market_default": {
+    "v": 16.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": null
+  },
+  "bedroom_single": {
+   "statutory_floor": {
+    "v": 8.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified"
+   },
+   "market_default": {
+    "v": 9.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": {
+    "v": 9.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "NOT an accessibility uplift: az_azdtn_2_7_3 recommends the same 9 m2 for an ordinary bedroom. ru_vsn_62_91 sets no accessible bedroom minimum at all."
+   }
+  },
+  "bedroom_double": {
+   "statutory_floor": {
+    "v": 10.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified"
+   },
+   "market_default": {
+    "v": 12.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": null
+  },
+  "bedroom_mansard": {
+   "statutory_floor": {
+    "v": 7.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified",
+    "note": "Conditional on the mansard case."
+   },
+   "market_default": {
+    "v": 8.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": null
+  },
+  "kitchen": {
+   "statutory_floor": {
+    "v": 8.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified"
+   },
+   "market_default": {
+    "v": 9.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": {
+    "v": 9.0,
+    "src": "ru_vsn_62_91",
+    "ref": "cl. 3.1.8",
+    "conf": "verified",
+    "note": "THE ONLY GENUINE UPLIFT IN THE ACCESSIBLE TIER: +1.0 m2 over the statutory floor, and two independent sources agree on it. force is recommended, NEVER statutory."
+   }
+  },
+  "kitchen_zone_in_diner": {
+   "statutory_floor": {
+    "v": 6.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified"
+   },
+   "market_default": {
+    "v": 6.0,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": null
+  },
+  "kitchen_niche": {
+   "statutory_floor": {
+    "v": 5.0,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified",
+    "note": "One-room flats only."
+   },
+   "market_default": null,
+   "accessible": null
+  },
+  "bathroom": {
+   "statutory_floor": null,
+   "market_default": {
+    "v": 3.2,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": null
+  },
+  "bathroom_combined": {
+   "statutory_floor": null,
+   "market_default": {
+    "v": 3.8,
+    "src": "az_azdtn_2_7_3",
+    "ref": "cl. 5.1",
+    "conf": "derived",
+    "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+   },
+   "accessible": null
+  },
+  "wc": {
+   "statutory_floor": null,
+   "market_default": null,
+   "accessible": null
+  },
+  "hall": {
+   "statutory_floor": null,
+   "market_default": null,
+   "accessible": null
+  },
+  "wardrobe_1room_entry": {
+   "statutory_floor": {
+    "v": 2.5,
+    "src": "az_azdtn_2_7_2",
+    "ref": "cl. 5.7",
+    "conf": "verified"
+   },
+   "market_default": null,
+   "accessible": null
+  }
+ },
+ "decimal_separator": ",",
+ "drawing_language": "az",
+ "t_int": null,
+ "construction_keys": [
+  "comment",
+  "shipping_type",
+  "shipping_type_rationale",
+  "catalogue",
+  "residue_class_mod_grid",
+  "excluded_types",
+  "excluded_values_odd",
+  "notable_refutation",
+  "layer_set_note"
+ ]
+}

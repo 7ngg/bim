@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE — Homeowner surface</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#fff; --ink:#1c1b19; --mute:#77726b; --line:#dfdbd4;
+  --acc:#1a5c4a; --acc2:#e8f1ee;
+  --inv:#b8791a; --invbg:#fdf4e3;   /* invented_value / invented_room */
+  --rd:#2a5f96;  --rdbg:#eaf1f8;    /* reading */
+  --bad:#a33329; --badbg:#fbeeec;
+  --wall:#2b2926; --floor:#fff; --fix:#b9b3a8;
+}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 -apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+h1,h2,h3{margin:0 0 .4em;line-height:1.25}
+button{font:inherit;cursor:pointer}
+.protobar{background:#241f1a;color:#e9e3d8;padding:8px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;position:sticky;top:0;z-index:50}
+.protobar b{color:#ffd479;letter-spacing:.04em}
+.protobar button{background:#3b332a;color:#e9e3d8;border:1px solid #55493c;border-radius:5px;padding:3px 9px;font-size:12px}
+.protobar button:hover{background:#4d4335}
+.protobar button.on{background:#ffd479;color:#241f1a;border-color:#ffd479}
+.protobar .sp{flex:1}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 16px 80px}
+.cols{display:grid;grid-template-columns:390px 1fr;gap:18px;align-items:start}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.card+.card{margin-top:14px}
+.doc{position:sticky;top:52px}
+@media(max-width:900px){.doc{position:static}}
+.muted{color:var(--mute)}
+.small{font-size:13px}
+.tiny{font-size:12px}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:7px;padding:9px 16px;font-weight:600}
+.btn:hover{filter:brightness(1.08)}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.wide{display:block;width:100%;text-align:center}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:11px;font:inherit;resize:vertical}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:12.5px;cursor:pointer}
+.chip:hover{border-color:var(--acc);color:var(--acc)}
+.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+
+/* ---- the Brief document ---- */
+.roomrow{border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-bottom:7px;background:#fff}
+.roomrow.inv{border-style:dashed;border-color:var(--inv);background:var(--invbg)}
+.roomrow .rt{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.roomrow .nm{font-weight:600}
+.roomrow .ar{font-variant-numeric:tabular-nums;white-space:nowrap}
+.mark{border-bottom:2px dotted var(--inv);cursor:pointer}
+.mark.reading{border-bottom-color:var(--rd)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--inv);vertical-align:middle;margin-left:5px}
+.dot.reading{background:var(--rd)}
+.note{margin-top:7px;padding:8px 9px;border-radius:6px;font-size:12.5px;background:var(--invbg);border-left:3px solid var(--inv)}
+.note.reading{background:var(--rdbg);border-left-color:var(--rd)}
+.note .acts{margin-top:6px;display:flex;gap:6px}
+.note button{border:1px solid var(--line);background:#fff;border-radius:5px;padding:3px 9px;font-size:12px}
+.note button.prim{background:var(--acc);color:#fff;border-color:var(--acc)}
+.filterbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:2px 0 10px}
+.pill{border-radius:999px;padding:4px 10px;font-size:12px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.pill.inv{border-color:var(--inv);color:var(--inv);background:var(--invbg)}
+.pill.rd{border-color:var(--rd);color:var(--rd);background:var(--rdbg)}
+.pill.on{outline:2px solid currentColor;outline-offset:1px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #f0eee9;font-size:13.5px}
+.kv:last-child{border-bottom:0}
+
+/* ---- envelope picker ---- */
+.envgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.envopt{border:1px solid var(--line);border-radius:8px;padding:7px 5px;text-align:center;background:#fff;cursor:pointer}
+.envopt.on{border-color:var(--acc);background:var(--acc2);box-shadow:inset 0 0 0 1px var(--acc)}
+.envopt svg{display:block;margin:0 auto 4px}
+.envopt span{font-size:11px;line-height:1.2;display:block}
+
+/* ---- gallery ---- */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px}
+.plancard{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer}
+.plancard.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc2)}
+.plancard .pb{padding:9px 11px 11px}
+.plancard .diff{font-size:12.5px;color:var(--mute);margin-top:3px}
+.warnline{font-size:12.5px;color:var(--inv);margin-top:5px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.cmp{grid-template-columns:1fr}}
+
+/* ---- messages ---- */
+.msg{border-radius:9px;padding:14px 15px;border:1px solid}
+.msg.bad{background:var(--badbg);border-color:#e5c2bd}
+.msg.warn{background:var(--invbg);border-color:#e8d4ab}
+.msg h3{color:inherit}
+.msg .arith{font-variant-numeric:tabular-nums;background:#fff;border:1px solid var(--line);border-radius:7px;padding:10px 12px;margin:10px 0;font-size:13.5px}
+.msg .arith div{display:flex;justify-content:space-between;padding:2px 0}
+.linkish{background:none;border:0;color:var(--acc);text-decoration:underline;padding:0;font:inherit}
+
+/* ---- waiting ---- */
+.stream{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.thumb{width:96px;height:78px;border:1px solid var(--line);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.counter{font-variant-numeric:tabular-nums;font-size:26px;font-weight:600}
+.bar{height:6px;background:#eceae5;border-radius:3px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+
+/* ---- state readout ---- */
+.state{position:fixed;right:12px;bottom:12px;width:310px;max-height:44vh;overflow:auto;background:#241f1a;color:#cfe8dd;border-radius:8px;padding:10px 12px;font:11.5px/1.45 ui-monospace,Consolas,monospace;z-index:60;box-shadow:0 6px 24px rgba(0,0,0,.3)}
+.state b{color:#ffd479}
+.state.hidden{display:none}
+.limits{font-size:12.5px;color:var(--mute);border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.limits b{color:var(--ink)}
+.tag{display:inline-block;background:#efece6;border-radius:4px;padding:1px 6px;font-size:11px;color:var(--mute);margin-left:6px}
+</style>
+</head>
+<body>
+
+<div class="protobar">
+  <b>PROTOTYPE</b>
+  <span>ticket 13 · Homeowner product surface</span>
+  <span class="sp"></span>
+  <span>dil:</span>
+  <button id="lang-az" class="on">AZ</button>
+  <button id="lang-en">EN</button>
+  <span style="opacity:.4">|</span>
+  <span>gedişat:</span>
+  <button data-walk="happy">happy path</button>
+  <button data-walk="rooms">too many rooms</button>
+  <button data-walk="big">envelope &gt; programme</button>
+  <button data-walk="zero">nothing survives</button>
+  <button data-walk="access">accessibility</button>
+  <span style="opacity:.4">|</span>
+  <button id="toggle-state">state</button>
+</div>
+
+<div class="wrap" id="app"></div>
+<div class="state hidden" id="stateout"></div>
+
+<script>
+/* ============================================================ DATA */
+const DATA = {"fixtures": {"plans": [{"label": "5-room seed 20260817", "status": "OPTIMAL", "valid": true, "wall_time_s": 2.11, "seed": 20260817, "exposure": "detached", "grid_mm": 250, "envelope": {"name": "L 8.0x6.5 m less 2.0x1.5 m", "W": 32, "H": 26, "notches": [[24, 20, 32, 26]], "exposure": "detached"}, "entry": 4, "rooms": [{"i": 0, "kind": "kitchen", "toy_kind": "kitchen", "x1": 0, "y1": 0, "x2": 7, "y2": 19}, {"i": 1, "kind": "living", "toy_kind": "living", "x1": 7, "y1": 0, "x2": 24, "y2": 19}, {"i": 2, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 24, "y1": 0, "x2": 32, "y2": 20}, {"i": 3, "kind": "bathroom", "toy_kind": "bathroom", "x1": 0, "y1": 19, "x2": 11, "y2": 26}, {"i": 4, "kind": "hall", "toy_kind": "hall", "x1": 11, "y1": 19, "x2": 24, "y2": 26}]}, {"label": "5-room seed 991", "status": "OPTIMAL", "valid": true, "wall_time_s": 1.56, "seed": 991, "exposure": "detached", "grid_mm": 250, "envelope": {"name": "L 8.0x6.5 m less 2.0x1.5 m", "W": 32, "H": 26, "notches": [[24, 20, 32, 26]], "exposure": "detached"}, "entry": 4, "rooms": [{"i": 0, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 0, "y1": 0, "x2": 9, "y2": 20}, {"i": 1, "kind": "kitchen", "toy_kind": "kitchen", "x1": 9, "y1": 0, "x2": 18, "y2": 20}, {"i": 2, "kind": "living", "toy_kind": "living", "x1": 18, "y1": 0, "x2": 32, "y2": 20}, {"i": 3, "kind": "bathroom", "toy_kind": "bathroom", "x1": 0, "y1": 20, "x2": 13, "y2": 26}, {"i": 4, "kind": "hall", "toy_kind": "hall", "x1": 13, "y1": 20, "x2": 24, "y2": 26}]}, {"label": "5-room seed 4242", "status": "OPTIMAL", "valid": true, "wall_time_s": 0.55, "seed": 4242, "exposure": "detached", "grid_mm": 250, "envelope": {"name": "L 8.0x6.5 m less 2.0x1.5 m", "W": 32, "H": 26, "notches": [[24, 20, 32, 26]], "exposure": "detached"}, "entry": 3, "rooms": [{"i": 0, "kind": "living", "toy_kind": "living", "x1": 0, "y1": 0, "x2": 14, "y2": 20}, {"i": 1, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 14, "y1": 0, "x2": 32, "y2": 8}, {"i": 2, "kind": "kitchen", "toy_kind": "kitchen", "x1": 14, "y1": 8, "x2": 32, "y2": 20}, {"i": 3, "kind": "hall", "toy_kind": "hall", "x1": 0, "y1": 20, "x2": 10, "y2": 26}, {"i": 4, "kind": "bathroom", "toy_kind": "bathroom", "x1": 10, "y1": 20, "x2": 24, "y2": 26}]}, {"label": "5-room seed 77", "status": "OPTIMAL", "valid": true, "wall_time_s": 0.91, "seed": 77, "exposure": "detached", "grid_mm": 250, "envelope": {"name": "L 8.0x6.5 m less 2.0x1.5 m", "W": 32, "H": 26, "notches": [[24, 20, 32, 26]], "exposure": "detached"}, "entry": 3, "rooms": [{"i": 0, "kind": "living", "toy_kind": "living", "x1": 0, "y1": 0, "x2": 17, "y2": 20}, {"i": 1, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 17, "y1": 0, "x2": 32, "y2": 10}, {"i": 2, "kind": "kitchen", "toy_kind": "kitchen", "x1": 17, "y1": 10, "x2": 32, "y2": 20}, {"i": 3, "kind": "hall", "toy_kind": "hall", "x1": 0, "y1": 20, "x2": 11, "y2": 26}, {"i": 4, "kind": "bathroom", "toy_kind": "bathroom", "x1": 11, "y1": 20, "x2": 24, "y2": 26}]}, {"label": "6-room", "status": "OPTIMAL", "valid": true, "wall_time_s": 2.67, "seed": 20260817, "exposure": "detached", "grid_mm": 250, "envelope": {"name": "L 9.0x6.75 m less 2.0x1.5 m", "W": 36, "H": 27, "notches": [[28, 21, 36, 27]], "exposure": "detached"}, "entry": 5, "rooms": [{"i": 0, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 0, "y1": 0, "x2": 13, "y2": 12}, {"i": 1, "kind": "kitchen", "toy_kind": "kitchen", "x1": 0, "y1": 12, "x2": 13, "y2": 19}, {"i": 2, "kind": "living", "toy_kind": "living", "x1": 13, "y1": 0, "x2": 28, "y2": 19}, {"i": 3, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 28, "y1": 0, "x2": 36, "y2": 21}, {"i": 4, "kind": "bathroom", "toy_kind": "bathroom", "x1": 0, "y1": 19, "x2": 18, "y2": 27}, {"i": 5, "kind": "hall", "toy_kind": "hall", "x1": 18, "y1": 19, "x2": 28, "y2": 27}]}, {"label": "8-room", "status": "FEASIBLE", "valid": true, "wall_time_s": 15.02, "seed": 20260817, "exposure": "detached", "grid_mm": 250, "envelope": {"name": "L 10.0x8.0 m less 2.5x2.0 m", "W": 40, "H": 32, "notches": [[30, 24, 40, 32]], "exposure": "detached"}, "entry": 7, "rooms": [{"i": 0, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 0, "y1": 0, "x2": 17, "y2": 11}, {"i": 1, "kind": "bathroom", "toy_kind": "bathroom", "x1": 0, "y1": 11, "x2": 6, "y2": 24}, {"i": 2, "kind": "utility", "toy_kind": "utility", "x1": 6, "y1": 11, "x2": 17, "y2": 24}, {"i": 3, "kind": "bedroom_double", "toy_kind": "bedroom", "x1": 17, "y1": 0, "x2": 40, "y2": 8}, {"i": 4, "kind": "corridor", "toy_kind": "corridor", "x1": 17, "y1": 8, "x2": 22, "y2": 24}, {"i": 5, "kind": "living", "toy_kind": "living", "x1": 22, "y1": 8, "x2": 40, "y2": 24}, {"i": 6, "kind": "kitchen", "toy_kind": "kitchen", "x1": 0, "y1": 24, "x2": 10, "y2": 32}, {"i": 7, "kind": "hall", "toy_kind": "hall", "x1": 10, "y1": 24, "x2": 30, "y2": 32}]}]}, "standards": {"fixtures_mm": {"bath": [700, 1700], "wc_pan": [500, 700], "basin": [450, 600], "shower_tray": [900, 900], "bed_single": [900, 1900], "bed_double": [1350, 1900], "bed_principal": [1500, 2000], "settee_3": [850, 1850], "armchair": [850, 850], "desk": [500, 1050], "table_4p": [1000, 1200], "unit_depth": [600, 600], "sink_drainer": [600, 900], "appliance": [600, 600]}, "fixtures_src": "uk_adm1_2015 Appendix D (verified)", "body_zone": 300, "rooms": {"living": {"min_short": 1850, "min_long": 2000, "min_area": null, "note": "3-seat settee 850 deep + body 300 + armchair 850 deep = 2000 across; settee 1850 long"}, "dining": {"min_short": 1300, "min_long": 1500, "min_area": null, "note": "4-person table 1000 x 1200 (Neufert 600 x 400 per place + 200 serving strip) + body 300 on the served side of each axis"}, "kitchen": {"min_short": 900, "min_long": 2100, "min_area": null, "note": "base-unit run 600 deep + body 300 across the aisle; Neufert's work sequence store-wash-prepare-cook = fridge 600 + sink/drainer 900 + hob 600 along the run"}, "bedroom_principal": {"min_short": 2100, "min_long": 2300, "min_area": null, "note": "principal double 1500 x 2000 + body 300 to BOTH sides and the foot (AD M M4(2) 2.25 gives the principal double both sides)"}, "bedroom_double": {"min_short": 1650, "min_long": 1900, "min_area": null, "note": "double bed 1350 x 1900 + body 300 to one side (AD M M4(2) 2.25)"}, "bedroom_single": {"min_short": 1200, "min_long": 1900, "min_area": null, "note": "single bed 900 x 1900 + body 300 to one side (AD M M4(2) 2.25)"}, "study": {"min_short": 800, "min_long": 1050, "min_area": null, "note": "desk 500 x 1050 (AD M Appendix D 'table and chair') + body 300"}, "bathroom": {"min_short": 1000, "min_long": 1700, "min_area": null, "note": "bath 700 deep + body 300 alongside; bath 1700 long. Pan and basin occupy the same strip as the body zone, which is shared"}, "shower_room": {"min_short": 1000, "min_long": 1400, "min_area": null, "note": "tray 900 beside pan 500 = 1400 along the wall; across, the deeper of the 900 tray and pan 700 + body 300"}, "wc": {"min_short": 800, "min_long": 1000, "min_area": null, "note": "pan and cistern 500 x 700 + body 300 to one side and in front"}, "utility": {"min_short": 900, "min_long": 1500, "min_area": null, "note": "unit run 600 deep + body 300; sink/drainer 900 + washing machine 600"}, "hall": {"min_short": 900, "min_long": 1138, "min_area": null, "note": "AD M M4(2) 2.22a clear width 900; entrance leaf 838 + body 300 for the swing"}, "entrance_lobby": {"min_short": 900, "min_long": 1138, "min_area": null, "note": "as hall; the two differ in programme, not in geometry"}, "corridor": {"min_short": 900, "min_long": 900, "min_area": null, "note": "AD M M4(2) 2.22a clear width 900, both axes. A corridor has no second dimension of its own"}, "storage": {"min_short": 600, "min_long": 900, "min_area": null, "note": "shelf depth 600; shelf 600 + body 300 to reach it"}, "living_dining": {"min_short": 1850, "min_long": 3150, "min_area": null, "note": "permissive envelope over the packings of living + dining: 1850 x 3300; 2000 x 3150"}, "kitchen_dining": {"min_short": 1300, "min_long": 2200, "min_area": null, "note": "permissive envelope over the packings of kitchen + dining: 1300 x 3600; 1500 x 3400; 2100 x 2200"}, "living_dining_kitchen": {"min_short": 1850, "min_long": 4050, "min_area": null, "note": "permissive envelope over the packings of living + dining + kitchen: 1850 x 5400; 2000 x 5250; 2100 x 4050"}}, "az_areas": {"living_room_1room_flat": {"statutory_floor": {"v": 15.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified"}, "market_default": {"v": 16.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": null}, "living_room_2plus": {"statutory_floor": {"v": 16.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified"}, "market_default": {"v": 16.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": null}, "bedroom_single": {"statutory_floor": {"v": 8.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified"}, "market_default": {"v": 9.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": {"v": 9.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "NOT an accessibility uplift: az_azdtn_2_7_3 recommends the same 9 m2 for an ordinary bedroom. ru_vsn_62_91 sets no accessible bedroom minimum at all."}}, "bedroom_double": {"statutory_floor": {"v": 10.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified"}, "market_default": {"v": 12.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": null}, "bedroom_mansard": {"statutory_floor": {"v": 7.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified", "note": "Conditional on the mansard case."}, "market_default": {"v": 8.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": null}, "kitchen": {"statutory_floor": {"v": 8.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified"}, "market_default": {"v": 9.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": {"v": 9.0, "src": "ru_vsn_62_91", "ref": "cl. 3.1.8", "conf": "verified", "note": "THE ONLY GENUINE UPLIFT IN THE ACCESSIBLE TIER: +1.0 m2 over the statutory floor, and two independent sources agree on it. force is recommended, NEVER statutory."}}, "kitchen_zone_in_diner": {"statutory_floor": {"v": 6.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified"}, "market_default": {"v": 6.0, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": null}, "kitchen_niche": {"statutory_floor": {"v": 5.0, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified", "note": "One-room flats only."}, "market_default": null, "accessible": null}, "bathroom": {"statutory_floor": null, "market_default": {"v": 3.2, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": null}, "bathroom_combined": {"statutory_floor": null, "market_default": {"v": 3.8, "src": "az_azdtn_2_7_3", "ref": "cl. 5.1", "conf": "derived", "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."}, "accessible": null}, "wc": {"statutory_floor": null, "market_default": null, "accessible": null}, "hall": {"statutory_floor": null, "market_default": null, "accessible": null}, "wardrobe_1room_entry": {"statutory_floor": {"v": 2.5, "src": "az_azdtn_2_7_2", "ref": "cl. 5.7", "conf": "verified"}, "market_default": null, "accessible": null}}, "decimal_separator": ",", "drawing_language": "az", "t_int": null, "construction_keys": ["comment", "shipping_type", "shipping_type_rationale", "catalogue", "residue_class_mod_grid", "excluded_types", "excluded_values_odd", "notable_refutation", "layer_set_note"]}};
+const PLANS = DATA.fixtures.plans;
+const STD = DATA.standards;
+
+const GRID = 250, T_INT = 150, T_EXT = 500, T_PARTY = 280;
+
+/* ============================================================ COPY
+   AZ is the shipping surface (decision Q4). EN is a prototype-only
+   mirror so a non-AZ reader can review the wording.
+   ROOM NAMES IN AZ ARE UNSOURCED PLACEHOLDERS — see handoff. */
+const NAMES_AZ = {
+  living:"Qonaq otağı", dining:"Yemək otağı", living_dining:"Qonaq-yemək otağı",
+  kitchen:"Mətbəx", kitchen_dining:"Mətbəx-yemək otağı",
+  living_dining_kitchen:"Qonaq-yemək-mətbəx",
+  bedroom_principal:"Əsas yataq otağı", bedroom_double:"Yataq otağı",
+  bedroom_single:"Kiçik yataq otağı", study:"İş otağı",
+  bathroom:"Hamam", shower_room:"Duş otağı", wc:"Sanitar qovşaq",
+  utility:"Təsərrüfat otağı", hall:"Hol", entrance_lobby:"Giriş holu",
+  corridor:"Dəhliz", storage:"Anbar"
+};
+const NAMES_EN = {
+  living:"Living room", dining:"Dining room", living_dining:"Living/dining",
+  kitchen:"Kitchen", kitchen_dining:"Kitchen/dining",
+  living_dining_kitchen:"Living/dining/kitchen",
+  bedroom_principal:"Principal bedroom", bedroom_double:"Double bedroom",
+  bedroom_single:"Single bedroom", study:"Study",
+  bathroom:"Bathroom", shower_room:"Shower room", wc:"WC",
+  utility:"Utility", hall:"Hall", entrance_lobby:"Entrance lobby",
+  corridor:"Corridor", storage:"Storage"
+};
+const T = {
+  az:{
+    hero:"Evinizi təsvir edin",
+    heroSub:"Adi sözlərlə yazın. Ölçü çəkməyə ehtiyac yoxdur.",
+    ph:"Məsələn: Bakıda 3 otaqlı mənzil, təxminən 95 m², mətbəx qonaq otağına açıq, uşaq otağı sakit tərəfdə olsun.",
+    examples:"Nümunələr",
+    go:"Brifi hazırla",
+    briefTitle:"Brif",
+    briefSub:"Bu, mühərrikin quracağı şeydir. İstənilən sətri dəyişə bilərsiniz.",
+    rooms:"Otaqlar", envelope:"Mənzilin konturu", area:"Ümumi sahə",
+    assumedN:n=>`${n} fərziyyə`, readingN:n=>`${n} oxunuş`,
+    allFields:"Hamısı",
+    weAdded:"Bunu biz əlavə etdik",
+    weAssumed:"Bunu biz fərz etdik",
+    weRead:"Bunu belə başa düşdük",
+    ok:"Düzdür", edit:"Dəyişdirmək", remove:"Silmək",
+    okHint:"«Düzdür» heç nəyi dəyişmir — yalnız oxuduğunuzu bildirir.",
+    generate:"Planları yarat",
+    dwelling:"Ev tipi", light:"İşıq hansı tərəfdən gəlir",
+    shape:"Forma",
+    notchNote:"Çıxıntının yeri avtomatik seçilir — onu siz təyin etmirsiniz.",
+    generating:"Planlar hazırlanır", examined:"baxıldı", passed:"uyğun gəldi",
+    keepWaiting:"Hər plan hazır olan kimi burada görünür.",
+    variants:"Variantlar", compare:"Müqayisə et", back:"Geri",
+    biggest:"Ən böyük otaq", entryTo:"Girişdən", lightTo:"İşıqlı tərəf",
+    download:"Yüklə", pdf:"PDF — tam ölçülü dəst (2 vərəq)",
+    png:"Şəkil — paylaşmaq üçün",
+    forArch:"Memarınız üçün",
+    forArchSub:"Bu faylları siz açmayacaqsınız. Memara və ya inşaatçıya göndərmək üçündür.",
+    c8:"Bu sənəd hüquqi uyğunluq və ya layihə ekspertizası iddiası daşımır.",
+    limits:"Nə edirik, nə etmirik",
+    lim1:"Yalnız bir mərtəbə.",
+    lim2:"1–4 otaqlı mənzil və evlər.",
+    lim3:"Ev planları mənzil nümunələri əsasında qurulur.",
+    refuseRooms:"Bu qədər otağı hələ plana sala bilmirik",
+    refuseNoHome:"Təsvirdə ev tapa bilmədik",
+    refuseAccess:"Bu mühərrik əlilliyə uyğun planlar hazırlamır",
+    zeroTitle:"Bu brif üçün plan alınmadı",
+    needAtLeast:"Ən azı", yourBrief:"Sizin brif", recommend:"Rahat yaşamaq üçün",
+    editField:"düzəlt",
+    midWarn:"Bu ölçü bizim vəd etdiyimiz aralıqdan kənardadır",
+    midWarnBody:"Mühərrik bunu qura bilər, amma biz 1–4 otaq üçün cavabdehik. Nəticə gözlədiyinizdən zəif ola bilər.",
+    poolLow:"Bu tərkibə uyğun real mənzil bazamızda azdır",
+    fixturesNote:"Mebel yalnız ölçünü göstərmək üçündür — layihənin bir hissəsi deyil.",
+    shareNote:"Bu keçid brifi açır, planları yox — planlar yenidən qurulur."
+  },
+  en:{
+    hero:"Describe your home",
+    heroSub:"Plain words. You never have to draw anything.",
+    ph:"For example: a 3-otaq flat in Baku, about 95 m², kitchen open to the living room, the child's room on the quiet side.",
+    examples:"Examples",
+    go:"Build the brief",
+    briefTitle:"Brief",
+    briefSub:"This is what the engine will build. Every line is editable.",
+    rooms:"Rooms", envelope:"Outline", area:"Total area",
+    assumedN:n=>`${n} assumed`, readingN:n=>`${n} readings`,
+    allFields:"All",
+    weAdded:"We added this",
+    weAssumed:"We assumed this",
+    weRead:"We read it this way",
+    ok:"That's right", edit:"Change it", remove:"Remove",
+    okHint:"“That's right” changes nothing — it only records that you read it.",
+    generate:"Generate plans",
+    dwelling:"Home type", light:"Which sides get light",
+    shape:"Shape",
+    notchNote:"The notch position is chosen for you — you never place it.",
+    generating:"Generating plans", examined:"examined", passed:"passed",
+    keepWaiting:"Each plan appears the moment it passes.",
+    variants:"Options", compare:"Compare", back:"Back",
+    biggest:"Largest room", entryTo:"From the door", lightTo:"Daylight side",
+    download:"Download", pdf:"PDF — full dimensioned set (2 sheets)",
+    png:"Image — to share",
+    forArch:"For your architect",
+    forArchSub:"You will not open these. They are for an architect or builder.",
+    c8:"This is not a code-compliance document and is not a submission for expertise.",
+    limits:"What we do, and what we don't",
+    lim1:"One storey only.",
+    lim2:"Flats and houses of 1–4 otaq.",
+    lim3:"House layouts come from apartment priors.",
+    refuseRooms:"We cannot plan that many rooms yet",
+    refuseNoHome:"We could not find a home in that description",
+    refuseAccess:"This engine does not produce accessible layouts",
+    zeroTitle:"No plan came out of this brief",
+    needAtLeast:"At least", yourBrief:"Your brief", recommend:"To live in comfortably",
+    editField:"edit",
+    midWarn:"This size is outside what we promise",
+    midWarnBody:"The engine can build it, but we stand behind 1–4 otaq. The result may be weaker than you expect.",
+    poolLow:"We hold few real homes with this exact mix",
+    fixturesNote:"Furniture is drawn to show scale only — it is not part of the design.",
+    shareNote:"This link opens the brief, not the plans — those are generated again."
+  }
+};
+
+/* ============================================================ STATE */
+const S = {
+  lang:"az",
+  screen:"empty",          // empty|brief|generating|gallery|plan|compare|export
+                           // |refuse_rooms|refuse_nohome|refuse_access|zero
+  prompt:"",
+  brief:null,
+  openMark:null,
+  filter:"all",            // all|invented|reading
+  planIdx:0,
+  cmp:[0,1],
+  streamed:0, examined:0,
+  showFixtures:true,
+  showState:false,
+  log:[]
+};
+const t = () => T[S.lang];
+const nm = k => (S.lang==="az"?NAMES_AZ:NAMES_EN)[k] || k;
+function num(x,dp=2){
+  const s = Number(x).toFixed(dp);
+  return S.lang==="az" ? s.replace(".",",") : s;   // AZ decimal comma, verified
+}
+function log(m){ S.log.unshift(m); if(S.log.length>60) S.log.pop(); }
+
+/* ============================================================ BRIEFS
+   Hand-built StatedBrief/ResolvedBrief pairs. resolve() is faked; the
+   *shape* follows brief.md sections 1, 3, 6, 9, 11. */
+function mkBrief(kind){
+  const base = {
+    stated_prose:S.prompt,
+    rooms:[], target_area_m2:null, dwelling_type:"flat_corner", shape:"L",
+    otaq:0, engine_rooms:0,
+    engine_view:{ retrieval_pool_size:0, hard_area_floor_m2:0,
+                  market_area_recommendation_m2:0 },
+    unrepresented:[]
+  };
+  const R=(kind_,label,area,prov,assum,sentence)=>({kind:kind_,label,area,prov,assum,sentence});
+  if(kind==="happy"){
+    base.rooms=[
+      R("living",null,24.5,"stated",null,null),
+      R("kitchen",null,9.0,"stated",null,null),
+      R("bedroom_double","Uşaq otağı",13.2,"stated",null,null),
+      R("bedroom_double",null,15.4,"stated",null,null),
+      R("bathroom",null,4.8,"invented","invented_room",
+        "Brifdə hamam yox idi. Hər mənzildə bir dənə lazımdır — biz əlavə etdik."),
+      R("hall",null,7.1,"invented","invented_room",
+        "Otaqları bir-birinə bağlamaq üçün giriş sahəsi lazımdır. Siz bunu adətən sifariş etmirsiniz."),
+    ];
+    base.target_area_m2=95; base.target_area_assum="reading";
+    base.target_area_sentence=
+      "«95 m²» elanda göstərilən rəqəm kimi oxunub. Əgər o rəqəmə eyvan daxil idisə, otaqlarınız o elandan bir az böyük çıxacaq.";
+    base.otaq=3; base.engine_rooms=6;
+    base.engine_view={retrieval_pool_size:412,hard_area_floor_m2:21.4,market_area_recommendation_m2:58.0};
+    base.unrepresented=["cənuba baxan balkon"];
+  }
+  if(kind==="rooms"){
+    base.rooms=[
+      R("living",null,26,"stated",null,null),R("kitchen",null,10,"stated",null,null),
+      R("bedroom_double",null,14,"stated",null,null),R("bedroom_double",null,13,"stated",null,null),
+      R("bedroom_double",null,13,"stated",null,null),R("bedroom_double",null,12,"stated",null,null),
+      R("bedroom_double",null,12,"stated",null,null),R("study",null,9,"stated",null,null),
+      R("bathroom",null,5,"stated",null,null),R("bathroom",null,4.5,"stated",null,null),
+      R("wc",null,2,"stated",null,null),R("utility",null,4,"stated",null,null),
+      R("hall",null,8,"invented","invented_room","Giriş sahəsi əlavə edildi."),
+      R("corridor",null,6,"invented","invented_room","Dəhliz əlavə edildi.")
+    ];
+    base.otaq=6; base.engine_rooms=14; base.target_area_m2=180;
+  }
+  if(kind==="big"){
+    base.rooms=[
+      R("living",null,32,"stated",null,null),R("kitchen",null,11,"stated",null,null),
+      R("bedroom_double",null,18,"stated",null,null),
+      R("bathroom",null,5.2,"invented","invented_room","Hamam əlavə edildi."),
+      R("hall",null,9,"invented","invented_room","Giriş sahəsi əlavə edildi.")
+    ];
+    base.otaq=2; base.engine_rooms=5; base.target_area_m2=150;
+    base.target_area_assum=null;
+    base.engine_view={retrieval_pool_size:58,hard_area_floor_m2:19.1,market_area_recommendation_m2:47.5};
+  }
+  if(kind==="zero"){
+    base.rooms=[
+      R("living",null,18,"stated",null,null),R("kitchen",null,8,"stated",null,null),
+      R("bedroom_double",null,12,"stated",null,null),R("bedroom_double",null,11,"stated",null,null),
+      R("bedroom_double",null,11,"stated",null,null),
+      R("bathroom",null,4.2,"stated",null,null),
+      R("hall",null,5,"invented","invented_room","Giriş sahəsi əlavə edildi.")
+    ];
+    base.otaq=4; base.engine_rooms=7; base.target_area_m2=45;
+    base.engine_view={retrieval_pool_size:96,hard_area_floor_m2:24.8,market_area_recommendation_m2:69.5};
+  }
+  return base;
+}
+
+/* ============================================================ GEOMETRY */
+const HABITABLE = new Set(["living","dining","kitchen","bedroom_double",
+  "bedroom_single","bedroom_principal","study","living_dining",
+  "kitchen_dining","living_dining_kitchen"]);
+const WET = new Set(["bathroom","shower_room","wc","kitchen","utility",
+  "kitchen_dining","living_dining_kitchen"]);
+
+/* clear rect: ADR 0001 — clear = erode(solved, t_int/2), no perimeter case */
+const clearOf = r => ({
+  x1:r.x1*GRID + T_INT/2, y1:r.y1*GRID + T_INT/2,
+  x2:r.x2*GRID - T_INT/2, y2:r.y2*GRID - T_INT/2
+});
+const envInner = e => ({x1:T_INT/2, y1:T_INT/2, x2:e.W*GRID-T_INT/2, y2:e.H*GRID-T_INT/2});
+const notchInner = n => ({x1:n[0]*GRID - T_INT/2, y1:n[1]*GRID - T_INT/2,
+                          x2:n[2]*GRID + T_INT/2, y2:n[3]*GRID + T_INT/2});
+const areaM2 = c => (c.x2-c.x1)*(c.y2-c.y1)/1e6;
+
+/* shared face between two clear rects, as an interval on the shared line */
+function sharedFace(a,b){
+  const eps=1;
+  if(Math.abs(a.x2 - b.x1) <= T_INT+eps && Math.min(a.y2,b.y2) - Math.max(a.y1,b.y1) > 0)
+    return {axis:"v", x:(a.x2+b.x1)/2, lo:Math.max(a.y1,b.y1), hi:Math.min(a.y2,b.y2)};
+  if(Math.abs(b.x2 - a.x1) <= T_INT+eps && Math.min(a.y2,b.y2) - Math.max(a.y1,b.y1) > 0)
+    return {axis:"v", x:(b.x2+a.x1)/2, lo:Math.max(a.y1,b.y1), hi:Math.min(a.y2,b.y2)};
+  if(Math.abs(a.y2 - b.y1) <= T_INT+eps && Math.min(a.x2,b.x2) - Math.max(a.x1,b.x1) > 0)
+    return {axis:"h", y:(a.y2+b.y1)/2, lo:Math.max(a.x1,b.x1), hi:Math.min(a.x2,b.x2)};
+  if(Math.abs(b.y2 - a.y1) <= T_INT+eps && Math.min(a.x2,b.x2) - Math.max(a.x1,b.x1) > 0)
+    return {axis:"h", y:(b.y2+a.y1)/2, lo:Math.max(a.x1,b.x1), hi:Math.min(a.x2,b.x2)};
+  return null;
+}
+const DOOR_W = k => k==="bathroom"||k==="wc"||k==="shower_room" ? 700
+                  : k==="kitchen"||k==="utility"||k==="storage" ? 800 : 900;
+
+/* doors on a spanning tree from the entry — enough for a plan to read */
+function deriveDoors(plan){
+  const cl = plan.rooms.map(r=>clearOf(r));
+  const n = cl.length, adj = [];
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+    const f = sharedFace(cl[i],cl[j]);
+    if(f && f.hi-f.lo >= 900) adj.push({i,j,f});
+  }
+  const seen=new Set([plan.entry]), doors=[], q=[plan.entry];
+  while(q.length){
+    const u=q.shift();
+    for(const e of adj){
+      const v = e.i===u ? e.j : e.j===u ? e.i : null;
+      if(v===null || seen.has(v)) continue;
+      seen.add(v); q.push(v);
+      const w = DOOR_W(plan.rooms[v].kind);
+      const mid=(e.f.lo+e.f.hi)/2;
+      doors.push({...e.f, w, into:v, from:u, lo:mid-w/2, hi:mid+w/2});
+    }
+  }
+  return doors;
+}
+/* windows: exterior edges of habitable rooms, from the real catalogue */
+const WIN = k => k==="kitchen"||k==="utility" ? [1200,900]
+              : k.startsWith("bedroom") || k==="study" ? [1500,1200] : [1500,1500];
+function deriveWindows(plan){
+  const inner = envInner(plan.envelope);
+  const notches = plan.envelope.notches.map(notchInner);
+  const ext = new Set((plan.envelope.exposure==="detached")?["W","E","S","N"]:["S","E"]);
+  const out=[];
+  plan.rooms.forEach((r,i)=>{
+    if(!HABITABLE.has(r.kind)) return;
+    const c=clearOf(r), [w]=WIN(r.kind);
+    const onNotch = s => notches.some(nn =>
+      (s==="W"&&Math.abs(c.x1-nn.x2)<2)||(s==="E"&&Math.abs(c.x2-nn.x1)<2)||
+      (s==="S"&&Math.abs(c.y1-nn.y2)<2)||(s==="N"&&Math.abs(c.y2-nn.y1)<2));
+    const cands=[];
+    if(Math.abs(c.x1-inner.x1)<2 && ext.has("W")) cands.push({axis:"v",x:c.x1,lo:(c.y1+c.y2)/2-w/2,hi:(c.y1+c.y2)/2+w/2});
+    if(Math.abs(c.x2-inner.x2)<2 && ext.has("E")) cands.push({axis:"v",x:c.x2,lo:(c.y1+c.y2)/2-w/2,hi:(c.y1+c.y2)/2+w/2});
+    if(Math.abs(c.y1-inner.y1)<2 && ext.has("S")) cands.push({axis:"h",y:c.y1,lo:(c.x1+c.x2)/2-w/2,hi:(c.x1+c.x2)/2+w/2});
+    if(Math.abs(c.y2-inner.y2)<2 && ext.has("N")) cands.push({axis:"h",y:c.y2,lo:(c.x1+c.x2)/2-w/2,hi:(c.x1+c.x2)/2+w/2});
+    if(cands.length && !onNotch()) out.push({...cands[0],room:i});
+  });
+  return out;
+}
+
+/* ---- fixture packing: footprints are shipped data, the packing is the
+   prototype's own and is deliberately crude ---- */
+const F = STD.fixtures_mm;
+function packFixtures(kind,c){
+  const w=c.x2-c.x1, h=c.y2-c.y1, land = w>=h;   // long axis horizontal?
+  const put=(f,ox,oy,rot)=>{
+    let [d,l]=F[f]||[400,400];
+    let fw = rot? d:l, fh = rot? l:d;
+    return {x:c.x1+ox, y:c.y1+oy, w:fw, h:fh, f};
+  };
+  const out=[];
+  const along = (f,off,side)=>{
+    const [d,l]=F[f];
+    if(land) out.push({x:c.x1+off, y:side==="lo"?c.y1:c.y2-d, w:l, h:d, f});
+    else     out.push({x:side==="lo"?c.x1:c.x2-d, y:c.y1+off, w:d, h:l, f});
+  };
+  const cap = land? w : h;
+  switch(kind){
+    case "bathroom": if(cap>=1700){along("bath",0,"lo"); along("basin",1750,"lo");
+                     along("wc_pan",1750+650,"lo");} break;
+    case "shower_room": along("shower_tray",0,"lo"); along("wc_pan",950,"lo");
+                        along("basin",1500,"lo"); break;
+    case "wc": along("wc_pan",0,"lo"); if(cap>=1400) along("basin",760,"lo"); break;
+    case "kitchen": case "utility": {
+      let o=0; for(const f of ["appliance","sink_drainer","unit_depth","appliance"]){
+        const [,l]=F[f]; if(o+l>cap) break; along(f,o,"lo"); o+=l+20; } break; }
+    case "living": along("settee_3",Math.max(0,(cap-1850)/2),"lo");
+                   along("armchair",Math.max(0,(cap-850)/2),"hi"); break;
+    case "dining": { const [d,l]=F.table_4p;
+      out.push({x:c.x1+(w-l)/2,y:c.y1+(h-d)/2,w:l,h:d,f:"table_4p"}); break; }
+    case "living_dining": case "living_dining_kitchen": case "kitchen_dining": {
+      along("settee_3",0,"lo"); const [d,l]=F.table_4p;
+      out.push({x:c.x1+(w-l)/2,y:c.y1+(h-d)/2,w:l,h:d,f:"table_4p"});
+      let o=0; for(const f of ["sink_drainer","unit_depth"]){const [,ll]=F[f];
+        if(o+ll>cap) break; along(f,o,"hi"); o+=ll+20;} break; }
+    case "bedroom_principal": case "bedroom_double": case "bedroom_single": {
+      const f = kind==="bedroom_single"?"bed_single":kind==="bedroom_principal"?"bed_principal":"bed_double";
+      const [d,l]=F[f];
+      if(h>=l) out.push({x:c.x1+300,y:c.y1+150,w:d,h:l,f});
+      else     out.push({x:c.x1+150,y:c.y1+300,w:l,h:d,f});
+      break; }
+    case "study": along("desk",100,"lo"); break;
+  }
+  return out.filter(o=>o.x>=c.x1-1&&o.y>=c.y1-1&&o.x+o.w<=c.x2+1&&o.y+o.h<=c.y2+1);
+}
+
+/* ---- the render: annotation.md audience = `both` only ---- */
+function planSVG(plan,{w=520,tags=true,fixtures=true,pad=26}={}){
+  const e=plan.envelope, inner=envInner(e);
+  const notches=e.notches.map(notchInner);
+  const Wmm=inner.x2-inner.x1+2*T_EXT, Hmm=inner.y2-inner.y1+2*T_EXT;
+  const s=(w-2*pad)/Wmm, h=Hmm*s+2*pad;
+  const X=x=>pad+(x-inner.x1+T_EXT)*s, Y=y=>pad+(inner.y2-y+T_EXT)*s; // y-up -> y-down
+  const p=[];
+  p.push(`<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block;background:#fff">`);
+  // 1. solid poché over the whole envelope + external band, then cut the rooms out
+  p.push(`<rect x="${X(inner.x1)-T_EXT*s}" y="${Y(inner.y2)-T_EXT*s}" width="${Wmm*s}" height="${Hmm*s}" fill="var(--wall)"/>`);
+  for(const n of notches)
+    p.push(`<rect x="${X(n.x1)}" y="${Y(n.y2)}" width="${(n.x2-n.x1)*s}" height="${(n.y2-n.y1)*s}" fill="#f6f5f2"/>`);
+  const cls=plan.rooms.map(r=>clearOf(r));
+  cls.forEach(c=>p.push(`<rect x="${X(c.x1)}" y="${Y(c.y2)}" width="${(c.x2-c.x1)*s}" height="${(c.y2-c.y1)*s}" fill="var(--floor)"/>`));
+  // 2. openings — voids first, then the leaf/glazing line
+  const doors=deriveDoors(plan), wins=deriveWindows(plan);
+  for(const d of doors){
+    if(d.axis==="v") p.push(`<rect x="${X(d.x)-T_INT*s/2-1}" y="${Y(d.hi)}" width="${T_INT*s+2}" height="${(d.hi-d.lo)*s}" fill="var(--floor)"/>`);
+    else p.push(`<rect x="${X(d.lo)}" y="${Y(d.y)-T_INT*s/2-1}" width="${(d.hi-d.lo)*s}" height="${T_INT*s+2}" fill="var(--floor)"/>`);
+    // swing
+    const r=(d.hi-d.lo)*s;
+    if(d.axis==="v") p.push(`<path d="M ${X(d.x)} ${Y(d.lo)} a ${r} ${r} 0 0 0 ${r} ${-r}" fill="none" stroke="#c8c2b8" stroke-width="1"/><line x1="${X(d.x)}" y1="${Y(d.lo)}" x2="${X(d.x)}" y2="${Y(d.hi)}" stroke="#8f887d" stroke-width="1.6"/>`);
+    else p.push(`<path d="M ${X(d.lo)} ${Y(d.y)} a ${r} ${r} 0 0 1 ${r} ${-r}" fill="none" stroke="#c8c2b8" stroke-width="1"/><line x1="${X(d.lo)}" y1="${Y(d.y)}" x2="${X(d.hi)}" y2="${Y(d.y)}" stroke="#8f887d" stroke-width="1.6"/>`);
+  }
+  for(const wd of wins){
+    if(wd.axis==="v") p.push(`<rect x="${X(wd.x)-T_EXT*s}" y="${Y(wd.hi)}" width="${T_EXT*s}" height="${(wd.hi-wd.lo)*s}" fill="#fff"/><line x1="${X(wd.x)-T_EXT*s/2}" y1="${Y(wd.hi)}" x2="${X(wd.x)-T_EXT*s/2}" y2="${Y(wd.lo)}" stroke="#5b7f9c" stroke-width="1.6"/>`);
+    else p.push(`<rect x="${X(wd.lo)}" y="${Y(wd.y)}" width="${(wd.hi-wd.lo)*s}" height="${T_EXT*s}" fill="#fff"/><line x1="${X(wd.lo)}" y1="${Y(wd.y)+T_EXT*s/2}" x2="${X(wd.hi)}" y2="${Y(wd.y)+T_EXT*s/2}" stroke="#5b7f9c" stroke-width="1.6"/>`);
+  }
+  // 3. fixtures
+  if(fixtures) plan.rooms.forEach((r,i)=>{
+    for(const o of packFixtures(r.kind,cls[i]))
+      p.push(`<rect x="${X(o.x)}" y="${Y(o.y+o.h)}" width="${o.w*s}" height="${o.h*s}" fill="none" stroke="var(--fix)" stroke-width="1" rx="${2*s*100}"/>`);
+  });
+  // 4. room tags — audience `both`: name, area, clear dims
+  if(tags) plan.rooms.forEach((r,i)=>{
+    const c=cls[i], cx=X((c.x1+c.x2)/2), cy=Y((c.y1+c.y2)/2);
+    const a=areaM2(c), fs=Math.max(7.5,Math.min(11,(c.x2-c.x1)*s/9));
+    if((c.x2-c.x1)*s < 34) return;
+    p.push(`<text x="${cx}" y="${cy-2}" text-anchor="middle" font-size="${fs}" font-weight="600" fill="#3a352e">${nm(r.kind)}</text>`);
+    p.push(`<text x="${cx}" y="${cy+fs+1}" text-anchor="middle" font-size="${fs*0.86}" fill="#837c72">${num(a,1)} m²</text>`);
+    if((c.y2-c.y1)*s > 46)
+      p.push(`<text x="${cx}" y="${cy+fs*2}" text-anchor="middle" font-size="${fs*0.8}" fill="#a09890">${num((c.x2-c.x1)/1000,2)} × ${num((c.y2-c.y1)/1000,2)} m</text>`);
+  });
+  p.push(`</svg>`);
+  return p.join("");
+}
+
+/* difference line: computed, never a score */
+function diffLine(plan){
+  const cls=plan.rooms.map(clearOf);
+  let bi=0; cls.forEach((c,i)=>{ if(areaM2(c)>areaM2(cls[bi])) bi=i; });
+  const inner=envInner(plan.envelope);
+  const side=i=>{const c=cls[i];
+    return Math.abs(c.y2-inner.y2)<2?"N":Math.abs(c.y1-inner.y1)<2?"S":
+           Math.abs(c.x1-inner.x1)<2?"W":Math.abs(c.x2-inner.x2)<2?"E":"—";};
+  const SIDE={az:{N:"şimal",S:"cənub",W:"qərb",E:"şərq","—":"içəri"},
+              en:{N:"north",S:"south",W:"west",E:"east","—":"inner"}};
+  const doors=deriveDoors(plan);
+  const fromEntry=doors.filter(d=>d.from===plan.entry).map(d=>nm(plan.rooms[d.into].kind));
+  return `${t().biggest}: ${nm(plan.rooms[bi].kind)} ${num(areaM2(cls[bi]),1)} m² · `
+       + `${t().lightTo}: ${SIDE[S.lang][side(bi)]} · `
+       + `${t().entryTo}: ${fromEntry.slice(0,2).join(", ")||"—"}`;
+}
+
+/* ============================================================ RENDER */
+const el = (h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstElementChild;};
+function render(){
+  document.documentElement.lang = S.lang;
+  const app=document.getElementById("app");
+  app.innerHTML = "";
+  if(S.screen==="empty"){ app.appendChild(scrEmpty()); }
+  else if(S.screen==="refuse_nohome"||S.screen==="refuse_rooms"||S.screen==="refuse_access"){
+    app.appendChild(scrRefusal());
+  } else {
+    const c=el(`<div class="cols"></div>`);
+    c.appendChild(docCol());
+    c.appendChild(workCol());
+    app.appendChild(c);
+  }
+  renderState();
+}
+
+function scrEmpty(){
+  const d=el(`<div style="max-width:720px;margin:6vh auto 0">
+    <div class="card">
+      <h1>${t().hero}</h1>
+      <p class="muted" style="margin-top:-2px">${t().heroSub}</p>
+      <textarea id="prompt" placeholder="${t().ph}"></textarea>
+      <div class="chips" id="ex"></div>
+      <div style="margin-top:14px"><button class="btn" id="go">${t().go}</button></div>
+      <div class="limits">
+        <b>${t().limits}</b><br>${t().lim1} ${t().lim2} ${t().lim3}
+      </div>
+    </div></div>`);
+  const EX = S.lang==="az" ? [
+    ["happy","3 otaqlı mənzil, 95 m²"],
+    ["rooms","6 otaq, 2 hamam, iş otağı"],
+    ["big","2 otaq, 150 m²"],
+    ["zero","4 otaq, 45 m²"],
+    ["access","əlil arabası üçün əlçatan mənzil"],
+    ["nohome","salam, necəsən?"]
+  ] : [
+    ["happy","3-otaq flat, 95 m²"],["rooms","6 otaq, 2 bathrooms, a study"],
+    ["big","2 otaq, 150 m²"],["zero","4 otaq, 45 m²"],
+    ["access","a wheelchair-accessible flat"],["nohome","hi, how are you?"]
+  ];
+  const ex=d.querySelector("#ex");
+  EX.forEach(([k,label])=>{
+    const c=el(`<button class="chip">${label}</button>`);
+    c.onclick=()=>{d.querySelector("#prompt").value=label; d.dataset.k=k;};
+    ex.appendChild(c);
+  });
+  d.querySelector("#go").onclick=()=>{
+    S.prompt=d.querySelector("#prompt").value.trim();
+    const k=d.dataset.k||"happy";
+    parse(k);
+  };
+  return d;
+}
+
+/* parse-time branches — brief.md 9.1, 9.4 and ADR 0013 all fire BEFORE any wait */
+function parse(k){
+  log(`parse("${k}")`);
+  if(k==="nohome"){ S.screen="refuse_nohome"; log("hard error: zero rooms"); return render(); }
+  if(k==="access"){ S.screen="refuse_access"; log("refusal: accessibility (brief.md §7)"); return render(); }
+  S.brief=mkBrief(k==="access"?"happy":k);
+  if(S.brief.engine_rooms>10){ S.screen="refuse_rooms"; log(`gate: ${S.brief.engine_rooms} engine rooms > 10 (ADR 0013)`); return render(); }
+  S.screen="brief"; render();
+}
+
+/* ---------------- the document column: the Brief, always present ------- */
+function docCol(){
+  const b=S.brief;
+  const d=el(`<div class="doc"><div class="card"></div></div>`);
+  const c=d.firstElementChild;
+  if(!b) return d;
+  const nInv=b.rooms.filter(r=>r.assum).length + (b.target_area_assum==="invented_value"?1:0);
+  const nRd =(b.target_area_assum==="reading"?1:0);
+  c.appendChild(el(`<h2>${t().briefTitle}</h2><p class="muted small" style="margin-top:-4px">${t().briefSub}</p>`));
+  const fb=el(`<div class="filterbar"></div>`);
+  [["all",t().allFields,""],["invented",t().assumedN(nInv),"inv"],["reading",t().readingN(nRd),"rd"]]
+    .forEach(([k,label,cls])=>{
+      const p=el(`<button class="pill ${cls} ${S.filter===k?"on":""}">${label}</button>`);
+      p.onclick=()=>{S.filter=k;log(`filter=${k}`);render();}; fb.appendChild(p);
+    });
+  c.appendChild(fb);
+
+  // total area — the `reading` case lives here
+  const showArea = S.filter==="all" || (S.filter==="reading"&&b.target_area_assum==="reading")
+                 || (S.filter==="invented"&&b.target_area_assum==="invented_value");
+  if(showArea && b.target_area_m2){
+    const isRd=b.target_area_assum==="reading";
+    const row=el(`<div class="kv"><span>${t().area}</span>
+      <span class="${b.target_area_assum?`mark ${isRd?"reading":""}`:""}" id="ta">
+        ${num(b.target_area_m2,0)} m²${b.target_area_assum?`<i class="dot ${isRd?"reading":""}"></i>`:""}</span></div>`);
+    c.appendChild(row);
+    if(b.target_area_assum){
+      row.querySelector("#ta").onclick=()=>{S.openMark=S.openMark==="ta"?null:"ta";render();};
+      if(S.openMark==="ta") c.appendChild(markNote(isRd?"reading":"invented_value", b.target_area_sentence,"target_area"));
+    }
+  }
+  c.appendChild(el(`<h3 style="margin-top:14px">${t().rooms}</h3>`));
+  b.rooms.forEach((r,i)=>{
+    if(S.filter==="invented" && !r.assum) return;
+    if(S.filter==="reading") return;
+    const row=el(`<div class="roomrow ${r.assum?"inv":""}" >
+      <div class="rt"><span class="nm">${r.label?r.label:nm(r.kind)}${r.label?`<span class="tag">${nm(r.kind)}</span>`:""}</span>
+      <span class="ar">${num(r.area,1)} m²</span></div></div>`);
+    if(r.assum){
+      row.appendChild(el(`<div class="tiny" style="color:var(--inv);margin-top:3px">${t().weAdded}<i class="dot"></i></div>`));
+      row.style.cursor="pointer";
+      row.onclick=()=>{S.openMark=S.openMark===`r${i}`?null:`r${i}`;render();};
+    }
+    c.appendChild(row);
+    if(S.openMark===`r${i}`) c.appendChild(markNote("invented_room",r.sentence,`rooms[${i}]`));
+  });
+  if(b.unrepresented.length) c.appendChild(el(
+    `<div class="tiny muted" style="margin-top:10px;padding-top:9px;border-top:1px solid var(--line)">
+     ${S.lang==="az"?"İstifadə etmədik":"Not used"}: ${b.unrepresented.join(", ")}</div>`));
+  c.appendChild(envPicker());
+  const gen=el(`<button class="btn wide" style="margin-top:14px">${t().generate}</button>`);
+  gen.onclick=startGen;
+  c.appendChild(gen);
+  return d;
+}
+
+function markNote(kind,sentence,field){
+  const isRd=kind==="reading";
+  const n=el(`<div class="note ${isRd?"reading":""}">
+    <b>${isRd?t().weRead:kind==="invented_room"?t().weAdded:t().weAssumed}</b>
+    <span class="tiny muted"> · ${field}</span>
+    <div style="margin-top:4px">${sentence||""}</div>
+    <div class="acts">
+      <button class="prim">${t().ok}</button>
+      <button>${t().edit}</button>
+    </div>
+    <div class="tiny muted" style="margin-top:5px">${t().okHint}</div></div>`);
+  const [ok,ed]=n.querySelectorAll("button");
+  ok.onclick=e=>{e.stopPropagation();log(`acknowledge ${field} — provenance UNCHANGED (invented)`);S.openMark=null;render();};
+  ed.onclick=e=>{e.stopPropagation();log(`edit ${field} — provenance invented -> STATED, resolve() re-runs`);S.openMark=null;render();};
+  return n;
+}
+
+/* envelope: a non-drawer picks a ring of typed edges, never a boundary */
+const DWELL=[["flat_single_aspect","Mənzil, bir tərəf","Flat, one aspect"],
+             ["flat_corner","Künc mənzil","Corner flat"],
+             ["flat_dual_aspect","İki tərəfli mənzil","Dual-aspect flat"],
+             ["terrace_mid","Sıra ev, orta","Mid-terrace"],
+             ["terrace_end","Sıra ev, kənar","End-terrace"],
+             ["semi_detached","Qoşa ev","Semi-detached"],
+             ["detached","Fərdi ev","Detached"]];
+const RING={flat_single_aspect:["S"],flat_corner:["S","E"],flat_dual_aspect:["S","N"],
+            terrace_mid:["S","N"],terrace_end:["S","N","E"],
+            semi_detached:["S","N","E"],detached:["S","N","E","W"]};
+function ringIcon(k){
+  const ex=RING[k], L=(a,b,c,d,on)=>
+    `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="${on?"#5b7f9c":"#2b2926"}" stroke-width="${on?3:3}" ${on?'stroke-linecap="round"':''}/>`;
+  return `<svg width="40" height="32" viewBox="0 0 40 32">
+    ${L(4,4,36,4,ex.includes("N"))}${L(4,28,36,28,ex.includes("S"))}
+    ${L(4,4,4,28,ex.includes("W"))}${L(36,4,36,28,ex.includes("E"))}</svg>`;
+}
+function envPicker(){
+  const b=S.brief;
+  const w=el(`<div style="margin-top:16px;padding-top:13px;border-top:1px solid var(--line)">
+    <h3>${t().envelope}</h3>
+    <div class="tiny muted" style="margin:-4px 0 8px">${t().light}</div>
+    <div class="envgrid"></div>
+    <div class="tiny muted" style="margin-top:8px">${t().notchNote}</div></div>`);
+  const g=w.querySelector(".envgrid");
+  DWELL.forEach(([k,az,en])=>{
+    const o=el(`<button class="envopt ${b.dwelling_type===k?"on":""}">${ringIcon(k)}<span>${S.lang==="az"?az:en}</span></button>`);
+    o.onclick=()=>{b.dwelling_type=k;log(`dwelling_type=${k} (stated) — ring ${RING[k].join("")}`);render();};
+    g.appendChild(o);
+  });
+  return w;
+}
+
+/* ---------------- the work column ---------------- */
+function workCol(){
+  const w=el(`<div></div>`);
+  if(S.screen==="brief")      w.appendChild(scrReady());
+  if(S.screen==="generating") w.appendChild(scrGenerating());
+  if(S.screen==="gallery")    w.appendChild(scrGallery());
+  if(S.screen==="plan")       w.appendChild(scrPlan());
+  if(S.screen==="compare")    w.appendChild(scrCompare());
+  if(S.screen==="zero")       w.appendChild(scrZero());
+  if(S.screen==="export")     w.appendChild(scrExport());
+  return w;
+}
+
+function bandNotice(){
+  const b=S.brief;
+  const out=el(`<div></div>`);
+  // in the gate, outside the promise — ADR 0013's 4.3% middle zone
+  if(b.otaq>4){
+    out.appendChild(el(`<div class="msg warn" style="margin-bottom:14px">
+      <h3>${t().midWarn}</h3><div class="small">${t().midWarnBody}</div></div>`));
+  }
+  if(b.engine_view.retrieval_pool_size < 120){
+    out.appendChild(el(`<div class="msg warn" style="margin-bottom:14px">
+      <h3>${t().poolLow}</h3><div class="small">
+      ${S.lang==="az"
+        ?`Bu tərkib üçün bazamızda <b>${b.engine_view.retrieval_pool_size}</b> real mənzil var. Nəticələr daha az müxtəlif ola bilər.`
+        :`We hold <b>${b.engine_view.retrieval_pool_size}</b> real homes with this mix. Options may be less varied.`}
+      </div></div>`));
+  }
+  return out;
+}
+
+function scrReady(){
+  const b=S.brief, ev=b.engine_view;
+  const d=el(`<div></div>`);
+  d.appendChild(bandNotice());
+  const c=el(`<div class="card">
+    <h2>${S.lang==="az"?"Hazırdır":"Ready"}</h2>
+    <p class="muted small">${S.lang==="az"
+      ?"Soldakı brifi istədiyiniz vaxt dəyişə bilərsiniz — hər dəyişiklik planları yenidən qurur."
+      :"Edit the brief on the left at any time — every change regenerates."}</p>
+    <div class="msg" style="border-color:var(--line);background:#fbfaf8">
+      <div class="arith" style="margin:0">
+        <div><span>${t().needAtLeast}</span><b>${num(ev.hard_area_floor_m2,1)} m²</b></div>
+        <div><span>${t().recommend}</span><b>${num(ev.market_area_recommendation_m2,1)} m²</b></div>
+        <div><span>${t().yourBrief}</span><b>${num(b.target_area_m2,0)} m²</b></div>
+      </div>
+      <div class="tiny muted" style="margin-top:8px">engine_view — brief.md §11</div>
+    </div></div>`);
+  d.appendChild(c);
+  return d;
+}
+
+function startGen(){
+  const b=S.brief;
+  S.screen="generating"; S.streamed=0; S.examined=0;
+  log("job started — candidates on threads, stream on pass (C6)");
+  render();
+  const zero = b.target_area_m2 < b.engine_view.market_area_recommendation_m2*0.75;
+  const target = zero?0:4, total=zero?18:14;
+  const tick=()=>{
+    if(S.screen!=="generating") return;
+    S.examined++;
+    if(!zero && S.streamed<target && S.examined%3===0) S.streamed++;
+    render();
+    if(S.examined>=total){
+      S.screen = S.streamed? "gallery":"zero";
+      log(S.streamed?`gallery: ${S.streamed} survivors of ${S.examined}`
+                    :`ZERO SURVIVORS after ${S.examined} candidates — diagnose arithmetically`);
+      render(); return;
+    }
+    setTimeout(tick,260);
+  };
+  setTimeout(tick,320);
+}
+
+function scrGenerating(){
+  const d=el(`<div class="card">
+    <h2>${t().generating}</h2>
+    <div style="display:flex;gap:22px;align-items:baseline;margin-top:6px">
+      <div><div class="counter">${S.streamed}</div><div class="tiny muted">${t().passed}</div></div>
+      <div><div class="counter" style="color:var(--mute)">${S.examined}</div><div class="tiny muted">${t().examined}</div></div>
+    </div>
+    <div class="bar"><i style="width:${Math.min(100,S.examined/14*100)}%"></i></div>
+    <p class="small muted" style="margin-top:10px">${t().keepWaiting}</p>
+    <div class="stream"></div></div>`);
+  const st=d.querySelector(".stream");
+  for(let i=0;i<S.streamed;i++){
+    const th=el(`<div class="thumb"></div>`);
+    th.innerHTML=planSVG(PLANS[i%PLANS.length],{w:96,tags:false,fixtures:false,pad:5});
+    st.appendChild(th);
+  }
+  return d;
+}
+
+function scrGallery(){
+  const d=el(`<div></div>`);
+  d.appendChild(bandNotice());
+  const c=el(`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <h2 style="margin:0">${t().variants} · ${S.streamed}</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="tiny muted"><input type="checkbox" id="fx" ${S.showFixtures?"checked":""}> ${S.lang==="az"?"mebel":"furniture"}</label>
+        <button class="btn sec" id="cmp">${t().compare}</button>
+      </div>
+    </div>
+    <div class="gal" style="margin-top:12px"></div>
+    <div class="tiny muted" style="margin-top:10px">${t().fixturesNote}</div></div>`);
+  const g=c.querySelector(".gal");
+  for(let i=0;i<S.streamed;i++){
+    const plan=PLANS[i%PLANS.length];
+    const card=el(`<div class="plancard"><div>${planSVG(plan,{w:268,fixtures:S.showFixtures})}</div>
+      <div class="pb"><b>${S.lang==="az"?"Variant":"Option"} ${i+1}</b>
+      <div class="diff">${diffLine(plan)}</div>
+      ${i===2?`<div class="warnline">${S.lang==="az"?"Mətbəxin işıq alan divarı qısadır":"The kitchen's daylight wall is short"}</div>`:""}
+      </div></div>`);
+    card.onclick=()=>{S.planIdx=i;S.screen="plan";log(`open variant ${i+1}`);render();};
+    g.appendChild(card);
+  }
+  c.querySelector("#fx").onchange=e=>{S.showFixtures=e.target.checked;log(`fixtures=${S.showFixtures}`);render();};
+  c.querySelector("#cmp").onclick=()=>{S.screen="compare";S.cmp=[0,Math.min(1,S.streamed-1)];render();};
+  d.appendChild(c);
+  return d;
+}
+
+function scrPlan(){
+  const plan=PLANS[S.planIdx%PLANS.length];
+  const d=el(`<div class="card">
+    <button class="linkish" id="bk">← ${t().back}</button>
+    <h2 style="margin-top:8px">${S.lang==="az"?"Variant":"Option"} ${S.planIdx+1}</h2>
+    <div class="muted small">${diffLine(plan)}</div>
+    <div style="margin-top:10px">${planSVG(plan,{w:820,fixtures:S.showFixtures})}</div>
+    <div class="tiny muted">${t().fixturesNote}</div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="dl">${t().download}</button>
+      <button class="btn sec" id="cmp">${t().compare}</button>
+    </div></div>`);
+  d.querySelector("#bk").onclick=()=>{S.screen="gallery";render();};
+  d.querySelector("#dl").onclick=()=>{S.screen="export";log("export panel");render();};
+  d.querySelector("#cmp").onclick=()=>{S.screen="compare";render();};
+  return d;
+}
+
+function scrCompare(){
+  const d=el(`<div class="card">
+    <button class="linkish" id="bk">← ${t().back}</button>
+    <h2 style="margin-top:8px">${t().compare}</h2>
+    <div class="cmp" style="margin-top:10px"></div></div>`);
+  const g=d.querySelector(".cmp");
+  S.cmp.forEach((idx,slot)=>{
+    const plan=PLANS[idx%PLANS.length];
+    const col=el(`<div><select style="width:100%;padding:6px;border:1px solid var(--line);border-radius:6px"></select>
+      <div style="margin-top:8px">${planSVG(plan,{w:400,fixtures:S.showFixtures})}</div>
+      <div class="small muted" style="margin-top:6px">${diffLine(plan)}</div></div>`);
+    const sel=col.querySelector("select");
+    for(let i=0;i<S.streamed;i++){
+      const o=document.createElement("option");o.value=i;
+      o.textContent=`${S.lang==="az"?"Variant":"Option"} ${i+1}`;
+      if(i===idx)o.selected=true; sel.appendChild(o);
+    }
+    sel.onchange=e=>{S.cmp[slot]=+e.target.value;render();};
+    g.appendChild(col);
+  });
+  d.querySelector("#bk").onclick=()=>{S.screen="gallery";render();};
+  return d;
+}
+
+/* zero survivors — arithmetic, after the wait, never a failing plan */
+function scrZero(){
+  const b=S.brief, ev=b.engine_view;
+  const d=el(`<div class="msg bad">
+    <h3>${t().zeroTitle}</h3>
+    <div class="small">${S.lang==="az"
+      ?`Bu otaqları bu sahəyə yerləşdirmək mümkün deyil. Heç bir plan göstərmirik — çünki göstərəcəyimiz hər plan pis olardı.`
+      :`These rooms do not fit in this area. We are showing nothing, because anything we showed would be bad.`}</div>
+    <div class="arith">
+      <div><span>${t().needAtLeast} <span class="tiny muted">(${S.lang==="az"?"sərt hədd":"hard floor"})</span></span><b>${num(ev.hard_area_floor_m2,1)} m²</b></div>
+      <div><span>${t().recommend}</span><b>${num(ev.market_area_recommendation_m2,1)} m²</b></div>
+      <div style="border-top:1px solid var(--line);margin-top:4px;padding-top:6px"><span>${t().yourBrief}</span><b style="color:var(--bad)">${num(b.target_area_m2,0)} m²</b></div>
+    </div>
+    <div class="small">${S.lang==="az"
+      ?`Ən çox təkrarlanan problem: <b>yataq otaqları çox kiçik çıxır</b>.`
+      :`The commonest failure: <b>the bedrooms come out too small</b>.`}</div>
+    <div style="margin-top:11px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="e1">${t().area} ${t().editField}</button>
+      <button class="btn sec" id="e2">${t().rooms} ${t().editField}</button>
+    </div>
+    <div class="tiny muted" style="margin-top:9px">brief.md §9.4 — same function as the parse-time check, so the sentence matches by construction</div>
+  </div>`);
+  d.querySelector("#e1").onclick=()=>{S.screen="brief";S.openMark="ta";S.filter="all";log("jump to target_area");render();};
+  d.querySelector("#e2").onclick=()=>{S.screen="brief";S.filter="all";render();};
+  return d;
+}
+
+function scrExport(){
+  const d=el(`<div class="card">
+    <button class="linkish" id="bk">← ${t().back}</button>
+    <h2 style="margin-top:8px">${t().download}</h2>
+    <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn">${t().pdf}</button>
+      <button class="btn sec">${t().png}</button>
+    </div>
+    <details style="margin-top:16px">
+      <summary style="cursor:pointer;font-weight:600">${t().forArch}</summary>
+      <div class="small muted" style="margin:7px 0 9px">${t().forArchSub}</div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn sec">DXF</button><button class="btn sec">IFC</button>
+      </div>
+    </details>
+    <div class="limits"><b>${t().limits}</b><br>${t().lim1} ${t().lim2} ${t().lim3}<br>
+      <span style="color:var(--bad)">${t().c8}</span></div>
+    <div class="tiny muted" style="margin-top:10px">${t().shareNote}</div>
+  </div>`);
+  d.querySelector("#bk").onclick=()=>{S.screen="plan";render();};
+  return d;
+}
+
+/* refusals — all three happen at parse time, before any waiting screen */
+function scrRefusal(){
+  const wrap=el(`<div style="max-width:720px;margin:6vh auto 0"></div>`);
+  let body="";
+  if(S.screen==="refuse_nohome"){
+    body=`<h3>${t().refuseNoHome}</h3><div class="small">${S.lang==="az"
+      ?"Neçə otaq istədiyinizi və təxmini sahəni yazın."
+      :"Tell us how many rooms you want and roughly what area."}</div>`;
+  }
+  if(S.screen==="refuse_access"){
+    body=`<h3>${t().refuseAccess}</h3><div class="small">${S.lang==="az"
+      ?"Bizim ölçülərimiz əlçatanlıq normalarına görə deyil, adi mənzil ölçülərinə görə qurulub. Səhv plan verməkdənsə, bunu etmirik."
+      :"Our dimensions are built to ordinary domestic ergonomics, not to accessibility standards. Rather than give you a wrong plan, we decline."}</div>
+      <div class="tiny muted" style="margin-top:8px">brief.md §7 — a refusal, not an ignore</div>`;
+  }
+  if(S.screen==="refuse_rooms"){
+    const b=S.brief;
+    const named=b.rooms.filter(r=>!r.assum).length;
+    const overOtaq = b.otaq>4;
+    body=`<h3>${t().refuseRooms}</h3>
+      <div class="small">${ overOtaq
+        ? (S.lang==="az"
+            ? `Siz <b>${b.otaq} otaq</b> istədiniz. Biz <b>1–4 otaqlı</b> mənzil və evlər planlaşdırırıq.`
+            : `You asked for <b>${b.otaq} otaq</b>. We plan flats and houses of <b>1–4 otaq</b>.`)
+        : (S.lang==="az"
+            ? `Siz <b>${named} otaq</b> saydınız. Bu qədər ayrı otağı bir mərtəbədə düzgün yerləşdirə bilmirik.`
+            : `You listed <b>${named} rooms</b>. We cannot lay out that many separate rooms on one storey well.`)}</div>
+      <div class="tiny muted" style="margin-top:8px">
+        ADR 0013 — voiced in otaq when the excess is otaq, in listed rooms when it is not.
+        The engine count is never shown.</div>`;
+  }
+  const c=el(`<div class="msg bad">${body}
+    <div style="margin-top:12px"><button class="btn sec" id="bk">← ${t().back}</button></div></div>`);
+  c.querySelector("#bk").onclick=()=>{S.screen="empty";S.brief=null;render();};
+  wrap.appendChild(c);
+  return wrap;
+}
+
+/* ============================================================ STATE OUT */
+function renderState(){
+  const o=document.getElementById("stateout");
+  o.classList.toggle("hidden",!S.showState);
+  const b=S.brief;
+  o.innerHTML =
+    `<b>screen</b> ${S.screen}  <b>lang</b> ${S.lang}  <b>filter</b> ${S.filter}<br>`
+  + (b?`<b>otaq</b> ${b.otaq}  <b>engine_rooms</b> ${b.engine_rooms}  <b>dwelling</b> ${b.dwelling_type}<br>`
+      +`<b>engine_view</b> pool=${b.engine_view.retrieval_pool_size} floor=${b.engine_view.hard_area_floor_m2} rec=${b.engine_view.market_area_recommendation_m2}<br>`
+      +`<b>rooms</b> ${b.rooms.map(r=>`${r.kind}${r.assum?"*":""}`).join(" ")}<br>`
+      :"<b>brief</b> null<br>")
+  + `<b>survivors</b> ${S.streamed}/${S.examined}<br>`
+  + `<hr style="border:0;border-top:1px solid #4a4038;margin:6px 0">`
+  + S.log.map(l=>`· ${l}`).join("<br>");
+}
+
+/* ============================================================ WIRING */
+document.getElementById("lang-az").onclick=()=>{S.lang="az";syncLang();render();};
+document.getElementById("lang-en").onclick=()=>{S.lang="en";syncLang();render();};
+function syncLang(){
+  document.getElementById("lang-az").classList.toggle("on",S.lang==="az");
+  document.getElementById("lang-en").classList.toggle("on",S.lang==="en");
+}
+document.getElementById("toggle-state").onclick=()=>{S.showState=!S.showState;renderState();};
+document.querySelectorAll("[data-walk]").forEach(btn=>{
+  btn.onclick=()=>{
+    const k=btn.dataset.walk;
+    S.prompt="(walkthrough)"; S.openMark=null; S.filter="all";
+    if(k==="happy"){parse("happy");}
+    if(k==="rooms"){parse("rooms");}
+    if(k==="big"){parse("big");}
+    if(k==="zero"){parse("zero");}
+    if(k==="access"){parse("access");}
+  };
+});
+/* deep link for screenshots + sharing a walkthrough: #happy, #happy/gallery */
+function fromHash(){
+  const h=(location.hash||"").replace(/^#/,"");
+  if(!h) return false;
+  const [walk,scr,lang]=h.split("/");
+  if(lang){S.lang=lang;syncLang();}
+  if(["happy","rooms","big","zero","access","nohome"].includes(walk)){
+    S.prompt="(walkthrough)"; parse(walk);
+  }
+  if(scr && S.brief){
+    if(scr==="gallery"||scr==="plan"||scr==="compare"||scr==="export"){
+      S.streamed=4; S.examined=14; S.screen=scr;
+    } else if(scr==="zero"){ S.streamed=0; S.examined=18; S.screen="zero"; }
+    else S.screen=scr;
+    render();
+  }
+  return true;
+}
+window.addEventListener("hashchange",()=>{S.brief=null;S.screen="empty";fromHash()||render();});
+if(!fromHash()) render();
+</script>
+</body>
+</html>
