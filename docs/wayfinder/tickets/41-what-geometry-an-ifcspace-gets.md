@@ -4,7 +4,7 @@ title: What geometry an IfcSpace actually gets
 parent: map
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - docs/spec/ifc-export.md
