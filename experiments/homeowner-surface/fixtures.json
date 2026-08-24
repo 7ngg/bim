@@ -4,14 +4,20 @@
    "label": "5-room seed 20260817",
    "status": "OPTIMAL",
    "valid": true,
-   "wall_time_s": 2.11,
+   "wall_time_s": 0.88,
    "seed": 20260817,
-   "exposure": "detached",
+   "exposure": "corpus_median",
    "grid_mm": 250,
    "envelope": {
     "name": "L 8.0x6.5 m less 2.0x1.5 m",
     "W": 32,
     "H": 26,
+    "exterior_sides": {
+     "W": 0.0,
+     "E": 0.0,
+     "S": 1.0,
+     "N": 0.45
+    },
     "notches": [
      [
       24,
@@ -20,7 +26,7 @@
       26
      ]
     ],
-    "exposure": "detached"
+    "exposure": "corpus_median"
    },
    "entry": 4,
    "rooms": [
@@ -75,14 +81,20 @@
    "label": "5-room seed 991",
    "status": "OPTIMAL",
    "valid": true,
-   "wall_time_s": 1.56,
+   "wall_time_s": 0.37,
    "seed": 991,
-   "exposure": "detached",
+   "exposure": "corpus_median",
    "grid_mm": 250,
    "envelope": {
     "name": "L 8.0x6.5 m less 2.0x1.5 m",
     "W": 32,
     "H": 26,
+    "exterior_sides": {
+     "W": 0.0,
+     "E": 0.0,
+     "S": 1.0,
+     "N": 0.45
+    },
     "notches": [
      [
       24,
@@ -91,7 +103,7 @@
       26
      ]
     ],
-    "exposure": "detached"
+    "exposure": "corpus_median"
    },
    "entry": 4,
    "rooms": [
@@ -101,23 +113,23 @@
      "toy_kind": "bedroom",
      "x1": 0,
      "y1": 0,
-     "x2": 9,
+     "x2": 8,
      "y2": 20
     },
     {
      "i": 1,
      "kind": "kitchen",
      "toy_kind": "kitchen",
-     "x1": 9,
+     "x1": 8,
      "y1": 0,
-     "x2": 18,
+     "x2": 16,
      "y2": 20
     },
     {
      "i": 2,
      "kind": "living",
      "toy_kind": "living",
-     "x1": 18,
+     "x1": 16,
      "y1": 0,
      "x2": 32,
      "y2": 20
@@ -128,14 +140,14 @@
      "toy_kind": "bathroom",
      "x1": 0,
      "y1": 20,
-     "x2": 13,
+     "x2": 14,
      "y2": 26
     },
     {
      "i": 4,
      "kind": "hall",
      "toy_kind": "hall",
-     "x1": 13,
+     "x1": 14,
      "y1": 20,
      "x2": 24,
      "y2": 26
@@ -146,14 +158,20 @@
    "label": "5-room seed 4242",
    "status": "OPTIMAL",
    "valid": true,
-   "wall_time_s": 0.55,
+   "wall_time_s": 0.71,
    "seed": 4242,
-   "exposure": "detached",
+   "exposure": "corpus_median",
    "grid_mm": 250,
    "envelope": {
     "name": "L 8.0x6.5 m less 2.0x1.5 m",
     "W": 32,
     "H": 26,
+    "exterior_sides": {
+     "W": 0.0,
+     "E": 0.0,
+     "S": 1.0,
+     "N": 0.45
+    },
     "notches": [
      [
       24,
@@ -162,51 +180,51 @@
       26
      ]
     ],
-    "exposure": "detached"
+    "exposure": "corpus_median"
    },
-   "entry": 3,
+   "entry": 4,
    "rooms": [
     {
      "i": 0,
-     "kind": "living",
-     "toy_kind": "living",
+     "kind": "kitchen",
+     "toy_kind": "kitchen",
      "x1": 0,
      "y1": 0,
-     "x2": 14,
+     "x2": 7,
      "y2": 20
     },
     {
      "i": 1,
-     "kind": "bedroom_double",
-     "toy_kind": "bedroom",
-     "x1": 14,
+     "kind": "living",
+     "toy_kind": "living",
+     "x1": 7,
      "y1": 0,
-     "x2": 32,
-     "y2": 8
+     "x2": 22,
+     "y2": 20
     },
     {
      "i": 2,
-     "kind": "kitchen",
-     "toy_kind": "kitchen",
-     "x1": 14,
-     "y1": 8,
+     "kind": "bedroom_double",
+     "toy_kind": "bedroom",
+     "x1": 22,
+     "y1": 0,
      "x2": 32,
      "y2": 20
     },
     {
      "i": 3,
-     "kind": "hall",
-     "toy_kind": "hall",
+     "kind": "bathroom",
+     "toy_kind": "bathroom",
      "x1": 0,
      "y1": 20,
-     "x2": 10,
+     "x2": 11,
      "y2": 26
     },
     {
      "i": 4,
-     "kind": "bathroom",
-     "toy_kind": "bathroom",
-     "x1": 10,
+     "kind": "hall",
+     "toy_kind": "hall",
+     "x1": 11,
      "y1": 20,
      "x2": 24,
      "y2": 26
@@ -217,14 +235,20 @@
    "label": "5-room seed 77",
    "status": "OPTIMAL",
    "valid": true,
-   "wall_time_s": 0.91,
+   "wall_time_s": 0.57,
    "seed": 77,
-   "exposure": "detached",
+   "exposure": "corpus_median",
    "grid_mm": 250,
    "envelope": {
     "name": "L 8.0x6.5 m less 2.0x1.5 m",
     "W": 32,
     "H": 26,
+    "exterior_sides": {
+     "W": 0.0,
+     "E": 0.0,
+     "S": 1.0,
+     "N": 0.45
+    },
     "notches": [
      [
       24,
@@ -233,41 +257,41 @@
       26
      ]
     ],
-    "exposure": "detached"
+    "exposure": "corpus_median"
    },
-   "entry": 3,
+   "entry": 4,
    "rooms": [
     {
      "i": 0,
-     "kind": "living",
-     "toy_kind": "living",
+     "kind": "kitchen",
+     "toy_kind": "kitchen",
      "x1": 0,
      "y1": 0,
-     "x2": 17,
+     "x2": 8,
      "y2": 20
     },
     {
      "i": 1,
-     "kind": "bedroom_double",
-     "toy_kind": "bedroom",
-     "x1": 17,
+     "kind": "living",
+     "toy_kind": "living",
+     "x1": 8,
      "y1": 0,
-     "x2": 32,
-     "y2": 10
+     "x2": 22,
+     "y2": 20
     },
     {
      "i": 2,
-     "kind": "kitchen",
-     "toy_kind": "kitchen",
-     "x1": 17,
-     "y1": 10,
+     "kind": "bedroom_double",
+     "toy_kind": "bedroom",
+     "x1": 22,
+     "y1": 0,
      "x2": 32,
      "y2": 20
     },
     {
      "i": 3,
-     "kind": "hall",
-     "toy_kind": "hall",
+     "kind": "bathroom",
+     "toy_kind": "bathroom",
      "x1": 0,
      "y1": 20,
      "x2": 11,
@@ -275,8 +299,8 @@
     },
     {
      "i": 4,
-     "kind": "bathroom",
-     "toy_kind": "bathroom",
+     "kind": "hall",
+     "toy_kind": "hall",
      "x1": 11,
      "y1": 20,
      "x2": 24,
@@ -285,82 +309,97 @@
    ]
   },
   {
-   "label": "6-room",
-   "status": "OPTIMAL",
+   "label": "7-room",
+   "status": "FEASIBLE",
    "valid": true,
-   "wall_time_s": 2.67,
+   "wall_time_s": 15.02,
    "seed": 20260817,
-   "exposure": "detached",
+   "exposure": "corpus_median",
    "grid_mm": 250,
    "envelope": {
-    "name": "L 9.0x6.75 m less 2.0x1.5 m",
-    "W": 36,
-    "H": 27,
+    "name": "L 9.5x7.5 m less 2.5x2.0 m",
+    "W": 38,
+    "H": 30,
+    "exterior_sides": {
+     "W": 0.0,
+     "E": 0.0,
+     "S": 1.0,
+     "N": 0.45
+    },
     "notches": [
      [
       28,
-      21,
-      36,
-      27
+      22,
+      38,
+      30
      ]
     ],
-    "exposure": "detached"
+    "exposure": "corpus_median"
    },
-   "entry": 5,
+   "entry": 4,
    "rooms": [
     {
      "i": 0,
-     "kind": "bedroom_double",
-     "toy_kind": "bedroom",
-     "x1": 0,
-     "y1": 0,
-     "x2": 13,
-     "y2": 12
-    },
-    {
-     "i": 1,
      "kind": "kitchen",
      "toy_kind": "kitchen",
      "x1": 0,
-     "y1": 12,
-     "x2": 13,
-     "y2": 19
+     "y1": 0,
+     "x2": 12,
+     "y2": 8
+    },
+    {
+     "i": 1,
+     "kind": "utility",
+     "toy_kind": "utility",
+     "x1": 0,
+     "y1": 8,
+     "x2": 12,
+     "y2": 22
     },
     {
      "i": 2,
      "kind": "living",
      "toy_kind": "living",
-     "x1": 13,
+     "x1": 12,
      "y1": 0,
-     "x2": 28,
-     "y2": 19
+     "x2": 26,
+     "y2": 22
     },
     {
      "i": 3,
      "kind": "bedroom_double",
      "toy_kind": "bedroom",
-     "x1": 28,
+     "x1": 26,
      "y1": 0,
-     "x2": 36,
-     "y2": 21
+     "x2": 38,
+     "y2": 11
     },
     {
      "i": 4,
-     "kind": "bathroom",
-     "toy_kind": "bathroom",
-     "x1": 0,
-     "y1": 19,
-     "x2": 18,
-     "y2": 27
+     "kind": "hall",
+     "toy_kind": "hall",
+     "x1": 26,
+     "y1": 11,
+     "x2": 38,
+     "y2": 22
     },
     {
      "i": 5,
-     "kind": "hall",
-     "toy_kind": "hall",
-     "x1": 18,
-     "y1": 19,
+     "kind": "bathroom",
+     "toy_kind": "bathroom",
+     "x1": 0,
+     "y1": 22,
+     "x2": 7,
+     "y2": 30
+    },
+    {
+     "i": 6,
+     "kind": "bedroom_double",
+     "toy_kind": "bedroom",
+     "x1": 7,
+     "y1": 22,
      "x2": 28,
-     "y2": 27
+     "y2": 30
     }
    ]
   },
@@ -370,12 +409,18 @@
    "valid": true,
    "wall_time_s": 15.02,
    "seed": 20260817,
-   "exposure": "detached",
+   "exposure": "corpus_median",
    "grid_mm": 250,
    "envelope": {
     "name": "L 10.0x8.0 m less 2.5x2.0 m",
     "W": 40,
     "H": 32,
+    "exterior_sides": {
+     "W": 0.0,
+     "E": 0.0,
+     "S": 1.0,
+     "N": 0.45
+    },
     "notches": [
      [
       30,
@@ -384,9 +429,9 @@
       32
      ]
     ],
-    "exposure": "detached"
+    "exposure": "corpus_median"
    },
-   "entry": 7,
+   "entry": 2,
    "rooms": [
     {
      "i": 0,
@@ -394,51 +439,51 @@
      "toy_kind": "bedroom",
      "x1": 0,
      "y1": 0,
-     "x2": 17,
-     "y2": 11
+     "x2": 15,
+     "y2": 13
     },
     {
      "i": 1,
      "kind": "bathroom",
      "toy_kind": "bathroom",
      "x1": 0,
-     "y1": 11,
-     "x2": 6,
-     "y2": 24
+     "y1": 13,
+     "x2": 7,
+     "y2": 22
     },
     {
      "i": 2,
-     "kind": "utility",
-     "toy_kind": "utility",
-     "x1": 6,
-     "y1": 11,
-     "x2": 17,
-     "y2": 24
+     "kind": "hall",
+     "toy_kind": "hall",
+     "x1": 7,
+     "y1": 13,
+     "x2": 15,
+     "y2": 22
     },
     {
      "i": 3,
-     "kind": "bedroom_double",
-     "toy_kind": "bedroom",
-     "x1": 17,
+     "kind": "living",
+     "toy_kind": "living",
+     "x1": 15,
      "y1": 0,
-     "x2": 40,
-     "y2": 8
-    },
-    {
-     "i": 4,
-     "kind": "corridor",
-     "toy_kind": "corridor",
-     "x1": 17,
-     "y1": 8,
-     "x2": 22,
+     "x2": 26,
      "y2": 24
     },
     {
+     "i": 4,
+     "kind": "bedroom_double",
+     "toy_kind": "bedroom",
+     "x1": 26,
+     "y1": 0,
+     "x2": 40,
+     "y2": 17
+    },
+    {
      "i": 5,
-     "kind": "living",
-     "toy_kind": "living",
-     "x1": 22,
-     "y1": 8,
+     "kind": "utility",
+     "toy_kind": "utility",
+     "x1": 26,
+     "y1": 17,
      "x2": 40,
      "y2": 24
     },
@@ -447,15 +492,15 @@
      "kind": "kitchen",
      "toy_kind": "kitchen",
      "x1": 0,
-     "y1": 24,
-     "x2": 10,
+     "y1": 22,
+     "x2": 15,
      "y2": 32
     },
     {
      "i": 7,
-     "kind": "hall",
-     "toy_kind": "hall",
-     "x1": 10,
+     "kind": "utility",
+     "toy_kind": "utility",
+     "x1": 15,
      "y1": 24,
      "x2": 30,
      "y2": 32

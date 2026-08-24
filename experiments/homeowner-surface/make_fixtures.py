@@ -55,6 +55,7 @@ def dump(n_rooms: int, seed: int, exposure: str, label: str) -> dict | None:
         "envelope": {
             "name": env.name,
             "W": env.W, "H": env.H,
+            "exterior_sides": env.exterior_sides,
             "notches": [[r.x1, r.y1, r.x2, r.y2] for r in env.notches],
             "exposure": env.exposure,
         },
@@ -78,12 +79,15 @@ def main() -> int:
     # Four candidates for one 5-room Brief (different seeds = different
     # Proposals = different survivors), plus a 6- and an 8-room case.
     plans = []
+    EXP = "corpus_median"     # Swiss Dwellings median 0.37, not a detached bungalow
     for seed in (20260817, 991, 4242, 77):
-        p = dump(5, seed, "detached", f"5-room seed {seed}")
+        p = dump(5, seed, EXP, f"5-room seed {seed}")
         if p:
             plans.append(p)
-    for n, seed in ((6, 20260817), (8, 20260817)):
-        p = dump(n, seed, "detached", f"{n}-room")
+    # 6 rooms is UNAVAILABLE at corpus_median: make_brief finds no valid
+    # room-type assignment at any of 5 seeds. See probe_exposure.py.
+    for n, seed in ((7, 20260817), (8, 20260817)):
+        p = dump(n, seed, EXP, f"{n}-room")
         if p:
             plans.append(p)
     with open(os.path.join(HERE, "fixtures.json"), "w", encoding="utf-8") as f:

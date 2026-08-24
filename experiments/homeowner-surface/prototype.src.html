@@ -405,26 +405,48 @@ function deriveDoors(plan){
   }
   return doors;
 }
-/* windows: exterior edges of habitable rooms, from the real catalogue */
+/* windows: only where a room's face overlaps the edge's EXTERIOR RUN.
+   A preset gives each bbox edge the *fraction* of its run that is exterior,
+   anchored at the edge's low end (geometry.py EXPOSURE_PRESETS) — so a
+   corpus-median flat has one full edge and part of the opposite one, and the
+   rest is party. */
 const WIN = k => k==="kitchen"||k==="utility" ? [1200,900]
               : k.startsWith("bedroom") || k==="study" ? [1500,1200] : [1500,1500];
+function extRuns(plan){
+  const inner=envInner(plan.envelope);
+  const f=plan.envelope.exterior_sides||{W:1,E:1,S:1,N:1};
+  const W=inner.x2-inner.x1, H=inner.y2-inner.y1;
+  return {                                   // [lo,hi] of the exterior part
+    S:[inner.x1, inner.x1+W*(f.S||0)], N:[inner.x1, inner.x1+W*(f.N||0)],
+    W:[inner.y1, inner.y1+H*(f.W||0)], E:[inner.y1, inner.y1+H*(f.E||0)]
+  };
+}
 function deriveWindows(plan){
-  const inner = envInner(plan.envelope);
-  const notches = plan.envelope.notches.map(notchInner);
-  const ext = new Set((plan.envelope.exposure==="detached")?["W","E","S","N"]:["S","E"]);
-  const out=[];
+  const inner=envInner(plan.envelope);
+  const notches=plan.envelope.notches.map(notchInner);
+  const runs=extRuns(plan), out=[];
   plan.rooms.forEach((r,i)=>{
     if(!HABITABLE.has(r.kind)) return;
     const c=clearOf(r), [w]=WIN(r.kind);
-    const onNotch = s => notches.some(nn =>
-      (s==="W"&&Math.abs(c.x1-nn.x2)<2)||(s==="E"&&Math.abs(c.x2-nn.x1)<2)||
-      (s==="S"&&Math.abs(c.y1-nn.y2)<2)||(s==="N"&&Math.abs(c.y2-nn.y1)<2));
-    const cands=[];
-    if(Math.abs(c.x1-inner.x1)<2 && ext.has("W")) cands.push({axis:"v",x:c.x1,lo:(c.y1+c.y2)/2-w/2,hi:(c.y1+c.y2)/2+w/2});
-    if(Math.abs(c.x2-inner.x2)<2 && ext.has("E")) cands.push({axis:"v",x:c.x2,lo:(c.y1+c.y2)/2-w/2,hi:(c.y1+c.y2)/2+w/2});
-    if(Math.abs(c.y1-inner.y1)<2 && ext.has("S")) cands.push({axis:"h",y:c.y1,lo:(c.x1+c.x2)/2-w/2,hi:(c.x1+c.x2)/2+w/2});
-    if(Math.abs(c.y2-inner.y2)<2 && ext.has("N")) cands.push({axis:"h",y:c.y2,lo:(c.x1+c.x2)/2-w/2,hi:(c.x1+c.x2)/2+w/2});
-    if(cands.length && !onNotch()) out.push({...cands[0],room:i});
+    const onNotch = side => notches.some(nn =>
+      (side==="W"&&Math.abs(c.x1-nn.x2)<2)||(side==="E"&&Math.abs(c.x2-nn.x1)<2)||
+      (side==="S"&&Math.abs(c.y1-nn.y2)<2)||(side==="N"&&Math.abs(c.y2-nn.y1)<2));
+    // face interval on each bbox edge the room actually touches
+    const faces=[];
+    if(Math.abs(c.y1-inner.y1)<2) faces.push(["S","h",c.y1,c.x1,c.x2]);
+    if(Math.abs(c.y2-inner.y2)<2) faces.push(["N","h",c.y2,c.x1,c.x2]);
+    if(Math.abs(c.x1-inner.x1)<2) faces.push(["W","v",c.x1,c.y1,c.y2]);
+    if(Math.abs(c.x2-inner.x2)<2) faces.push(["E","v",c.x2,c.y1,c.y2]);
+    for(const [side,axis,at,a,b] of faces){
+      if(onNotch(side)) continue;
+      const [rlo,rhi]=runs[side];
+      const lo=Math.max(a,rlo), hi=Math.min(b,rhi);
+      if(hi-lo < w) continue;                       // no window's width of exterior
+      const mid=(lo+hi)/2;
+      out.push(axis==="v" ? {axis,x:at,lo:mid-w/2,hi:mid+w/2,room:i,side}
+                          : {axis,y:at,lo:mid-w/2,hi:mid+w/2,room:i,side});
+      break;
+    }
   });
   return out;
 }
@@ -484,8 +506,20 @@ function planSVG(plan,{w=520,tags=true,fixtures=true,pad=26}={}){
   const X=x=>pad+(x-inner.x1+T_EXT)*s, Y=y=>pad+(inner.y2-y+T_EXT)*s; // y-up -> y-down
   const p=[];
   p.push(`<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block;background:#fff">`);
-  // 1. solid poché over the whole envelope + external band, then cut the rooms out
+  // 1. solid poché over the whole envelope + the widest band, then carve the
+  //    party segments back from 500 to 280 (profiles.AZ t_ext_total / t_party)
   p.push(`<rect x="${X(inner.x1)-T_EXT*s}" y="${Y(inner.y2)-T_EXT*s}" width="${Wmm*s}" height="${Hmm*s}" fill="var(--wall)"/>`);
+  {
+    const runs=extRuns(plan), d=(T_EXT-T_PARTY)*s;   // 220 mm to carve back
+    const carveH=(y,lo,hi,up)=>{ if(hi-lo<=0) return;
+      p.push(`<rect x="${X(lo)}" y="${up?Y(y)-T_EXT*s:Y(y)+T_PARTY*s}" width="${(hi-lo)*s}" height="${d}" fill="#f6f5f2"/>`); };
+    const carveV=(x,lo,hi,left)=>{ if(hi-lo<=0) return;
+      p.push(`<rect x="${left?X(x)-T_EXT*s:X(x)+T_PARTY*s}" y="${Y(hi)}" width="${d}" height="${(hi-lo)*s}" fill="#f6f5f2"/>`); };
+    carveH(inner.y1, runs.S[1], inner.x2, false);          // S: past the exterior run
+    carveH(inner.y2, runs.N[1], inner.x2, true);           // N
+    carveV(inner.x1, runs.W[1], inner.y2, true);           // W
+    carveV(inner.x2, runs.E[1], inner.y2, false);          // E
+  }
   for(const n of notches)
     p.push(`<rect x="${X(n.x1)}" y="${Y(n.y2)}" width="${(n.x2-n.x1)*s}" height="${(n.y2-n.y1)*s}" fill="#f6f5f2"/>`);
   const cls=plan.rooms.map(r=>clearOf(r));
@@ -501,8 +535,14 @@ function planSVG(plan,{w=520,tags=true,fixtures=true,pad=26}={}){
     else p.push(`<path d="M ${X(d.lo)} ${Y(d.y)} a ${r} ${r} 0 0 1 ${r} ${-r}" fill="none" stroke="#c8c2b8" stroke-width="1"/><line x1="${X(d.lo)}" y1="${Y(d.y)}" x2="${X(d.hi)}" y2="${Y(d.y)}" stroke="#8f887d" stroke-width="1.6"/>`);
   }
   for(const wd of wins){
-    if(wd.axis==="v") p.push(`<rect x="${X(wd.x)-T_EXT*s}" y="${Y(wd.hi)}" width="${T_EXT*s}" height="${(wd.hi-wd.lo)*s}" fill="#fff"/><line x1="${X(wd.x)-T_EXT*s/2}" y1="${Y(wd.hi)}" x2="${X(wd.x)-T_EXT*s/2}" y2="${Y(wd.lo)}" stroke="#5b7f9c" stroke-width="1.6"/>`);
-    else p.push(`<rect x="${X(wd.lo)}" y="${Y(wd.y)}" width="${(wd.hi-wd.lo)*s}" height="${T_EXT*s}" fill="#fff"/><line x1="${X(wd.lo)}" y1="${Y(wd.y)+T_EXT*s/2}" x2="${X(wd.hi)}" y2="${Y(wd.y)+T_EXT*s/2}" stroke="#5b7f9c" stroke-width="1.6"/>`);
+    const out = wd.side==="W"||wd.side==="S";      // which way the wall lies
+    if(wd.axis==="v"){
+      const x0 = out ? X(wd.x)-T_EXT*s : X(wd.x);
+      p.push(`<rect x="${x0}" y="${Y(wd.hi)}" width="${T_EXT*s}" height="${(wd.hi-wd.lo)*s}" fill="#fff"/><line x1="${x0+T_EXT*s/2}" y1="${Y(wd.hi)}" x2="${x0+T_EXT*s/2}" y2="${Y(wd.lo)}" stroke="#5b7f9c" stroke-width="1.6"/>`);
+    } else {
+      const y0 = wd.side==="N" ? Y(wd.y)-T_EXT*s : Y(wd.y);
+      p.push(`<rect x="${X(wd.lo)}" y="${y0}" width="${(wd.hi-wd.lo)*s}" height="${T_EXT*s}" fill="#fff"/><line x1="${X(wd.lo)}" y1="${y0+T_EXT*s/2}" x2="${X(wd.hi)}" y2="${y0+T_EXT*s/2}" stroke="#5b7f9c" stroke-width="1.6"/>`);
+    }
   }
   // 3. fixtures
   if(fixtures) plan.rooms.forEach((r,i)=>{

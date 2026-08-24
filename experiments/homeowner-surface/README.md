@@ -14,6 +14,18 @@ Deep links for a specific branch: `prototype.html#happy/gallery`,
 
 ## What is real and what is faked
 
+**Exposure is `corpus_median`** — Swiss Dwellings' median 0.37, one full edge
+plus 0.45 of the opposite one — not `detached`. The first cut of this prototype
+used `detached` (100 % exterior, every edge can hold a window) and the plans read
+as bungalows. Party edges draw at `t_party` 280 and exterior at `t_ext_total`
+500, so the outer face steps, which is what a real flat plan does.
+
+⚠️ **The 6-room case is unavailable at this exposure** and is absent for that
+reason, not by choice: `make_brief` finds no valid room-type assignment at any of
+five seeds. `probe_exposure.py` maps it — and the pattern is **non-monotonic**,
+so it is an envelope-shape effect, not a room-count effect. `probe_diversity.py`
+measures what the exposure costs in variety.
+
 | Real | Faked |
 |---|---|
 | Every plan is a **solved, validated layout** from `experiments/solver-toy` (`make_fixtures.py`) | The `StatedBrief`/`ResolvedBrief` pairs are hand-built; `resolve()` is not run |
