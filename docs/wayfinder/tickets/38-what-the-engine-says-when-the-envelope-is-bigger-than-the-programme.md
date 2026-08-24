@@ -4,7 +4,7 @@ title: What the engine says when the Envelope is bigger than the programme
 parent: map
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - docs/spec/brief.md
