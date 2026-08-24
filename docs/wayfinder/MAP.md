@@ -32,24 +32,24 @@ and that is the failure this table exists to catch.
 
 | Component | | Owed by |
 |---|---|---|
-| Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ⚠️ its *one box per Room* premise was never weighed — *Whether a Room may be more than one rectangle* |
+| Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ✅ its *one box per Room* premise is **weighed and reversed**: a Space is **one or two rectangles** and the Proposal decides which — ADR 0014. ⚠️ ADR 0001's erosion is untouched and is now **asserted** rather than inherited, but `acceptance-bar.md` §9's sliver *argument* is dead and replaced |
 | Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
-| Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus*, now also handed a **labelling defect in `swiss_fit.json`**: `fit_rects.py` labels from the unfiltered list and **1.23 % of fitted dwellings are off by one** |
+| Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus*, now also handed a **labelling defect in `swiss_fit.json`**: `fit_rects.py` labels from the unfiltered list and **1.23 % of fitted dwellings are off by one**, and a second defect: **`why_k.clean()` does not do what it says** and its 58.3 % / 31.03 % clean-up figures are an artefact. ⚠️ **The 31 % conversion drop is re-owed** — it was paid for a one-rectangle constraint ADR 0014 removed — *Re-measure the conversion at two rectangles per Room* |
 | Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts* |
 | Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | — |
 | Runtime and process split — engine / proposer service / BFF, job model, threads, JSON | settled | ⚠️ the honest end state (queue + result store) is fog, under *Persistence, accounts, hosting* |
 | DXF export | settled | — |
-| Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by |
+| Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by. ✅ **Unblocked**: §1 moved to **1–2 boxes per Room** (ADR 0014) and is settled, so 30 now amends a contract that has stopped moving |
 | Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
-| Acceptance bar — 38 predicates, enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists |
+| Acceptance bar — 38 predicates (**39 once `dim.leg_join` lands**), enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists. ⚠️ Every dimensional rule now has to declare **which part it binds** — ADR 0014 binds minima and aspect per part, area per Room — and one new soft rule, `dim.prefer_single_part`, is owed to `rules.json`'s holder |
 | Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*, now also handed the silent-type medians and the **`hall` / `entrance_lobby` / `corridor` three-into-one gap**. ✅ its thickness is now measured-vindicated: 150 lands **4 mm from the corpus-optimal 146** |
-| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three* |
+| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three*. ✅ the room tag and room schedule are **settled for a concave Space** (ADR 0014) and the Drawing check needed **no new predicate** — chains measure wall faces, not rooms |
 | **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme* |
 | Area measurement convention — what a m² means everywhere it travels | settled | — |
-| **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not. ✅ its vertical hole is **closed** by ADR 0012 — §12 drops from four inputs to two — but ⚠️ **§5 and §12 contradict each other**: §5 extrudes `IfcSpace.Body` to *storey height* where §12 assigns `h_clear`, and a Space is floor-to-ceiling. **Unowned** |
+| **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not. ✅ its vertical hole is **closed** by ADR 0012 — §12 drops from four inputs to two — but ⚠️ **§5 and §12 contradict each other**: §5 extrudes `IfcSpace.Body` to *storey height* where §12 assigns `h_clear`, and a Space is floor-to-ceiling. ✅ **No longer unowned** — *What geometry an IfcSpace actually gets* takes it, and ADR 0014 adds to it: a Space is now **concave**, so whether Reference View accepts an `IfcArbitraryClosedProfileDef` as its swept profile is a live question ADR 0014 explicitly refuses to answer |
 | **Vertical dimensions** — the height the model has never had | settled | `docs/research/vertical-dimensions.md`, ADR 0012, gates 33 → **67**. **One datum, `h_clear`;** `h_storey` **deleted** — AzDTN 2.7-2 publishes none, and its only two consumers were empty. ⚠️ the ticket's premise was **half false**: two of the four inputs were already shipped and `verified`. ⚠️ **the `Fall barrier` trigger is refused, not chosen** — it turns on the drop below the window, and v1 has one Storey at elevation 0 with no site, so the model cannot evaluate it at all |
 | **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, **now unblocked**: the Brief is settled and hands it an `engine_view` block to read rather than recompute |
-| **Room-count promise** — the band v1 claims, and what it refuses | settled | ADR 0013, `experiments/room-count-envelope/`. **Gate 3–10 engine rooms, promise 1–4 otaq** — two numbers in two units, on purpose. ⚠️ **C13's "Brief-named" was false**: no Brief names a corridor, and 93.5 % of real dwellings have one. A Homeowner naming 10 rooms is out of band **99.8 %** of the time. ⚠️ The band's *edges* were also wrong — per-`n` coverage puts **n = 2 as the worst regime below 11**, worse than the n = 10 the old band included, and **n = 1 retrieves better than n = 4**. **Unowned** |
+| **Room-count promise** — the band v1 claims, and what it refuses | settled | ADR 0013, `experiments/room-count-envelope/`. **Gate 3–10 engine rooms, promise 1–4 otaq** — two numbers in two units, on purpose. ⚠️ **C13's "Brief-named" was false**: no Brief names a corridor, and 93.5 % of real dwellings have one. A Homeowner naming 10 rooms is out of band **99.8 %** of the time. ⚠️ The band's *edges* were also wrong — per-`n` coverage puts **n = 2 as the worst regime below 11**, worse than the n = 10 the old band included, and **n = 1 retrieves better than n = 4**. ✅ **No longer unowned**: all three of ADR 0013's handoffs are placed — the one-rectangle premise is settled by ADR 0014, §9.4's third and fourth bounds and the circulation-count rule sit on *What the engine says when the Envelope is bigger than the programme*, and the `habitable` flag on *Two room vocabularies in one file*. What is left on this row is a **correction to the record**, not work |
 
 ## Notes
 
@@ -75,16 +75,24 @@ order** — the done-test decides order:
 
 | Artifact | Claimed by |
 |---|---|
-| `CONTEXT.md` | 31 — **sole claimant now**, 21 closed |
+| `CONTEXT.md` | 31 — **sole claimant again**, 21 and 28 closed |
 | `data/standards/room-constraints.json` | 16, 31, 32 |
 | `data/acceptance/rules.json` | 16, 20, 26 |
-| `docs/spec/acceptance-bar.md` | 26, 28 |
-| `docs/spec/proposer.md` | 23, 28, 30 — 28 and 30 both amend §1, so **30 is blocked by 28** |
-| `docs/spec/annotation.md` | 28, 32 |
+| `docs/spec/acceptance-bar.md` | 26 — **sole claimant now**, 28 closed |
+| `docs/spec/proposer.md` | 23, 30 — 28 closed, and **30 is unblocked**: §1 has moved and is settled |
+| `docs/spec/annotation.md` | 32 — **sole claimant now**, 28 closed |
 | `docs/spec/openings.md` | 16 — **sole claimant now.** 39 closed without creating it: the catalogue-versus-instance line is in `CONTEXT.md`'s **Opening** and **Head datum** terms and in the profile data, so 16 inherits it |
 | `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see |
+| `docs/spec/ifc-export.md` | 41 — sole claimant. New, and it takes over a row that had **no ticket at all** |
+| `experiments/rectangularise/`, `docs/research/rectangularisation.md` | 40, 27 — 40 rewrites the fit, 27 renders its output. **Sequence them**: rendering a conversion that is about to change is wasted |
 
-✅ **39 is closed and its collisions are gone.** It had the widest write-set on the map and was taken when the frontier was quiet, exactly as this note directed; it then **dropped `openings.md` rather than author a file 16 owns**, so the count it was warned about fell from three shared artifacts to two.
+✅ **39 and 28 are closed and their collisions are gone.** 39 had the widest
+write-set on the map and 28 had the widest after it; both were taken when the
+frontier was quiet, exactly as this note directs. 28 **declared** `CONTEXT.md`,
+`docs/research/` and a new `experiments/` directory on resolution rather than
+taking them quietly — nothing else was claimed at the time, so the rule held, and
+the entries are on its ticket for the next reader. Four artifacts now have a
+single claimant that had two.
 
 Only one of these became a blocking edge, and deliberately: sharing a file is a
 merge hazard, sharing a *decision* is a dependency. 28 changes the Proposal
@@ -145,7 +153,7 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
 | C7 | Post-generation, v1 is **edit-the-brief-and-regenerate**. Direct wall manipulation with re-solve is designed-for but deferred. |
 | C8 | **Neufert-*grade* dimensional standards. No legal code-compliance claim, ever** — say so in the product copy. Neufert names the grade, not the source: building a profile out of it is the one copyright move the research forbids. |
 | C9 | **Non-commercial project.** Research-only datasets and weights are available. Licence is not a gate; data quality and regional convention are. |
-| C10 | **Model proposes, solver projects** — amended, and the amendment is load-bearing. The Proposal carries **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints) and exact tiling is posted **soft**. The loose form is refuted by measurement. A **two-phase fallback is mandatory**: a merely *noisy* Proposal goes INFEASIBLE. Shipped: **15 s, τ = 4**. And "the model" is **two sources** behind one Proposal contract — ADR 0005. |
+| C10 | **Model proposes, solver projects** — amended twice, and both amendments are load-bearing. The Proposal carries **relative arrangement, not just boxes** (pairwise separations promoted to hard linear constraints) and exact tiling is posted **soft**. It also carries **shape**: one or two boxes per Room, ADR 0014, because a solver left to choose takes a second rectangle on a fifth to a third of the rooms it is offered against a truth needing none, and a penalty stops being a dependable switch by twelve rooms. *Model proposes* now includes what shape a room is. The loose form is refuted by measurement. A **two-phase fallback is mandatory**: a merely *noisy* Proposal goes INFEASIBLE. Shipped: **15 s, τ = 4**. And "the model" is **two sources** behind one Proposal contract — ADR 0005. |
 | C11 | **Clean successor to `../plan-generator-3000-pro-max`.** No code inherited. Its findings may be reused only after independent verification. |
 | C12 | Not tied to any region — but that was freedom, not an obligation to serve everywhere. v1 ships **exactly one** profile and it is **`AZ`**; `UK` survives as a test fixture and is never selectable. |
 | C13 | **The gate and the promise are two numbers in two units.** The engine hard-refuses outside **3–10 engine rooms** — every Space including the circulation `resolve` invents — and the product promises **1–4 otaq**, habitable rooms, the unit AzDTN and the Baku market count in. Between them is a zone the engine serves and the copy declines to claim: 89.9 % promised, 4.3 % served-unpromised, 5.9 % refused. *"Brief-named rooms" is struck* — no Brief names a corridor. Retrieval dies at 11+ (58.0 % blank) and the 24-room case is **demoted to headroom evidence, quotable as a ceiling by nothing**. ADR 0013. |
@@ -560,6 +568,51 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   two-tradition split showing up in the counting unit now, not just the thicknesses.
 
 
+- [Whether a Room may be more than one rectangle](tickets/28-may-a-room-be-more-than-one-rectangle.md)
+  — **a Room is one or two rectangles, and the Proposal decides which.** ADR 0014,
+  `docs/research/room-rectangles.md`, `experiments/room-rectangles/`,
+  `proposer.md` §1/§2.3/§5, `acceptance-bar.md` §9.1, `annotation.md` §6/§7/§13,
+  `CONTEXT.md`. Cap **two**, and the reason is not the box count: an L is a shape
+  an architect draws and a T/U/S/Z room is one a plan is left with — while what
+  survives at k ≥ 3 is **mostly not a room shape at all**, being **35.0 %**
+  off-axis against **0.63 %** at k = 1. No value of k fixes an angled wall.
+  **No type whitelist**: the distribution comes from the corpus, which is already
+  type-shaped — bedrooms 69–72 % rectangular, corridors and open-plan living
+  26–30 %. ⚠️ **The ticket's own headline is refused**: "2.7 % of real dwellings"
+  is a *corpus* statistic and corpus yield is instrumental; the decision rests on
+  output naturalism and on tiling slack. ⚠️ **The clean-up it proposed is
+  refused, and its evidence is an artefact** — `why_k.clean()`'s dilation is
+  clipped to the room's own bbox, so it erodes every room by 500 mm all round and
+  fills no notch at any size; corrected, single-rectangle rooms move
+  **0.5286 → 0.5367**, and a 2 % area tolerance moves them 1.1 points, so
+  **non-rectangularity here is real architecture, not pipe boxings.** ⚠️ It kills
+  `acceptance-bar.md` §9's sliver *argument* (`erode(A ∪ B, r)` is strictly larger
+  than the union of erosions) and revives the corridor-pinch question §9 dropped,
+  with the opposite sign. ⚠️ It exposes a **live defect at k = 1**:
+  `select_relations` never filters on a positive separation cost, so an
+  overlapping Proposal already gets separations asserted it never made — re-owed
+  by *The retrieval index and warp procedure*. ⚠️ Item 6, the 31 % conversion
+  drop, is **ticketed rather than measured** — *Re-measure the conversion at two
+  rectangles per Room*. ⚠️ Item 4's "confirm against a drawn example" **could not
+  be done**: nothing on this map renders a plan. ✅ ADR 0001's erosion is
+  **asserted rather than inherited** — `erosion_check.py` matches the inner-face
+  polygon pointwise at the reflex corner. ✅ The dimension chains needed **no
+  change** and the Drawing check **no new predicate** — chains measure wall faces,
+  not rooms. ✅ **The decision rests on one table**: told which Room is an
+  L, the solver places **25 of 25 with none spurious**; left to find them it
+  places 10 of 18 and **invents 35**; penalised until the invented ones stop, it
+  places **none of 16** — so a solver-decides design has no good setting. By type
+  it is close to reversed, **Spearman +0.795** against corpus rectangularity. And it
+  is the only arm that converts the extra rectangle into plans: **survivor rate
+  0.500 against 0.361 for a solver-decides design and 0.333 for the k = 1
+  control** — same expressive power, almost none of it realised — at 1.2–1.7× the
+  control's variables where Design B costs a flat 3.9×.
+  ⚠️ Four of this session's own claims were withdrawn after the measurements
+  contradicted them — one caused by a bug in its own harness, one later
+  re-established properly — and they are listed on the ticket rather than quietly
+  dropped.
+
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -611,9 +664,21 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   ⚠️ **Renamed from "Non-orthogonal geometry", which was two questions wearing one name.**
   An L-shaped room is *orthogonal*, and filing it here made a cheap question inherit an
   expensive deferral, so every downstream ticket inherited *one box per Room* unweighed.
-  Split out as *Whether a Room may be more than one rectangle*. The Envelope's ≤2-notch
-  cap is settled and measured-vindicated (ADR 0003). Carries a **deliberately unbuilt
-  dependency**: room-tag-at-centroid is exact only while every Space is a rectangle.
+  Split out as *Whether a Room may be more than one rectangle*, **now closed** — ADR
+  0014 gives a Room two rectangles and leaves this patch holding only the genuinely
+  angled case. ✅ **And that case is now sized.** Rooms needing three rectangles or
+  more are **35.0 %** off-axis by more than a tenth of their perimeter, against
+  **4.45 %** at two and **0.63 %** at one — so a third of what looked like complex
+  room shapes is a wall a couple of degrees off axis, rendered as a 250 mm
+  staircase. **No value of k reaches it**, which is what makes this a separate
+  problem rather than a harder version of the one just solved. Carries an estimate
+  of its own size for the first time: fix this and the two-rectangle model covers
+  most of what is left. The Envelope's ≤2-notch cap is settled and
+  measured-vindicated (ADR 0003). ✅ Its **deliberately unbuilt dependency** is
+  discharged: room-tag-at-centroid was exact only while every Space was a
+  rectangle, and `annotation.md` §7 now tags the **larger part** — a Room's own
+  centroid can land outside its own Space, which `erosion_check.py` asserts rather
+  than fears.
 - **Structural and services reality** — load-bearing walls, plumbing stacks, risers. The
   hook is deliberate: a wall's `load_bearing` is **unknown, not false**, and party walls
   now exist in the model still carrying `None`, so the hook is paying for something
@@ -664,8 +729,16 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   the deletion narrows to {5, and 6 unknown}, so **250 mm is charging the 5-room case** —
   the bottom of C13's band and the corpus's commonest dwelling size. Nothing published is
   snapped to 250 mm, which makes a finer grid **strictly easier to adopt later, never
-  harder**. Only the solve-time side is still unmeasured. ⚠️ **And the deletion figure itself is
-  now stale** — it was computed at `t_int` 120, which ADR 0010 makes 150, moving the
+  harder**. Only the solve-time side is still unmeasured. ⚠️ **A third measurement, from
+  *Whether a Room may be more than one rectangle*, says the deletion is wider than
+  {5, 6} and is not a t_int effect at all**: `scenarios.make_brief` finds **no
+  feasible room-type assignment below 7 rooms** once minima are eroded — at
+  `t_int` 100, 120 *and* 150, and at both `detached` and `corpus_median` exposure —
+  where at `clear_t = 0` every one of 4, 5 and 6 builds. It is the toy's own
+  minima rather than the shipped ergonomic layer, so it corroborates a direction
+  rather than settling a number; what it settles is that **no solver measurement
+  on this map covers the bottom half of C13's own 3–10 band.** ⚠️ **And the
+  deletion figure itself is now stale** — it was computed at `t_int` 120, which ADR 0010 makes 150, moving the
   residue class from 130 to 100 mod 250. Recompute before quoting it again. *One internal thickness* supplies a **partial** starting point and not a conclusion: the 120 → 150 move cost **253 solve cells either way**, so no per-room ceiling changed — but the deletion also turns on the Envelope's own re-snapping, which that arithmetic does not touch.
 
 ## Out of scope

@@ -12,10 +12,43 @@ Units are integer millimetres and Envelope grid units throughout, per ADR 0001.
 
 ## 1. What is proposed
 
-**Unchanged from the solver contract**, which is already the spec: exactly *n*
-axis-aligned boxes, one per Brief Room, as four integers in Envelope grid units;
-no validity guarantee; no adjacency graph; no wall geometry. Nothing in this
-ticket reopens it.
+**One or two axis-aligned boxes per Brief Room** — four integers each, in
+Envelope grid units. A Room's two boxes must share an edge of at least the leg
+floor (`acceptance-bar.md` §9.1). No validity guarantee; no adjacency graph; no
+wall geometry.
+
+A box is a **part**. Everything downstream that used to say *room i* and mean a
+rectangle now says *part*, and a Room is the union of its parts.
+
+> Until ADR [0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md)
+> this read *"exactly n axis-aligned boxes, one per Brief Room"* and called
+> itself unchanged from the solver contract. It was never weighed: it entered
+> through CP-SAT `AddNoOverlap2D` over n boxes and everything inherited it.
+> **52.9 % of real rooms are one rectangle and 77.8 % are at most two.**
+
+**The Proposal decides which Rooms are two boxes, and the solver may not.** That
+is why this is a contract change rather than a solver option, and it is measured
+rather than argued. Given a truth that says which Room really is an L, a Proposal
+that carries it places **25 of 25, none spurious**. A solver left to find them
+places **10 of 18 and invents 35 more**; penalised until the invented ones stop,
+it places **none of 16**. It is also the wrong way round by type — Spearman
+**+0.795** between its L-rate and how *rectangular* real dwellings keep that type,
+so it reaches hardest for bedrooms and stores and least for corridors. And it is
+the expensive way round: a second box for every Room costs 3.9× the variables and
+about 10× the time to a first Plan even when it produces nothing, where one for
+the Rooms the Proposal names costs 1.2–1.7× and 1.1–2.8× — and lifts the survivor
+rate on a concave-truth Brief to **0.50** against **0.36** for the solver-decides
+design and 0.33 for the k = 1 control. ADR 0014;
+`docs/research/room-rectangles.md` §3–§4.
+
+**Both sources emit it.** Retrieval-and-warp warps each part of a converted
+dwelling's room; the trained model emits a fixed two-part slot per Room with a
+presence token, so the sequence length stays fixed and only the token varies.
+
+**No type is barred from being two parts.** Which Rooms are Ls is inherited from
+the corpus distribution — already type-shaped and measured — rather than
+legislated by a whitelist we would have had to invent. A soft preference for the
+simpler Room belongs in `rules.json`, not here.
 
 **One change, and it is a tightening.** Contract item 5 made per-pair confidence
 optional, with the solver's own best-versus-second-best margin as a fallback
@@ -105,10 +138,17 @@ angle rather than the flat. Every shape figure in this spec comes from the
 
 ### 2.3 Source B — the trained model
 
-`docs/research/proposer-architecture.md` §7.1, unchanged: a Brief-conditioned
-room-set transformer emitting one box per Brief Room. ~20M params, `d = 512`,
-4–8 layers, 128 coordinate bins per axis, envelope cross-attention, per-room
-target-area conditioning, `(region, corpus, annotation_provenance)` tokens.
+`docs/research/proposer-architecture.md` §7.1: a Brief-conditioned room-set
+transformer. ~20M params, `d = 512`, 4–8 layers, 128 coordinate bins per axis,
+envelope cross-attention, per-room target-area conditioning,
+`(region, corpus, annotation_provenance)` tokens.
+
+**Two box slots per Brief Room, the second gated by a presence token** (§1). The
+sequence length stays fixed at `2n`, which is what keeps this a set-transformer
+rather than a variable-length decoder: the model learns *whether* a Room is an L,
+not *how many* rectangles to emit. Training targets come from the converted
+corpus, so the L distribution it learns is the corpus's own — which is already
+type-shaped, and is why §1 needs no whitelist.
 
 **Synthetic pre-training is cut from v1.** The survey's stated purpose for it was
 the 12–32 room regime, because no real corpus reaches it. v1 does not promise
@@ -201,6 +241,15 @@ recovery applied and ids 5981–5985 filtered. **16,317** non-augmented plans.
 
 ### 4.4 Rectangularisation — settled, and it is a solve
 
+⚠️ **Superseded in its premise by ADR
+[0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md),
+not in its method.** Downstream now places **one or two** rectangles per Room
+(§1), so the fit below has a second rectangle available per room and the reject
+rule it produced is measured against a constraint that has moved. The conversion
+is still one CP-SAT fit per dwelling and still drops what it cannot represent;
+**what is re-owed is the 31 % price**, by *Re-measure the conversion at two
+rectangles per Room*. Everything else in this section stands.
+
 Every stage downstream places **one rectangle per room**, and about half of real
 rooms are not rectangles. Settled by *Rectangularising real rooms*:
 `docs/research/rectangularisation.md`, ADR
@@ -261,8 +310,28 @@ against the solver*. Everything below is the post-validation definition;
 Run the **solver's own extractor** on both sides, so the metric cannot drift
 from the thing it predicts. This is now literal rather than aspirational:
 `solver.rank_relations` and `solver.select_relations` are module-level functions
-that `LayoutProjector._add_relations` and the metric both call. For each
-unordered pair (i, j) of Brief Rooms:
+that `LayoutProjector._add_relations` and the metric both call.
+
+**The unit is a pair of parts, not a pair of Rooms**, with same-Room part pairs
+excluded — they are joined, not separated. When every Room is one part this is
+bit-identical to what shipped, so nothing measured before §1 changed is invalid.
+
+⚠️ **This is forced, not chosen, and the Room-level reading is unsafe.** An
+L-shaped Room and the Room sitting in its notch have a **positive** best
+separation cost on all four options — no axis separates them — and step 3 below
+abstains on a small *margin*, never on a positive *cost*. Extracted at Room
+level the pair would therefore be **asserted**, and the truth contradicts it: a
+manufactured confident-wrong relation, which §5.3 measures as fatal in company.
+Their parts *are* separable, so the part-level extraction keeps a real
+constraint where abstaining would have thrown one away.
+
+⚠️ **A defect this exposed, and it is live at k = 1 today.** Nothing in step 3
+filters on a positive cost at all, so a Proposal whose boxes **overlap** — which
+a trained model emits routinely, and which §5.2's own noise model produces — has
+separations asserted for pairs the Proposal never separated. This predates parts
+and is owed by *The retrieval index and warp procedure*.
+
+For each unordered pair (i, j) of parts:
 
 1. compute the four separation costs — left-of, right-of, above, below
 2. `direction = argmin`; `margin = second_best − best`
@@ -309,6 +378,16 @@ and the pair count is quadratic in rooms: a 0.5 % confident-wrong rate leaves a
 Proposal clean 88 % of the time at 8 rooms and **28 %** at 24. "99.5 % correct"
 and "loses seven Proposals in ten" are the same number, and only one of them
 gets quoted.
+
+⚠️ **The pair count is quadratic in *parts*, not Rooms, since §1.** A Proposal
+where every Room is two boxes has up to **four times** the pairs of the same
+Proposal at one box each, so every *count* threshold on this page — the 1 → 6 %,
+2 → 0 % survivor cliff of §5.3 above all — is stated in a unit that now moves
+with the Proposal's shape. **Severity is not**: it is millimetres of contradicted
+overlap and it does not care how the boxes were grouped. This is the second
+independent reason severity is the gate, and *Validate the arrangement metric
+against the solver* had already reached the first — counting is the wrong unit.
+Re-fit any count threshold before quoting it on a Proposal with parts.
 
 **Split reversals out.** A *same-axis reversal* — the truth puts the two rooms
 the other way round — was INFEASIBLE at **100 %** of injected doses tested. A

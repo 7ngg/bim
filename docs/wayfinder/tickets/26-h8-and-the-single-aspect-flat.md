@@ -100,3 +100,39 @@ The exposure machinery to close this already exists:
 `experiments/corpus-smoke/exposure_swiss_dwellings.py` recovers the per-dwelling
 exterior/party ring from the building hierarchy (*Acquire the datasets* §1.5,
 150 floors, 569 dwellings). Joining it to the converted tiling is the measurement.
+
+---
+
+## Handed here by *Whether a Room may be more than one rectangle* (2026-08-23)
+
+**ADR [0014](../../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md)
+moves H8's arithmetic, and you should decide whether you want the relief.**
+
+At one rectangle per Room, a habitable Room touching the facade occupies its
+**full width** there, so a single-aspect flat's habitable count is bounded by the
+facade length divided by the rooms' own widths. That is the mechanism behind
+`flat_single_aspect` being arithmetically dead from 7 rooms.
+
+At two, a Room can present a **leg** at the facade and be wide inland. The leg
+floor is 900 mm (`acceptance-bar.md` §9.1) against a `window_min` of 1000 mm, so
+the binding number becomes `window_min` per habitable Room rather than that
+Room's width — and more habitable Rooms fit on one facade than the old
+arithmetic allows.
+
+**Do not take this as good news without deciding it is.** A habitable room whose
+only daylight comes down a 1000 mm-wide leg is an alcove with a window, not a
+room with an aspect, and H8 exists to catch exactly the plan that passes on
+paper and fails on being lived in. Three options, and this ticket owns the
+choice:
+
+1. Let H8 bind per Room, as now. The relief is real and single-aspect flats
+   become feasible further up the band.
+2. Bind H8 on the **part that carries the window**, requiring that part to meet
+   the Room's own minimum width — so an alcove cannot stand in for an aspect.
+3. Bind H8 per Room but add a soft rule on the ratio of window-bearing width to
+   Room width, so the alcove case is scored rather than rejected.
+
+The measurement that would decide it is the same single-aspect arithmetic
+already in this ticket, re-run with a leg allowed. Whatever is chosen, the H8
+predicate's row in `rules.json` needs a line saying **which part it binds**,
+because §9.1 now makes that a question every dimensional rule has to answer.

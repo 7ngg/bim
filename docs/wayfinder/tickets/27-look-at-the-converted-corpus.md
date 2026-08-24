@@ -143,3 +143,50 @@ corpus's own (clear-ish) plane. The ratio is **1.243** at dwelling level but run
 walls around it is a much larger share of its own floor. A rendering that
 overlays the two without saying which plane is which will look like the
 conversion inflated the wet rooms. It did not; that is the plane.
+
+---
+
+## Handed here by *Whether a Room may be more than one rectangle* (2026-08-23)
+
+⚠️ **`why_k.clean()` does not do what it is documented to do, and its numbers
+should not be quoted.** The function is described as *"opening then closing: drop
+protrusions and fill notches narrower than r"* with `CLEAN_CELLS = 2` labelled a
+500 mm structuring element. Measured against synthetic masks
+(`experiments/room-rectangles/morphology.py`, which carries a selftest):
+
+- `_shift_all` pads and then slices back to the **original array shape**, so a
+  dilation cannot grow past the array bounds. `why_k.py` rasterises each room
+  over its own **tight bounding box**, so every room fills its array to the edge
+  and the dilation is a no-op on it.
+- The composition therefore reduces to erosion. On a tight-bbox 3.0 × 4.0 m
+  rectangle `clean()` returns **96 of 192 cells** — the room eroded by 500 mm on
+  every side, never restored.
+- A **500 mm strip is deleted outright**, so the real deletion threshold is about
+  750 mm, not 500 mm.
+- On a padded mask it fills **no notch at any size** — 250, 500, 750 and 1000 mm
+  corner notches all survive.
+
+So `why_k.log`'s *"0.5833 of k ≥ 3 rooms are k ≤ 2 once features narrower than
+500 mm are erased"* and *"0.3103 become a plain rectangle"* measure **the room
+eroded by 500 mm all round**, which is a far larger operation than the one
+claimed. Re-measured with a corrected opening and closing at a real 500 mm, the
+share of rooms that are a single rectangle barely moves — see
+`docs/research/room-rectangles.md` §5.
+
+`experiments/room-rectangles/morphology.py` is a drop-in replacement with the
+properties asserted rather than assumed, including the one that bounds what any
+morphological clean-up can claim: **closing fills a bite in the middle of an edge
+and never one at a corner**, and a corner bite is exactly the shape that turns a
+rectangle into an L.
+
+This ticket renders converted dwellings. If it reaches for a clean-up to make a
+rendering legible, use that module, not `why_k`'s.
+
+**One thing to look *for*, while you are rendering.** ADR 0014 puts the room tag
+at the centroid of the Space's **largest constituent rectangle**, not the Space's
+own centroid, because an L's centroid can land outside its own Space — proved in
+`experiments/room-rectangles/erosion_check.py`, not merely feared. What is *not*
+proved is that the resulting placement **reads well**: whether an L's tag sitting
+in the fat leg looks deliberate or looks like it slid there. Ticket 28 item 4
+asked for a drawn example and there is no renderer on this map to give one, so it
+is owed by whichever ticket draws first, which is this one.

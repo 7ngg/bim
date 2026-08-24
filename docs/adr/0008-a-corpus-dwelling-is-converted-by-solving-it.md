@@ -1,5 +1,14 @@
 # A corpus dwelling is converted by solving it, not by boxing its rooms
 
+> ⚠️ **Its premise moved; its mechanism did not.** ADR
+> [0014](0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md) gives
+> a Room **two** rectangles, so the fit below has a second one available per room
+> and *"one rectangle per Room"* below is history rather than the rule. Converting
+> by solving, the hard adjacencies and relations, the fidelity ladder and
+> representability-as-the-reject-rule all stand unchanged. **What is re-owed is
+> the price** — the 31 % drop was paid for a constraint that has been removed:
+> *Re-measure the conversion at two rectangles per Room*.
+
 Every stage of this system places one rectangle per Room, and 51 % of real rooms
 are not rectangles. The corpus must therefore be converted before the Proposer
 can read it. We convert a dwelling by **running our own solver on it** — one

@@ -108,3 +108,42 @@ Two things to carry rather than re-derive:
 
 The refusal names the count. `CONTEXT.md` **Supported band**, **Engine room
 count**, **Otaq**.
+
+---
+
+## Handed here by *Whether a Room may be more than one rectangle* (2026-08-23)
+
+**The dependency ADR 0013 drew is discharged, and it leaves you one edit to
+`brief.md` §3.**
+
+ADR 0013 found that `resolve` has to choose **how many** circulation Rooms to
+invent before any geometry exists, that `brief.md` §3 does not say how many, and
+that fixing it at one is safe *only* if a Room may be more than one rectangle —
+too few leaves the Envelope untileable, too many fragments circulation against
+`circ.fraction_hard`, and a wrong guess is not recoverable.
+
+ADR [0014](../../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md)
+says a Room may be two rectangles. So:
+
+**`resolve` invents at most one Room per circulation type, and never guesses a
+count from the programme.** An L-shaped corridor reaches a wing that a rectangle
+cannot, which is the case a second invented corridor existed to cover. Measured
+over 46,800 Swiss dwellings
+(`experiments/room-count-envelope/circulation_split.py`): k = 0 6.55 %, k = 1
+**75.11 %**, k = 2 16.69 %, k ≥ 3 1.65 %.
+
+⚠️ **What is NOT settled, and do not read it as settled.** Whether the 16.69 %
+two-circulation mass is *lobby plus corridor* — two types, which `resolve`
+already invents separately — or *corridor plus corridor*, which the L is supposed
+to absorb, **is unmeasured**. The corpus cannot answer it as it stands: Swiss
+Dwellings has one `CORRIDOR` label, and the ergonomic layer's
+`hall` / `entrance_lobby` / `corridor` three-into-one gap is owed by *Two room
+vocabularies in one file*. If that ticket lands a mapping that distinguishes
+them, this becomes measurable and worth measuring before the rule is trusted at
+the top of the band, where ADR 0013 shows the right k rising with the programme
+(k = 2 is 18.9 % at six named rooms and **26.0 % at nine**).
+
+Note also that k is inside the **engine room count** ADR 0013 hard-gates at
+3–10, so a `resolve` that over-invents circulation spends the ceiling on
+corridors and refuses Briefs that would otherwise have fitted. One per type is
+the frugal reading as well as the correct one.

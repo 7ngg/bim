@@ -2,7 +2,12 @@
 
 Resolves [Acceptance validator spec](../wayfinder/tickets/07-acceptance-validator-spec.md).
 
-Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 38 rules.
+Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 38 rules,
+**39 once `dim.leg_join` lands** (§9.1). ⚠️ That row is specified here and is
+**not written**: `rules.json` is claimed by three other tickets and authoring into
+it from a fourth is the parallel-write hazard the map warns about. Until its
+holder lands it, this document and that file disagree by exactly one rule — which
+is the drift the conformance test exists to catch, so it will be caught.
 This document is a *reading* of that file, not a second source. Where the two
 disagree, the registry wins.
 
@@ -37,7 +42,8 @@ potential adjacency is unevaluable on a finished Plan without inverting it.
 
 **The shared artifact is a registry, not a function.** Each rule declares an
 **enforcement site** — `solver`, `validator`, or `both` — and drift is prevented
-by a **conformance test over the `both` subset**, which is 14 of the 38 rules. The
+by a **conformance test over the `both` subset**, which is 14 of the 38 rules —
+15 of 39 once `dim.leg_join` lands, since it is a `both` rule. The
 test is: for a generated population of Plans spanning feasible and infeasible
 Briefs, the solver's satisfaction of each `both` rule and the validator's
 evaluation of it agree on every Plan. Disagreement is a test failure.
@@ -56,7 +62,8 @@ the number came from decides it.** `ergonomic_min` is hard, `market_default` is
 soft. That is the C10 split — model proposes, solver projects — expressed in the
 constraint table rather than restated in the validator.
 
-Rejecting on 29 of 38 rules sounds aggressive; it is not, because every hard
+Rejecting on 29 of 38 rules — 30 of 39 with `dim.leg_join` — sounds aggressive;
+it is not, because every hard
 number is either a physical impossibility (a door that does not fit its wall, two
 Spaces overlapping) or the point at which the room cannot contain its function.
 The ticket's own test applies: *a rule that rejects 99% of candidates is a bug in
@@ -293,9 +300,10 @@ only at import boundaries, which this spec does not describe.
 
 Three consequences worth stating because they remove work:
 
-- **"No unusable slivers" is not a separate predicate.** Spaces are
-  `erode(rect, t_int/2)` — rectangles. A rectangle meeting min width *and* min
-  depth has no sliver. Folded into item 2.
+- **"No unusable slivers" is not a separate predicate.** A rectangle meeting min
+  width *and* min depth has no sliver. Folded into item 2. ⚠️ **The reasoning
+  this used to rest on is dead** — see §9.1 — but the conclusion survives on a
+  different argument, and no predicate is added.
 - **The overlap-metric question dissolves.** Bounding-box and true-polygon
   overlap are the same computation on integer rectangles. The sibling project's
   bbox-vs-polygon comparison is discharged **by construction**; no C11
@@ -304,6 +312,10 @@ Three consequences worth stating because they remove work:
   ≤2 m describes a *localised* narrowing, and a rectangular Space has no localised
   anything. Carrying it would be a rule that can never fire. Minimum hall and
   corridor clear width is **900 mm**, hard (AD M M4(2) ¶2.22a, VERIFIED).
+  ⚠️ **"A rectangular Space has no localised anything" stopped being true**: a
+  two-rectangle Room has exactly one localised place, where its legs meet. The
+  question returns as `dim.leg_join` in §9.1 — with the opposite sign, a floor
+  rather than a relief.
 
 `model.no_unassigned_area` deserves a note: the solver posts exact tiling **soft**
 for a 29× faster search, and this is where that trade is prevented from shipping a
@@ -314,6 +326,70 @@ precisely what it catches.
 fails the day internal wall thickness stops being uniform. That is the point of
 keeping it.
 
+### 9.1 A Room is one or two rectangles
+
+ADR [0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md).
+A Room is the union of at most two axis-aligned **parts**; the Proposal decides
+which Rooms have two. Every dimensional predicate on this page has to say which
+of the two it binds, and the answer is not the same for all of them.
+
+| Predicate family | Binds |
+|---|---|
+| minimum clear width and depth (§3) | **per part** |
+| aspect ratio (§10) | **per part** |
+| area, and every area rule (§8) | **per Room**, over the union |
+| circulation, wet cluster, entry, windows | **per Room** — a Room reaches a window, or the entrance, through *any* of its parts |
+| forbidden adjacency (H7) | **per part pair** — no leg of *i* may touch any leg of *j* |
+
+Per-part clear dimensions are also what an architect means: **each leg of an L
+must be usable.** A Room whose 4.0 m leg passes while its 0.6 m return does not
+is not a room with a usable return.
+
+**The leg floor.** The *first* part carries the Room's own ergonomic minimum.
+Any further part carries **900 mm clear on both axes** — the hall and corridor
+minimum already in §9, AD M M4(2) ¶2.22a, VERIFIED. Below 900 mm it is not a leg
+of a room, it is a niche, and this system does not model niches. **The number is
+not new**, so it inherits §9's provenance and ADR 0009's treatment rather than
+creating a second question: a leg you cannot walk down is not a leg.
+
+Its **realisable** value is 1 100 mm (`CONTEXT.md`, *Realisable minimum*). Clear
+= 250w − `t_int`, so at the shipped grid and `t_int` 150 a 900 mm floor needs
+w = 5 and lands at 1 100 — and so would a 1 000 mm floor. The published number
+and the bound it actually posts are two different figures here, as ADR 0009 says
+they will be everywhere in this layer.
+
+**One new hard predicate, `dim.leg_join`:** the two parts of a Room share an edge
+of at least **900 mm** clear. Anything narrower is a pinch — two rooms with no
+door between them wearing one name. Enforcement site `both`: the solver posts it
+as a reified contact, the validator measures the shared edge.
+
+⚠️ **This kills §9's sliver argument, and the fix is not the obvious one.** That
+argument reads *"Spaces are `erode(rect, t_int/2)` — rectangles"*, and for a
+two-part Room the Space is `erode(A ∪ B, t_int/2)`, which is **strictly larger**
+than `erode(A, t_int/2) ∪ erode(B, t_int/2)`: the band across the shared edge is
+interior to the union and survives erosion. So the Space is a rectilinear polygon
+with one reflex corner, not a rectangle, and "a rectangle has no sliver" no longer
+reaches it.
+
+What rescues the conclusion is that binding the minima **per solved part** is
+*conservative*: it under-states the true clear leg by exactly that band, so a
+part that passes cannot hide a sliver the union would have had. No predicate is
+added; the reasoning is replaced.
+
+**`model.space_matches_erosion` is restated, not weakened.** A Space is
+`erode(⋃ parts, t_int/2)` — still exact integer arithmetic, still a rectilinear
+polygon, still failing the day `t_int` stops being uniform. ADR 0001's erosion
+is untouched: eroding a rectilinear polygon by a `t_int/2` square gives exactly
+the region bounded by the surrounding wall inner faces, reflex corner included.
+
+**A soft rule is owed, and it is not authored here.** Under ADR 0014 the solver
+cannot invent an L, so it cannot bloat one into existence — but a *Proposer* can
+over-produce them, and nothing in the hard set would notice. A soft
+`dim.prefer_single_part` — all else equal, prefer the simpler Room — belongs with
+`rules.json`'s holder. This is the same shape of defect *What a room's area is
+allowed to be* found in `dim.market_default_area`: an objective that rewards
+something nobody asked for.
+
 ## 10. The rule nothing in C6 asked for
 
 **Aspect ratio.** A bedroom at 2750 × 8250 meets its minimum area, meets its
@@ -323,6 +399,10 @@ it is the most likely way a passing Plan still reads as generated.
 Habitable and wet Spaces: hard reject above **3.0**, soft prefer at or below
 **2.2**. `corridor`, `hall` and `storage` exempt — legitimately high-aspect. Both
 `ENGINE_CHOICE`; no surveyed source states an aspect rule.
+
+**Measured per part** (§9.1), with the same exemptions. A bowling-alley *leg* is
+a bowling alley, and a Room's bounding box would exempt exactly the shape this
+rule exists to catch: an L whose return is 900 × 4 500 has a near-square bbox.
 
 This is the cheapest rule in the spec that moves output from *passes* to *usable*.
 

@@ -321,6 +321,12 @@ number cannot serve both.
 | Ref | Room | Clear dimensions | Area |
 |---|---|---|---|
 
+`Clear dimensions` carries **every leg**, `4400 × 3400 + 2100 × 1800` for a
+two-rectangle Room (ADR
+[0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md)),
+in descending area order. `Area` is the Room's, over the union, so the two
+columns are not multiplicands of each other for an L and are not meant to be.
+
 Totals row: sum of Space areas, and the Envelope inner area, both stated. They
 differ by the partition footprint, and showing both is how a Practitioner
 reconciles the schedule against the plan.
@@ -333,10 +339,34 @@ claim that someone will fill it in.
 
 ## 7. Room tags
 
-Placement is the Space centroid. **The largest-inscribed-circle machinery is not
-needed and is not specified**: the solver tiles rectangles and `erode(rect, t/2)`
-is a rectangle, so no v1 Space is concave and the centroid is exact. It becomes
-needed the day non-rectangular rooms do.
+Placement is the centroid of the Space's **largest constituent rectangle**.
+**The largest-inscribed-circle machinery is still not needed and is still not
+specified** — the largest part is a rectangle and its centroid is exact and
+inside it.
+
+> That day arrived: ADR
+> [0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md)
+> makes a Space up to two rectangles, so this section's *"no v1 Space is concave
+> and the centroid is exact"* is gone. Taking the **Room's** centroid would be
+> the bug it warned about, and it is not hypothetical: for a 6.0 × 1.2 m leg
+> with a 1.2 × 6.0 m return, the Space centroid lands at (1 800, 2 400) —
+> **outside its own Space**, in the notch, which belongs to a different room, so
+> the tag would name the neighbour. Asserted in
+> `experiments/room-rectangles/erosion_check.py`; the larger part's centroid is
+> inside by construction.
+
+⚠️ **Not yet confirmed against a drawn example**, which is what ticket 28 item 4
+asked for. Nothing on this map has rendered a plan — `experiments/az-drawing/`
+holds two DXF encoding probes and no renderer — so this rule is decided on the
+geometry above and owed a look by *Look at the converted corpus*, the first
+ticket that will draw anything. What is being confirmed is legibility, not
+correctness: the containment is proved.
+
+**The dimensions line carries both legs**, `4400 × 3400 + 2100 × 1800`. Never the
+bounding box: a bbox claims floor area the Room does not have, next to an area
+figure that does not include it, which is the kind of arithmetic a Practitioner
+checks first. The degradation ladder below is unchanged and step 4 still
+terminates.
 
 One `MTEXT`, attachment point 5 (middle-centre), `\P` breaks. Name at 3.5 mm
 `paper`, the rest at 2.5 mm:
@@ -603,6 +633,15 @@ drawing it knows is wrong.
 | `draw.lineweights_valid` | every lineweight is in the DXF enumerated set |
 | `draw.no_text_overlap` | no two rendered text extents intersect |
 | `draw.within_printable_area` | all geometry inside the sheet margins |
+
+**A two-rectangle Room adds no predicate here, and that is worth saying because
+it looks as though it should.** `every_space_tagged` still wants exactly one tag
+per Space — §7 places it, and a Space is still one Space. `every_wall_face_
+dimensioned` counts **partition faces**, and the edge where a Room's two legs
+meet is not one: nothing separates a Room from itself, so no Wall exists there
+(`CONTEXT.md`, **Wall segment**). A derivation that walked part boundaries would
+draw a partition inside a room, and it would read as deliberate rather than as a
+bug — which is why the invariant is stated in the vocabulary and not only here.
 
 `measurement_matches_model` earns its place: it catches the **stale block** —
 definition points mutated without re-rendering, so the drawn picture and the

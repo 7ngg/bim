@@ -19,6 +19,17 @@ and lets a single uniform erosion recover the real rooms.
   any `t_ext`**.
 - Therefore: **clear room rect = solved rect eroded by `t_int/2` on all four
   sides.** One rule, no special case for perimeter rooms.
+- ⚠️ Since ADR
+  [0014](0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md) a Room
+  is up to **two** solved rects, and the rule above is then a statement about a
+  **part**, not about the Space. **The Space is `erode(⋃ parts, t_int/2)`**, which
+  is strictly *larger* than the union of the parts' own erosions — the band across
+  the shared edge is interior to the union and survives. The construction itself
+  is untouched, including at the reflex corner, and that is now asserted rather
+  than inherited: `experiments/room-rectangles/erosion_check.py` matches the
+  eroded L against the polygon bounded by the surrounding wall inner faces
+  pointwise. What the distinction bites is `acceptance-bar.md` §9's sliver
+  argument, which §9.1 replaces.
 - The exterior wall body is authored from the Envelope, outside the domain. It
   never participates in the tiling.
 

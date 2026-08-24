@@ -187,3 +187,43 @@ Gaussian corner noise, which produces **almost no reversals**. So the claim
 does not produce them" is measured only on noise. A warp is a third thing and has
 never been looked at. Measuring it is this ticket's job, and it is the point at
 which the metric stops being validated on a toy.
+
+---
+
+## Handed here by *Whether a Room may be more than one rectangle* (2026-08-23)
+
+**Two things, and the first is a live defect in shipped code.**
+
+⚠️ **`select_relations` never filters on a positive separation cost.** It abstains
+on a small *margin* and on a cycle, and on nothing else. So a Proposal whose boxes
+**overlap** — which a trained model emits routinely, and which `proposer.md`
+§5.2's own per-corner Gaussian produces — has separations asserted for pairs the
+Proposal never separated, and the solver posts them **hard**. That is a
+manufactured confident-wrong relation, the failure *Validate the arrangement
+metric against the solver* measured as fatal in company (1 → 6 % survivor,
+2 → 0 %).
+
+This predates ADR 0014 and is true at one rectangle per Room today. It surfaced
+only because an L and the Room in its notch have a positive best cost on all four
+options **by construction**, which made the missing filter impossible to miss. It
+lands here because this ticket owns `docs/spec/proposer.md` §5 and has to score
+real warped Proposals against the metric — it will hit this on the first noisy
+Proposal it scores.
+
+Whether the right rule is *abstain on positive cost* or *extract per part* is
+open. ADR 0014 takes the second for the k ≤ 2 case, because an L's parts are
+separable and abstaining throws away a real constraint; a merely-overlapping
+noisy box has no parts to fall back to, so it probably wants the first.
+
+**Second: §1's contract moved and §5's unit moved with it.** The Proposal is now
+one or two boxes per Room, the extractor runs in the **part** index space
+excluding same-Room pairs, and the pair count is quadratic in parts rather than
+Rooms — up to **4×**. Every *count* threshold in §5 is therefore in a unit that
+moves with a Proposal's shape; **severity, in millimetres, is not**. When this
+ticket scores retrieval's Proposals, report severity and treat any count
+threshold as needing a re-fit.
+
+⚠️ Also note the coordination hazard: *Re-measure the conversion at two
+rectangles per Room* is about to move the conversion this ticket's coverage
+figures are measured on. Do not re-measure coverage against a conversion that is
+being changed underneath you.

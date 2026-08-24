@@ -117,8 +117,8 @@ room is geometry with a label, never a Brief's programme, and adjacency in a
 corpus is a question about distance rather than about contact.
 
 **Rectangularisation** — turning a corpus **Space**, which is whatever shape a
-person built, into the one rectangle every stage of this system places. Two
-decisions, not one: which **axis**, and then which rectangle. It is not
+person built, into the **at most two** rectangles this system places. Two
+decisions, not one: which **axis**, and then which rectangles. It is not
 preprocessing — it decides what arrangement the Proposer can ever learn.
 
 **Dwelling axis** — the frame a dwelling is square to, which is its own and not
@@ -128,8 +128,8 @@ room in the corpus is a rectangle. Every shape statement about a corpus dwelling
 names the axis it was measured on, or it means nothing.
 
 **Representable** — whether a real dwelling can be expressed in this system's
-model at all: one rectangle per Room, tiling an Envelope of a bounding box minus
-at most two notches. The property that decides whether a corpus dwelling is used
+model at all: at most **two** rectangles per Room, tiling an Envelope of a
+bounding box minus at most two notches. The property that decides whether a corpus dwelling is used
 or dropped. Stated as representability rather than as a similarity threshold
 because the question is what v1 *can say*, and a percentile cannot answer that.
 
@@ -193,6 +193,28 @@ faces of the walls around it — see [[Finish layer]]. Derived, never authored.
 **Room** and **Space** are not interchangeable, and a sentence that uses "room"
 for both is the usual way a clear dimension gets confused with a centreline one.
 
+A Space is **one or two rectangles**, never more — a rectangle or an L. Not a
+rectangle, which is what every document here assumed until it was measured: half
+of real rooms are not one. See [[Part]].
+
+**Part** — one of the at most two axis-aligned rectangles a [[Space]] is the
+union of. The **first** part carries the Room's own dimensional minima; any
+further part carries the **leg floor**, and the two must share an edge of at
+least that floor — below it the two legs are not one room, they are two rooms
+with no door between them.
+
+Which Rooms have two parts is decided by the **[[Proposal]]**, never by the
+solver. A second rectangle *improves* the objective rather than relieving it — it
+lets the first sit closer to where the Proposal put it — so left to choose, the
+solver takes one on a fifth to a third of the rooms it is offered, and takes it
+hardest on the types real dwellings keep **most** rectangular. Shape is an
+architectural claim, and it is made where the arrangement is made.
+
+**Leg floor** — the smallest clear dimension a [[Part]] beyond the first may
+have, and the smallest edge two parts may share. Below it, the shape is a niche
+or a pinch rather than a room. It is the circulation minimum, because a leg you
+cannot walk down is not a leg.
+
 **Wall** — a centreline and a thickness. The body straddles the centreline; the
 winding records which side is which. A Wall is the **maximal straight run** of
 same-thickness, same-class material — it does not stop where the rooms behind it
@@ -222,6 +244,12 @@ two Rooms, or a Room and the outside. Derived from the Room tiling. This is the
 thing anything else refers to when it needs to name a piece of wall, because its
 identity is the pair, and the pair is Brief-anchored. It is also, unchanged, a
 space boundary.
+
+Derived over **Room pairs, never [[Part]] pairs.** Where a Room's two parts meet
+there is an edge in the tiling and **no wall**: nothing separates a Room from
+itself. A derivation that walked part boundaries would put a wall inside a room —
+in the geometry, in the drawing and in the IFC — and it would look like a
+deliberate partition rather than a bug.
 
 **Opening** — a door or a window. Always **hosted**: it voids a Wall rather than
 sitting near one, and it is named by the Wall segment it pierces, so it is named
