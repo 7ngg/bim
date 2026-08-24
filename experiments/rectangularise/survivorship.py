@@ -9,7 +9,7 @@ the metrics would never say so because they are all computed on survivors.
 Joins out/swiss_fit.json (converted or not) against out/swiss_rects.json (what
 the dwelling was like before conversion) on the dwelling key.
 
-Run: python experiments/rectangularise/survivorship.py
+Run: python experiments/rectangularise/survivorship.py [fit.json]
 """
 import json
 from collections import Counter
@@ -20,8 +20,17 @@ import numpy as np
 OUT = Path(__file__).resolve().parent / "out"
 
 
+def converted(r):
+    """A record converted if the fit returned geometry, at either rectangle count."""
+    return "parts" in r or "rects" in r
+
+
 def main():
-    fit = json.load(open(OUT / "swiss_fit.json"))
+    import sys
+    name = sys.argv[1] if len(sys.argv) > 1 else "swiss_fit.json"
+    print(f"fit: {name}")
+    print()
+    fit = json.load(open(OUT / name))
     pre = {r["k"]: r for r in json.load(open(OUT / "swiss_rects.json"))["recs"]}
 
     kept, drop = [], []
@@ -29,7 +38,7 @@ def main():
         p = pre.get(r["k"])
         if p is None or not p.get("bbox"):
             continue
-        (kept if "rects" in r else drop).append((r, p))
+        (kept if converted(r) else drop).append((r, p))
     print(f"joined {len(kept) + len(drop)} dwellings: {len(kept)} converted, "
           f"{len(drop)} dropped\n")
 

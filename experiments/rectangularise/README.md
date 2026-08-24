@@ -20,11 +20,52 @@ gitignored; regenerate by running the scripts.
 | `rectilinear_k.py [n]` | how many rectangles a real room actually needs — the evidence for ticket 28 | ~20 min |
 | `why_k.py [n]` | what causes k>2: trivial notches, angled walls, or real shape | ~12 min |
 | `guillotine_share.py` | how many real dwellings are non-guillotine — the evidence for ticket 29 | seconds |
+| `analyse_k2.py [k1] [k2]` | **ticket 40**: what a second rectangle per Room buys, paired on the dwelling key | seconds |
+| `name_rate.py [n]` | how wide the lower bound is — which rooms Design A's naming misses, and why | ~10 min at 400 |
+| `coverage_thinning.py [k1] [k2]` | the pool thinning factor, for ticket 23 to redo `proposer.md` §2.2 with | seconds |
 
 Order: `measure_*` before `analyse_swiss.py`, `fit_rects.py` before
 `analyse_fit.py`.
 
-## Two things that will bite whoever runs this next
+## Running the two arms (ticket 40)
+
+```
+python experiments/rectangularise/fit_rects.py 2600 --out=swiss_fit_k1.json
+python experiments/rectangularise/fit_rects.py 2600 --k2 --out=swiss_fit_k2.json
+python experiments/rectangularise/analyse_k2.py
+```
+
+Same dwellings, same order, same code — only `k_of` differs, so the delta is the
+rectangle count and not the sample. `fit_rects.py` caches the parsed corpus to
+`out/swiss_dw.pkl` on first run (the CSV parse is ~90 s and this ticket runs it a
+dozen times over); **delete that file if the corpus or the filters change.**
+
+Flags: `--k2` raises the ceiling to two rectangles per Room, `--select=shape`
+(default) names which Rooms may take one from the real room's own shape and
+`--select=free` lets every Room have one, `--leg=` / `--join=` move ADR 0014's
+leg floor and join, `--time=` the solver budget, `--only=keys.json` restricts to
+a key list, `--every=` the checkpoint interval.
+
+## Four things that will bite whoever runs this next
+
+**At two rectangles per Room, `--select=free` decides nothing.** Giving every
+Room an optional second rectangle — ADR 0014's Design B — makes the shipped 10 s
+budget useless: over 40 dwellings it returned **0 OPTIMAL and 0 INFEASIBLE**, 26
+FEASIBLE and 14 UNKNOWN, every one of them burning the full limit at 10.38
+s/dwelling. `converted` then means *found something in 10 s*, not *is
+representable*, and ADR 0008's "the tier is decidable, not a timeout" stops being
+true. `--select=shape` — Design A, the Rooms named from the real room's own
+shape — is **2.9× faster and decides 33 of 40**. The k = 1 arm decides all of
+them at 0.85 s. This is ADR 0014's measured 11–12× versus 1.2–1.7×, reproduced on
+the conversion fit.
+
+**A `--select=shape` result is a LOWER bound and must be quoted as one.** The
+naming is greedy — largest inscribed rectangle, then the largest rectangle in
+what is left — so a Room whose best two-rectangle cover needs a *non-maximal*
+first rectangle is missed and stays one rectangle. `name_rate.py` measures how
+wide that is, and separates it from the Rooms the leg floor refuses on purpose.
+
+## Two more things that will bite whoever runs this next
 
 **OR-Tools can abort the process.** The ResPlan fit died after 1,000 plans on an
 internal `CHECK` failure — `Infeasible solution! source: 'default_lp'` — which is

@@ -4,7 +4,7 @@ title: Re-measure the conversion at two rectangles per Room
 parent: map
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - experiments/rectangularise/
