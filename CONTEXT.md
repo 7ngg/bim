@@ -140,12 +140,15 @@ and spaces. The single representation every layer reads or writes. Annotation is
 **Room** — a room as *program*: a name, a type, a target area, and an identity
 that comes from the Brief. Has no geometry of its own. Survives a regenerate.
 
-Its **type** and its **label** are different things and only the type is
-load-bearing. The type is one of a closed set the minima, the schedule, the
-retrieval key and the solver all read; the label is the Homeowner's own word,
-printed on the tag and nowhere else. "Nursery" and "guest room" are labels on a
-typed Room, which is how a real drawing schedule already works, and it is what
-lets a Homeowner's vocabulary be kept without any of it becoming a number.
+Its **type**, its **name** and its **label** are three different things and only
+the type is load-bearing. The type is a [[Room type]]; the name is what that type
+is called in the drawing's language — see [[Room name]]; the label is the
+Homeowner's own word, printed on the tag and nowhere else. "Nursery" and "guest
+room" are labels on a typed Room, which is how a real drawing schedule already
+works, and it is what lets a Homeowner's vocabulary be kept without any of it
+becoming a number.
+_Avoid_: treating the name as a translation of the label — the label is never
+translated, and the name is never a Homeowner's word.
 
 A **target area is a band, not a floor.** Stating only a minimum is what lets a
 plan pass every check with a room several times the size anyone would build it:
@@ -163,7 +166,53 @@ bathroom, corridor or store. The AzDTN 2.7-2 counting convention, how a flat is
 advertised in Baku, and the unit the product's supported band is **stated** in.
 `AZ` already keys two statutory floors on it. One otaq is a median of four engine
 Rooms — see [[Engine room count]], and never convert by assuming a constant.
-_Avoid_: "habitable room count", "room count" unqualified.
+
+The set is **enumerated by the norm, not chosen by us**: AzDTN 2.7-2 cl. 5.5 lists
+yaşayış otaqları as `otaq, qonaq otağı və yataq otağı` — room, living room and
+bedroom — and cl. 5.2 puts kitchen, hall, bath-or-shower, WC and storage in
+[[Auxiliary space]]. So an otaq is countable from a [[Room type]] alone, and the
+count is a *sourced* fact rather than a product opinion.
+
+It is **not the same as habitable**, and the two are separate flags on purpose. A
+kitchen-diner is habitable — it is sustained-occupation space and takes a window —
+and it is **not** an otaq, because AzDTN treats it as a kitchen variant and a Baku
+listing never counts a mətbəx. Reading the habitable flag for this number
+advertises a one-bedroom flat with a kitchen-diner as two otaq.
+_Avoid_: "habitable room count", "room count" unqualified, and using habitability
+as a proxy for either.
+
+**Room type** — the closed set of eighteen kinds a [[Room]] may be, and the only
+room vocabulary anything load-bearing reads. The Brief speaks it verbatim, the
+hard dimensional floors are keyed by it, and it is region-invariant: the same
+eighteen types under every region profile, because they are derived from bodies
+and furniture rather than from any country's convention.
+
+Everything else that names a room is a **projection of it, never a peer**. A
+region profile keys its own soft targets differently and is reached through a
+mapping; retrieval collapses several types into one class; a corpus label is a
+third scheme again. All three are lossy and one-way. Two of them were once written
+into the same file as if they were alternatives, which is the defect this term
+exists to prevent.
+_Avoid_: "room category", "room kind" — and any sentence where a profile key or a
+corpus label stands where a type belongs.
+
+**Room name** — what a [[Room type]] is *called*, in the language the drawing is
+issued in. One name per type, printed by the room tag, the room schedule and the
+Brief document. Display-only in exactly the sense a label is: the type stays the
+thing that carries meaning.
+
+A name is **sourced or it is marked**. Where the region's own norm names the room,
+that word is published and cited; where it does not, the name says so rather than
+passing as sourced. A plausible room name in a language the reader speaks and the
+author does not is indistinguishable from a real one, which is why the
+distinction is carried in the data and not in someone's memory.
+
+**Auxiliary space** — `yardımçı sahələr`, AzDTN 2.7-2's class for the rooms a
+dwelling must have and that are not [[Otaq]]: kitchen or kitchen-niche, hall,
+bath or shower, WC or combined sanitary unit, storage, laundry. Naming the class
+matters because it is *mandatory* — the norm requires the rooms to exist, not
+merely to be big enough if present — and because it is the complement that makes
+the otaq count decidable.
 
 **Supported band** — what v1 claims, and what it refuses, and they are not the
 same edge. The **gate** is a hard refusal outside 3–10 [[Engine room count]],

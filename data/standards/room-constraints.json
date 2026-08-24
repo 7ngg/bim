@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "id": "bim-engine/dimensional-standards/room-constraints",
   "generated": "2026-08-21",
-  "ticket": "docs/wayfinder/tickets/05-dimensional-standards-corpus.md; region_model and tier_model rewritten by docs/wayfinder/tickets/14-which-region-profiles-ship.md (ADR 0006); area convention and wall layer sets by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010)",
+  "ticket": "docs/wayfinder/tickets/05-dimensional-standards-corpus.md; region_model and tier_model rewritten by docs/wayfinder/tickets/14-which-region-profiles-ship.md (ADR 0006); area convention and wall layer sets by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010); room vocabulary, the ergonomic->AZ mapping, counts_as_otaq and brief_nameable by docs/wayfinder/tickets/31-two-room-vocabularies-in-one-file.md",
   "findings": "docs/research/dimensional-standards.md",
   "disclaimer": "Neufert-grade dimensional standards (C8). This is design data, not a building code. No legal code-compliance claim is made or implied by any value in this file. Values are cited to their source so that a Practitioner can check them; they are not a substitute for checking them.",
   "units": {
@@ -28,11 +28,14 @@
     }
   },
   "flag_semantics": {
-    "comment": "These four booleans are consumed by the acceptance validator (ticket 07) and the brief defaulting rules (ticket 10). They are DEFINITIONS, not measurements — no reference work supplies them as such. Getting them wrong silently breaks predicates, so each is defined operationally here.",
+    "comment": "These six booleans are consumed by the acceptance validator (ticket 07) and the brief defaulting rules (ticket 10). They are DEFINITIONS, not measurements — no reference work supplies them as such. Getting them wrong silently breaks predicates, so each is defined operationally here.",
     "is_habitable": "A room intended for sustained occupation: sleeping, living, dining, working. Drives the window requirement and the exterior-wall requirement (C6 item 4). NOT the same as any national legal definition of 'habitable room' — see the findings doc, section on the kitchen disagreement.",
     "is_wet": "A room containing a plumbed fixture (WC, basin, bath, shower, sink, washing machine). Drives wet-room clustering (C6 item 5).",
-    "is_private": "A room that must not lie on the circulation path to any other room. Drives the reachability predicate (C6 item 1): the entry-to-room graph may not route through a room where is_private is true.",
-    "needs_window": "The room must have at least one window on an exterior wall. Set true wherever is_habitable is true. This is an ENGINE DECISION, not a universal rule — England's Building Regulations impose no daylight requirement at all (see findings). We impose one because a Homeowner judges by 'would I live here'."
+    "is_private": "A room that must not lie on the circulation path to any other room. Drives the reachability predicate (C6 item 1): the entry-to-room graph may not route through a room where is_private is true. CORROBORATED, NOT SOURCED, FOR BEDROOMS: AzDTN 2.7-2 cl. 5.9 makes this statutory in AZ -- «Mənzillərdə yataq otaqları digər otağa keçid kimi layihələndirilməməlidir» (bedrooms shall not be designed as a passage to another room), register -məlidir = məcburi. The flag stays region-invariant and engine-defined per C14; this records only that one shipping region independently makes it law. A profile may never move it, because a profile can never change which Plans are rejected. Recorded by ticket 31, which found the clause while harvesting room names.",
+    "needs_window": "The room must have at least one window on an exterior wall. Set true wherever is_habitable is true. This is an ENGINE DECISION, not a universal rule — England's Building Regulations impose no daylight requirement at all (see findings). We impose one because a Homeowner judges by 'would I live here'.",
+    "counts_as_otaq": "Whether a Room of this type contributes 1 to the otaq count -- the unit C13's PRODUCT PROMISE is stated in, and the number a Baku listing prints. NOT is_habitable, and the two are deliberately separate fields: is_habitable drives the window and exterior-wall requirement (C6 item 4), counts_as_otaq drives what the copy claims. They agree on seventeen of eighteen types and disagree on `kitchen_dining`. Sourced where AzDTN 2.7-2 cl. 5.5 enumerates yaşayış otaqları and cl. 5.2 enumerates yardımçı sahələr; derived only where a type falls under cl. 5.5's unqualified `otaq`. See [[Otaq]] in CONTEXT.md, and ADR 0013, which asked for a flag named `habitable` -- renamed here because a field called `habitable` sitting beside `is_habitable` and meaning something else is a defect, not a schema.",
+    "brief_nameable": "Whether a Homeowner may name this room type in a Brief. False only for types `resolve` invents. Requested by docs/spec/brief.md section 3, which gives the Brief the ergonomic key set verbatim and names this flag as the exception mechanism; the JSON Schema generator (brief.md section 10) reads it.",
+    "is_habitable_versus_counts_as_otaq": "READ THIS BEFORE USING EITHER. `is_habitable` is a GEOMETRY driver: it decides whether a Space needs a window and an exterior wall. `counts_as_otaq` is a PRODUCT driver: it decides what number the copy prints and what C13's 1-4 band is measured in. `kitchen_dining` is habitable and is not an otaq. Neither field may be computed from the other."
   },
   "region_model": {
     "comment": "Rewritten by ticket 14, *Which region profiles ship in v1*. See ADR 0006. The corpus split argument from ticket 5 stands: body-derived clearances are region-invariant, convention-derived numbers are not. What changed is which regions exist and what a profile is FOR. After ticket 7 moved every hard dimensional floor to the region-invariant ergonomic layer, a region profile governs printed and built conventions only -- it can change which Plans are PREFERRED and which strings are PRINTED, never which Plans are REJECTED. The single exception is model.thickness_in_catalogue, which is hard.",
@@ -765,7 +768,7 @@
         "layer_set_note": "LAYER SET, not scalars (ADR 0010). Every `t_*` key WITHOUT a `_structural` suffix is a TOTAL and is the only number the solver, erode() and every published dimension consume. The `_structural` twin is the bare leaf, kept as data, consumed by nothing in v1, and needed by the acoustic derivation below and by IfcMaterialLayerSetUsage on export."
       },
       "rooms": {
-        "comment": "Areas in m2, linear dimensions in mm. READ THE EMPTIES AS THE FINDING: nine of thirteen area cells and ALL SIX width cells at statutory_floor are null. Azerbaijani law fixes habitable-room and kitchen areas and nothing else about a room's plan. A profile that fills those cells is asserting law that does not exist -- the exact C8 failure.",
+        "comment": "Areas in m2, linear dimensions in mm. READ THE EMPTIES AS THE FINDING: nine of thirteen area cells and ALL SIX width cells at statutory_floor are null. Azerbaijani law fixes habitable-room and kitchen areas and nothing else about a room's plan. A profile that fills those cells is asserting law that does not exist -- the exact C8 failure. TICKET 31: these cells are now reached ONLY through profiles.AZ.rooms.mapping, which is the vocabulary. Four of them are reached by nothing and say so in their own reachable_in_v1 marker.",
         "areas_m2": {
           "living_room_1room_flat": {
             "statutory_floor": {
@@ -852,7 +855,11 @@
               "conf": "derived",
               "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
             },
-            "accessible": null
+            "accessible": null,
+            "reachable_in_v1": {
+              "v": false,
+              "note": "UNREACHABLE IN V1, KEPT AS DATA. C5 fixes v1 at a single storey, so there is no mansard and no ergonomic key maps here. Kept rather than deleted -- the value is verified and correct, and adopting mansards later should be a data change. Same posture as clear_heights_mm.corridor_hall_antresol. NOT the h_storey case: ADR 0012 deleted that because publishing it would have been WRONG, and this is merely unused."
+            }
           },
           "kitchen": {
             "statutory_floor": {
@@ -901,7 +908,11 @@
               "note": "One-room flats only."
             },
             "market_default": null,
-            "accessible": null
+            "accessible": null,
+            "reachable_in_v1": {
+              "v": false,
+              "note": "UNREACHABLE IN V1, AND THIS ONE IS A NARROWING WORTH KNOWING. cl. 5.2 allows `taxça-mətbəx` instead of a kitchen in a one-otaq flat and cl. 5.7 floors it at 5 m², and a Baku studiya with a kitchen niche is an ordinary v1 case sitting at the bottom of C13's promised band. The Brief has no such type -- brief.md section 3 fixes it at eighteen -- so a niche is expressed as a `kitchen`, whose ergonomic floor is 1,8 m². It is representable and under-targeted, not rejected. Growing the Brief a nineteenth type is a brief.md section 3 change and is handed there, not taken here."
+            }
           },
           "bathroom": {
             "statutory_floor": null,
@@ -923,7 +934,11 @@
               "conf": "derived",
               "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
             },
-            "accessible": null
+            "accessible": null,
+            "reachable_in_v1": {
+              "v": false,
+              "note": "UNREACHABLE IN V1, AND DELIBERATELY. No ergonomic key can say the WC is inside the bathroom (see mapping.rooms.bathroom.bridge), and cl. 5.10 restricts the combined unit to «dövlət və bələdiyyə sosial təyinatlı və xüsusi təyinatlı mənzil fondunun birotaqlı mənzilləri» -- one-room flats of the state and municipal social and special-purpose housing stock. So even with a way to express it, v1 must not PREFER a configuration the norm permits only in a narrow class it cannot detect. The 3,8 m² cell stays as data. NOTE the restriction was not recorded when this profile was populated; it is recorded now."
+            }
           },
           "wc": {
             "statutory_floor": null,
@@ -943,7 +958,11 @@
               "conf": "verified"
             },
             "market_default": null,
-            "accessible": null
+            "accessible": null,
+            "reachable_in_v1": {
+              "v": false,
+              "note": "UNREACHABLE IN V1. cl. 5.7 floors the entrance wardrobe of a one-otaq flat at 2,5 m². `storage` deliberately does not map here (see mapping.rooms.storage). It becomes reachable only through a COMPOSITION rule -- cl. 5.2 requires the room to exist at all -- which is rules.json's, not this file's."
+            }
           }
         },
         "clear_widths_mm": {
@@ -1049,6 +1068,291 @@
             "ref": "searched: cl. 5.8, sec. 8, lift table note 2",
             "conf": "verified",
             "note": "EXPLICITLY NULL, AND THAT IS THE FINDING. AzDTN 2.7-2 PRESCRIBES NO STOREY HEIGHT. 'mərtəbə hündürlüyü' occurs only (a) in sec. 3 definitions, as the term that classifies zirzəmi/kürsülük storeys, and (b) in the passenger-lift table's Note 2: «Cədvəl adambaşına 18 m2 ümumi mənzil sahəsi, mərtəbənin hündürlüyünün 2,8 m, liftin hərəkət intervalının 81-100 s olması hesabı ilə tərtib edilmişdir.» -- the table was COMPILED ON THE BASIS OF a 2,8 m storey height, and Note 3 then directs that the lift count be recomputed where it differs. That 2,8 is a LIFT-TRAFFIC MODELLING ASSUMPTION, not a construction requirement. Publishing it as h_storey would be ticket 25's trap in a new costume: a real number, from the right LIVE document, doing a job it was never written for. It also fails arithmetically -- 2,8 floor-to-floor over a 2,7 clear implies a ~100 mm slab plus floor build-up, which no RC slab is. ADR 0012 therefore DELETES h_storey from v1 rather than sourcing it."
+          }
+        },
+        "mapping": {
+          "comment": "THE MAPPING IS THE VOCABULARY; THE TABLES ABOVE ARE JUST VALUES. Every vocabulary question this file had is answered here and nowhere else, so `areas_m2` and `clear_widths_mm` stay exactly as their sources key them -- `areas_m2` is a faithful transcription of cl. 5.7's bullet list and renaming its cells would break the only thing they are for, which is provenance. The defect ticket 31 opened was never the names. It was that no object stated the bridge between them.\n\nTOTAL BY CONSTRUCTION: one row for every one of the eighteen ergonomic keys, and a conformance test asserts that. A row is never absent; an unmapped cell is an explicit null.",
+          "direction": "Ergonomic is canonical and the Brief speaks it verbatim (brief.md section 3). This maps ergonomic -> AZ and is never read the other way. It is the same shape as proposer.md section 4.1's retrieval-class projection: lossy, one-way, and declared.",
+          "null_means": "NO SOFT TARGET, NOT AN ERROR. `dim.market_default_area` skips a Space whose az_area resolves to null; it does not raise and it does not fall back. This is C14 read literally -- a profile may change which Plans are PREFERRED, never which are REJECTED, so a profile with no preference for a room type is a legal profile and silence is the normal case. Ten of eighteen keys are silent in AZ. The hard floor always resolves, because it is ergonomic and region-invariant.",
+          "conditioning": "ONE AXIS, NAMED, AND NO EXPRESSION LANGUAGE: `when_otaq_count`. Three AZ area cells condition on the same thing -- cl. 5.7's `birotaqlı mənzil` -- and nothing in the profile conditions on anything else: living_room_1room_flat vs living_room_2plus, kitchen_niche, and wardrobe_1room_entry. `when_otaq_count: 1` matches a one-otaq dwelling; `null` is the unguarded fallthrough and MUST be last. First match wins.\n\nWHY HERE AND NOT IN THE KEY OR THE PARSER. Encoding it in the key is what produced the defect -- `living_room_1room_flat` is not a room type, it is a room type conditioned on the dwelling. Resolving it at Brief-parse time buries a profile fact in the parser, so a second profile with a different axis becomes a code change; C14 says a profile is data. The mapping is already profile-scoped and already about translation, so the condition belongs to it.\n\nA SECOND AXIS IS KNOWN TO EXIST AND IS NOT LIVE. *Dimensional standards corpus* found AD M's LKD area stated as 25 + 2 x (bedspaces - 2) -- conditioned on bedspaces, not otaq. UK ships no areas and is never selectable (C12), so v1 needs one axis. Adding the second is a SCHEMA change, not a data change, and this note exists so that is discovered before it is designed around.\n\nWHAT THE GUARD ACTUALLY BUYS IN V1, MEASURED: almost nothing on the default tier, and this is recorded so nobody reads it as load-bearing. living_room_1room_flat and living_room_2plus have DIFFERENT statutory floors (15,0 / 16,0) and the SAME market_default (16,0), and market_default is the default tier and the solver's target -- so for `living` the guard changes only the statutory WARN, never the soft target. The other two conditioned cells, kitchen_niche and wardrobe_1room_entry, are unreachable in v1. The axis is real, sourced and correctly placed; it simply does not pay out yet. It is built now because encoding it in the key is what broke this file once, and because the cost of the guard is one field.",
+          "row_format": {
+            "name_az": "the Azerbaijani room word, per-cell conf. Printed by the room tag, the room schedule and the Brief document. Display-only in exactly the sense brief.md section 3 gives `label`: the ergonomic type stays load-bearing.",
+            "az_area": "ordered guard list into profiles.AZ.rooms.areas_m2, or null.",
+            "az_clear_width": "key into profiles.AZ.rooms.clear_widths_mm, or null. A SEPARATE mapping because that table is keyed differently again -- `habitable_room` is a class, `hall_corridor` a merge, `wc_with_basin` a fixture-conditioned variant. Two mappings, not one.",
+            "bridge": "present only where the two sides key on different axes. Required reading before touching that row."
+          },
+          "rooms": {
+            "living": {
+              "name_az": {
+                "v": "qonaq otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.5",
+                "conf": "verified",
+                "note": "TWO NORM WORDS FOR ONE ROOM, IN ONE DOCUMENT. cl. 5.5 enumerates it as `qonaq otağı`; cl. 5.7's area table labels the same room `ümumi otaq` (common room). `qonaq otağı` is published because it is the word cl. 5.5 uses when NAMING room types rather than tabulating areas, and it is also the Baku market word -- so the norm register and the buyer's register coincide and this file does not need two name columns."
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": 1,
+                  "key": "living_room_1room_flat"
+                },
+                {
+                  "when_otaq_count": null,
+                  "key": "living_room_2plus"
+                }
+              ],
+              "az_clear_width": "habitable_room"
+            },
+            "dining": {
+              "name_az": {
+                "v": "yemək otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.7",
+                "conf": "derived",
+                "note": "Read out of cl. 5.7's compound `mətbəx-yemək otağı`; AzDTN never names a standalone dining room, because it never constrains one. DERIVED, and it is the weakest name in this table."
+              },
+              "az_area": null,
+              "az_clear_width": "habitable_room"
+            },
+            "kitchen": {
+              "name_az": {
+                "v": "mətbəx",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified"
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "kitchen"
+                }
+              ],
+              "az_clear_width": "kitchen"
+            },
+            "bedroom_principal": {
+              "name_az": {
+                "v": "yataq otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified"
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "bedroom_double"
+                }
+              ],
+              "az_clear_width": "habitable_room",
+              "bridge": "DIFFERENT AXES, AND THEY COINCIDE -- which is why nothing caught this. The ergonomic key splits on BED CAPACITY (bedroom_single is a 1200x1900 rectangle around one single bed; bedroom_double a 1650x1900 around one double). cl. 5.7 splits on OCCUPANCY: «yataq otağı - 8 m² (iki adama - 10 m²-dən)» -- 8 m², and 10 for two people. A bed for two is a room for two, so the axes line up and the mapping is sound. It is stated here because the key NAMES suggest a match that is a coincidence of meaning, not of definition, and the next person to add a bedroom type will not get that for free. Three ergonomic types collapse to two AZ cells: bedroom_principal is also a two-occupant room."
+            },
+            "bedroom_double": {
+              "name_az": {
+                "v": "yataq otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified"
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "bedroom_double"
+                }
+              ],
+              "az_clear_width": "habitable_room",
+              "bridge": "DIFFERENT AXES, AND THEY COINCIDE -- which is why nothing caught this. The ergonomic key splits on BED CAPACITY (bedroom_single is a 1200x1900 rectangle around one single bed; bedroom_double a 1650x1900 around one double). cl. 5.7 splits on OCCUPANCY: «yataq otağı - 8 m² (iki adama - 10 m²-dən)» -- 8 m², and 10 for two people. A bed for two is a room for two, so the axes line up and the mapping is sound. It is stated here because the key NAMES suggest a match that is a coincidence of meaning, not of definition, and the next person to add a bedroom type will not get that for free. Three ergonomic types collapse to two AZ cells: bedroom_principal is also a two-occupant room."
+            },
+            "bedroom_single": {
+              "name_az": {
+                "v": "yataq otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified"
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "bedroom_single"
+                }
+              ],
+              "az_clear_width": "habitable_room",
+              "bridge": "DIFFERENT AXES, AND THEY COINCIDE -- which is why nothing caught this. The ergonomic key splits on BED CAPACITY (bedroom_single is a 1200x1900 rectangle around one single bed; bedroom_double a 1650x1900 around one double). cl. 5.7 splits on OCCUPANCY: «yataq otağı - 8 m² (iki adama - 10 m²-dən)» -- 8 m², and 10 for two people. A bed for two is a room for two, so the axes line up and the mapping is sound. It is stated here because the key NAMES suggest a match that is a coincidence of meaning, not of definition, and the next person to add a bedroom type will not get that for free. Three ergonomic types collapse to two AZ cells: bedroom_principal is also a two-occupant room."
+            },
+            "study": {
+              "name_az": {
+                "v": "kabinet",
+                "src": "az_azdtn_2_7_2",
+                "ref": "sec. 9, acoustic/ventilation room table",
+                "conf": "derived",
+                "note": "AzDTN uses `kabinet` for this room type in its own room tables («Kitabxana, kabinet») but never constrains it in sec. 5. DERIVED."
+              },
+              "az_area": null,
+              "az_clear_width": "habitable_room"
+            },
+            "bathroom": {
+              "name_az": {
+                "v": "vanna otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified"
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "bathroom"
+                }
+              ],
+              "az_clear_width": "bathroom",
+              "bridge": "THE areas_m2 TABLE CONFLATES TWO AXES AND THE NORM DOES NOT. cl. 5.2 keeps them apart in one sentence: «vanna otağı (və ya duş) və tualet (və ya birləşdirilmiş sanitar qovşağı)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. The ergonomic layer keys on the FIRST axis only (bathroom = has a bath, shower_room = has a shower), and carries no way to say the WC is inside. So `bathroom_combined` is not reachable from any ergonomic key, and that is deliberate -- see its reachable_in_v1 marker and cl. 5.10."
+            },
+            "shower_room": {
+              "name_az": {
+                "v": "duş",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified",
+                "note": "cl. 5.2's «vanna otağı (və ya duş)» names it and gives it no area, so az_area is null and the ergonomic 1.4 m² floor stands alone."
+              },
+              "az_area": null,
+              "az_clear_width": "bathroom",
+              "bridge": "THE areas_m2 TABLE CONFLATES TWO AXES AND THE NORM DOES NOT. cl. 5.2 keeps them apart in one sentence: «vanna otağı (və ya duş) və tualet (və ya birləşdirilmiş sanitar qovşağı)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. The ergonomic layer keys on the FIRST axis only (bathroom = has a bath, shower_room = has a shower), and carries no way to say the WC is inside. So `bathroom_combined` is not reachable from any ergonomic key, and that is deliberate -- see its reachable_in_v1 marker and cl. 5.10."
+            },
+            "wc": {
+              "name_az": {
+                "v": "tualet",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified"
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "wc"
+                }
+              ],
+              "az_clear_width": "wc",
+              "bridge": "THE areas_m2 TABLE CONFLATES TWO AXES AND THE NORM DOES NOT. cl. 5.2 keeps them apart in one sentence: «vanna otağı (və ya duş) və tualet (və ya birləşdirilmiş sanitar qovşağı)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. The ergonomic layer keys on the FIRST axis only (bathroom = has a bath, shower_room = has a shower), and carries no way to say the WC is inside. So `bathroom_combined` is not reachable from any ergonomic key, and that is deliberate -- see its reachable_in_v1 marker and cl. 5.10."
+            },
+            "utility": {
+              "name_az": {
+                "v": "paltaryuma otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "sec. 3, yardımçı sahələr definition",
+                "conf": "verified",
+                "note": "Named in the sec. 3 enumeration of auxiliary spaces, which is longer than cl. 5.2's and is where this word appears. No AZ area and no AZ width."
+              },
+              "az_area": null,
+              "az_clear_width": null
+            },
+            "hall": {
+              "name_az": {
+                "v": "hol",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.8",
+                "conf": "verified",
+                "note": "cl. 5.8 spells it `hol`, cl. 5.2 `holl`. cl. 5.8 is published: it is the clause that treats the room as a room rather than listing it. Note areas_m2.hall is all-null, so this row resolves to a name and a width and no area -- which is the null_means case, working."
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "hall"
+                }
+              ],
+              "az_clear_width": "hall_corridor"
+            },
+            "entrance_lobby": {
+              "name_az": {
+                "v": "giriş holu",
+                "src": "engine_choice",
+                "ref": "n/a",
+                "conf": "engine_choice",
+                "note": "THE ONE UNSOURCED NAME IN THIS TABLE, AND IT IS LABELLED. AzDTN names `hol` and `dəhliz` and has no third circulation word; `giriş holu` is ours. It is kept because the ergonomic layer carries the type and the drawing must print something, and it is engine_choice because publishing a plausible Azerbaijani room name without a source is exactly the C8 failure *The Azerbaijani region profile* exists to warn about."
+              },
+              "az_area": null,
+              "az_clear_width": "hall_corridor"
+            },
+            "corridor": {
+              "name_az": {
+                "v": "dəhliz",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.8",
+                "conf": "verified"
+              },
+              "az_area": null,
+              "az_clear_width": "hall_corridor"
+            },
+            "storage": {
+              "name_az": {
+                "v": "yığnaq otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified",
+                "note": "cl. 5.2's «yığnaq otağı (və ya divar təsərrüfat şkafı)». az_area is NULL and NOT wardrobe_1room_entry: cl. 5.7's `qarderob` is specifically the wardrobe at the ENTRANCE of a one-otaq flat, and mapping a generic store onto it would import a 2,5 m² statutory floor this room does not owe."
+              },
+              "az_area": null,
+              "az_clear_width": null
+            },
+            "living_dining": {
+              "name_az": {
+                "v": "qonaq-yemək otağı",
+                "src": "engine_choice",
+                "ref": "n/a",
+                "conf": "engine_choice",
+                "note": "Compounded from two sourced words; the compound itself is not in the norm. engine_choice, same discipline as giriş holu."
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": 1,
+                  "key": "living_room_1room_flat"
+                },
+                {
+                  "when_otaq_count": null,
+                  "key": "living_room_2plus"
+                }
+              ],
+              "az_clear_width": "habitable_room"
+            },
+            "kitchen_dining": {
+              "name_az": {
+                "v": "mətbəx-yemək otağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.7",
+                "conf": "verified"
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "kitchen_zone_in_diner"
+                }
+              ],
+              "az_clear_width": "kitchen",
+              "bridge": "THE AZ CELL CONSTRAINS A ZONE, NOT THE ROOM. cl. 5.7's 6 m² is the `mətbəx zonası` INSIDE the mətbəx-yemək otağı, not the whole room, while the ergonomic 4.6 m² floor is the whole room. So the AZ number is a soft target for a PART of what the ergonomic key measures, and reading it as a room target under-targets the room. Flagged rather than fixed: correcting it means either a zone concept the geometry model does not have, or a re-derivation, and ticket 31 is a vocabulary ticket. Handed to rules.json's holder."
+            },
+            "living_dining_kitchen": {
+              "name_az": {
+                "v": "qonaq-yemək otağı və mətbəx zonası",
+                "src": "engine_choice",
+                "ref": "n/a",
+                "conf": "engine_choice",
+                "note": "A compound with no norm equivalent -- AzDTN has no open-plan type. engine_choice. The az_area guard targets the qonaq otağı component, which under-targets a room that also absorbs a kitchen; same defect as kitchen_dining and the same handoff."
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": 1,
+                  "key": "living_room_1room_flat"
+                },
+                {
+                  "when_otaq_count": null,
+                  "key": "living_room_2plus"
+                }
+              ],
+              "az_clear_width": "habitable_room"
+            }
+          },
+          "conformance": {
+            "comment": "Same shape as data/acceptance/rules.json's conformance block, and for the same reason: this mapping is the only thing standing between two vocabularies that were authored independently and will be extended independently. Drift here is silent -- a new ergonomic key with no row resolves to KeyError at generate time, and a new AZ cell with no claimant is dead data nobody notices.",
+            "asserted_over": "all eighteen ergonomic keys, and every cell of profiles.AZ.rooms.areas_m2 and .clear_widths_mm",
+            "test": "experiments/region-profile/gate_check.py, vocabulary_gates()",
+            "resolvable_means": "THE LOOKUP IS TOTAL, NOT THAT A NUMBER COMES BACK. Ticket 31's closing check reads 'for every room type the Brief can name, both a hard floor and a soft target are resolvable'. Ten keys have no AZ area, and the stricter reading could only be satisfied by inventing ten Azerbaijani numbers -- the exact C8 failure. So: every hard floor is non-null (it is ergonomic, and always resolves), and every soft target resolves to a cell or to an explicit null per mapping.null_means.",
+            "drift_is_a_test_failure": true
           }
         }
       },
@@ -1581,7 +1885,9 @@
         "is_habitable": true,
         "is_wet": false,
         "is_private": false,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       },
       "dining": {
         "min_clear_short": {
@@ -1608,7 +1914,9 @@
         "is_habitable": true,
         "is_wet": false,
         "is_private": false,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       },
       "kitchen": {
         "min_clear_short": {
@@ -1635,7 +1943,9 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": false,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "bedroom_principal": {
         "min_clear_short": {
@@ -1662,7 +1972,9 @@
         "is_habitable": true,
         "is_wet": false,
         "is_private": true,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       },
       "bedroom_double": {
         "min_clear_short": {
@@ -1689,7 +2001,9 @@
         "is_habitable": true,
         "is_wet": false,
         "is_private": true,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       },
       "bedroom_single": {
         "min_clear_short": {
@@ -1716,7 +2030,9 @@
         "is_habitable": true,
         "is_wet": false,
         "is_private": true,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       },
       "study": {
         "min_clear_short": {
@@ -1743,7 +2059,9 @@
         "is_habitable": true,
         "is_wet": false,
         "is_private": true,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       },
       "bathroom": {
         "min_clear_short": {
@@ -1770,7 +2088,9 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": true,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "shower_room": {
         "min_clear_short": {
@@ -1797,7 +2117,9 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": true,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "wc": {
         "min_clear_short": {
@@ -1824,7 +2146,9 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": true,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "utility": {
         "min_clear_short": {
@@ -1851,7 +2175,9 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": false,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "hall": {
         "min_clear_short": {
@@ -1878,7 +2204,9 @@
         "is_habitable": false,
         "is_wet": false,
         "is_private": false,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "entrance_lobby": {
         "min_clear_short": {
@@ -1905,7 +2233,9 @@
         "is_habitable": false,
         "is_wet": false,
         "is_private": false,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": false
       },
       "corridor": {
         "min_clear_short": {
@@ -1932,7 +2262,9 @@
         "is_habitable": false,
         "is_wet": false,
         "is_private": false,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": false
       },
       "storage": {
         "min_clear_short": {
@@ -1959,7 +2291,9 @@
         "is_habitable": false,
         "is_wet": false,
         "is_private": false,
-        "needs_window": false
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "living_dining": {
         "min_clear_short": {
@@ -1997,7 +2331,9 @@
         "is_habitable": true,
         "is_wet": false,
         "is_private": false,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       },
       "kitchen_dining": {
         "min_clear_short": {
@@ -2039,7 +2375,9 @@
         "is_habitable": true,
         "is_wet": true,
         "is_private": false,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": false,
+        "brief_nameable": true
       },
       "living_dining_kitchen": {
         "min_clear_short": {
@@ -2081,7 +2419,9 @@
         "is_habitable": true,
         "is_wet": true,
         "is_private": false,
-        "needs_window": true
+        "needs_window": true,
+        "counts_as_otaq": true,
+        "brief_nameable": true
       }
     },
     "flags_note": "The four booleans are DEFINITIONS, stated operationally in flag_semantics, and no reference work supplies them. They are published here per room type because data/acceptance/rules.json consumes them -- circ.no_private_transit, win.habitable_has_window, win.exterior_wall and wet.plumbing_group_count all read one -- and before this they existed only as prose in findings section 8. A flag the registry cannot read is a predicate that silently does not fire, which is the same failure as a missing minimum. ONE CORRECTION to findings section 8: it sets study is_private false, while CONTEXT.md defines the Private room class as 'a Brief's bedroom, study or nursery, as one class' and the Proposer spec collapses {ROOM, BEDROOM, STUDIO} to PRIVATE on the same reasoning. A study that is a thoroughfare to another room is not a study. Set true here; section 8 predates the glossary entry.",
@@ -2123,6 +2463,128 @@
         "entrance_lobby"
       ],
       "weakest_cells_note": "Swiss Dwellings carries no label for these, so they are derived and UNFALSIFIED. study is the weakest number in the file: a one-desk programme with no corpus to check it against and no source that states a study minimum."
+    },
+    "counts_as_otaq_sourcing": {
+      "comment": "Provenance for the counts_as_otaq flag, which is SOURCED rather than chosen. AzDTN 2.7-2 cl. 5.5 enumerates habitable rooms statutorily -- «yaşayış otaqlarının (otaq, qonaq otağı və yataq otağı)» -- and cl. 5.2 puts kitchen, hall, bath-or-shower, wc-or-combined-unit and storage in `yardımçı sahələr`, auxiliary spaces. Together those two clauses decide sixteen of eighteen keys outright.",
+      "src": "az_azdtn_2_7_2",
+      "per_key": {
+        "living": {
+          "ref": "cl. 5.5",
+          "conf": "verified",
+          "note": "Directly in cl. 5.5's statutory enumeration of yaşayış otaqları: «yaşayış otaqlarının (otaq, qonaq otağı və yataq otağı)»."
+        },
+        "dining": {
+          "ref": "cl. 5.5",
+          "conf": "derived",
+          "note": "Not named in cl. 5.5's list by its own word; admitted through the list's first member `otaq`, which is the unqualified catch-all. DERIVED, not verified -- AzDTN never says this room is or is not an otaq."
+        },
+        "kitchen": {
+          "ref": "cl. 5.2",
+          "conf": "verified",
+          "note": "cl. 5.2 places this in `yardımçı sahələr` (auxiliary spaces), not in yaşayış otaqları, so it contributes 0 otaq."
+        },
+        "bedroom_principal": {
+          "ref": "cl. 5.5",
+          "conf": "verified",
+          "note": "Directly in cl. 5.5's statutory enumeration of yaşayış otaqları: «yaşayış otaqlarının (otaq, qonaq otağı və yataq otağı)»."
+        },
+        "bedroom_double": {
+          "ref": "cl. 5.5",
+          "conf": "verified",
+          "note": "Directly in cl. 5.5's statutory enumeration of yaşayış otaqları: «yaşayış otaqlarının (otaq, qonaq otağı və yataq otağı)»."
+        },
+        "bedroom_single": {
+          "ref": "cl. 5.5",
+          "conf": "verified",
+          "note": "Directly in cl. 5.5's statutory enumeration of yaşayış otaqları: «yaşayış otaqlarının (otaq, qonaq otağı və yataq otağı)»."
+        },
+        "study": {
+          "ref": "cl. 5.5",
+          "conf": "derived",
+          "note": "Not named in cl. 5.5's list by its own word; admitted through the list's first member `otaq`, which is the unqualified catch-all. DERIVED, not verified -- AzDTN never says this room is or is not an otaq."
+        },
+        "bathroom": {
+          "ref": "cl. 5.2",
+          "conf": "verified",
+          "note": "cl. 5.2 places this in `yardımçı sahələr` (auxiliary spaces), not in yaşayış otaqları, so it contributes 0 otaq."
+        },
+        "shower_room": {
+          "ref": "cl. 5.2",
+          "conf": "verified",
+          "note": "cl. 5.2 places this in `yardımçı sahələr` (auxiliary spaces), not in yaşayış otaqları, so it contributes 0 otaq."
+        },
+        "wc": {
+          "ref": "cl. 5.2",
+          "conf": "verified",
+          "note": "cl. 5.2 places this in `yardımçı sahələr` (auxiliary spaces), not in yaşayış otaqları, so it contributes 0 otaq."
+        },
+        "utility": {
+          "ref": "sec. 3, yardımçı sahələr",
+          "conf": "verified",
+          "note": "Named `paltaryuma otağı` in the sec. 3 definition of yardımçı sahələr. Auxiliary, so 0 otaq."
+        },
+        "hall": {
+          "ref": "cl. 5.2",
+          "conf": "verified",
+          "note": "cl. 5.2 places this in `yardımçı sahələr` (auxiliary spaces), not in yaşayış otaqları, so it contributes 0 otaq."
+        },
+        "entrance_lobby": {
+          "ref": "cl. 5.2",
+          "conf": "verified",
+          "note": "cl. 5.2 places this in `yardımçı sahələr` (auxiliary spaces), not in yaşayış otaqları, so it contributes 0 otaq."
+        },
+        "corridor": {
+          "ref": "cl. 5.8",
+          "conf": "verified",
+          "note": "cl. 5.8 groups dəhliz with hol and antresol under the reduced-height allowance for circulation. Auxiliary, 0 otaq."
+        },
+        "storage": {
+          "ref": "cl. 5.2",
+          "conf": "verified",
+          "note": "cl. 5.2 places this in `yardımçı sahələr` (auxiliary spaces), not in yaşayış otaqları, so it contributes 0 otaq."
+        },
+        "living_dining": {
+          "ref": "cl. 5.5",
+          "conf": "derived",
+          "note": "One Room containing a qonaq otağı, so one otaq. The dining zone does not add a second -- AzDTN counts rooms, not zones."
+        },
+        "kitchen_dining": {
+          "ref": "cl. 5.7",
+          "conf": "verified",
+          "note": "THE ONE PLACE counts_as_otaq DIVERGES FROM is_habitable, and the reason this flag is separate. cl. 5.7 names this `mətbəx-yemək otağı` and constrains only its `mətbəx zonası`, so AzDTN treats it as a kitchen variant, never a yaşayış otağı. is_habitable is true (it is sustained-occupation space and takes a window, C6); counts_as_otaq is false (a Baku listing never counts a mətbəx). Read the wrong one and a 1-bedroom flat with a kitchen-diner advertises as 2 otaq -- C13's headline number, wrong."
+        },
+        "living_dining_kitchen": {
+          "ref": "cl. 5.5",
+          "conf": "derived",
+          "note": "One Room containing a qonaq otağı, so one otaq -- the same count a Baku listing gives a studiya. The `mətbəx zonası` inside it adds nothing, per the kitchen_dining reasoning."
+        }
+      }
+    },
+    "corpus_medians": {
+      "comment": "Corpus medians for docs/spec/brief.md section 9.2's defaulting ladder, RUNG 2 -- what a Room's target area falls back to where the region profile is silent. Handed here by *What a room's area is allowed to be* (docs/research/room-area-bands.md) to be recorded rather than re-derived. CH PROVENANCE, NOT AZ: these are Swiss Dwellings measurements and they reach an Azerbaijani plan only because CorpusProvenance and RegionProfile are two fields whose disagreement is the normal case (C14).",
+      "warning": "NOT hard floors and NOT profile targets. A median is where real rooms sit, which is neither what a body needs (ergonomic) nor what a market expects (profile). Nothing here may be promoted to either layer.",
+      "wc": {
+        "v": 1.85,
+        "src": "swiss_dwellings",
+        "ref": "fixture ground truth: toilet present, no bath or shower; 13,436 in-band rooms",
+        "conf": "derived",
+        "note": "p50. The same measurement gives p95 3.71 / p99 5.29 / p99.5 6.20 / max 18.23. WARNING CARRIED FORWARD: ergonomic.corpus_label_split's 2.4 m2 splitter CANNOT SEE THIS TAIL -- 19.3 % of real WCs sit at or above it, so anything read THROUGH the splitter is truncated at 2.4 by construction. A cap fitted that way returned 2.40 at p95, p99, p99.5 and p99.9 before the circularity was caught."
+      },
+      "bathroom": {
+        "v": 4.1,
+        "src": "swiss_dwellings",
+        "ref": "fixture ground truth: bath or shower present",
+        "conf": "derived",
+        "note": "p50; p99 8.23, max 24.52. Same splitter caveat as `wc`."
+      },
+      "hall_entrance_lobby_corridor": {
+        "v": null,
+        "src": "swiss_dwellings",
+        "ref": "53,295 CORRIDOR rooms",
+        "conf": "derived",
+        "note": "EXPLICITLY NULL, AND THAT IS THE FINDING. A 7,58 m2 median exists for the three types MERGED, because Swiss Dwellings has one CORRIDOR label and no HALL or LOBBY subtype. Ticket 31 kept the three ergonomic types apart, so the merged median cannot default any one of them -- it would assign a corridor's median to a hall and back. Rung 2 is therefore EMPTY for all three and they fall through to absent, exactly as brief.md section 9.2 already specifies for kitchen_niche and wardrobe_1room_entry. Recorded so the number is not rediscovered and used."
+      },
+      "no_corpus_type_at_all": "kitchen_niche and wardrobe_1room_entry have no corpus type, so rung 2 is empty for them too. Both are also unreachable from any ergonomic key in v1 -- see profiles.AZ.rooms.areas_m2.*.reachable_in_v1."
     }
   }
 }

@@ -12,6 +12,9 @@ Two arithmetic constraints have to hold before a profile ships (map C15):
             for every `t_int` the profile offers, so the clear reading does not
             cost a whole grid unit per room per axis.
 
+Ticket 31 adds a third, non-arithmetic family: the ergonomic -> AZ room
+vocabulary mapping is total, closed, and its two flags do not drift.
+
 Run:  python experiments/region-profile/gate_check.py
 """
 import json
@@ -28,6 +31,89 @@ fails, notes = [], []
 
 def check(ok, label, detail=""):
     (notes if ok else fails).append(f"{'PASS' if ok else 'FAIL'}  {label}" + (f"  -- {detail}" if detail else ""))
+
+
+
+def vocabulary_gates(doc, check):
+    """Ticket 31 -- the ergonomic -> AZ mapping is total, closed and non-drifting.
+
+    The ticket's closing check reads: "for every room type the Brief can name, both a
+    hard floor and a soft target are resolvable". RESOLVABLE MEANS THE LOOKUP IS TOTAL,
+    NOT THAT A NUMBER COMES BACK. Ten of eighteen ergonomic keys have no AZ area at all,
+    and the other reading -- a non-null soft target for every Brief-nameable type --
+    could only be satisfied by inventing ten Azerbaijani numbers, which is precisely the
+    C8 failure this profile exists to avoid. So the gate asserts that every lookup is
+    defined and every null is explicit, and mapping.null_means carries the semantics.
+    """
+    inv = doc["ergonomic"]["rooms"]
+    az = doc["profiles"]["AZ"]["rooms"]
+    mapping = az["mapping"]["rooms"]
+    areas, widths = az["areas_m2"], az["clear_widths_mm"]
+
+    # -- V1  totality, both directions ------------------------------------
+    check(set(mapping) == set(inv),
+          "T31 mapping is total over the ergonomic key set",
+          f"{len(mapping)} rows vs {len(inv)} keys; "
+          f"missing={sorted(set(inv) - set(mapping))} extra={sorted(set(mapping) - set(inv))}")
+
+    # -- V2  every guard list is well formed and lands on a real cell ------
+    for k, r in mapping.items():
+        guards = r["az_area"]
+        if guards is None:
+            continue
+        for g in guards:
+            check(g["key"] in areas,
+                  f"T31 {k}.az_area -> areas_m2.{g['key']} exists")
+        unguarded = [i for i, g in enumerate(guards) if g["when_otaq_count"] is None]
+        check(unguarded == [len(guards) - 1],
+              f"T31 {k}.az_area has exactly one unguarded fallthrough, and it is last",
+              f"unguarded at {unguarded} of {len(guards)}")
+
+    # -- V3  the second mapping, into a differently-keyed table ------------
+    for k, r in mapping.items():
+        w = r["az_clear_width"]
+        check(w is None or w in widths,
+              f"T31 {k}.az_clear_width -> clear_widths_mm.{w} exists or is null")
+
+    # -- V4  THE TICKET'S CLOSING CHECK ------------------------------------
+    for k, node in inv.items():
+        if not node["brief_nameable"]:
+            continue
+        hard = all(isinstance(node[f], dict) and node[f].get("v") is not None
+                   for f in ("min_area", "min_clear_short", "min_clear_long"))
+        check(hard, f"T31 Brief-nameable {k} resolves a hard floor")
+        check("az_area" in mapping[k] and "az_clear_width" in mapping[k],
+              f"T31 Brief-nameable {k} resolves a soft target or an explicit null")
+
+    # -- V5  no orphaned profile cell --------------------------------------
+    reached = {g["key"] for r in mapping.values() if r["az_area"]
+               for g in r["az_area"]}
+    for k, cell in areas.items():
+        if k == "comment":
+            continue
+        check(k in reached or cell.get("reachable_in_v1", {}).get("v") is False,
+              f"T31 areas_m2.{k} is reachable from the mapping or declares it is not")
+
+    # -- V6  the is_habitable / counts_as_otaq divergence cannot grow silently
+    diverge = {k for k, n in inv.items()
+               if bool(n["is_habitable"]) != bool(n["counts_as_otaq"])}
+    check(diverge == {"kitchen_dining"},
+          "T31 is_habitable and counts_as_otaq diverge on exactly the documented type",
+          f"diverging: {sorted(diverge)}")
+
+    # -- V7  both new flags present on every key ---------------------------
+    for k, node in inv.items():
+        check(isinstance(node.get("counts_as_otaq"), bool),
+              f"T31 {k}.counts_as_otaq present and boolean")
+        check(isinstance(node.get("brief_nameable"), bool),
+              f"T31 {k}.brief_nameable present and boolean")
+
+    # -- V8  every printed name is sourced or declares that it is not ------
+    for k, r in mapping.items():
+        n = r["name_az"]
+        check(bool(n["v"]), f"T31 {k}.name_az is non-empty")
+        check(n["conf"] != "engine_choice" or bool(n.get("note")),
+              f"T31 {k}.name_az is sourced, or engine_choice WITH a note")
 
 
 def main():
@@ -184,6 +270,8 @@ def main():
     print("  ceiling absorbs the remainder and the published number stays millimetre-exact.")
     print("  These 36 rows are printed to show the exemption is load-bearing, not cosmetic.")
     print()
+
+    vocabulary_gates(doc, check)
 
     if fails:
         print("\n".join(fails))
