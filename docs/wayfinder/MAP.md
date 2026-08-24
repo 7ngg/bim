@@ -35,13 +35,13 @@ and that is the failure this table exists to catch.
 | Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ✅ its *one box per Room* premise is **weighed and reversed**: a Space is **one or two rectangles** and the Proposal decides which — ADR 0014. ⚠️ ADR 0001's erosion is untouched and is now **asserted** rather than inherited, but `acceptance-bar.md` §9's sliver *argument* is dead and replaced |
 | Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*, **now handed a measured table and a correction**: Brief feasibility over exposure × room count is **non-monotonic** — single-aspect fails at 6, 7, 8, mostly at 9 and **succeeds at 10**, where `envelope_for` switches L → U — so *"dead from 7 rooms"* is measuring the envelope n selects, not n. ⚠️ And **n = 6 fails at corpus-median exposure too**, which is the case the toy's own comment calls typical, so H8 is not only a single-aspect problem — `experiments/envelope-exposure/`. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
 | Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus*, now also handed a **labelling defect in `swiss_fit.json`**: `fit_rects.py` labels from the unfiltered list and **1.23 % of fitted dwellings are off by one**, and a second defect: **`why_k.clean()` does not do what it says** and its 58.3 % / 31.03 % clean-up figures are an artefact. ⚠️ **The 31 % conversion drop is re-owed** — it was paid for a one-rectangle constraint ADR 0014 removed — *Re-measure the conversion at two rectangles per Room* |
-| Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts* |
-| Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | — |
+| Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts*. ⚠️ And it is now asked whether it can afford a **per-Room hop-count integer** — *What an ordered entry sequence costs the solver*, blocked on the first, because pricing a new encoding on a rig about to be re-based measures the rig |
+| Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | ✅ **its evaluation has three plan-quality terms for the first time** — sleeping-group count, longest-run allocation, social transit, all computable on a corpus dwelling and a generated Plan by the same code, which corner displacement is not. `proposer.md` §6.1. ⚠️ They are **evaluation only, not stop conditions**, and none has been measured on a generated Plan because no Proposer has been run |
 | Runtime and process split — engine / proposer service / BFF, job model, threads, JSON | settled | ⚠️ the honest end state (queue + result store) is fog, under *Persistence, accounts, hosting* |
 | DXF export | settled | — |
-| Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by. ✅ **Unblocked**: §1 moved to **1–2 boxes per Room** (ADR 0014) and is settled, so 30 now amends a contract that has stopped moving |
+| Proposal contract — what a source emits and the solver consumes | settled | ✅ **it carries no zoning, and that is the decision** — the node set is derivable from Room type, so ADR 0014's *only the Proposal knows* argument does not transfer. §1 records the refusal with its reasoning. ⚠️ The premise it was challenged on was **half false**: `wet.plumbing_group_count` is a set-versus-set predicate shipping today, so the Proposal is pairwise and the *system* is not |
 | Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
-| Acceptance bar — 38 predicates (**39 once `dim.leg_join` lands**), enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ⚠️ **And the bar has no rule of the shape *this dwelling owes a room at all*** — every predicate is per-Room, per-Wall or per-Opening, so **a flat with a bath and no toilet passes all 38 and exports** — *A dwelling with no toilet passes every check*, which arrives with a **mandatory, first-hand source** (AzDTN cl. 5.2) and no home for the rule family it implies. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists. ⚠️ Every dimensional rule now has to declare **which part it binds** — ADR 0014 binds minima and aspect per part, area per Room — and one new soft rule, `dim.prefer_single_part`, is owed to `rules.json`'s holder — as is a **locale dimension on every Homeowner-facing message**, since §11 requires a plain-language message per rule, all 38 are English, and the surface is now Azerbaijani: a schema change, not a translation pass |
+| Acceptance bar — 38 predicates (**39 once `dim.leg_join` lands**), enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ⚠️ **And the bar has no rule of the shape *this dwelling owes a room at all*** — every predicate is per-Room, per-Wall or per-Opening, so **a flat with a bath and no toilet passes all 38 and exports** — *A dwelling with no toilet passes every check*, which arrives with a **mandatory, first-hand source** (AzDTN cl. 5.2) and no home for the rule family it implies. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists. ⚠️ **And five more rules are owed, from *Where a set-versus-set property lives***, specified ready to transcribe at `zoning.md` §5b — one hard (`zone.sleeping_group_count`, at most two sleeping groups, 97.5 % of real dwellings) and four soft or warn, of which **`zone.no_social_transit` is the one nobody had written**: `circ.no_private_transit` blocks routing through a bedroom and *nothing* blocks routing through the living room, which 18.2 % of real dwellings do. ⚠️ Every dimensional rule now has to declare **which part it binds** — ADR 0014 binds minima and aspect per part, area per Room — and one new soft rule, `dim.prefer_single_part`, is owed to `rules.json`'s holder — as is a **locale dimension on every Homeowner-facing message**, since §11 requires a plain-language message per rule, all 38 are English, and the surface is now Azerbaijani: a schema change, not a translation pass |
 | Standards table — region-invariant ergonomic floor + the `AZ` profile | settled | ✅ **all four owed items paid** — the mapping exists (`profiles.AZ.rooms.mapping`, 18 rows, 162 gates), the room names turned out to be **in AzDTN 2.7-2's own text in this repo** (14 of 18 `verified`), the three-into-one gap resolved by **keeping three** (the norm carries `hol` and `dəhliz`; `giriş holu` is ours and labelled), and the corpus medians are recorded with their tail warning — *Two room vocabularies in one file*. ✅ its thickness is measured-vindicated: 150 lands **4 mm from the corpus-optimal 146**. ⚠️ **The merged 7,58 m² hall/lobby/corridor median can default nothing** now the three stay apart — rung 2 is empty for all three. ⚠️ One resolution step — `(type, otaq_count) → target, width, name` — is **named in no spec**; handed to `brief.md`'s holder |
 | Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*, which now also holds a defect the audience split creates: **the room tag's fallback is a room number plus a `practitioner` schedule**, so on the Homeowner preview it points at a document that presentation filters out — reproduced at a 1,85 m bedroom. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three*. ✅ the room tag and room schedule are **settled for a concave Space** (ADR 0014) and the Drawing check needed **no new predicate** — chains measure wall faces, not rooms |
 | **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme*, which now also holds a **fifth check needing no standards table at all**: nothing compares a Homeowner's own **stated room areas** against their own **stated total**, so 69,2 m² of rooms inside a stated 45 m² clears every hard error and dies after a full generate cycle |
@@ -77,9 +77,10 @@ order** — the done-test decides order:
 |---|---|
 | `CONTEXT.md` | **no claimant** — 31 closed |
 | `data/standards/room-constraints.json` | 16, 32 — **31 closed.** It added `profiles.AZ.rooms.mapping`, `counts_as_otaq`, `brief_nameable` and `ergonomic.corpus_medians`; a new room type or profile cell must now come with a mapping row or `gate_check.py` fails |
-| `data/acceptance/rules.json` | 16, 20, 26, **42** — and whichever of them moves first inherits the **message locale** schema change, and now **two rules 31 handed over**: cl. 5.2's mandatory room composition, and `kitchen_dining`'s zone-not-room target |
+| `data/acceptance/rules.json` | 16, 20, 26, **42** — and whichever of them moves first inherits the **message locale** schema change, and now **two rules 31 handed over** (cl. 5.2's mandatory room composition, and `kitchen_dining`'s zone-not-room target) and **five 30 handed over**, written out in full at `docs/research/zoning.md` §5b |
+| `data/standards/room-constraints.json` (second entry) | **30 hands it one flag**, `is_sleeping` — and it **may not be folded into `is_private`**, which is true on the wet types too |
 | `docs/spec/acceptance-bar.md` | 26, **42** — 42 is new and 28 is closed |
-| `docs/spec/proposer.md` | 23, 30 — 28 closed, and **30 is unblocked**: §1 has moved and is settled |
+| `docs/spec/proposer.md` | 23 — **sole claimant now**, 30 closed |
 | `docs/spec/annotation.md` | 32 — **sole claimant now**, 28 closed. ✅ **31 has handed it the eighteen Azerbaijani room names**, sourced and cited |
 | `docs/spec/openings.md` | 16 — **sole claimant now.** 39 closed without creating it: the catalogue-versus-instance line is in `CONTEXT.md`'s **Opening** and **Head datum** terms and in the profile data, so 16 inherits it |
 | `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see, and **now holding a second parse-time check**: a Brief whose stated room areas exceed its stated total survives §9 today. **31 adds two more**: whether a nineteenth type (`taxça-mətbəx`) is owed, and where the profile-resolution step lives |
@@ -87,6 +88,7 @@ order** — the done-test decides order:
 | `experiments/envelope-exposure/` | **new, no claimant.** Also 13's, and deliberately *not* `experiments/solver-toy/`, which 29 claims: the two probes import that directory and never edit it. Their findings are quoted on the Envelope row and on 26 |
 | `experiments/region-profile/gate_check.py` | **no claimant.** 31 declared it on resolution rather than taking it quietly — 162 vocabulary gates, the file now runs 229 |
 | `docs/spec/ifc-export.md` | 41 — sole claimant. New, and it takes over a row that had **no ticket at all** |
+| `experiments/solver-toy/` | 29, **43** — 43 is new and **blocked on 29**, deliberately: 29 re-bases the ground truth every timing on this map was measured against, so pricing a new encoding first would measure the rig |
 | `experiments/rectangularise/`, `docs/research/rectangularisation.md` | 40, 27 — 40 rewrites the fit, 27 renders its output. **Sequence them**: rendering a conversion that is about to change is wasted |
 
 ✅ **39 and 28 are closed and their collisions are gone.** 39 had the widest
@@ -693,6 +695,41 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   the strict reading could only be met by inventing ten Azerbaijani numbers, the exact C8
   failure. Silence is explicit `null` and `dim.market_default_area` skips, never raises.
 
+- [Where a set-versus-set property lives](tickets/30-the-proposal-cannot-express-zoning.md)
+  — **zoning lives in the solver and the bar, the Proposal gains no field, and
+  the ticket's premise was half wrong.** `docs/research/zoning.md`,
+  `proposer.md` §1/§6.1/§7, `CONTEXT.md`, `experiments/zoning/` (2 500 Swiss
+  dwellings). *"Everything this system optimises is pairwise"* is **false** —
+  `wet.plumbing_group_count` is a hard set-versus-set predicate today, and
+  `solver-formulation.md` already records that *"reachable and clustered are the
+  same constraint with different node sets"*. So a **Sleeping group** is that
+  routine on a third node set, and three of the ticket's four properties cost
+  nothing new. **D8 is the answer and it turns on where ADR 0014 stops**: shape
+  entered the contract because L-ness is a property of the truth being copied and
+  only the Proposal has seen it; a sleeping group is a property of **Room type**,
+  which the `ResolvedBrief` already carries, so there is nothing to tell the
+  solver it does not know. **≤ 2 sleeping groups covers 97.5 %** of real
+  dwellings — the same number `wet` clustering landed on, reached independently —
+  and demanding *one* would reject 30 %. **Inferred, never a Brief field**: every
+  surveyed product makes adjacency user-authored and every one of them sells to a
+  practitioner who can draw a bubble diagram; C2's buyer cannot. ⚠️ **Four of
+  this session's own claims were withdrawn**, and the sharpest is that a
+  *withdrawal* was the error — the facade property was dropped on a per-m²
+  normalisation, when "the living room gets the best elevation" is a claim about
+  an **absolute scarce** resource: measured absolutely the social Room takes the
+  longest exterior run **73.7 % to 26.3 %, no ties**, and is dual-aspect 2.4× as
+  often, all of it topological and needing no site. ⚠️ **A candidate hard rule
+  died as threshold-dominated** — "every bedroom touches circulation" reads
+  52.9 % at the shipped 1.00 m contact run, 66.2 % at 0.80 and **78.4 % at
+  0.60** — H8's *"dead from 7 rooms"* confound again. ⚠️ **`is_private` did not
+  mean what `CONTEXT.md` said**: the flag is true on the wet types, the glossary
+  described the sleeping set, and a zoning rule reaching for "the bedrooms" would
+  have **silently acquired the bathrooms**. ⚠️ **29 % of real dwellings come out
+  disconnected** on the contact graph at 1.00 m — flagged, not concluded, and
+  handed to the two tickets that own the conversion. ⚠️ The hard bound's honest
+  limit: 97.5 % of real dwellings already pass, so **the four soft rules carry the
+  work** and the hard one is insurance against a generator nobody has run.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -758,6 +795,17 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   rules, two warns, including the aspect-ratio term added because a plan can pass
   everything and still read as generated). Fog is whether it correlates with human
   judgement at all: the eval protocol, the perceptual metric, or held-out likelihood.
+  **Sharpened by *Where a set-versus-set property lives*, and this is the first thing
+  ever handed to it that is not a threshold:** three terms — sleeping-group count,
+  longest-run allocation, social transit — are **computable on a corpus dwelling and
+  on a generated Plan by the same code**, which is exactly what a held-out comparison
+  needs and what corner displacement cannot be, a real dwelling having no Proposal to
+  be displaced from. `proposer.md` §6.1 takes all three with the corpus distribution
+  as the target rather than a threshold. What stays fog is the half that always was:
+  **whether any of it tracks what a person would say**, which no corpus statistic can
+  answer. ⚠️ And a caution the terms carry: all three were measured on *real*
+  dwellings, so they describe the target, not the gap — **nobody has run a Proposer**,
+  so the distance a generated Plan sits from that distribution is unmeasured.
 - **Fixtures and furniture** — do we place them, and is furniture-fit a constraint or a
   render? Two hooks exist: the ergonomic minima are **derived from fixture footprints**,
   so fixtures are already implicit in the hard set; and
@@ -771,6 +819,17 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   the expensive half — whether furniture-fit becomes a **constraint** — and it is now
   sharper: a render that a Homeowner sees creates the expectation that the furniture
   drawn actually fits, which is a promise the solver does not currently make.
+- **The ordered entry sequence, and whether it is worth new integers** — ⚠️ **now a
+  ticket, not fog**: *What an ordered entry sequence costs the solver*, blocked on
+  *The solver has only ever seen guillotine layouts*. It is the **one** property of
+  the four *Where a set-versus-set property lives* examined that needs machinery this
+  formulation does not have — flow gives reachability, not *how far along* a walk a
+  Room sits — and the encoding wants a per-Room hop-count integer on a model whose
+  H8 note specifically records needing **"no auxiliary integers"**, at 15 s, on the
+  **edge** of the feasibility cliff. Left here is the judgement the ticket defers:
+  whether the three cheap properties already shipped capture most of what *reads as
+  designed* means.
+
 - **Angled walls** — they genuinely break the coordinate model and are genuinely v2.
   ⚠️ **Renamed from "Non-orthogonal geometry", which was two questions wearing one name.**
   An L-shaped room is *orthogonal*, and filing it here made a cheap question inherit an

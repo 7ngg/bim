@@ -100,11 +100,40 @@ stops being a real home's. A limit, not a preference: retrieval's entire claim i
 that a person once lived in this arrangement, and past some distortion that
 sentence is false. A dwelling outside the budget is not retrieved at all.
 
-**Private room** — a Brief's bedroom, study or nursery, as one class. It exists
-because the corpora cannot tell them apart: the most common label in Swiss
-Dwellings is an unlabelled room with a bedroom's proportions. The Brief keeps the
-finer word for the Homeowner and for conditioning; retrieval only ever matches the
-class.
+**Private room** — a Room you do not walk *through*: the sleeping rooms and the
+wet rooms together, and the class `circ.no_private_transit` is written over. It
+is the `is_private` flag in `room-constraints.json`, true on `bathroom`,
+`shower_room` and `wc` as well as the four sleeping types.
+
+⚠️ **This entry used to describe the narrower sleeping set** — "a Brief's
+bedroom, study or nursery, as one class" — which is a *retrieval-matching* class
+and never was what the flag holds. Two sets wore one word; the flag was right for
+its rule and the glossary was describing something else. The sleeping set is now
+**[[Sleeping room]]**, and the reason the split matters is that a rule reaching
+for "the bedrooms" and finding `is_private` silently acquires the bathrooms.
+
+**Sleeping room** — a bedroom or a study, as one class: `is_sleeping` in
+`room-constraints.json`. It exists twice over. For **retrieval**, because the
+corpora cannot tell a bedroom from a study — the commonest label in Swiss
+Dwellings is an unlabelled room with a bedroom's proportions, so the Brief keeps
+the finer word for the Homeowner and for conditioning while retrieval matches only
+the class. For **[[Sleeping group]]**, because it is the node set that grouping is
+computed over, and it must exclude the wet rooms a [[Private room]] includes.
+
+**Sleeping group** — a maximal set of [[Sleeping room]] Spaces that touch, or
+share a circulation neighbour. Bedrooms rarely touch, so "off the same hall" is
+what grouping means here and adjacency is not required.
+
+Named to sit beside [[Plumbing group]], because it is the same object: one
+clustering routine, a different node set. Like it, the constraint is a bound on
+the **number** of groups and not a demand for one — 69.8 % of real dwellings hold
+their sleeping rooms in a single group and 27.7 % in two, so demanding one rejects
+almost a third of real homes.
+
+⚠️ **Never "zone", and never "zoning".** Across the whole surveyed market that
+word means land-use control — floor-area ratio, setbacks, shadow law — and this
+system makes no land-use claim at all. `docs/research/zoning.md` is the only place
+it appears, and it appears there to say this.
 
 **Corpus** — a dataset of real floor plans used to train and evaluate the
 Proposer. Plural **corpora**. They are not interchangeable: each encodes a

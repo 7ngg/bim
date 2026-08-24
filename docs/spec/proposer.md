@@ -68,6 +68,27 @@ to treat one source preferentially — that would make the two-source design a
 ranking policy instead of a filter. The **job record** carries the source, so the
 ablation stays measurable without the contract knowing about it.
 
+**Zoning is deliberately *not* a Proposal field either, and this is a decision
+rather than an omission.** *The Proposal cannot express zoning* opened on the
+observation that the contract transmits only pairwise separation directions,
+while day/night grouping is a property of a set against a set. The observation is
+correct and the conclusion does not follow: the **system** already carries
+set-shaped properties — `wet.plumbing_group_count` is hard and `site: both`, and
+`solver-formulation.md` records that *"reachable and clustered are the same
+constraint with different node sets"*. A **[[Sleeping group]]** is that routine on
+a third node set.
+
+The node set is derivable **from the Brief**. This is where ADR 0014's precedent
+stops: a Room's *shape* had to enter the contract because L-ness is a property of
+the truth being copied and only the Proposal knows it — told which Room is an L
+the solver places 25 of 25, left to find them it places 10 of 18 and invents 35.
+A sleeping group is a property of **Room type**, which the `ResolvedBrief`
+already carries, so the solver derives the node set without being told and there
+is nothing the Proposal could add. Zoning lives in the solver and the Acceptance
+bar; `docs/research/zoning.md` §5.
+
+What it *does* change here is **evaluation** — §6.1.
+
 ---
 
 ## 2. The two sources
@@ -511,6 +532,33 @@ scoped so it never depends on this metric: coverage (§2.1) and the arrangement
 metric (§5) decide it. The beat-retrieval ablation waits for *Ergonomic minima*
 and *Fit the ENGINE_CHOICE acceptance thresholds*.
 
+#### Three plan-quality terms that are available now
+
+Everything above measures whether a Proposal reaches a **valid** Plan.
+*Validate the arrangement metric against the solver* established that §5 predicts
+**feasibility, not survival**, and is *"a training and evaluation instrument
+only"*; nothing in this spec has ever measured whether a Plan is any **good**.
+
+*The Proposal cannot express zoning* supplies three terms that do, and their one
+qualifying property is that each is **computable on a corpus dwelling and on a
+generated Plan by the same code** — which corner displacement is not, because a
+real dwelling has no Proposal to be displaced from. Measured distributions over
+2 500 Swiss dwellings are in `docs/research/zoning.md` §2; the held-out target is
+the corpus distribution, not a threshold.
+
+1. **Sleeping-group count** — components of the sleeping set, where two are one
+   group if they touch or share a circulation neighbour. Real: **69.8 %** one
+   group, 27.7 % two, 2.5 % three.
+2. **Longest-run allocation** — whether the longest single exterior run goes to a
+   habitable non-sleeping Room. Real: **73.7 %**.
+3. **Social transit** — the fraction of sleeping Rooms reachable only through a
+   social Space. Real: **11.1 %**.
+
+⚠️ These are **evaluation** terms and are not stop conditions. §6.2 stays as it
+is: a source that zones well and reaches no valid Plan has not earned its place,
+and none of the three has been measured on a generated Plan by anyone, because no
+Proposer has been run.
+
 ### 6.2 Stop conditions for training
 
 So it does not become an open-ended sink. All measured on held-out dwellings, in
@@ -563,7 +611,13 @@ surfaced to the Homeowner as a C4 Assumption.
   eval — §5.4 validated the *instrument*; neither source has been scored on it.
   Both must report **severity, count, reversals and abstain rate** per Proposal,
   and a warped Proposal's severity is the natural fidelity axis the warp-budget
-  question was missing.
+  question was missing. **They now also report §6.1's three plan-quality terms**,
+  which is the first time either source can be scored on anything but feasibility.
+- From ***The Proposal cannot express zoning***, to the holders of the files this
+  ticket does not write. Four rules to `rules.json`, one flag to
+  `room-constraints.json`, and one soft term to whoever next opens the objective —
+  all specified in `docs/research/zoning.md` §5, none written here, because
+  `rules.json` has four claimants and this ticket has none of them.
 
 ## 8. Honest limits
 
