@@ -111,12 +111,56 @@ separate is real programme a Homeowner states, and the ergonomic layer already
 carries the three merged types with their own minima. A cased opening between two
 *separate* Rooms is a different thing and belongs to *Opening placement rules*.
 
-**Not every type is Brief-nameable.** `corridor` and `entrance_lobby` are
-normally invented by `resolve`, because `model.no_unassigned_area` means
-circulation must be Brief Rooms or the Envelope cannot be tiled. The distinction
-is data: `room-constraints.json` gains a `brief_nameable` flag per ergonomic key,
-and the JSON Schema generator (§10) reads it. **This spec does not write that
-file** — see §12.
+**Not every type is Brief-nameable.** The distinction is data:
+`room-constraints.json` carries a `brief_nameable` flag per ergonomic key, and the
+JSON Schema generator (§10) reads it. **This spec does not write that file** — see
+§12.
+
+### 3.1 `resolve` invents exactly one circulation Room, and it is a `hall`
+
+`model.no_unassigned_area` means circulation must be Brief Rooms or the Envelope
+cannot be tiled, and ADR 0013 showed `resolve` has to fix the count **before any
+geometry exists**. The rule:
+
+> **If the `ResolvedBrief` contains no `hall`, invent one. Otherwise invent
+> nothing.**
+
+So the circulation Room count is always exactly **one**, and it is never guessed
+from the programme.
+
+Three reasons it is a `hall` and not a `corridor`, and none of them is a
+preference:
+
+- **AzDTN 2.7-2 cl. 5.2 puts `holl` in `yardımçı sahələr`** — the auxiliary
+  spaces a dwelling *must have*. The room is mandatory under the shipping
+  profile, so inventing it is transcription rather than a product choice. The
+  rule that *enforces* the mandatory set is not this spec's; see §12.
+- It is the only one of the three circulation types with an `az_area` row
+  (`profiles.AZ.rooms.mapping`). `corridor` and `entrance_lobby` resolve to a
+  name and a width and no area, so a defaulted one would have nothing to default
+  from — §9.2's ladder is empty for both.
+- **`hall` is the type a Homeowner may name.** The 16.7 % of real dwellings with
+  two circulation spaces are therefore reached by the Brief *stating* one, not by
+  the engine guessing a second.
+
+Fixing the count at one is safe because **ADR 0014 lets the hall be two
+rectangles** — an L reaching a wing that a single rectangle cannot, which is the
+case a second circulation Room existed to cover. Measured over 46,800 Swiss
+dwellings (`experiments/room-count-envelope/circulation_split.py`): k = 0
+6.55 %, k = 1 **75.11 %**, k = 2 16.69 %, k ≥ 3 1.65 %.
+
+It is also frugal with the gate. The invented Room is inside the **engine room
+count** ADR 0013 hard-refuses outside 3–10 (§9.4), so a `resolve` that invents
+two circulation Rooms spends the ceiling on corridors and refuses Briefs that
+would otherwise have fitted.
+
+**`corridor` and `entrance_lobby` are therefore unreachable in v1** — nothing
+invents them and no Brief may name them. That is a fact about the data, not about
+this spec, and §12 hands it to `room-constraints.json`'s holder to be recorded the
+way `kitchen_niche` and `wardrobe_1room_entry` already are, with
+`reachable_in_v1: false`. One consequence is worth naming: `entrance_lobby`'s
+`giriş holu` is **the one unsourced Azerbaijani name in that table**, and no
+shipping path now prints it.
 
 **Three vocabularies exist and they are ordered, not competing.**
 
@@ -203,10 +247,28 @@ Resolution order:
    statable** — a Homeowner who can place a notch can draw, and C2 says they
    cannot. Notch edge conditions default by dwelling type (`exterior` for houses,
    `party` for flats) and are always Assumptions.
-3. Dimensions and area reconcile **in one direction**. A stated dimension is never
-   overridden. An unstated one derives from `sum(room target areas) / efficiency`
-   then a default aspect ratio; both constants are `ENGINE_CHOICE` and owned by
+3. Dimensions and area reconcile **in one direction, and a stated total is never
+   discarded.** A stated dimension is never overridden. An unstated one derives
+   from the first of these that exists, then a default aspect ratio:
+
+   1. **a stated `target_area`**, as `interior = target_area × (1 + f)`.
+      `target_area` is `ümumi sahə` and does **not** count partitions (ADR 0010),
+      so the interior it implies is larger by the partition footprint —
+      measured at **5.7 %** of Σ Space area at the shipped `t_int` of 150, over
+      14,063 dwellings. `efficiency` is not used on this path, because the
+      quantity it stood in for is measured.
+   2. otherwise `Σ Room.target_area / efficiency`.
+
+   `efficiency` and the default aspect ratio are `ENGINE_CHOICE` and owned by
    *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*.
+
+   **Rung 1 is new and it closes a hole.** Without it a Brief saying *"95 m²,
+   four rooms"* sized its box from the room defaults — roughly 48 m² — and never
+   mentioned the 95. The stated total was neither honoured nor refused: step 4
+   below reconciles dimensions against an area only when **both** are stated, so
+   a lone `target_area` fell through every rule in this section. §9.4's fifth
+   bound would then have refused a Brief the sizer had already silently
+   rewritten.
 4. Where both dimensions **and** an area are stated and they disagree, the
    dimensions win and `target_area` receives a `reading` assumption (§6). A tape
    measurement is evidence; a listing figure is hearsay.
@@ -383,18 +445,48 @@ WC passes all 38 rules.**
 
 So the Brief contract states the band. The predicate, its anchor, its thresholds
 and its enforcement site are measured and recommended by *What a room's area is
-allowed to be*, and written by whoever holds `rules.json`.
+allowed to be* and written by whoever holds `rules.json`: `dim.max_area`, hard at
+site `both`, bounding every Space at `k[type] × target_area` where a target exists
+and `absolute_cap[type]` where none does. **`k` is not one constant** — 2.02 for
+`living_dining` to 8.15 for `storeroom` — and the ladder's second rung now supplies
+the `wc` target `AZ` was silent on, so the 40 m² WC is capped at
+3.36 × 1.85 = **6.20 m²** and rejected 6.5× over.
+
+**The band has an upper side, so a Brief can now be unsatisfiable from above**, and
+§9.4 bound 6 is where that is caught.
 
 ### 9.4 The feasibility pre-check
 
-Two bounds, two severities, one function — called at parse time and again when no
-candidate survives, so `acceptance-bar.md` §11's requirement that the two produce
-the same sentence holds by construction.
+**Six bounds, one function** — called at parse time and again when no candidate
+survives, so `acceptance-bar.md` §11's requirement that the two produce the same
+sentence holds by construction.
 
-**Hard refusal below the sum of realisable ergonomic minima.** Realisable, not
-published: ADR 0009 exempts the ergonomic layer from grid congruence but is
-explicit that *"the exemption is not a licence to ignore the erosion —
-`clear = grid*w - t_int` still governs; the solver still pays
+**No severity in this section is chosen.** Four of the six bounds are the
+parse-time **pre-image** of a rule that already ships in `rules.json`, and each
+inherits that rule's severity; the other two are ADR 0013's scope gate. ADR 0015
+records the principle and why it is not a product judgement.
+
+| | bound | pre-image of | severity |
+|---:|---|---|---|
+| 1 | `target_area` below Σ **realisable** ergonomic minima | `dim.min_area`, hard | **hard** |
+| 2 | `target_area` below Σ `market_default` | `dim.market_default_area`, soft | **warn** |
+| 3 | engine room count outside **3–10** | — ADR 0013 scope gate | **hard** |
+| 4 | inside 3–10 but outside **1–4 otaq** | — ADR 0013 scope gate | **warn** |
+| 5 | Σ `Room.target_area` more than 5 % from `target_area` | `area.invented_envelope_hard` / `area.given_envelope_warn` | **hard / warn** |
+| 6 | Σ upper band below the interior a **given** Envelope fixes | `dim.max_area` ∧ `model.no_unassigned_area`, both hard | **hard** |
+
+Every bound runs **after `resolve`**, so the `hall` §3.1 invents is inside every
+sum — the same reason this section carries no separate circulation allowance term.
+Each finding names the Brief field whose edit resolves it, and the function returns
+the whole set rather than the first failure: a Brief can be short of area **and**
+past the room ceiling, and hiding the second behind the first is a wrong
+explanation, not merely a late one.
+
+#### Bound 1 — the ergonomic floor
+
+**Realisable, not published.** ADR 0009 exempts the ergonomic layer from grid
+congruence but is explicit that *"the exemption is not a licence to ignore the
+erosion — `clear = grid*w - t_int` still governs; the solver still pays
 `ceil((m + t)/grid)`."* So the floor that binds is
 
 ```
@@ -405,21 +497,135 @@ realisable(m) = grid * ceil((m + t_int) / grid) - t_int      grid = 250, t_int =
 **1850 × 2100 = 3.9 m², 25 % higher.** Summing published minima pre-approves
 Briefs the solver cannot fit — the exact failure this check exists to prevent.
 
-**No circulation allowance term.** Circulation Rooms are Brief Rooms (§3) and
-carry their own realisable minima, so the constant the inherited note assumed is
-deleted rather than fitted.
+#### Bound 2 — the market line
 
-**Warning at the sum of `market_default`.** Above the hard line and below this one
-the Brief fits, and every room lands at the ergonomic floor rather than at what
-people build. That is worth saying, and it is what stops the engine shipping a
-technically valid 20 m² three-bed.
+Above the hard line and below this one the Brief fits, and every room lands at the
+ergonomic floor rather than at what people build. That is worth saying, and it is
+what stops the engine shipping a technically valid 20 m² three-bed.
 
-**`acceptance-bar.md` §11's worked example is not reproducible from the shipped
-table.** It reads *"Three bedrooms, a bathroom and a kitchen need at least
-58 m²"*; the realisable ergonomic minima give about 18 m² and `AZ`
-`market_default` gives about 48 m². The sentence must quote the computed pair —
-the market number as the recommendation, the ergonomic number as the hard line.
-Handed on in §12; this spec does not hold that file.
+#### Bounds 3 and 4 — the room-count gate and the room-count promise
+
+ADR 0013, and they are **in different units on purpose**. The gate is engine
+rooms, post-`resolve`, including the `hall` §3.1 invents; the promise is otaq,
+habitable rooms only, read from `counts_as_otaq`. Do not convert one into the
+other by a constant — the spread at each otaq is two to three engine rooms wide,
+and one otaq is a median of four engine Rooms.
+
+The hard one **must be explicit**. `acceptance-bar.md` §11's zero-survivor
+diagnosis is arithmetic over *areas* and cannot voice a room-count failure, so
+without this check a Homeowner past the ceiling is handed an area sentence that is
+not the real reason — a wrong explanation, not a missing one. The refusal names
+the count. How the two counts are *voiced* is `homeowner-surface.md` §8; this
+section decides what the engine knows.
+
+#### Bound 5 — the Brief against itself
+
+```
+| Σ Room.target_area  −  target_area |  >  0.05 × target_area
+```
+
+**Both sides are the same quantity in the same convention, and it would be an
+error to put a partition term on either.** ADR 0010 makes `target_area` exactly
+Σ Space area — `ümumi sahə` sums room areas and does not count partitions — and a
+`Room.target_area` is that same quantity for one Room. The 5 % is
+`area.invented_envelope_hard`'s shipped value, not a new number: this bound is
+that rule's pre-image, so a Brief failing it was already doomed by a rule the
+validator holds.
+
+**Severity follows the Envelope's provenance, by inheritance rather than by
+choice.** Where the Envelope is **invented** the pre-image is
+`area.invented_envelope_hard` and the bound is **hard** — refusing at parse is
+strictly kinder than refusing after the wait. Where it is **given** the pre-image
+is `area.given_envelope_warn`, which is a warn for the reason its own note gives —
+*"every candidate drifts by the same amount, and rejecting on it would reject
+100 percent of them for a fault none of them caused"* — so the bound is **warn**,
+surfaced against the Brief.
+
+Worked, from the `prototype/homeowner-surface` prototype: rooms stated at
+18 + 8 + 12 + 11 + 11 + 4,2 m² = **69,2 m²** inside a stated total of **45 m²**,
+with no dimensions stated, so the Envelope is invented and the bound is hard. That
+Brief clears all three of §9.1's hard errors and clears bounds 1 and 2 — the
+realisable minima are about 18 m², far below 45 — and today it generates and dies
+as zero survivors, where `acceptance-bar.md` §11 then explains it in terms of
+ergonomic minima, a set of numbers the Homeowner never typed and cannot act on.
+Under bound 5 it is refused at parse, naming the total field **and** the room
+fields.
+
+#### Bound 6 — the Envelope larger than the programme
+
+The one case in this section where a partition term *is* correct. A stated
+`overall_dimension` is already a clear dimension (ADR 0010), so the area it fixes
+is the **interior**, gross of partitions, while Σ Space area is the interior minus
+them — and the partition footprint is only known after the solve.
+
+```
+refuse when   Σ upper_band  <  interior / (1 + f_hi)
+warn   when   Σ upper_band  <  interior / (1 + f_lo)
+```
+
+`f_hi` and `f_lo` are the high and low ends of the per-dwelling partition footprint
+at the shipped `t_int` of 150, as a share of Σ Space area. Taking the **high** end
+for the refusal means it fires only where no partition footprint the corpus
+supports could rescue the Brief. **The spread is not published** — mean and p50 are
+both **5.7 %** over 14,063 dwellings and nothing else was reported — so today
+`f_hi = f_lo = 0.057`, the two lines coincide, and only the refusal exists. Getting
+p5 and p95 is one line of `experiments/thickness-fidelity/`; §12 hands it on. **This
+is the only inexact number in this section**, and it is named as such rather than
+rounded away.
+
+`Σ upper_band` is `dim.max_area`'s bound summed over the ResolvedBrief:
+`k[type] × target_area` where a target exists — stated, or set by §9.2's ladder —
+and `absolute_cap[type]` where none does. Both are read from `room-area-bands.md`
+§6.1, never re-derived here.
+
+**What it says, and what it does not do.** It names the two edits that resolve it:
+**raise a `Room.target_area`** — a stated target is sovereign, so raising it raises
+that Room's cap by `k`, and it is usually one number — or **add a Room**. It
+proposes neither, because §9.5 forbids the engine choosing: adding a Room is
+inventing programme, and silently lifting the cap ships the defect `dim.max_area`
+exists to prevent, one storey up. A 60 m² living room in a one-otaq flat is the
+40 m² WC of §9.3 wearing a better name.
+
+**Why a refusal and not a warning.** Both rules behind it are hard at site `both`,
+so no legal assignment exists, and *warn and proceed* would be a false promise. H3
+posts exact tiling **soft** at weight 100,000, so an over-constrained Brief does not
+come back INFEASIBLE — it comes back as a Plan with unassigned floor, the validator
+kills it on `model.no_unassigned_area`, C6 discards it, and the Homeowner sees
+**zero survivors with no explanation**, which is the failure this section exists to
+prevent.
+
+The architect's objection — *a professional handed a 95 m² flat and a four-room
+brief does not refuse the client* — is answered rather than overruled. They do not
+refuse, and they do not silently draw a 60 m² living room either: they say the
+programme does not fill the flat and **ask what to add**. This bound is that
+sentence. A refusal naming both edits is a question, and it is the shape §9.1
+already uses.
+
+Measured scope (`room-area-bands.md` §5.1): at p99.5 caps the corpus's commonest
+4-room mix sums to 85.7 m² against a corpus p99 of 79.7, and every room count above
+4 has double the headroom it needs. **The case is real, it is narrow, and it sits
+at the bottom of C13's band** — where *Ergonomic minima* already found the 250 mm
+grid charging the 5-room case. The small-dwelling end keeps taking the hits, from
+independent directions.
+
+**What the market does here, and where this departs from it.** Nobody refuses, and
+only one product ships the absurd room. ARCHITEChTURES takes a full net-area
+programme table against a buildability envelope and surfaces the mismatch as a
+**violation tracker** the designer resolves — *"the design is decided by the user
+and the designer is responsible for compliance"*. TestFit returns a **pass/fail
+score** with each scheme. Maket generates regardless and disclaims measurement in
+its own contract — and Maket is the product C3 differentiates from. This bound is
+the tracker's discipline moved to **parse time**, where it costs the Homeowner a
+second instead of a wait, and where C2's user — who cannot read a violation list —
+gets a sentence and two buttons instead.
+
+#### The worked example in `acceptance-bar.md` §11 is still not reproducible
+
+It reads *"Three bedrooms, a bathroom and a kitchen need at least 58 m²"*; the
+realisable ergonomic minima give about 18 m² and `AZ` `market_default` gives about
+48 m². The sentence must quote the computed pair — the market number as the
+recommendation, the ergonomic number as the hard line. Handed on in §12; this spec
+does not hold that file.
 
 ### 9.5 Nothing is auto-repaired
 
@@ -484,9 +690,18 @@ editing it would mean editing a measurement:
 | field | source |
 |---|---|
 | `retrieval_pool_size` | `proposer.md` §2.2's gate — a lookup, computable before any solve |
-| `hard_area_floor` | §9.4 |
-| `market_area_recommendation` | §9.4 |
+| `hard_area_floor` | §9.4 bound 1 |
+| `market_area_recommendation` | §9.4 bound 2 |
 | `room_floor[RoomId]` | the realisable ergonomic minimum per Room |
+| `engine_room_count`, `otaq_count` | §9.4 bounds 3 and 4 — two counts in two units, never converted |
+| `programme_area` | Σ `Room.target_area` over the ResolvedBrief — §9.4 bound 5 |
+| `programme_ceiling` | Σ upper band over the ResolvedBrief — §9.4 bound 6 |
+| `room_ceiling[RoomId]` | `dim.max_area`'s bound per Room, the term `programme_ceiling` sums |
+
+`room_ceiling` is carried per Room and not only as a total because bound 6's
+refusal names *raise a `Room.target_area`* as one of its two edits, and a
+Homeowner cannot act on that without seeing which Room has how much headroom. The
+same reason `room_floor` is per-Room and not only a sum.
 
 This turns "what do we tell a Homeowner whose Brief crosses the retrieval line"
 from a UI question into a data question. *Homeowner product surface* and *The
@@ -507,7 +722,13 @@ says so.
 | corpus medians for silent profile types; bedroom-count to total-area distribution | *What a room's area is allowed to be* |
 | `efficiency` and default aspect ratio for a derived Envelope | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
 | whether the band's parse-time notice is shown, and how | *Homeowner product surface* |
-| whether a room count outside 4–10 is refused at parse time | *The room-count envelope v1 promises* — §9.4's check is the place to carry it |
+| ~~whether a room count outside 4–10 is refused at parse time~~ — **discharged**: ADR 0013's gate and promise are §9.4 bounds 3 and 4 | — |
+| **`f_hi` and `f_lo` for §9.4 bound 6** — p5 and p95 of the per-dwelling partition footprint at `t_int` 150. Mean and p50 are published at 5.7 %; the spread is not, and it is one line of the same harness | *The partition footprint has a mean and no spread*, which holds `experiments/thickness-fidelity/` |
+| **`reachable_in_v1: false` on `corridor` and `entrance_lobby`** (§3.1). Nothing invents them and no Brief may name them, so two of eighteen types are dead paths that the file still presents as live — the same marker `kitchen_niche` and `wardrobe_1room_entry` already carry | whoever next holds `room-constraints.json` — *Opening placement rules*, *The annotation spec is US-shaped* |
+| **The composition rule enforcing AzDTN cl. 5.2's mandatory auxiliary set.** §3.1 guarantees the `holl` half *by construction* — every ResolvedBrief has exactly one `hall` — so that rule may assert it rather than test it. The kitchen, bath-or-shower, WC and storage halves are untouched | *A dwelling with no toilet passes every check* |
+| **§9.4 returns a set of findings, not a verdict** — each with a severity, a Brief field and a Homeowner-facing message. All six messages are Azerbaijani per `homeowner-surface.md` §2, so this is the same **locale dimension** already owed on the 38 rule messages and should land as one schema change, not two | whoever next holds `rules.json` |
+| `efficiency` is unused where a `target_area` is stated (§5 rung 1), because the partition footprint it stood in for is measured | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
+| **Whether one two-part `hall` covers the 16.7 % of dwellings with two circulation spaces** (§3.1). ADR 0014 says an L reaches a wing; nobody has checked it against the conversion, and ADR 0013 shows the right k rising with the programme — k = 2 is 18.9 % at six named rooms and 26.0 % at nine | *Re-measure the conversion at two rectangles per Room*, which is already re-fitting at two |
 
 ---
 
@@ -521,5 +742,18 @@ says so.
 - **No set-wise zoning.** Pairwise wishes and vetoes only (§4).
 - **Occupancy to bedroom count has no authority behind it** (§7), and is marked as
   such rather than cited.
-- **The band's numbers do not exist yet** (§9.3). Until they do, a Plan can pass
-  all 38 rules with a room several times the size anyone would build it.
+- ~~**The band's numbers do not exist yet**~~ — **closed.** `room-area-bands.md`
+  §6.1 measures `k` per type and `absolute_cap` per type, and §9.4 bound 6 reads
+  them.
+- **Two disjoint circulation Rooms cannot be expressed.** §3.1 fixes the count at
+  one and ADR 0014 gives it two rectangles, so an L is reachable and a lobby plus a
+  detached corridor is not. The case is bounded rather than dismissed: circulation
+  that does not touch has to be joined *through a room*, which
+  `zone.no_social_transit` and `circ.no_private_transit` already discourage — so
+  the unreachable shape is largely the one the bar would reject anyway. It is
+  likeliest to bind at the top of C13's band, and the measurement is handed on in
+  §12.
+- **§9.4 bound 6 is a point estimate, not an interval.** Its threshold divides by
+  the partition footprint, and only that footprint's mean and p50 have been
+  published. Until p5 and p95 land, the refusal and the warning coincide and both
+  sit on one number.
