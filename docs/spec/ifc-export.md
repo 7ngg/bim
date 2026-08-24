@@ -24,9 +24,10 @@ a round-trip. C2 promises only that the engine will not *preclude* a Revit
 round-trip; §11 records what that promise costs and where it is paid.
 
 **What the product may claim:** an IFC4 file that opens in any BIM tool, with real
-walls carrying a real material build-up, spaces with area quantities in a named
-convention, and typed doors and windows — a starting point for take-off and for
-continued design.
+walls carrying a real material build-up, spaces carrying **ten exact quantities** —
+areas, perimeters, wall areas and volume — under a **named area convention and a
+named vertical datum**, and typed doors and windows. A starting point for take-off
+and for continued design.
 
 **What it may not claim:** a permit set (C8), a thermal or energy model (§11), a
 certified round-trip, or LOD above 200–250.
@@ -40,9 +41,13 @@ conceptual BIM model"*; **Finch** has no IFC at all and its RVT export supplies
 *"generic wall types"* with a documented manual-swap workflow; Snaptrude's,
 Synaps's and Digital Blue Foam's IFC claims are absent from their own
 documentation. The gap we can actually occupy is not fidelity of geometry — it is
-that **our walls are not generic**: every layer thickness traces to an
-Azerbaijani document with a `conf` flag, and the quantity attached to every space
-names its measurement convention. §7 and §8 are where that shows up in the file.
+that **our walls are not generic and our quantities are not estimates**: every layer
+thickness traces to an Azerbaijani document with a `conf` flag, every space quantity
+is exact because the model is integer millimetres, and both conventions those
+numbers measure to are declared inside the file. §7 and §8 are where that shows up.
+
+Note what the benchmark's own words concede — *"a starting point to generate take
+offs and estimates"*. **Estimates** is the word §8 is aimed at.
 
 ## 2. Schema, model view, and the header
 
@@ -80,6 +85,13 @@ bite reach back into the exporter. From the RV scope definition:
 - **Swept solids are allowed.** `Body SweptSolid Geometry` — *"using extruded
   solid geometry or revolved solid geometry"* — is in scope, alongside
   tessellation. We are not forced to triangulate.
+- **And the swept profile may be arbitrary.** RV1.2 carries four swept-solid
+  templates — `PolyCurve`, `ParameterizedProfile`, `CompositeCurve`, `Composite` —
+  and the first names `SweptArea = IfcArbitraryClosedProfileDef,
+  IfcArbitraryProfileDefWithVoids` with `OuterCurve = IfcIndexedPolyCurve`. A
+  concave profile is in scope, and this is quoted rather than assumed. → §6.1.
+  Note which entity the view **prescribes** for the curve: §11's one named Revit
+  risk is not avoidable inside RV.
 - **No Booleans.** *"all other geometric models are out of scope of the IFC4
   Reference View, in particular Boolean operations required for Constructive Solid
   Geometry CSG."* → §5.
@@ -204,8 +216,9 @@ boxes — the pieces beside, above and below each opening.
 - A **cased opening** (`CONTEXT.md`) is an `IfcOpeningElement` with no filling
   element — not an `IfcDoor` with a null leaf.
 
-Opening geometry is owed by *Opening placement rules* for the plan dimensions and
-by *The Plan has no vertical dimension* (§12) for the rest.
+Opening geometry is owed by *Opening placement rules* for the plan dimensions.
+The vertical half is **no longer owed** — catalogue `H`, the head datum and the
+derived sill are all shipped profile data, and §12 says where each is read from.
 
 ## 6. Spaces
 
@@ -215,12 +228,68 @@ by *The Plan has no vertical dimension* (§12) for the rest.
 | `Name` | the **canonical ergonomic key** — `bedroom_double`, `wc` |
 | `LongName` | the **`AZ` display label** — `yataq otağı`, `ayaqyolu` |
 | `Description` | absent |
-| `Body` | `SweptSolid`, the Space polygon extruded to storey height (§12) |
+| `Body` | `SweptSolid`, **one** `IfcExtrudedAreaSolid`, the Space polygon extruded `h_clear` (§12) |
 | `FootPrint` | the Space polygon |
 
 The Space polygon is the one ADR 0010 defines: bounded by **finished** inner
 faces. The `Body` and `FootPrint` are that polygon and nothing else, which is what
 makes `NetFloorArea` exact rather than adjusted on export (§8.4).
+
+**`h_clear`, not storey height.** This sentence read *"extruded to storey height"*
+until ADR 0012 **deleted `h_storey`**, at which point it named a quantity the model
+no longer has — and named it for the one entity whose height is least ambiguous. A
+room is floor to finished ceiling, which is `h_clear` and nothing else. Wall bodies
+are `h_clear` too (ADR 0012), so Spaces and walls are **coplanar top and bottom**:
+the file is one slab of rooms and walls at a single height, with no `IfcSlab` and no
+`IfcRoof` above either.
+
+### 6.1 A Space is one or two rectangles, and still one extrusion
+
+ADR 0014 makes a Space `erode(⋃ parts, t_int/2)` — a rectilinear polygon with at
+most one reflex corner, exact on integer millimetres. The `Body` stays **one**
+`IfcExtrudedAreaSolid` over **one** `IfcArbitraryClosedProfileDef`. An L is one
+closed profile swept once; no Boolean appears, which is the restriction Reference
+View actually carries (§2.1).
+
+**Reference View permits this, and it is verified rather than assumed.** RV1.2's
+`Body SweptSolid PolyCurve Geometry` concept template, verbatim:
+
+```
+Items                            = IfcExtrudedAreaSolid, IfcRevolvedAreaSolid
+Items[1..n].SweptArea            = IfcArbitraryClosedProfileDef, IfcArbitraryProfileDefWithVoids
+Items[1..n].SweptArea.OuterCurve = IfcIndexedPolyCurve
+```
+
+ADR 0014 refused to claim this and handed it here. It is now claimed, from the
+primary source.
+
+**The alternative — one extrusion per Part — is refused, and §5 is not a precedent
+for it.** A wall with openings *cannot* be one profile without a Boolean, so its
+decomposition into pieces is **forced**; a Space's is **free**. Two abutting solids
+share a face, and viewers commonly draw a seam along it — a line through the middle
+of a room that is not a wall, which is §11's part-pair failure arriving through
+geometry instead of through boundaries. An `IfcSpace` is a spatial element and a
+room is one volume; splitting it would publish the solver's decomposition, which is
+an implementation artefact and no part of the design.
+
+> **The rectangles this was weighed against do not exist.** ADR 0014 framed the
+> arbitrary profile as a risk taken *against the rectangles §5 leans on*. §5 leans
+> on no `IfcRectangleProfileDef`: the entity census of the authored model in the
+> export research is **12 `IfcArbitraryClosedProfileDef`, 13 `IfcIndexedPolyCurve`,
+> zero `IfcRectangleProfileDef`** — `add_wall_representation` builds an arbitrary
+> closed profile for a plain rectangular wall. **An L profile introduces no new
+> entity type**, and the unconfirmed `IfcIndexedPolyCurve`-versus-`IfcPolyline`
+> Revit risk of §11 already sits on every wall in the file. The concave Space adds
+> nothing to it, and RV's own template *mandates* `IfcIndexedPolyCurve`, so it is
+> not avoidable inside this view in any case.
+
+**Author it with `geometry.add_slab_representation`**, which the export research
+verified producing `SweptSolid` / `IfcExtrudedAreaSolid` from an arbitrary polyline
+with a correctly unit-converted profile. `add_wall_representation` must not be
+abused for Spaces.
+
+`FootPrint` is the same polygon, so it is concave too, and `NetFloorArea` stays
+exact by construction because the polygon **is** the area.
 
 **Two vocabularies, two fields, on purpose.** `Name` is machine-stable, region-free
 and survives a profile change; `LongName` is what a human reads and matches the
@@ -287,21 +356,122 @@ so the principle is a test rather than a comment.
 
 ### 8.2 Spaces
 
+**The rule, which is §8.1 one level down.** `Qto_SpaceBaseQuantities` has thirteen
+quantities and this file used to name four, leaving nine in neither the written set
+nor the omission register — forgotten rather than declined, which is the one state
+§8.5 exists to make impossible. The rule that decides all thirteen:
+
+> **Write a quantity when IFC4's definition names the same plane and the same
+> exclusions our model computes to. Omit it when the definition names a plane or a
+> convention we do not have — and register the omission.**
+
+It is applied per quantity below rather than per intuition, and it does not sort by
+`Gross`/`Net`: `GrossPerimeter` is written and `GrossVolume` is not.
+
 | Set | Property | Value |
 |---|---|---|
-| `Pset_SpaceCommon` | `Reference` | canonical ergonomic key |
-| | `IsExternal` | `FALSE` |
+| `Pset_SpaceCommon` | `IsExternal` | `FALSE` |
+| | `NetPlannedArea` | the Room's `target_area`, m² — §8.2a |
+| | `Reference` | **not written** — §8.5 |
+| | `GrossPlannedArea`, `PubliclyAccessible`, `HandicapAccessible` | **not written** — §8.5 |
 | `Qto_SpaceBaseQuantities` | `NetFloorArea` | Space polygon area, m² |
-| | `NetPerimeter` | Space polygon perimeter |
-| | `Height`, `NetVolume` | §12 |
-| | `GrossFloorArea` | **not written** |
+| | `GrossPerimeter` | Space polygon perimeter |
+| | `NetPerimeter` | that perimeter **less every hosted opening's structural width** |
+| | `Height` | `h_clear` — §8.2b |
+| | `NetVolume` | `NetFloorArea` × `h_clear`, exact |
+| | `GrossWallArea` | `GrossPerimeter` × `h_clear` |
+| | `NetWallArea` | that, less Σ structural `W × H` of the Space's hosted openings |
+| | `GrossCeilingArea`, `NetCeilingArea` | = `NetFloorArea`; flat ceiling, no interior elements |
+| | `GrossFloorArea`, `GrossVolume` | **not written** — §8.5 |
+| | `FinishFloorHeight`, `FinishCeilingHeight` | **not written** — §8.5 |
 
-`GrossFloorArea` is omitted deliberately, per *Area measurement convention*: it
-would require attributing half of each bounding partition to the space, which is a
-different convention from the one the drawing quotes and the one the acceptance
-bar gates on. A quantity that disagrees with the room tag beside it is the exact
-defect ADR 0010 exists to prevent, arriving through the quantity set instead of
-through annotation.
+Ten written where there were four. Every one is **exact**, not estimated, for the
+same reason §8.3 gives on walls: the model is integer millimetres. This is the part
+of the file a take-off tool actually reads, and the market benchmark ships a thinner
+set than this.
+
+**`NetPerimeter` was specified wrong and is corrected here.** It read *"Space
+polygon perimeter"*, but IFC4 defines `NetPerimeter` as excluding *"those parts of
+the perimeter that are created by virtual boundaries and openings (like doors)"*.
+The polygon perimeter is `GrossPerimeter` — *"at the outer contour"* — and a Space
+has no thickness, so the outer contour is the polygon. Both are now written, with
+the old number under its correct name. The subtraction is available exactly:
+openings are hosted and named by the Wall segment they pierce, which is
+Room-anchored (§11).
+
+**A concave Space changes none of this.** Perimeter is perimeter, area is area, and
+the reflex corner of an L adds faces rather than machinery — the same finding ADR
+0014 recorded for the dimension chains.
+
+#### 8.2a `NetPlannedArea` — the programme, beside the delivery
+
+IFC4: *"Total planned net area of the object. Used for programming the object."*
+That is `Room.target_area` exactly, and writing it is §8.1 permitted rather than
+strained — a Room's target is a claim about the **programme**, which the Brief
+states and `resolve` completes, not a claim about the building.
+
+It also pays a debt from *The whole of C2's user*, which found that
+`Room.target_area` and the delivered `Space` area **render identically** on the
+Homeowner surface, so the Brief reads as promising an area the plan may not deliver.
+IFC has a first-class place for the distinction the drawing does not: planned and
+achieved sit two properties apart on the same entity, and a Practitioner reads the
+delta without being told to. The Homeowner-facing half of that defect is still owed
+by its own holder; this closes the Practitioner half.
+
+**It is the *resolved* target, stated or defaulted.** `brief.md` makes
+`StatedRoom.target_area` optional and fills the gap from the standards table, so
+some of these numbers came from the Homeowner and some from `profiles.AZ`. The
+distinction is real and it does **not** travel: the Brief's `Assumption` list is the
+place it lives, and this file authors no annotation to carry it (§11). What is
+written is the number the engine actually solved against, which is what a
+Practitioner reading a delta needs. A reader who wants to know which targets the
+client chose asks for the Brief, and the product hands it over — C4 makes it the
+real interface.
+
+`GrossPlannedArea` is omitted — gross planned area is the enclosure convention
+`GrossFloorArea` is refused for, arriving through the programme instead.
+
+#### 8.2b `Height` is written, and the understatement is declared not hidden
+
+IFC4 defines `Qto_SpaceBaseQuantities.Height` as *"from base slab without flooring
+to ceiling without suspended ceiling."* `h_clear` is **finished floor to finished
+ceiling** — AzDTN 2.7-2 cl. 5.8's own quantity, *döşəmədən tavanadək*. In a real
+building those differ by the floor build-up, and ADR 0012 **refused to source one**.
+
+The number is written anyway, and the reasoning is ADR 0012's own, not a softening
+of §8.1. This model has **no floor build-up layer at all** — no `IfcSlab`, no
+`IfcCovering`, no floor in any layer set — so slab top and finished floor are the
+same plane *in this file*, and `Height = h_clear` is exactly true of the model.
+More decisively: **the geometry has already committed to it.** The Space body and
+every wall body are `h_clear` tall standing on elevation 0, so anyone who measures
+the model gets this number. Omitting the quantity would hide in the property set
+what the solid states plainly, and leave a take-off tool blank on every room in the
+file. ADR 0012 declared this exact understatement for wall bodies — *"it is an
+understatement, and the export says so rather than padding it"* — and a Space is
+the same solid decision seen from the other side.
+
+*Says so* is discharged by **§8.4a**, which declares the vertical datum on
+`IfcBuilding` the way §8.4 declares the area convention. A reader who needs slab to
+ceiling learns from the file that they were not given it.
+
+**`FinishFloorHeight` and `FinishCeilingHeight` are omitted, and the line between
+them and `Height` is the point.** They *are* the build-up: flooring thickness and
+suspended-ceiling depth. Writing `0` would assert the real building has no flooring
+and no dropped ceiling, which is a claim about the world rather than a description
+of the model, and a length has no third state any more than
+`Pset_WallCommon.LoadBearing`'s boolean does (§8.5). ADR 0012 keeps cl. 5.8's
+corridor allowance **inert** for precisely this reason: a dropped ceiling later is a
+data change, and `FinishCeilingHeight = 0` today would have to be un-said.
+
+**`GrossVolume` is omitted** on §8.2's oldest argument: it is `GrossFloorArea`'s
+partner, and a reader handed `GrossVolume` divides by `Height` and believes they
+have the gross floor area this file deliberately refuses. `GrossFloorArea` is
+omitted per *Area measurement convention* — it would require attributing half of
+each bounding partition to the space, a different convention from the one the
+drawing quotes and the acceptance bar gates on. A quantity that disagrees with the
+room tag beside it is the exact defect ADR 0010 exists to prevent, arriving through
+the quantity set instead of through annotation. Shipping its volume twin would let
+it in by the back door.
 
 ### 8.3 Walls
 
@@ -350,6 +520,33 @@ does not count partitions**, so a reader who assumes GIA reads every number in
 this file wrong by roughly the partition footprint — measured at **5.7 %** for the
 shipped `t_int` of 150.
 
+### 8.4a The vertical datum travels with the file too
+
+§8.4 exists because a `NetFloorArea` read without its convention is a silent
+mismatch. `Height` and `NetVolume` have exactly the same exposure — §8.2b writes
+`h_clear` into a quantity IFC4 defines from the **base slab** — so the same move is
+made on the vertical axis, in a second set on `IfcBuilding`:
+
+```
+BimEngine_VerticalConvention             (IfcPropertySet on IfcBuilding)
+  Datum               = "h_clear"
+  Source              = "AzDTN 2.7-2 cl. 5.8, döşəmədən tavanadək"
+  MeasuredTo          = "finished floor to finished ceiling"
+  IncludesSlab        = FALSE
+  IncludesFloorBuildUp = FALSE
+  IncludesSuspendedCeiling = FALSE
+```
+
+Not `Pset_`-prefixed, for §8.4's reason. Two sets rather than rows added to
+`BimEngine_AreaConvention`, because a vertical datum inside a set named
+*AreaConvention* is the same misfiling this pair of sections exists to prevent.
+
+`IncludesSlab = FALSE` is the sentence a reader needs and the one ADR 0012 wrote:
+**a wall body is floor-to-ceiling, not slab-to-slab.** Every height in this file
+understates the built dimension by a floor build-up that has no Azerbaijani source,
+and the file says so rather than padding it. There is no `h_storey` here to look
+for — ADR 0012 deleted it, and §12 records why.
+
 ### 8.5 Omission register
 
 Written into the spec so that "unknown" is distinguishable from "forgotten", and
@@ -363,7 +560,11 @@ asserted by §10.
 | `Pset_WallCommon.ThermalTransmittance` | `t_ext_total` is itself provisional and blocked on Baku's degree-day figure |
 | `Pset_SpaceCommon.HandicapAccessible` | *Brief schema and parsing contract* **refused** accessibility. `TRUE` is a C8 breach; `FALSE` is a claim about a plan nobody assessed |
 | `Pset_SpaceCommon.PubliclyAccessible` | single dwelling; the question is not modelled |
+| `Pset_SpaceCommon.Reference` | it would restate `IfcSpace.Name`, which already carries the canonical ergonomic key — ADR 0002's duplicated state arriving in a property set. IFC4.3 **deprecates** the property, so this is §2.3's move on a second entity: write the spelling that survives the schema migration |
+| `Pset_SpaceCommon.GrossPlannedArea` | the gross **enclosure** convention `GrossFloorArea` is refused for, arriving through the programme — §8.2a |
 | `Qto_SpaceBaseQuantities.GrossFloorArea` | wrong convention — §8.2 |
+| `Qto_SpaceBaseQuantities.GrossVolume` | `GrossFloorArea`'s partner: divided by `Height` it hands back the gross area this file refuses — §8.2b |
+| `Qto_SpaceBaseQuantities.FinishFloorHeight` / `FinishCeilingHeight` | they **are** the floor build-up and the dropped ceiling, and `0` asserts the building has neither. A length has no third state, exactly as `LoadBearing`'s boolean has none. ADR 0012 keeps cl. 5.8's corridor allowance *inert* so a dropped ceiling stays a data change — §8.2b |
 | `IfcSite.RefLatitude` / `RefLongitude` / `RefElevation` | the site is out of scope — §9.3 |
 | `IfcOwnerHistory` | optional in IFC4; nothing here has an authoring history to state |
 
@@ -452,7 +653,7 @@ issues**. Note `pytest` is a *runtime* dependency of this call — it imports
 upstream, found the hard way during the export research, and now pinned as a
 direct dependency in `requirements.txt` with that reason attached.
 
-**Engine layer.** Eleven assertions the schema check cannot make — with one
+**Engine layer.** Sixteen assertions the schema check cannot make — with one
 exception, measured rather than assumed:
 
 | # | Assertion | Catches |
@@ -466,11 +667,19 @@ exception, measured rather than assumed:
 | 7 | Per wall: Σ piece volumes = `Qto_WallBaseQuantities.NetVolume` | a wrong opening decomposition (§5) |
 | 8 | Per wall: `Qto…Width` = its `IfcMaterialLayerSet` total | geometry and layer set drifting apart |
 | 9 | Exterior walls: layer 1 lies interior-side | plaster on the outside (§4) |
-| 10 | `LoadBearing` and `HandicapAccessible` absent on every element | §8.1 asserted, not trusted |
+| 10 | Every row of §8.5's register is absent on every element it names — `LoadBearing`, `HandicapAccessible`, `PubliclyAccessible`, `Pset_SpaceCommon.Reference`, `GrossPlannedArea`, `GrossFloorArea`, `GrossVolume`, `FinishFloorHeight`, `FinishCeilingHeight`, the ratings, the `IfcSite` coordinates | §8.1 asserted, not trusted. The register is the assertion's input, so a row added to §8.5 and not to the exporter fails here |
 | 11 | `IfcSpace` count = Plan Space count; every `IsExternal` agrees with ADR 0003's ring | silent element loss |
+| 12 | Per `IfcSpace`: `Body` holds **exactly one** `IfcExtrudedAreaSolid`, over exactly one `IfcArbitraryClosedProfileDef` | §6.1's single-profile decision regressing to one extrusion per Part — which validates cleanly and draws a seam through the middle of a room |
+| 13 | Every Space body depth **and** every wall extrusion depth = `h_clear` | §6 and §12 contradicting each other again, which is the defect this section of the file was written to close |
+| 14 | Every Space profile is closed, rectilinear, on integer millimetres, with **at most one reflex corner** | ADR 0014's two-Part cap reaching the file. A third Part is a Proposal bug, and without this row it ships as valid geometry |
+| 15 | Per Space: `NetVolume` = `NetFloorArea` × `h_clear`; `GrossPerimeter` − `NetPerimeter` = Σ hosted opening structural widths; `GrossWallArea` − `NetWallArea` = Σ hosted opening structural `W × H` | the §8.2 quantity set drifting from the geometry it is computed from — assertion 7's argument applied to Spaces |
+| 16 | `Pset_SpaceCommon.NetPlannedArea` present on every Space and equal to its Room's `target_area`; `BimEngine_AreaConvention` and `BimEngine_VerticalConvention` both present on `IfcBuilding` | a file whose numbers are exact and whose convention is missing — §8.4 and §8.4a are only worth writing if their absence fails |
 
 Assertions 6 and 10 are the two that would otherwise ship: both produce a file
-that validates cleanly and says something untrue.
+that validates cleanly and says something untrue. **12, 13 and 14 are the same
+class**, added because ADR 0012 and ADR 0014 each moved a number this file had
+already written down: 13 catches the exact contradiction §6 carried for as long as
+it existed, and 14 catches a Space the Proposal should never have produced.
 
 **buildingSMART's online validation service is not a gate.** It is a network
 service and cannot sit in a per-candidate export path. It is the right instrument
@@ -519,6 +728,23 @@ separates one specific pair"* — **is** a 2nd-level space boundary with its
 materialises the relation exactly. If analysis-grade IFC ever enters scope, the
 data is there and this section is the only thing that changes.
 
+**And it derives over Room pairs, never Part pairs.** `CONTEXT.md`'s **Wall
+segment** already binds this and is the authority; it is repeated here because this
+paragraph is where someone would go looking for the derivation, and a Space is now
+one or two rectangles (§6.1). Two ways a part-pair walk goes wrong, and the second
+is not in `CONTEXT.md`:
+
+- Where a Room's two Parts meet there is an edge in the tiling and **no wall** —
+  nothing separates a Room from itself. A part-pair derivation emits a boundary
+  there, and it reads as a deliberate partition rather than a bug.
+- A wall running along the outside of an L faces **both legs of the same Room**.
+  That is **one** Wall segment — a Wall is the maximal straight run and does not
+  stop where the rooms behind it change — and a part-pair walk splits it into two
+  boundaries against one wall.
+
+So the failure is symmetric: part pairs invent a boundary that is not a wall *and*
+divide one that is.
+
 ### Element connectivity — none
 
 `IfcRelConnectsPathElements` is not in RV, and no major importer uses it to rebuild
@@ -542,32 +768,41 @@ be said honestly:
 
 Pricing the round-trip stays in the *Revit round-trip specifics* fog patch.
 
-## 12. What this export needs that the Plan does not have
+## 12. Where the vertical comes from
 
-**The Plan has no vertical dimension, and IFC cannot be authored without one.**
+**The Plan still has no Z, and IFC cannot be authored without one.** This section
+used to be a list of what the export was owed. ADR 0012 paid it, so it is now a
+list of where each vertical number is read from — and the answer is **two values,
+not four.**
 
-Every wall body is an extrusion and needs a height. Every space needs one for
-`Height` and `NetVolume`. Every window needs a sill height and every door a head
-height. The model supplies **none** of these: walls have thickness and no height,
-`CONTEXT.md`'s **Storey** is "the level a Plan's geometry sits on" and carries no
-storey height, and no ceiling or room height appears anywhere in
-`room-constraints.json`, `acceptance-bar.md` or `brief.md`.
+| Value | Source | Consumed by |
+|---|---|---|
+| `h_clear` — finished floor to finished ceiling | **Brief-stated**, defaulted from the profile, hard-bounded ≥ 2700 by AzDTN 2.7-2 cl. 5.8 | every wall body's extrusion depth; `IfcSpace.Body` depth; `Qto…Height`, `NetVolume`, `GrossWallArea`, `NetWallArea` |
+| per-opening structural `H` | the region profile's **opening catalogue**, `profiles.AZ.openings` | `IfcDoor` / `IfcWindow` geometry; both schedules in `annotation.md` |
 
-This is not confined to IFC. `annotation.md` already ships a **door schedule with a
-`Structural opening W × H` column** and a **window schedule with `Structural
-opening W × H` and `Sill height`** — three columns that cannot be filled from the
-model as it stands.
+Everything else that used to be listed here is **derived or deleted**:
 
-The vertical dimensions are owed by *The Plan has no vertical dimension, and three
-artefacts already assume one*. Until it resolves, this document names the inputs
-rather than inventing them:
+- **`h_storey` is deleted, not deferred.** AzDTN 2.7-2 prescribes no storey height,
+  and its two consumers were both empty: `IfcBuildingStorey` spacing is vacuous with
+  exactly one storey pinned at `Elevation = 0.0`, and wall extrusion height is a
+  *choice*, because this export authors **no `IfcSlab` and no `IfcRoof`** — nothing
+  sits on top of a wall in this file. ADR 0012 carries the full argument, including
+  why the lift table's 2,8 m is not a storey height.
+- **Sill heights are derived, not tabulated.** One datum,
+  `openings.head_datum_mm` = 2200, and `sill = head_datum − catalogue H`. The datum
+  is the balcony door's own catalogue head, taken because a balcony door and the
+  window beside it share a lintel. A sill is not a catalogue column: the same
+  opening sits at one height in a living room and another over a kitchen counter.
+- **The `Fall barrier` column is refused, not empty by accident.** The 1,2 m guarding
+  height is statutory and `verified`; its *trigger* depends on the drop below the
+  window, and v1 has one Storey at elevation 0 with `IfcSite` out of scope. Nothing
+  in the model distinguishes a ground-floor window from the same window eight floors
+  up, so the export evaluates it nowhere.
 
-| Input | Consumed by |
-|---|---|
-| `h_storey` — floor-to-floor | `IfcBuildingStorey` spacing; wall extrusion height |
-| `h_clear` — floor to ceiling | `IfcSpace` `Body` height, `Qto…Height`, `NetVolume` |
-| per-opening `H` and head height | `IfcDoor`/`IfcWindow` geometry; door schedule |
-| per-window sill height | `IfcWindow` placement; window schedule |
+Because a wall body and a Space body are both `h_clear`, they are **coplanar top and
+bottom**, and every height in the file understates the built dimension by a floor
+build-up with no Azerbaijani source. **§8.4a declares that on `IfcBuilding`** rather
+than leaving a reader to discover it.
 
 No number here is invented, defaulted or borrowed from an example file. §8.1 binds
 this document as much as it binds the file it describes.
@@ -585,9 +820,11 @@ this document as much as it binds the file it describes.
 | 5 | `IfcSpace.Name` = canonical key, `LongName` = `AZ` label — consumes the mapping, does not decide it |
 | 6 | Layer sets from the profile; **exterior winding is checked** |
 | 7 | **Write only what is known**; omissions registered in §8.5 and asserted in §10 |
-| 8 | `NetFloorArea` yes, `GrossFloorArea` no; convention carried on `IfcBuilding` in a **non-`Pset_`** set |
+| 8 | Ten of thirteen space quantities written, **all exact**, decided by one rule and not by `Gross`/`Net`; both conventions — area and vertical — carried on `IfcBuilding` in **non-`Pset_`** sets |
 | 9 | **Metres**, and integer-mm exactness is declared dead at this boundary |
 | 10 | `TrueNorth` only when stated; **never defaulted to 0**; no georeferencing ever |
-| 11 | **Third gate**, the IFC check — schema clean plus 11 engine assertions; not in `rules.json` |
-| 12 | **No annotation, no space boundaries, no connectivity** — each with its re-entry condition |
-| 13 | The Plan has **no Z**, three artefacts already assume one, and it is now ticketed |
+| 11 | **Third gate**, the IFC check — schema clean plus **16** engine assertions; not in `rules.json` |
+| 12 | **No annotation, no space boundaries, no connectivity** — each with its re-entry condition; boundaries derive over **Room pairs, never Part pairs** |
+| 13 | The vertical is **two values, `h_clear` and catalogue `H`** — `h_storey` deleted, sills derived, the fall-barrier trigger refused |
+| 14 | A Space is **one extrusion over one arbitrary closed profile**, concave or not — RV-verified, no Boolean, and **no new entity type**, because the walls already use one |
+| 15 | `NetPlannedArea` carries the Brief's **programme** beside the delivered area, which is the one place in this system the two are distinguishable |

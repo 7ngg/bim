@@ -204,6 +204,15 @@ as that profile, as against the rectangles §5 currently relies on. One line, an
 it belongs to `ifc-export.md`'s holder — do not read this paragraph as having
 cleared it.
 
+> ✅ **Cleared, and the comparison in it was wrong.** *What geometry an `IfcSpace`
+> actually gets* verified RV1.2's `Body SweptSolid PolyCurve Geometry` template
+> first-hand: `SweptArea = IfcArbitraryClosedProfileDef, IfcArbitraryProfileDefWithVoids`,
+> `OuterCurve = IfcIndexedPolyCurve`. **And §5 relies on no rectangles** — the
+> export research's entity census of the authored model is 12
+> `IfcArbitraryClosedProfileDef` and **zero** `IfcRectangleProfileDef`, because
+> `add_wall_representation` builds an arbitrary closed profile for a plain
+> rectangular wall. An L costs no new entity type. `ifc-export.md` §6.1.
+
 ## The corpus clean-up this ticket expected is refused
 
 Ticket 28 proposed erasing sub-500 mm features from corpus rooms before fitting

@@ -143,9 +143,14 @@ refused one number it was handed.
 
 ## Consequences
 
-- `ifc-export.md` §12 drops from four inputs to two, and §5's `IfcSpace.Body`
+- `ifc-export.md` §12 drops from four inputs to two, and **§6**'s `IfcSpace.Body`
   *"extruded to storey height"* is corrected to `h_clear`. A Space is
-  floor-to-ceiling; §5 and §12 contradicted each other inside one document.
+  floor-to-ceiling; §6 and §12 contradicted each other inside one document.
+  ✅ **Both landed** by *What geometry an `IfcSpace` actually gets*, which also
+  found that the correction was not one word: IFC4 defines
+  `Qto_SpaceBaseQuantities.Height` from the **base slab**, not the finished floor,
+  so this ADR's declared understatement had to be published in the file rather than
+  merely declared here — `ifc-export.md` §8.4a.
 - `annotation.md`'s three schedule columns and general note 4 are all fillable;
   the `Fall barrier` column is deliberately `—`.
 - `gate_check.py` grows a vertical section: 33 → **67 gates, all pass**. With
