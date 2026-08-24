@@ -8,10 +8,13 @@ assignee: tng
 blocked_by: [9, 10]
 writes:
   - prototype only — no shared artifact
-  - DECLARED ON RESOLUTION: docs/spec/homeowner-surface.md (new), and
+  - DECLARED ON RESOLUTION: docs/spec/homeowner-surface.md (new),
+    experiments/envelope-exposure/ (new, on master), and
     experiments/homeowner-surface/ on branch prototype/homeowner-surface.
     Nothing else was claimed at the time, so the concurrency rule held —
-    ticket 28's precedent.
+    ticket 28's precedent. experiments/envelope-exposure/ exists rather than
+    experiments/solver-toy/ precisely because 29 claims the latter; the probes
+    import it and never edit it.
 ---
 
 # Homeowner product surface

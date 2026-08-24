@@ -143,9 +143,11 @@ because §9.1 now makes that a question every dimensional rule has to answer.
 
 **"Dead from 7 rooms" is confounded with the envelope that 7 rooms selects.**
 
-Measured while re-solving the prototype's layouts at corpus-median exposure
-(`experiments/homeowner-surface/probe_exposure.py`, on branch
-`prototype/homeowner-surface`). Five seeds per cell; the cell counts how many
+Measured while re-solving the *Homeowner product surface* prototype's layouts at
+corpus-median exposure. The probes outlived the prototype and are on `master` at
+**`experiments/envelope-exposure/`** (the prototype itself stays on its branch);
+they import `solver-toy` and never edit it, since that directory is yours.
+Five seeds per cell; the cell counts how many
 produced a **Brief** at all — `make_brief`'s CP-SAT type assignment, which must
 satisfy H8 together with wet clustering and circulation. It is upstream of the
 solve, so this is not a timing result.
@@ -183,10 +185,17 @@ envelope *geometry* identical and varying only the edge ring's typing,
 `probe_diversity.py` measures how different six survivors of **one** Brief are —
 mean pairwise fraction of floor cells whose room kind differs:
 
-| n | detached | corpus_median |
-|---|---|---|
-| 5 | 0.517 | **0.283** |
-| 7 | 0.757 | **0.563** |
+| n | detached | corpus_median | ratio |
+|---|---|---|---|
+| 5 | 0.522 (0.512–0.531) | 0.282 (0.267–0.293) | **0.54×** |
+| 7 | 0.749 (0.731–0.782) | 0.549 (0.542–0.558) | **0.73×** |
+
+⚠️ **Quote the ratio, never a single figure.** `SolveConfig` defaults to
+`workers = 8` and stops on wall-clock, and multi-worker CP-SAT is not
+reproducible under a wall-clock deadline even with a fixed `random_seed` — two
+runs of a single-pass version returned **0.283 and 0.263** for one cell. Three
+repeats, range reported. The two exposures' ranges do not overlap at either room
+count, so the gap is solid and the third decimal is not.
 
 H8 pins habitable rooms to the exterior run, so the fewer exterior edges, the
 fewer arrangements are distinguishable. See the *Variant generation and ranking*

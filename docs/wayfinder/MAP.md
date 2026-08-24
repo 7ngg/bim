@@ -33,7 +33,7 @@ and that is the failure this table exists to catch.
 | Component | | Owed by |
 |---|---|---|
 | Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ✅ its *one box per Room* premise is **weighed and reversed**: a Space is **one or two rectangles** and the Proposal decides which — ADR 0014. ⚠️ ADR 0001's erosion is untouched and is now **asserted** rather than inherited, but `acceptance-bar.md` §9's sliver *argument* is dead and replaced |
-| Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*, **now handed a measured table and a correction**: Brief feasibility over exposure × room count is **non-monotonic** — single-aspect fails at 6, 7, 8, mostly at 9 and **succeeds at 10**, where `envelope_for` switches L → U — so *"dead from 7 rooms"* is measuring the envelope n selects, not n. ⚠️ And **n = 6 fails at corpus-median exposure too**, which is the case the toy's own comment calls typical, so H8 is not only a single-aspect problem. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
+| Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*, **now handed a measured table and a correction**: Brief feasibility over exposure × room count is **non-monotonic** — single-aspect fails at 6, 7, 8, mostly at 9 and **succeeds at 10**, where `envelope_for` switches L → U — so *"dead from 7 rooms"* is measuring the envelope n selects, not n. ⚠️ And **n = 6 fails at corpus-median exposure too**, which is the case the toy's own comment calls typical, so H8 is not only a single-aspect problem — `experiments/envelope-exposure/`. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
 | Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus*, now also handed a **labelling defect in `swiss_fit.json`**: `fit_rects.py` labels from the unfiltered list and **1.23 % of fitted dwellings are off by one**, and a second defect: **`why_k.clean()` does not do what it says** and its 58.3 % / 31.03 % clean-up figures are an artefact. ⚠️ **The 31 % conversion drop is re-owed** — it was paid for a one-rectangle constraint ADR 0014 removed — *Re-measure the conversion at two rectangles per Room* |
 | Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts* |
 | Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | — |
@@ -84,6 +84,7 @@ order** — the done-test decides order:
 | `docs/spec/openings.md` | 16 — **sole claimant now.** 39 closed without creating it: the catalogue-versus-instance line is in `CONTEXT.md`'s **Opening** and **Head datum** terms and in the profile data, so 16 inherits it |
 | `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see, and **now holding a second parse-time check**: a Brief whose stated room areas exceed its stated total survives §9 today |
 | `docs/spec/homeowner-surface.md` | **new, no claimant.** Created by 13, which declared it on resolution rather than taking it quietly — nothing else was claimed at the time |
+| `experiments/envelope-exposure/` | **new, no claimant.** Also 13's, and deliberately *not* `experiments/solver-toy/`, which 29 claims: the two probes import that directory and never edit it. Their findings are quoted on the Envelope row and on 26 |
 | `docs/spec/ifc-export.md` | 41 — sole claimant. New, and it takes over a row that had **no ticket at all** |
 | `experiments/rectangularise/`, `docs/research/rectangularisation.md` | 40, 27 — 40 rewrites the fit, 27 renders its output. **Sequence them**: rendering a conversion that is about to change is wasted |
 
@@ -653,8 +654,10 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   produced two findings that outlive the prototype: H8's failure over exposure × room
   count is **non-monotonic** and therefore confounded with `envelope_for(n)`'s shape
   choice (handed to *H8 and the single-aspect flat*), and the flat-versus-house
-  **diversity gap is caused by H8 directly**, measured at 0.517 → 0.283, which the
-  aspect-ratio axis *Variant generation and ranking* proposes does not address.
+  **diversity gap is caused by H8 directly** — 0.54× at 5 rooms with the envelope
+  geometry held identical — which the aspect-ratio axis *Variant generation and
+  ranking* proposes does not address. Both probes are on `master` at
+  `experiments/envelope-exposure/`; the prototype stays on its branch.
 
 
 ## Not yet specified
@@ -685,14 +688,18 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   ⚠️ **And the asymmetry now has a number, and a second cause the proposed patch does
   not reach.** Holding the envelope *geometry* identical and varying only the edge
   ring's typing, six survivors of one Brief differ by (mean pairwise fraction of floor
-  cells whose room kind differs) **0.517 detached against 0.283 corpus-median at 5
-  rooms**, and **0.757 against 0.563 at 7** — a flat's variants are 26–45 % less
-  different than a house's *before any diversity axis is handed out*. The mechanism is
+  cells whose room kind differs) **0.54× at 5 rooms and 0.73× at 7** going from
+  detached to corpus-median — a flat's variants are roughly **half** as different as
+  a house's at 5 rooms, *before any diversity axis is handed out*. ⚠️ **Quote the
+  ratio, not the figure**: the solver stops on wall-clock at 8 workers and is not
+  reproducible, and a single-pass version of the probe returned 0.283 and 0.263 for
+  one cell; over three repeats the two exposures' ranges do not overlap, which is what
+  makes the gap solid. The mechanism is
   **H8**: habitable rooms are pinned to the exterior run, so fewer exterior edges means
   fewer distinguishable arrangements. Adding an aspect-ratio axis to stated Envelopes
   therefore closes at most half of this, and the half it does not close is the half that
-  applies to every flat. `experiments/homeowner-surface/probe_diversity.py` on branch
-  `prototype/homeowner-surface`.
+  applies to every flat. `experiments/envelope-exposure/`, which imports `solver-toy` rather than
+  editing it.
   **Sharpened a third time by *Homeowner product surface*:** the wait screen is settled —
   survivors stream in and the **reject count is shown**, because C6's *generate many,
   reject most* is the product story and someone who has watched fourteen examined and
