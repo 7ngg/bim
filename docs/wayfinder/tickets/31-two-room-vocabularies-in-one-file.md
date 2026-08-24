@@ -153,7 +153,7 @@ in front of the person who asked for the room*, which is a stiffer test than
 keying a minimum off it.
 
 ⚠️ The prototype's names are **unsourced placeholders** and are marked as such in
-`experiments/homeowner-surface/README.md`. Do not lift them: the C8 discipline
+`experiments/homeowner-surface/README.md`, on branch `prototype/homeowner-surface`. Do not lift them: the C8 discipline
 that caught *The Azerbaijani region profile* applies — a plausible name set
 published without a source is exactly the failure mode that ticket exists to
 warn about.

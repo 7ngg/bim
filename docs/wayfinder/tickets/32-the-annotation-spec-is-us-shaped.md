@@ -140,8 +140,8 @@ points at a document the Homeowner never sees.**
 against two independent standards families and is right for the sheet.
 
 On the Homeowner's eager SVG preview it degrades to a bare number pointing at a
-schedule that is filtered out of that presentation. **Reproduced**: in
-`experiments/homeowner-surface/`, a 1,85 m-wide bedroom in a real solved layout
+schedule that is filtered out of that presentation. **Reproduced**: in `experiments/homeowner-surface/`
+on branch `prototype/homeowner-surface`, a 1,85 m-wide bedroom in a real solved layout
 overflows its tag.
 
 The audience split is what creates this — the fallback and its target are on
