@@ -147,3 +147,36 @@ Note also that k is inside the **engine room count** ADR 0013 hard-gates at
 3–10, so a `resolve` that over-invents circulation spends the ceiling on
 corridors and refuses Briefs that would otherwise have fitted. One per type is
 the frugal reading as well as the correct one.
+
+---
+
+## Handed in by *Homeowner product surface*
+
+**A stated Brief can contradict itself on its face and survive §9 entirely.**
+
+You already hold §9.4's third and fourth bounds. This is a fifth check and it is
+cheaper than any of them, because it needs no standards table at all.
+
+§9.4 compares the sum of **realisable ergonomic minima** against `target_area`.
+§9.2's ladder fills *silent* rooms from `market_default`, then the corpus median.
+**Neither path ever compares the Homeowner's own stated `Room.target_area` values
+against their own stated `target_area`.**
+
+Worked, from the prototype: rooms stated at 18 + 8 + 12 + 11 + 11 + 4,2 m² =
+**69,2 m²** inside a stated total of **45 m²**. That Brief clears all three of
+§9.1's hard errors, clears §9.4's hard line (realisable minima are far below 45),
+clears the warn line, generates, and **dies as zero survivors** — where
+`acceptance-bar.md` §11 then explains it in terms of *ergonomic minima*, a set of
+numbers the Homeowner never typed and cannot act on.
+
+Two things make this yours rather than a UI concern:
+
+- It is the same shape as the bound you are already fitting — arithmetic at parse
+  time, naming the field whose edit resolves it — and it should be the **same
+  function**, so §11's "the two produce the same sentence" keeps holding.
+- **The severity is not obvious and is a real decision.** Stated-versus-stated is
+  a contradiction rather than a shortfall, so it may deserve `hard` where the
+  ergonomic bound is hard and the market bound only warns. But §9.5 forbids
+  auto-repair and the partition footprint (~5,7 % at `t_int` 150) means an exact
+  equality is wrong too — the stated sum is a *lower* bound on the interior, not
+  an equal.

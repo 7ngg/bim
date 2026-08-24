@@ -125,3 +125,35 @@ Corroboration for the three-into-one gap you already hold: Swiss Dwellings has
 **no `HALL` or `LOBBY` subtype at all** — 53,295 `CORRIDOR` rooms absorb every
 one of them. So the corpus cannot distinguish the three either, and any mapping
 that needs to must come from the profile side.
+
+---
+
+## Handed in by *Homeowner product surface*
+
+**An Azerbaijani room-name table, and it exists nowhere in this repo.**
+
+The surface is Azerbaijani (`docs/spec/homeowner-surface.md` §2). The room tag,
+the Brief document and the room schedule all print a **name**, and
+`room-constraints.json` carries no display name for any ergonomic key in any
+language. `profiles.AZ.drawing.abbreviations_published` covers seven drawing
+abbreviations from AZS 21101-2010 Əlavə D and **zero room words** — that annex
+is explicit that abbreviating outside its list is forbidden, so the gap cannot be
+closed by abbreviating.
+
+**One name per ergonomic key, eighteen of them**, display-only in the sense
+`brief.md` §3 already establishes for `label` — the type stays the load-bearing
+thing.
+
+**It makes this ticket's own three-into-one gap worse, not better.** In English
+`hall` / `entrance_lobby` / `corridor` collapse plausibly. In Azerbaijani they do
+not: **`hol` and `dəhliz` are different rooms to a Baku buyer** — one is where you
+take your shoes off, the other is what you walk down — and `giriş holu` is a third
+thing again. So the mapping you build has to survive being *printed on a drawing
+in front of the person who asked for the room*, which is a stiffer test than
+keying a minimum off it.
+
+⚠️ The prototype's names are **unsourced placeholders** and are marked as such in
+`experiments/homeowner-surface/README.md`. Do not lift them: the C8 discipline
+that caught *The Azerbaijani region profile* applies — a plausible name set
+published without a source is exactly the failure mode that ticket exists to
+warn about.

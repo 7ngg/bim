@@ -126,3 +126,33 @@ larger: `t_int` is now **150 mm**, not 120. ADR 0004's collision complaint was a
 leaders. Do not restate this as a justification for anything — ADR 0010 records
 it as a side effect, and had the arithmetic pointed the other way the decision
 would be unchanged.
+
+---
+
+## Handed in by *Homeowner product surface*
+
+**The room tag has no Homeowner-audience fallback, and the fallback it does have
+points at a document the Homeowner never sees.**
+
+`annotation.md` §1 tags the room tag `both` and every schedule `practitioner`.
+`profiles.AZ.drawing.room_tag_fallback` resolves a tag that will not fit to
+**"room number + room schedule reference"** — a decision that is `verified`
+against two independent standards families and is right for the sheet.
+
+On the Homeowner's eager SVG preview it degrades to a bare number pointing at a
+schedule that is filtered out of that presentation. **Reproduced**: in
+`experiments/homeowner-surface/`, a 1,85 m-wide bedroom in a real solved layout
+overflows its tag.
+
+The audience split is what creates this — the fallback and its target are on
+opposite sides of it — so the fix belongs with whoever owns that split. Options
+the surface can live with, in order of how much they cost this spec: shorten to
+the name alone and drop area and clear dims; scale the tag; leaf the tag outside
+the Space with a leader; or promote a minimal room schedule to `both`.
+
+**Related, and it is yours too:** the surface is now **Azerbaijani**
+(`docs/spec/homeowner-surface.md` §2), which is the same direction this ticket is
+already pulling `annotation.md`. The preview must use the decimal comma and
+**must not group thousands** — `profiles.AZ.drawing.thousands_separator` is
+`null` because CLDR gives `.` as the `az` group separator, so a grouped `4.400`
+reads as a decimal.

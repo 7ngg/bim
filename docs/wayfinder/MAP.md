@@ -41,14 +41,14 @@ and that is the failure this table exists to catch.
 | DXF export | settled | — |
 | Proposal contract — what a source emits and the solver consumes | partial | *The Proposal cannot express zoning* — whether the contract can carry what plans are actually judged by. ✅ **Unblocked**: §1 moved to **1–2 boxes per Room** (ADR 0014) and is settled, so 30 now amends a contract that has stopped moving |
 | Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
-| Acceptance bar — 38 predicates (**39 once `dim.leg_join` lands**), enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists. ⚠️ Every dimensional rule now has to declare **which part it binds** — ADR 0014 binds minima and aspect per part, area per Room — and one new soft rule, `dim.prefer_single_part`, is owed to `rules.json`'s holder |
-| Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*, now also handed the silent-type medians and the **`hall` / `entrance_lobby` / `corridor` three-into-one gap**. ✅ its thickness is now measured-vindicated: 150 lands **4 mm from the corpus-optimal 146** |
-| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three*. ✅ the room tag and room schedule are **settled for a concave Space** (ADR 0014) and the Drawing check needed **no new predicate** — chains measure wall faces, not rooms |
-| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme* |
+| Acceptance bar — 38 predicates (**39 once `dim.leg_join` lands**), enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists. ⚠️ Every dimensional rule now has to declare **which part it binds** — ADR 0014 binds minima and aspect per part, area per Room — and one new soft rule, `dim.prefer_single_part`, is owed to `rules.json`'s holder — as is a **locale dimension on every Homeowner-facing message**, since §11 requires a plain-language message per rule, all 38 are English, and the surface is now Azerbaijani: a schema change, not a translation pass |
+| Standards table — region-invariant ergonomic floor + the `AZ` profile | partial | **the file holds two unmapped room taxonomies** — *Two room vocabularies in one file, and nothing maps between them*, now also handed the silent-type medians, the **`hall` / `entrance_lobby` / `corridor` three-into-one gap**, and an **Azerbaijani room-name table that exists nowhere** — which makes that same gap *harder*, because `hol` and `dəhliz` are different rooms to a Baku buyer and the mapping now has to survive being printed in front of the person who asked for the room. ✅ its thickness is now measured-vindicated: 150 lands **4 mm from the corpus-optimal 146** |
+| Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*, which now also holds a defect the audience split creates: **the room tag's fallback is a room number plus a `practitioner` schedule**, so on the Homeowner preview it points at a document that presentation filters out — reproduced at a 1,85 m bedroom. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three*. ✅ the room tag and room schedule are **settled for a concave Space** (ADR 0014) and the Drawing check needed **no new predicate** — chains measure wall faces, not rooms |
+| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme*, which now also holds a **fifth check needing no standards table at all**: nothing compares a Homeowner's own **stated room areas** against their own **stated total**, so 69,2 m² of rooms inside a stated 45 m² clears every hard error and dies after a full generate cycle |
 | Area measurement convention — what a m² means everywhere it travels | settled | — |
 | **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not. ✅ its vertical hole is **closed** by ADR 0012 — §12 drops from four inputs to two — but ⚠️ **§5 and §12 contradict each other**: §5 extrudes `IfcSpace.Body` to *storey height* where §12 assigns `h_clear`, and a Space is floor-to-ceiling. ✅ **No longer unowned** — *What geometry an IfcSpace actually gets* takes it, and ADR 0014 adds to it: a Space is now **concave**, so whether Reference View accepts an `IfcArbitraryClosedProfileDef` as its swept profile is a live question ADR 0014 explicitly refuses to answer |
 | **Vertical dimensions** — the height the model has never had | settled | `docs/research/vertical-dimensions.md`, ADR 0012, gates 33 → **67**. **One datum, `h_clear`;** `h_storey` **deleted** — AzDTN 2.7-2 publishes none, and its only two consumers were empty. ⚠️ the ticket's premise was **half false**: two of the four inputs were already shipped and `verified`. ⚠️ **the `Fall barrier` trigger is refused, not chosen** — it turns on the drop below the window, and v1 has one Storey at elevation 0 with no site, so the model cannot evaluate it at all |
-| **Homeowner product surface** — the whole of C2's user | **open** | nothing written — *Homeowner product surface*, **now unblocked**: the Brief is settled and hands it an `engine_view` block to read rather than recompute |
+| **Homeowner product surface** — the whole of C2's user | settled | `docs/spec/homeowner-surface.md`, prototype on branch `prototype/homeowner-surface`. **A living document in Azerbaijani**, `both` set **plus a fixture render**. ⚠️ **The surface language had never been decided by anyone** — `profiles.AZ.drawing.language`'s own note scoped itself to the builder — and deciding it owes an **Azerbaijani room-name table that exists nowhere** and a **locale dimension on all 38 rule messages**. ⚠️ It found two defects in settled documents: a **stated Brief can contradict itself and survive parse**, and **`Room.target_area` and `Space` area render identically** so the Brief reads as promising an area the plan does not deliver |
 | **Room-count promise** — the band v1 claims, and what it refuses | settled | ADR 0013, `experiments/room-count-envelope/`. **Gate 3–10 engine rooms, promise 1–4 otaq** — two numbers in two units, on purpose. ⚠️ **C13's "Brief-named" was false**: no Brief names a corridor, and 93.5 % of real dwellings have one. A Homeowner naming 10 rooms is out of band **99.8 %** of the time. ⚠️ The band's *edges* were also wrong — per-`n` coverage puts **n = 2 as the worst regime below 11**, worse than the n = 10 the old band included, and **n = 1 retrieves better than n = 4**. ✅ **No longer unowned**: all three of ADR 0013's handoffs are placed — the one-rectangle premise is settled by ADR 0014, §9.4's third and fourth bounds and the circulation-count rule sit on *What the engine says when the Envelope is bigger than the programme*, and the `habitable` flag on *Two room vocabularies in one file*. What is left on this row is a **correction to the record**, not work |
 
 ## Notes
@@ -77,12 +77,13 @@ order** — the done-test decides order:
 |---|---|
 | `CONTEXT.md` | 31 — **sole claimant again**, 21 and 28 closed |
 | `data/standards/room-constraints.json` | 16, 31, 32 |
-| `data/acceptance/rules.json` | 16, 20, 26 |
+| `data/acceptance/rules.json` | 16, 20, 26 — and whichever of them moves first inherits the **message locale** schema change |
 | `docs/spec/acceptance-bar.md` | 26 — **sole claimant now**, 28 closed |
 | `docs/spec/proposer.md` | 23, 30 — 28 closed, and **30 is unblocked**: §1 has moved and is settled |
 | `docs/spec/annotation.md` | 32 — **sole claimant now**, 28 closed |
 | `docs/spec/openings.md` | 16 — **sole claimant now.** 39 closed without creating it: the catalogue-versus-instance line is in `CONTEXT.md`'s **Opening** and **Head datum** terms and in the profile data, so 16 inherits it |
-| `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see |
+| `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see, and **now holding a second parse-time check**: a Brief whose stated room areas exceed its stated total survives §9 today |
+| `docs/spec/homeowner-surface.md` | **new, no claimant.** Created by 13, which declared it on resolution rather than taking it quietly — nothing else was claimed at the time |
 | `docs/spec/ifc-export.md` | 41 — sole claimant. New, and it takes over a row that had **no ticket at all** |
 | `experiments/rectangularise/`, `docs/research/rectangularisation.md` | 40, 27 — 40 rewrites the fit, 27 renders its output. **Sequence them**: rendering a conversion that is about to change is wasted |
 
@@ -612,6 +613,42 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   re-established properly — and they are listed on the ticket rather than quietly
   dropped.
 
+- [Homeowner product surface](tickets/13-homeowner-product-surface.md) — **a
+  living document in Azerbaijani, and the two things that decided it were
+  already in the repo.** `docs/spec/homeowner-surface.md`, prototype on branch
+  `prototype/homeowner-surface` over **six real solved layouts** with a headless
+  check on door-reachability and every clear dimension against its shipped
+  ergonomic floor. The spine is a **document, not a wizard** — `brief.md` §1
+  makes an edit *literally* a re-resolution, so a wizard would need step state
+  `resolve` does not have. ⚠️ **The surface language had never been decided**:
+  `profiles.AZ.drawing.language` is `az`/`verified` and its own note says *"the
+  builder, not the Homeowner, reads the drawing"* — scoping itself to the sheet
+  and leaving C2's user unaddressed. It is Azerbaijani, and that is the one
+  decision here with real downstream cost. ✅ **The fixture decision reversed on
+  the data**: `ergonomic.fixtures_mm` ships **fourteen footprints as `verified`**
+  (AD M Appendix D, OGL) and **all eighteen** floors are derived from a *named
+  packing* of them, so drawing furniture draws the arithmetic that already gates
+  the room — it asserts nothing new and is the strongest legibility lever item 5
+  was asking for. **No 3D**, though ADR 0012 has just made one possible. The
+  **acknowledge control must not look or behave like the edit control**, because
+  `brief.md` §6 makes one mutating and one not, and a uniform "OK" would swap
+  `area.invented_envelope_hard` for a warning invisibly. ⚠️ **Two defects in
+  settled documents, both found by putting two numbers on one screen**: §9.4
+  compares realisable *ergonomic minima* against `target_area` and §9.2 fills
+  silent rooms, but **nothing compares the Homeowner's own stated room areas
+  against their own stated total** — 69,2 m² of stated rooms inside a stated
+  45 m² clears every hard error and dies after a full generate cycle; and
+  **`Room.target_area` and `Space` area render identically**, a request and a
+  result in one typeface, which §9.3's two-sided band makes the *normal* case
+  rather than drift. ⚠️ **The room tag has no Homeowner-audience fallback** —
+  `room_tag_fallback` is a room number plus a **`practitioner`** schedule.
+  ✅ ADR 0013's refusal-voice question is answered: **two forms**, otaq when the
+  excess is otaq, **rooms the Homeowner listed** when it is not, never a
+  converted number. ⚠️ The prototype's plans are **not solves of its own
+  Briefs**, so the second defect is **observed, not measured** — it follows from
+  `CONTEXT.md`'s Room/Space split regardless. ⚠️ Whether a Homeowner reads
+  `4,40 × 3,40 m` was **rendered but never tested on a person**.
+
 
 ## Not yet specified
 
@@ -638,6 +675,14 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   second reading: an aspect-ratio axis varies the *box*, while what actually varies
   between real dwellings of one size is **which room absorbs** — a diversity axis a
   **stated** Envelope can have too, which is exactly the case that currently gets none.
+  **Sharpened a third time by *Homeowner product surface*:** the wait screen is settled —
+  survivors stream in and the **reject count is shown**, because C6's *generate many,
+  reject most* is the product story and someone who has watched fourteen examined and
+  four pass can understand a run that passes none. That fixes the *shape* of the answer
+  and leaves the economics untouched. It also hands this patch a candidate for its "how
+  does a Homeowner choose" half: the gallery's **difference line** — largest room,
+  daylight side, what the front door opens onto — which is **computed and not scored**,
+  deliberately, because a visible score makes people pick the number instead of the home.
 - **What a corpus-shaped product looks like** — **two of its three parts have closed.**
   *Brief schema and parsing contract* answered whether the **Brief's defaults** come
   from the corpus: they do, as the ladder's second rung, where the region profile is
@@ -659,7 +704,15 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   render? Two hooks exist: the ergonomic minima are **derived from fixture footprints**,
   so fixtures are already implicit in the hard set; and
   `open.wc_door_outward_pan_overlap` sits `deferred` with its 250 mm, waiting only for a
-  pan to exist.
+  pan to exist. ✅ **The surface half is answered** by *Homeowner product surface*:
+  the Homeowner's plan **renders fixtures**, labelled as scale and not design, toggleable,
+  and absent from the Plan, the DXF and the IFC. It costs nothing to assert because
+  `ergonomic.fixtures_mm` already ships **fourteen footprints as `verified`** (AD M
+  Appendix D, OGL, `body_zone` 300) and **all eighteen** room floors are derived from a
+  *named packing* of them. So the hook is now paying out on one side. What stays fog is
+  the expensive half — whether furniture-fit becomes a **constraint** — and it is now
+  sharper: a render that a Homeowner sees creates the expectation that the furniture
+  drawn actually fits, which is a promise the solver does not currently make.
 - **Angled walls** — they genuinely break the coordinate model and are genuinely v2.
   ⚠️ **Renamed from "Non-orthogonal geometry", which was two questions wearing one name.**
   An L-shaped room is *orthogonal*, and filing it here made a cheap question inherit an
@@ -695,7 +748,13 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
 - **Persistence, accounts, hosting** — where projects live, what a session is. Known
   consequence: the honest end state for a job model is a **queue plus a result store**
   with the engine a pure worker and no HTTP surface at all, deferred because the broker
-  and store *are* this patch. Expect the transport to move when it clears.
+  and store *are* this patch. Expect the transport to move when it clears. ✅ **Narrowed
+  by *Homeowner product surface*, which declines to grab it:** the v1 surface needs **no
+  backend at all** — no accounts, and the `StatedBrief` serialised into the URL on every
+  edit, so a refresh restores, history is undo and a bookmark is save. The link carries
+  the **request, not the results**, because generation is not reproducible from a Brief
+  alone. So this patch is not blocking the surface, and what it is actually for is
+  narrower than it looked: sharing a *result*, and coming back to one.
 - **Revit round-trip specifics** — C2 promises the engine won't preclude it. ⚠️ The
   research section that was supposed to price it **was never written**, so this patch
   currently rests on nothing. **Sharpened by *What IFC the engine actually emits*, and
