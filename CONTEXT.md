@@ -45,6 +45,27 @@ An Envelope is an **ordered ring of edges**, and the order matters: a flat with
 windows on two adjacent sides and one with windows on two opposite sides carry the
 same counts and are not the same home.
 
+**One Brief has one Envelope *area* and many Envelope *boxes*.** Where the shape
+is invented, each candidate carries its own [[Notch]] geometry from the dwelling
+it was retrieved from, so the ring's edge count and the bounding box both differ
+across a pool while the floor they enclose does not — ADR 0020.
+_Avoid_: "the Envelope, which every candidate for one Brief shares", which is ADR
+0018 consequence 3 and is **false**; and any reading in which an Envelope is one
+object per job.
+
+**Notch** — a rectangular bite out of an Envelope's bounding box, at most two, and
+what makes a rectilinear outline an L, U or T rather than a box. Its **position is
+never stated** — a Homeowner who can place a notch can draw — so it comes from the
+retrieved dwelling and is therefore a real home's.
+
+A notch is **material** when it takes at least 5 % of the bounding box: ~4 m² on a
+90 m² dwelling, a bite a person would call a shape. Below that it is a niche, and
+counting it as shape is what made the shipped gate report 90 % of real flats as
+U/T-shaped. Read materially, half of them are L.
+_Avoid_: treating a notch as small. It is a median **12.55 %** of the bounding box
+and runs to 23 % at p90 — the reason a pool agrees on floor area rather than on a
+box.
+
 **Boundary condition** — what lies on the far side of one Envelope edge, as far as
 this dwelling is concerned. **Exterior**, which may hold a window, or **party**,
 which is shared, blind, and makes no claim about who is behind it. Separate from

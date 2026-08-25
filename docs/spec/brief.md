@@ -236,6 +236,9 @@ Four statable facts, independently provenanced:
 | `overall_dimension` | "about 9 m wide", "12 by 8" |
 | `target_area` | "90 m²" |
 
+**Three of the four resolve. `shape` does not** — see §5.1. It is a retrieval gate
+term on the `StatedBrief` and never a field of the `ResolvedBrief`.
+
 Resolution order:
 
 1. `dwelling_type` resolves to the ordered ring of typed edges. The presets are
@@ -243,15 +246,25 @@ Resolution order:
    `flat_single_aspect`, `flat_corner`, `flat_dual_aspect`. A Homeowner never
    states an edge condition; they state a type, and the ring is editable per edge
    afterwards.
-2. `shape` fixes the notch count, at most 2. **Notch positions are never
-   statable** — a Homeowner who can place a notch can draw, and C2 says they
-   cannot. Notch edge conditions default by dwelling type (`exterior` for houses,
-   `party` for flats) and are always Assumptions.
+
+   **What `dwelling_type` fixes is the ring's *rule*, not one ring.** Since ADR
+   0020 the notch geometry is per-candidate, so the ring's edge **count** varies
+   across a pool. Three things make that safe and all three already exist:
+   `dwelling_type` fixes how many sides are `exterior` and which side takes the
+   entrance; notch edges inherit a `condition` from ADR 0003 §6's default
+   (`exterior` for houses, `party` for flats); and **the entrance edge is
+   identified by side, never by ring index**, so a change of topology cannot move
+   it. ADR 0003 §7's *"the entrance edge is fixed before the solve"* is to be read
+   as *one ring per candidate, fixed before that candidate's solve* — a correction
+   owed to that ADR's holder, *The two-notch cap is now evidenced*.
+2. **`shape` is not resolved.** §5.1.
 3. Dimensions and area reconcile **in one direction, and a stated total is never
    discarded.** A stated dimension is never overridden. An unstated one derives
    from the first of these that exists, then a default aspect ratio:
 
-   1. **a stated `target_area`**, as `interior = target_area × (1 + f)`.
+   1. **a stated `target_area`**, as `interior = target_area × (1 + f)`. Since ADR
+      0020 this is the **pool invariant**, not a box: `interior` is the floor every
+      candidate delivers, and the bounding box is derived per candidate in §5.2.
       `target_area` is `ümumi sahə` and does **not** count partitions (ADR 0010),
       so the interior it implies is larger by the partition footprint —
       **`f = 0.0575`**, the p50 of Σ Space area at the shipped `t_int` of 150 over
@@ -282,6 +295,84 @@ Resolution order:
 
 Because the Envelope is the **finished inner face** (ADR 0010), a stated dimension
 is already a clear dimension and needs no conversion.
+
+### 5.1 `shape` is a gate term, not a field
+
+A `ResolvedBrief` is **dense** (§1). ADR 0018 consequence 5 says a `shape` the
+prose did not give means *unknown* — and a dense object has nowhere to put
+*unknown*. The three ways out are a fourth enum member, a default, and removal.
+
+**Removal.** `shape` lives on the `StatedBrief` and is **never resolved**.
+
+- An `unknown` enum member is a lie about density, and every consumer would then
+  have to branch on it.
+- A **default is the dangerous option and it is the one to refuse.** Defaulting to
+  `rectangular` admits **1.12 %** of the retrieval index and would delete the
+  source for almost every Brief without anyone deciding it (ADR 0018 §5).
+  Defaulting to the corpus mode is worse in a quieter way: it would surface "two
+  notches" as an `invented_value` Assumption inviting correction, when it is not a
+  fact about the Homeowner's home at all — it is a fact about whichever donor was
+  drawn.
+- Nothing downstream of the Proposal reads `shape`. By then the notch geometry is
+  concrete and per-candidate, so the field has no build consumer to be dense for.
+
+**What `shape` does when it *is* stated** is gate retrieval, and the gate is on
+notch **area share**, not notch count. A *material* notch takes **≥ 5 %** of the
+bounding box — ~4 m² on a 90 m² dwelling, a real bite out of the plan, where 2 %
+is 1,8 m² and *Whether a Room may be more than one rectangle* already measured
+that class as real architecture rather than pipe boxings. Measured over the 2,317
+converted Swiss dwellings:
+
+| stated `shape` | shipped count gate | material-notch gate |
+|---|---:|---:|
+| `rectangular` | 1.12 % | **15.67 %** |
+| `L` | 8.72 % | **52.96 %** |
+| `U`/`T` | 90.16 % | **25.42 %** |
+
+Raw count says 90 % of real flats are U/T-shaped and 8.7 % are L, which is not a
+description anyone would recognise; the material reading says half are L. The gate
+term itself lives in `proposer.md` §2.2.3 and is **owed to that file's holder** —
+this section fixes the quantity, not the code.
+
+**Stating a shape is the one Brief field that measurably starves retrieval** —
+84 % of the index goes with it. See §9.4's shape bound.
+
+### 5.2 The pool shares a floor area, not a box
+
+ADR 0020. `resolve` fixes `interior` once (step 3 rung 1); each candidate derives
+its own bounding box from its own recorded notch share `s`, holding the Brief's
+aspect:
+
+```
+W × H = interior / (1 − s)                aspect fixed, scale moves
+```
+
+so every candidate delivers `interior` of floor by construction. The alternative —
+one box for the pool — costs **56.15 %** of the index to
+`area.invented_envelope_hard` on donor geometry alone, because the notch is a
+median **12.55 %** of the bounding box and runs p10 3.13 % to p90 23.30 %.
+
+**Two limits on that flex, and the second is what makes the first safe:**
+
+- The box may flex **only where `overall_dimension` is `invented`**. Where a
+  Homeowner stated a dimension it is a fact about their home, the box is fixed, and
+  the floor absorbs the notch instead.
+- That is already the correct rule rather than a new one, because the gate on the
+  stated path is `area.given_envelope_warn` (**warn**) and on the invented path
+  `area.invented_envelope_hard` (**hard**). §6's per-field provenance is what makes
+  the two compose on a partly-edited Envelope.
+
+**`ResolvedBrief.envelope` therefore loses `overall_dimension` on the invented
+path** and carries floor area plus aspect; the realised box travels with the
+Proposal. One field crosses a contract boundary, and no new dependency: the
+derivation is one division per candidate and the warp solve already takes `W, H`
+as inputs.
+
+`area.invented_envelope_hard` is **unchanged**, and this is what makes it honest.
+It binds Σ Space area against `target_area`; with the floor now invariant across
+the pool, the only quantity left that can move Σ Space area is the **partition
+footprint** — which is exactly what ADR 0010 rewrote the rule to catch and what
+`f` only predicts.
 
 ---
 
@@ -323,6 +414,17 @@ would be invisible to them. It surfaces the reading and lets them correct it:
 Every Assumption carries `field`, `value`, `kind`, and one sentence a
 non-architect can act on. How they are presented — marker per field, summary
 block, or both — is *Homeowner product surface*.
+
+**A per-candidate value is not an Assumption, and §1 is what decides that.** ADR
+0018 made the Envelope's notch geometry differ between candidates for one Brief,
+and a value that differs per candidate has no place in a set derived as
+`ResolvedBrief \ StatedBrief`. It does not need one: §5.1 takes `shape` out of the
+`ResolvedBrief`, so it generates no Assumption — correctly, because **an
+Assumption is something we filled in on the request, and the notch is a property
+of the result.** There is no fourth kind. What the Homeowner sees when two
+candidates have different outlines is a *gallery* question, not a Brief one, and
+it is the same request-versus-result confusion *A request and a result in one
+typeface* is open on.
 
 ---
 
@@ -464,14 +566,14 @@ the `wc` target `AZ` was silent on, so the 40 m² WC is capped at
 
 ### 9.4 The feasibility pre-check
 
-**Six bounds, one function** — called at parse time and again when no candidate
+**Seven bounds, one function** — called at parse time and again when no candidate
 survives, so `acceptance-bar.md` §11's requirement that the two produce the same
 sentence holds by construction.
 
-**No severity in this section is chosen.** Four of the six bounds are the
+**No severity in this section is chosen.** Four of the seven bounds are the
 parse-time **pre-image** of a rule that already ships in `rules.json`, and each
-inherits that rule's severity; the other two are ADR 0013's scope gate. ADR 0015
-records the principle and why it is not a product judgement.
+inherits that rule's severity; the other three have no pre-image and say so. ADR
+0015 records the principle and why it is not a product judgement.
 
 | | bound | pre-image of | severity |
 |---:|---|---|---|
@@ -481,6 +583,7 @@ records the principle and why it is not a product judgement.
 | 4 | inside 3–10 but outside **1–4 otaq** | — ADR 0013 scope gate | **warn** |
 | 5 | Σ `Room.target_area` more than 5 % from `target_area` | `area.invented_envelope_hard` / `area.given_envelope_warn` | **hard / warn** |
 | 6 | Σ upper band below the interior a **given** Envelope fixes | `dim.max_area` ∧ `model.no_unassigned_area`, both hard | **hard** |
+| 7 | `shape` **stated** | — no rule governs retrieval coverage | **warn** |
 
 Every bound runs **after `resolve`**, so the `hall` §3.1 invents is inside every
 sum — the same reason this section carries no separate circulation allowance term.
@@ -657,6 +760,42 @@ the tracker's discipline moved to **parse time**, where it costs the Homeowner a
 second instead of a wait, and where C2's user — who cannot read a violation list —
 gets a sentence and two buttons instead.
 
+#### Bound 7 — a stated `shape`
+
+**The only bound here that is not about area, and the only one with no pre-image
+in either direction.** No rule in `rules.json` governs retrieval coverage, so
+there is no severity to inherit — this is ADR 0015's third case, which ADR 0013's
+scope gate already occupies, and it is recorded rather than left implicit so the
+next reader does not go looking for the rule it inherits from.
+
+Stating a shape removes **84 %** of the retrieval index (§5.1). That is a real
+consequence of a request the Homeowner is entitled to make, so it warns and it
+never refuses:
+
+> homes with this outline are uncommon in what we have to draw on, so these plans
+> may vary less than usual
+
+**When the pool empties entirely, the Brief falls through to source B.** ADR 0005
+exists so that neither source has to survive alone, and a stated shape is the
+cleanest case for it: source B conditions on the Brief and has no index to starve.
+**Refusal would be wrong here in a way the other bounds' refusals are not** — bounds
+1, 3, 5 and 6 refuse Briefs the engine genuinely cannot serve; this one would
+decline a request it *can* serve, which is the 40 m² WC's error with the sign
+flipped. The fall-through is surfaced, because a plan whose provenance changed is
+a plan the Homeowner should know changed:
+
+> we could not find real homes with this outline, so these come from the model
+> rather than from the corpus
+
+⚠️ **This bound is the only place on this map where the Brief's own words cost
+retrieval, and the market has no precedent for it** — of eleven surveyed products
+ten take the boundary as an input (plot DWG, parcel GIS, GeoJSON, a polygon drawn
+in-app), so none has to invent an outline and none has this failure mode. The
+eleventh is Maket, the only pure-consumer tool and C2's own buyer, which resolves
+it by disclaiming *"measurements, dimensions, or scale"* in its terms. We are
+making the claim they decline to make, which is C3, and this bound is part of the
+price.
+
 #### The worked example in `acceptance-bar.md` §11 is still not reproducible
 
 It reads *"Three bedrooms, a bathroom and a kitchen need at least 58 m²"*; the
@@ -768,6 +907,11 @@ says so.
 | **§9.4 returns a set of findings, not a verdict** — each with a severity, a Brief field and a Homeowner-facing message. All six messages are Azerbaijani per `homeowner-surface.md` §2, so this is the same **locale dimension** already owed on the 38 rule messages and should land as one schema change, not two | whoever next holds `rules.json` |
 | `efficiency` is unused where a `target_area` is stated (§5 rung 1), because the partition footprint it stood in for is measured | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
 | **Whether one two-part `hall` covers the 16.7 % of dwellings with two circulation spaces** (§3.1). ADR 0014 says an L reaches a wing; nobody has checked it against the conversion, and ADR 0013 shows the right k rising with the programme — k = 2 is 18.9 % at six named rooms and 26.0 % at nine | *Re-measure the conversion at two rectangles per Room*, which is already re-fitting at two |
+| **The stated-`shape` gate moves from notch count to notch *area share*** (§5.1). A material notch is ≥ 5 % of the bbox; the shipped count gate mis-labels the whole index, not merely `rectangular`, and the largest gain is the common case `L` at **6×**. This section fixes the quantity, not the code | whoever next holds `proposer.md` — §2.2.3 |
+| **Per-candidate derivation of `W × H` from `interior` and the donor's notch share** (§5.2, ADR 0020). The warp already takes `W, H` as inputs; what is owed is where the division happens and that the index record carries `s` | whoever next holds `proposer.md` — §2.2.1's record and §2.2.3 |
+| **ADR 0003 §7 re-read as *one ring per candidate*** (§5 step 1). The entrance edge is identified by side, never by ring index, which is what makes it survive a topology change — the ADR does not say so today | *The two-notch cap is now evidenced*, which holds `docs/adr/0003-…` |
+| **`fit_warp.py` normalises absolute area away** (`:373-384`), so ADR 0018's p50 0.056 is a *proportion* result and the warp has never been measured against a stated `target_area`. Under ADR 0020 that measurement is now possible, because `interior` is fixed before the warp runs | whoever next holds `experiments/warp/` — no claimant today |
+| **"Fill the notch"** — let the target outline differ from the donor's and give the leftover cells to a bordering Room, which ADR 0014 already permits as an L. It dissolves the stated-shape coverage cliff entirely and it re-opens ADR 0018's monotone-warp theorem, so it is recorded and not taken | whoever next holds `proposer.md` |
 
 ---
 
@@ -805,3 +949,18 @@ says so.
 - **The `n = 3` row of that table rests on 422 dwellings**, so its p99 is
   indicative. `room-area-bands.md` §5.1 finds no three-room mix whose caps bind,
   so nothing currently reads it.
+- **§5.2 fixes the floor a pool delivers and says nothing about how big the boxes
+  get.** `W × H = interior / (1 − s)` grows the bounding box by up to **30 %** at
+  the p90 notch, so two candidates for one Brief can differ that much in physical
+  extent while agreeing on floor to the millimetre. That is correct for a Homeowner
+  who stated an area, and it is unstated for one who stated *neither* an area nor a
+  dimension — the pure-prose Brief, where the box then floats on nothing but the
+  default aspect ratio. Nobody has looked at what that renders as.
+- **Every shape number in §5.1 is Swiss, and every notch is the *conversion's*
+  notch.** The index records the two largest boundary-touching complement
+  components of a **converted** tiling, not the outline of the building. Ticket 27
+  measured that the conversion also leaves enclosed voids, and the residual
+  unassigned share of a two-notch Envelope is small — p50 **0**, mean 0.59 %, above
+  5 % on 1.34 % of dwellings — so the approximation holds for most of the corpus.
+  It is an approximation nonetheless, and no Azerbaijani dwelling is in it. C14's
+  two-tradition split, showing up in the outline now as well as in the thicknesses.

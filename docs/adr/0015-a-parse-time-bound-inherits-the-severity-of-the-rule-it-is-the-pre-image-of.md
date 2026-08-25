@@ -29,7 +29,9 @@ If that implication holds, the severity is fixed. Firing the pre-image softer th
 `R` promises a Plan that `R` will destroy; firing it harder refuses Briefs `R`
 would have passed. Neither is a choice anyone is entitled to make in `brief.md`.
 
-Applied, this decides four of §9.4's six bounds outright:
+Applied, this decides four of §9.4's bounds outright — four of six when this was
+written, four of **seven** since ADR 0020 added the stated-`shape` bound, which is
+a third no-pre-image case alongside ADR 0013's two:
 
 | bound | pre-image of | severity, read not chosen |
 |---|---|---|
