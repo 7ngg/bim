@@ -1,0 +1,40 @@
+Non-guillotine share of the real corpus, by conversion.
+A tiling is guillotine when some sequence of full-width
+cuts takes it apart. Cuts may pass through an Envelope
+notch, so these OVERSTATE the guillotine share.
+
+swiss_fit_k2.json
+  536 dwellings, guillotine 446 (0.8321), NOT guillotine 90 (0.1679)
+   rooms  dwellings  guillotine  rects/dw  mean residue
+       4         42      0.9762      4.62          1.10
+       5         90      0.8889      5.41          1.52
+       6        101      0.8713      6.38          1.66
+       7        114      0.8333      7.76          2.12
+       8        101      0.7723      8.77          2.48
+       9         68      0.7500      9.82          2.84
+      10         20      0.6500     10.60          3.60
+
+swiss_fit_k1.json
+  420 dwellings, guillotine 396 (0.9429), NOT guillotine 24 (0.0571)
+   rooms  dwellings  guillotine  rects/dw  mean residue
+       4         37      0.9459      4.00          1.16
+       5         82      0.9878      5.00          1.05
+       6         92      0.9783      6.00          1.09
+       7         91      0.9451      7.00          1.30
+       8         61      0.8689      8.00          1.70
+       9         42      0.9524      9.00          1.31
+      10         15      0.7333     10.00          2.60
+
+Paired on 419 dwellings converted by BOTH arms (keyed on file position, see `measure`):
+   rooms      n  guillotine k1  guillotine k2   G->non-G   non-G->G  rects/dw k1  rects/dw k2
+       4     37         0.9459         0.9730          1          2         4.00         4.54
+       5     82         0.9878         0.8780          9          0         5.00         5.35
+       6     92         0.9783         0.8913          8          0         6.00         6.32
+       7     91         0.9451         0.8571         10          2         7.00         7.63
+       8     61         0.8689         0.8361          3          1         8.00         8.43
+       9     42         0.9524         0.7619          8          0         9.00         9.52
+      10     14         0.7857         0.7857          1          1        10.00        10.29
+     all    419         0.9451         0.8640         40          6         6.57         7.02
+
+  non-guillotine share 0.0549 -> 0.1360   (40 moved to non-guillotine, 6 back)
+  exact McNemar p = 3.1e-07

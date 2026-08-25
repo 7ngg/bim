@@ -35,7 +35,7 @@ and that is the failure this table exists to catch.
 | Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ✅ its *one box per Room* premise is **weighed and reversed**: a Space is **one or two rectangles** and the Proposal decides which — ADR 0014. ⚠️ ADR 0001's erosion is untouched and is now **asserted** rather than inherited, but `acceptance-bar.md` §9's sliver *argument* is dead and replaced |
 | Envelope — inner-face ring of typed edges, rect/L/U/T | partial | ⚠️ **ADR 0018 made it per-candidate in its `invented` fields and nothing has been checked against that**, and **`shape` absent has never had a default** — a rectangular one would admit 1.12 % of the index and silently delete retrieval. Both owed by *What shape an Envelope is when the Brief does not say*. ✅ ADR 0003's notch cap is now measured from the corpus side: 90.16 % of converted dwellings use both notches, 8.72 % one, 1.12 % none. ⚠️ *H8 and the single-aspect flat*, **now handed a measured table and a correction**: Brief feasibility over exposure × room count is **non-monotonic** — single-aspect fails at 6, 7, 8, mostly at 9 and **succeeds at 10**, where `envelope_for` switches L → U — so *"dead from 7 rooms"* is measuring the envelope n selects, not n. ⚠️ And **n = 6 fails at corpus-median exposure too**, which is the case the toy's own comment calls typical, so H8 is not only a single-aspect problem — `experiments/envelope-exposure/`. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking*. ⚠️ **ADR 0003's two-notch cap is no longer unevidenced** — and the evidence **vindicates the number and questions the shape family**: two is the knee (median envelope loss 0.161 / 0.050 / **0.018** / 0.011 / 0.010 at k = 0…4), and on the 230 worst dwellings four notches still leaves 56 % above 0.10 loss while costing 5 points of conversion yield — *The two-notch cap is now evidenced, and more notches is not the fix*. ⚠️ H8 is also handed a corpus-side number: **4.1 % of façade-facing rooms lose their frontage in conversion**, 22.5 % of dwellings lose one — the only conversion fidelity figure nothing constrains |
 | Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ✅ **the 31 % drop is paid, and it was mostly a price for a deleted constraint** — ADR 0016 takes Swiss **30.70 % → 9.74 %** and ResPlan **40.10 % → 6.40 %**, paired, zero dwellings lost, every ADR 0008 guarantee re-asserted. **The slope moved more than the level**: the 83 %-at-4-rooms against 46 %-at-10 spread goes 35 points → 12, so the conversion has stopped preferring small dwellings. The `swiss_fit.json` labelling defect is **fixed at source**. ✅ **A converted dwelling has now been looked at, and it reads as a home** — 67 rendered beside their originals, ADR 0017. ⚠️ But **three of this row's own fidelity headlines are constraints restated, not measurements**: `edges_lost = 0`, zero flipped directions and the ±10 % area band are all posted hard, so *"zero adjacencies destroyed"* and *"9.5 % refused"* are one fact stated twice. Quote cell agreement **with worst-room IoU**, the refusal rate, and `boundary_lost`. ⚠️ Two failure modes left this row and became tickets — *The dwelling that is built on two angles* and *The two-notch cap is now evidenced*; two more were handed to the acceptance bar and to H8. ⚠️ **`why_k.clean()` does not do what it says** and its 58.3 % / 31.03 % figures remain an artefact. ⚠️ ADR 0008's *"decidable, not a timeout"* **is dead**: 1.27 % of Swiss and 16.5 % of ResPlan return UNKNOWN at 10 s, and ResPlan needs 30 s to decide at all |
-| Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts*. ⚠️ And it is now asked whether it can afford a **per-Room hop-count integer** — *What an ordered entry sequence costs the solver*, blocked on the first, because pricing a new encoding on a rig about to be re-based measures the rig |
+| Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ✅ **the guillotine premise is discharged and nothing moved** — ADR 0019, 483 solves over 568 slots: 4 discordant each way, McNemar **p = 1.00**, and **zero** discordant at 8–16 rooms. 15 s, τ = 4 and ADR 0007 all stand at their published values. ✅ **Item 4 inverted**: a non-guillotine target reaches INFEASIBLE *less* often, **17 against 2, p = 0.0007** — the fallback fires less, not more, ⚠️ by an **unexplained** mechanism with the three obvious candidates excluded. ⚠️ **Two premises were false**: τ gates on separation margin, not adjacency, and those distributions are *identical* between arms; and **no experiment on this map ever ran at `t_int` = 120** — every one ran at **100**. ⚠️ The bottom of C13's band, below 7 rooms, still has **no non-guillotine measurement of any kind**. **43 is now unblocked** |
 | Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | ✅ **its evaluation has three plan-quality terms for the first time** — sleeping-group count, longest-run allocation, social transit, all computable on a corpus dwelling and a generated Plan by the same code, which corner displacement is not. `proposer.md` §6.1. ⚠️ They are **evaluation only, not stop conditions**, and none has been measured on a generated Plan because no Proposer has been run |
 | Runtime and process split — engine / proposer service / BFF, job model, threads, JSON | settled | ⚠️ the honest end state (queue + result store) is fog, under *Persistence, accounts, hosting* |
 | DXF export | settled | — |
@@ -86,11 +86,11 @@ order** — the done-test decides order:
 | `docs/spec/brief.md` | **48 — sole claimant, new.** 38 and 44 closed. 38 rewrote §9.4 and added §3.1, so a ticket touching either is amending a settled shape rather than filling a gap. **44 wrote §9.4 bound 6's `f_hi`/`f_lo` table, §5 rung 1's `f`, §12 and §13 into it** rather than handing them on, and it raises one new obligation: the eight-row table is inline prose and belongs in data beside `room-area-bands.md` §6.1's `k`, for `rules.json`'s holder. **31's two are still open**: whether a nineteenth type (`taxça-mətbəx`) is owed, and where the `(type, otaq_count) → target, width, name` resolution step lives. **23's two became 48**: `shape` absent **must not default to rectangular** (a stated rectangle admits 1.12 % of the index), and §5's Envelope is now **per-candidate in its `invented` fields**, which no consumer has been checked against |
 | `docs/spec/homeowner-surface.md` | **45 — sole claimant.** Created by 13, which declared it on resolution rather than taking it quietly; 45 is the first ticket to claim it, and it inherits the **message locale** schema change if it moves before `rules.json`'s holder |
 | `experiments/warp/` | **new, no claimant.** 23's, and like `envelope-exposure/` it imports `solver-toy` read-only and never edits it. It also reads `rectangularise/out/swiss_fit_k2.json` as a **copied-in input**, not as a claim on that directory |
-| `experiments/envelope-exposure/` | **new, no claimant.** Also 13's, and deliberately *not* `experiments/solver-toy/`, which 29 claims: the two probes import that directory and never edit it. Their findings are quoted on the Envelope row and on 26 |
+| `experiments/envelope-exposure/` | **new, no claimant.** Also 13's, and deliberately *not* `experiments/solver-toy/`, which 29 claimed: the two probes import that directory and never edit it. Their findings are quoted on the Envelope row and on 26 |
 | `experiments/region-profile/gate_check.py` | **no claimant.** 31 declared it on resolution rather than taking it quietly — 162 vocabulary gates, the file now runs 229 |
 | `docs/spec/ifc-export.md` | **no claimant — 41 closed.** It also declared `docs/adr/0012-…` and `docs/adr/0014-…` on resolution rather than taking them quietly: 0012's `§5` → `§6` slip and both its consequences marked landed, 0014's RV question marked cleared and its rectangle comparison recorded as false |
 | `experiments/thickness-fidelity/`, `docs/research/single-internal-thickness.md` | **no claimant — 44 closed.** Created by 38 rather than left as a handoff to *whoever next runs* the harness, which named no one. 44 also declared `docs/spec/brief.md` and `CONTEXT.md` on resolution: neither had a claimant, and handing two numbers to an unheld file is the defect that created 44. One number here is load-bearing twice: a hard refusal in `brief.md` §9.4 bound 6, and the Envelope §5 rung 1 derives from a stated `target_area`. It leaves behind a **committed 479 KB series**, `series/footprint_150.csv.gz`, so the next percentile off this study costs seconds instead of a 46-minute re-measure against a 1.09 GB corpus — with the rule in the README: *if you add a statistic to this study, add its inputs to the series* |
-| `experiments/solver-toy/` | 29, **43** — 43 is new and **blocked on 29**, deliberately: 29 re-bases the ground truth every timing on this map was measured against, so pricing a new encoding first would measure the rig. ⚠️ **23 hands whichever moves first one code change**: `select_relations` must abstain when the best separation cost is positive. Specified at `proposer.md` §5.1; 23 read this directory and wrote nothing in it |
+| `experiments/solver-toy/` | **43 — sole claimant now, 29 is closed.** The re-base it was waiting for happened and **moved nothing**, so the rig 43 prices its encoding against is the published one. 29 added `pinwheel.py`, `sweep_ng.py`, `report_ng.py`, `relation_margins.py`, `t_int_arithmetic.py`, `pinwheel_area_premium.py`, `corpus_guillotine.py` and left `_guillotine` the **default** on purpose. ⚠️ It also leaves a fixture defect for whoever runs the harness next: `AREA_PER_ROOM_M2` = 9.65 is below what the placeholder table needs at 7 and 8 rooms in **either** arm |
 | `experiments/rectangularise/`, `docs/research/rectangularisation.md` | **46, 47 — 27 and 40 are both closed.** ⚠️ **23 hands `fit_rects.py` two new per-record fields** the index needs and the fit does not emit: the **cut-line frame** (sorted distinct coordinates plus each part's index span) and **per-pair relation provenance**, which today is only the `rel: {same, spurious}` counts. 27 added `render_sheet.py` and `void_census.py` and declared them on resolution; both new tickets read them rather than re-deriving. ✅ `rectangularisation.md` **§12 is the correction**, declared on 27's resolution rather than taken quietly: the three restated headlines, the worst-room-IoU pairing, and two fixes to §11.4 — its spurious rate is the **paired** one (0.1358) and the corpus-wide figure ticket 23 wants is **0.1262**, and its account of what a spurious relation *is* is wrong |
 
 ✅ **39 and 28 are closed and their collisions are gone.** 39 had the widest
@@ -883,6 +883,41 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   them** — 6.9 % of Briefs lost, not 10⁻⁶. ⚠️ **`shape` absent must not default to
   rectangular**: only 1.12 % of converted dwellings emit a notch-free tiling.
 
+- [The solver has only ever seen guillotine layouts](tickets/29-the-solver-has-only-ever-seen-guillotine-layouts.md)
+  — **the solver does not care, and an untested strength is now a measured one.**
+  ADR 0019, `docs/research/solver-formulation.md` Part III,
+  `experiments/solver-toy/` (483 solves over 568 slots, same machine as Parts I and II). Paired on
+  Envelope, room count, exposure, seed, noise and config with **only the cut
+  structure moving**: 37 both, 10 neither, **4 discordant each way, exact McNemar
+  p = 1.00**, and **zero** discordant at 8–16 rooms. **15 s, τ = 4 and ADR 0007 all
+  stand unchanged** and Part II's percentiles need no re-derivation. The treatment
+  was not marginal — 21 of 24 rooms in one block no sequence of cuts decomposes.
+  ✅ **Item 4 inverted, and it is the strongest result**: INFEASIBLE — what triggers
+  the two-phase fallback — fires on the guillotine arm alone **17 times against 2**,
+  **p = 0.0007**. The fallback fires *less* on the class retrieval most wants to
+  serve. ⚠️ **By an unexplained mechanism**: margin distributions, τ's fixed share
+  and one-axis separation are all matched between arms. ⚠️ **Two premises were
+  false.** τ gates on **separation margin, not adjacency** — the pinwheel's
+  adjacency graph *is* denser and the margins are identical to the grid unit, so
+  there was never a channel for τ to move through. And **no experiment on this map
+  has ever run at `t_int` = 120**: every one ran at **100**, so the move is
+  100 → 150 and the residue class 150 → 100 mod 250 — which corrects this ticket,
+  ADR 0010 §3 and the grid fog patch alike. ✅ **`t_int` = 150 costs nothing inside
+  C13's band** (zero discordant at 8/10/12); above 16 rooms it is directional only,
+  p = 0.219. ⚠️ **The real cost of the `t_int` move is on the standards table, not
+  the solver**: at 100, 12 of 36 shipped ergonomic dimensions were on the ADR 0007
+  lattice *by accident*, at 150 only 6 are, and **14 of 36 gain a whole grid unit**
+  — ADR 0009's exemption is 67 % dearer than when it was priced. ✅ **And the ticket's own motivating
+  number was stale by 2.5×**: its 6.27 % came from the **k = 1** conversion ADR
+  0016 superseded, and re-measured paired on the shipped k ≤ 2 arm the
+  non-guillotine share is **5.49 % → 13.60 %** (40 across against 6 back,
+  p = 3.1e-07) — the untested class was one real dwelling in **seven**, not one in
+  sixteen, which makes the null result stronger. ⚠️ **The bottom of
+  C13's band is still unmeasured and unmeasurable here** — below 7 rooms this
+  Envelope family admits no non-guillotine tiling at all. ⚠️ And a fixture defect
+  it did not cause: `AREA_PER_ROOM_M2` = 9.65 is below what the placeholder table
+  needs at 7 and 8 rooms in **either** arm.
+
 ## Not yet specified
 
 In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
@@ -994,8 +1029,9 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   sharper: a render that a Homeowner sees creates the expectation that the furniture
   drawn actually fits, which is a promise the solver does not currently make.
 - **The ordered entry sequence, and whether it is worth new integers** — ⚠️ **now a
-  ticket, not fog**: *What an ordered entry sequence costs the solver*, blocked on
-  *The solver has only ever seen guillotine layouts*. It is the **one** property of
+  ticket, not fog**: *What an ordered entry sequence costs the solver*, ✅ **now
+  unblocked** — the re-base it waited on happened and moved nothing, so the rig it
+  prices against is the published one (ADR 0019). It is the **one** property of
   the four *Where a set-versus-set property lives* examined that needs machinery this
   formulation does not have — flow gives reachability, not *how far along* a walk a
   Room sits — and the encoding wants a per-Room hop-count integer on a model whose
@@ -1081,6 +1117,16 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   is a **same-axis reversal**, and Gaussian corner noise — the model behind every σ
   number on this map — emits almost none, so the cliff's shape may not survive a
   generator that misplaces a room outright.
+  ✅ **One half of this is now measured, and it went the opposite way to the fear.**
+  ADR 0019 asked whether a non-guillotine target — the class retrieval most wants to
+  serve — pushes more Proposals into the fallback. It pushes **fewer**: paired over
+  212 slots, INFEASIBLE fires on the guillotine arm alone **17** times against the
+  pinwheel arm's **2**, exact McNemar **p = 0.0007**, spread across σ and room count
+  rather than concentrated. ⚠️ **The mechanism is unexplained** and the three obvious
+  candidates — separation-margin distribution, the share of pairs τ fixes, and the
+  fraction of pairs the truth separates on one axis — are all *matched* between arms,
+  so this is an open question rather than a closed one. The **distribution** half is
+  untouched and still needs a real Proposer.
 - **Whether the solve grid should be finer than 250 mm** — ⚠️ **load-bearing now, not the
   optional curiosity it was filed as.** ADR 0009 held the grid and exempted the ergonomic
   layer instead, and priced the alternatives: a 50 mm grid makes the congruence vacuous,
@@ -1097,9 +1143,8 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   where at `clear_t = 0` every one of 4, 5 and 6 builds. It is the toy's own
   minima rather than the shipped ergonomic layer, so it corroborates a direction
   rather than settling a number; what it settles is that **no solver measurement
-  on this map covers the bottom half of C13's own 3–10 band.** ⚠️ **And the
-  deletion figure itself is now stale** — it was computed at `t_int` 120, which ADR 0010 makes 150, moving the
-  residue class from 130 to 100 mod 250. Recompute before quoting it again. *One internal thickness* supplies a **partial** starting point and not a conclusion: the 120 → 150 move cost **253 solve cells either way**, so no per-room ceiling changed — but the deletion also turns on the Envelope's own re-snapping, which that arithmetic does not touch.
+  on this map covers the bottom half of C13's own 3–10 band.** ⚠️ **The staleness note here was itself wrong, and ADR 0019 corrects it**: the deletion figure was computed at `t_int` **100**, not 120 — no experiment on this map has ever run at 120 — so the residue class moved **150 → 100 (mod 250)**, not 130 → 100, and the step made was 50 mm rather than 30. *One internal thickness* supplies a **partial** starting point and not a conclusion: the move cost **253 solve cells either way**, so no per-room ceiling changed — but the deletion also turns on the Envelope's own re-snapping, which that arithmetic does not touch.
+  ⚠️ **This patch is now heavier, and for a reason nobody had computed.** ADR 0009 bought the grid by exempting the ergonomic layer, and **the price of that exemption is a function of `t_int`**: at 100 it was cheap by *accident* — 900, 1400, 1650, 1900 and 3150 mm are all congruent to 150 (mod 250), so **12 of 36 shipped clear dimensions sat exactly on the lattice**. At the 150 ADR 0010 ships only 6 do, **14 of 36 gain a whole grid unit** (a 900 mm minimum is now delivered at 1 100), and summed waste over the table goes **2 524 → 4 224 mm**. A finer grid is what makes the exemption cheap and the exemption just got **67 % dearer**. ✅ What is *no longer* owed here: `t_int` is measured to cost **nothing inside C13's band** — zero discordant slots at 8, 10 and 12 rooms, both arms — and the loss above 16 rooms is directional only (5 against 1, p = 0.219). ADR 0019, `experiments/solver-toy/t_int_arithmetic.py`.
 
 ## Out of scope
 

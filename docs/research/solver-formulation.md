@@ -1263,3 +1263,514 @@ improving-solution trace so any time limit below 30 s can be re-derived without
 re-solving. The file is resumable: re-issuing the same command skips rows already
 present. **Run nothing else on the machine while sweeping** — an early pass was
 discarded because a watcher script started a second solver concurrently.
+
+---
+
+# Part III — the non-guillotine re-base (ticket 29)
+
+Everything above this line was measured against a **guillotine** ground truth.
+`scenarios.ground_truth` dissects each Envelope part with `_guillotine`, a
+backtracking recursive dissection, so every one of Part II's 965 solves — every
+timing, every percentile, the whole feasibility cliff — had a target that some
+sequence of full-width cuts takes apart.
+
+The solver never restricted itself to those. `AddNoOverlap2D` admits any
+rectangular tiling and there is no slicing structure anywhere in the formulation.
+But *nothing had ever checked*, because nothing had ever handed it a target that
+was not guillotine. A **pinwheel** — four rooms circling a central one, the
+canonical real apartment plan, and the smallest non-guillotine rectangle tiling —
+had not appeared in a single experiment on this map.
+
+**483 solves** over 568 scenario slots — 85 slots never reached the solver, 72
+because the Envelope admits no non-guillotine tiling and 13 because no Brief could
+be typed. All serial at `num_workers = 4`, on the same 4-core Ivy Bridge
+(`DESKTOP-25OJ4QH`) every number in Parts I and II came from. Harness
+`experiments/solver-toy/sweep_ng.py`, generator `pinwheel.py`, aggregation
+`report_ng.py`, raw rows in `results/N9*.jsonl`.
+
+> ### Headline: **the solver does not care, and C10 is de-risked rather than qualified.**
+>
+> Paired across arms on the same Envelope, room count, exposure, seed and
+> Proposal noise, over the whole main grid: **37 slots where both arms produced a
+> survivor, 10 where neither did, 4 where only the guillotine arm did and 4 where
+> only the pinwheel arm did.** Exact McNemar **p = 1.00**. At 8–16 rooms — which
+> covers the whole of C13's promised band that this Envelope family reaches — the
+> discordant count is **zero**: 35 slots, and in every one the two arms agree.
+>
+> Part II's shipped 15 s and τ = 4 both survive. What does *not* survive is the
+> ticket's stated reason for expecting movement, and one number it inherited.
+
+## III.0 Two corrections before the tables
+
+### The premise about τ is refuted by measurement, not by the sweep
+
+The ticket argues that "a pinwheel has a denser relation graph than a slicing
+layout, so there is a specific reason to expect movement" in τ. The first half is
+true and the second does not follow, because **τ does not gate on adjacency**.
+
+Door-contact density is genuinely higher in the pinwheel arm at every room count
+— 0.521 against 0.461 at 8 rooms, 0.364 against 0.333 at 10, 0.324 against 0.298
+at 12. But τ (`SolveConfig.relation_confidence`) gates on the **separation
+margin**: per room pair, second-cheapest minus cheapest separation, computed by
+`solver.rank_relations` over the *Proposal*. Measured over 7 355 guillotine pairs
+and 7 110 pinwheel pairs (`relation_margins.py`):
+
+| arm | p10 | p25 | p50 | p75 | p90 | mean | share below τ = 4 |
+|---|---|---|---|---|---|---|---|
+| guillotine | 3.0 | 7.0 | 14.0 | 24.0 | 34.0 | 16.55 | 12.5 % |
+| pinwheel | 3.0 | 7.0 | 14.0 | 24.0 | 34.0 | 16.71 | 11.9 % |
+
+Every percentile is identical to the grid unit. The share of pairs τ actually
+fixes agrees to within half a percent at every τ from 0 to 10 — at the shipped
+τ = 4, 0.8683 against 0.8730, a ratio of **1.005**.
+
+**The mechanism is that τ never sees the cut structure.** It sees the Proposal's
+corner noise, which is Gaussian and identical in both arms by construction. Two
+rooms touching along a wall and two rooms a metre apart are the same question to
+`rank_relations`; adjacency enters the model through the reified contact literals
+instead, which carry no confidence margin at all. This is why suite B finds
+nothing: there was never a channel for it to find something through.
+
+### No experiment on this map has ever run at `t_int` = 120
+
+The ticket's inherited section opens *"Every solver number on this map was fitted
+at `t_int` = 120"*, and ADR 0010 consequence 3 says ticket 19's deletion analysis
+*"was computed at `t_int` = 120"*. **Both are wrong, in the same direction.**
+
+`sweep.py` line 59, `solver.SolveConfig.t_int_mm`, `ergonomic_minima_tiling.py`,
+`grid_aligned_minima.py`, `erosion_cost.py` and `probe6.py` all carry
+`t_int = 100`, inherited from `annotation.md` §14 — which ADR 0010 consequence 6
+itself flags as stale, in the sentence *"100 was already wrong at 120"*. A grep
+for any value of 120 on a solver path returns nothing. The 120 was the **AZ
+profile's** value; it never reached the harness.
+
+So the move actually made is **100 → 150**, a 50 mm step rather than 30 — two
+thirds larger than the instruction assumed — and the ADR 0007 residue class moves
+**150 → 100 (mod 250)**, not 130 → 100. The destination in both documents is
+right; the origin is not. `t_int_arithmetic.py`.
+
+## III.1 What a non-guillotine ground truth is here
+
+`pinwheel.py` builds one. Five cells of a rectangle, cuts `a < b` in x and
+`c < d` in y:
+
+```
+R4 R4 | R3 R3 R3       R1 = (x1, y1,  b,  c)     R2 = ( b, y1, x2,  d)
+R4 R4 | R3 R3 R3       R3 = ( a,  d, x2, y2)     R4 = (x1,  c,  a, y2)
+------+---------       C  = ( a,  c,  b,  d)
+R4 R4 | C  | R2
+------+----+----       x = a is spanned by R1, x = b by R3, y = c by R2,
+R1 R1 R1 | R2 R2       y = d by R4. No full cut exists.
+```
+
+The Envelope part holding the most rooms is dissected this way; every cell then
+takes the ordinary guillotine, so everything below one level reproduces the
+baseline generator's shapes exactly. **Five is the floor** — every tiling of a
+rectangle into four or fewer rectangles is guillotine — and the assembled tiling
+is checked with `is_guillotine` and rejected if it comes out guillotine anyway.
+
+Three things make this a treatment rather than a garnish.
+
+**It knots most of the plan.** `guillotine_residue` peels every available cut and
+reports the largest block that survives. The guillotine arm returns **1** at every
+room count, by definition. The pinwheel arm returns **5, 6, 9, 11, 14, 18, 21** at
+7, 8, 10, 12, 16, 20 and 24 rooms — at 24 rooms, 21 of 24 rooms sit in one block
+no sequence of cuts decomposes. Nesting pinwheels (`depth`) adds nothing, because
+depth 1 already saturates: it fires a second and third wheel only at 24 rooms and
+the residue does not move.
+
+**The witness guarantee holds.** Every pinwheel ground truth is re-checked with
+`validate.check` before it is used, and every one passed. Without that a failure
+to solve would be indistinguishable from an accidentally impossible Brief, and the
+whole comparison would mean nothing.
+
+**The Brief is genuinely different, and that is correct.** Required and forbidden
+adjacencies are read off the truth, so the two arms cannot present the same Brief
+and should not. What is held fixed is everything a solve time could otherwise be
+blamed on: Envelope, room mix, seed, Proposal noise, config.
+
+### Below 7 rooms this Envelope family has no pinwheel to offer
+
+Not a fact about pinwheels — a fact about the harness. The L-shape's notch forces
+the second Envelope part to hold two rooms, which leaves the main part four or
+fewer, and four rectangles are always guillotine. At 7 and 8 rooms the constraint
+is different and it is arithmetic: `AREA_PER_ROOM_M2` is **9.65**, fitted to Part
+I's three published Envelopes, so an 8-room dwelling here is 77 m² and the
+placeholder `living` wants 12 m² of it at 2.75 m clear both ways — about a third
+of the plan, compact. A pinwheel spends its area on four interlocking arms and
+cannot cut a compact cell that large.
+
+`pinwheel_area_premium.py` prices it, by finding the smallest interior area per
+room at which every seed builds *and types*:
+
+| n | guillotine | pinwheel | premium |
+|---:|---:|---:|---:|
+| 7 | 10.13 m² | 11.58 m² | **+14 %** |
+| 8 | 11.58 m² | 11.58 m² | 0 % |
+| 10 | 9.65 m² | 10.13 m² | +5 % |
+| 12 | 10.13 m² | 10.13 m² | 0 % |
+| 16 | 9.65 m² | 9.65 m² | 0 % |
+| 24 | 9.65 m² | 9.65 m² | 0 % |
+
+**The non-guillotine premium is +14 % at 7 rooms, +5 % at 10, and zero from 12
+up.** Most of the blind spot is the harness's own floor rather than the treatment:
+at 8 rooms *both* arms need 11.58 m² per room, 20 % above the 9.65 the published
+Envelopes were built at. That is a defect in the fixtures worth recording on its
+own — Part II's small-*n* cells were run at an area per room its own placeholder
+table cannot always satisfy.
+
+## III.2 The headline — room count against cut structure
+
+Suite A. 140 solves, 7 room counts × 2 exposures × 2 arms × 5 seeds, shipped
+configuration (`mm_affine`, eroded minima, τ = 4, σ = 0.5 m, 15 s, 4 workers).
+
+| n | guillotine valid | pinwheel valid | p50 G | p50 P | residue P |
+|---:|---:|---:|---:|---:|---:|
+| 7 | 4/5 | *no pinwheel exists* | 0.13 s | — | — |
+| 8 | 10/10 | 5/5 | 0.27 s | 0.25 s | 6 |
+| 10 | 10/10 | 10/10 | 0.44 s | 0.65 s | 9 |
+| 12 | 10/10 | 10/10 | 1.43 s | 1.37 s | 11 |
+| 16 | 10/10 | 10/10 | 5.11 s | 4.98 s | 14 |
+| 20 | 4/10 | 6/10 | 11.74 s | 10.59 s | 18 |
+| 24 | 2/10 | 0/10 | 10.53 s | — | 21 |
+
+Pooled: guillotine **76.9 %** of solves reach a Plan the independent validator
+accepts, pinwheel **74.5 %**. Time-to-VALID p90 is **10.41 s** guillotine against
+**9.56 s** pinwheel, and the maximum **14.57 s** against **12.24 s** — the
+pinwheel arm's tail is *shorter*, not longer.
+
+Part II.3's budget curve, re-derived per arm from the traces:
+
+| budget | guillotine | pinwheel |
+|---|---|---|
+| 3 s | 49.2 % | 41.8 % |
+| 5 s | 58.5 % | 56.4 % |
+| 7.5 s | 64.6 % | 63.6 % |
+| 10 s | 67.7 % | 67.3 % |
+| **15 s** | **76.9 %** | **74.5 %** |
+
+The two curves are within 2.4 points at the shipped limit and within 0.4 at 10 s.
+**15 s does not need to move.**
+
+### The paired test, and the one cell that differs
+
+Rates over 10 solves a cell mean very little. The paired count is what the design
+buys — the same `(n, exposure, seed)` slot, one arm against the other:
+
+| n | both survive | only guillotine | only pinwheel |
+|---:|---:|---:|---:|
+| 8 | 5 | 0 | 0 |
+| 10 | 10 | 0 | 0 |
+| 12 | 10 | 0 | 0 |
+| 16 | 10 | 0 | 0 |
+| 20 | 2 | 2 | **4** |
+| 24 | 0 | **2** | 0 |
+| **all** | **37** | **4** | **4** |
+
+**4 against 4, exact McNemar p = 1.00.** Slots where one arm had no scenario to
+solve are excluded — they are facts about the generator, not the solver, and
+counting them was the one analysis bug this part had. At 20 rooms the ordering
+*reverses* and the pinwheel arm wins 4–2.
+
+The 24-room cell is the only one that goes the other way, and both arms fail there
+the same way: **coverage slack, not infeasibility**. Every failing row in both arms
+returns FEASIBLE with unassigned interior floor — the `objective ≥ soft_weight`
+case C6 already discards — rather than INFEASIBLE or a validator rejection. Across
+the whole grid the guillotine arm recorded 1 INFEASIBLE and the pinwheel arm 0.
+
+Suite D re-runs 20 and 24 rooms at **30 s** to separate "slower" from "worse",
+since suite A ran at the shipped 15 s while Part II ran at 30:
+
+| n | guillotine valid | pinwheel valid |
+|---:|---:|---:|
+| 20 | 5/8 | **8/8** |
+| 24 | 6/8 | 2/8 |
+
+Paired: 7 both, 2 neither, 4 only-guillotine, 3 only-pinwheel, **p = 1.00**. Both
+arms improve substantially with the extra 15 s, so the 24-room gap at 15 s is
+largely a convergence-rate effect rather than a feasibility one. A residual
+difference at 24 rooms cannot be ruled out on 8 solves a cell — and it matters
+little: **C13 demotes 24 rooms to headroom evidence quotable as a ceiling by
+nothing**, and the v1 gate is 3–10 engine rooms.
+
+## III.3 τ — the shipped 4 survives, and suite B could not have found otherwise
+
+Suite B, 108 solves, τ ∈ {0, 1, 2, 4, 6, 10} at 8, 12 and 24 rooms.
+
+At 12 rooms both arms return **100 % valid at every τ** (one guillotine cell at
+τ = 0 drops to 2/3 on a single INFEASIBLE). At 24 rooms both arms are at or near
+zero at every τ. At 8 rooms the pinwheel arm has no scenarios.
+
+So suite B is **badly powered, and says so**: with 8 rooms empty and 24 saturated,
+its informative content is one room count at 3 seeds a cell. It detects no
+movement in τ, but it could not have detected a small one either.
+
+The answer rests on III.0's margin distributions instead, which are the quantity
+τ gates on and are measured over 14 465 pairs rather than 108 solves. **They are
+identical between arms.** τ = 4 does the same job on a pinwheel Proposal that it
+does on a guillotine one, and there is a mechanism for why rather than only a null
+result.
+
+## III.4 `t_int` — the inherited sweep, and where its cost actually lands
+
+The instruction was to re-run the solver numbers because ADR 0010 moved `t_int`.
+Two of the three findings here are arithmetic and needed no solver at all; the
+third is a sweep that came back weaker than the arithmetic.
+
+### Half one: the linear minima cannot move, for a grid-aligned table
+
+`250w − t ≥ 250·min` gives `w ≥ min + ⌈t/250⌉`, and **⌈t/250⌉ is 1 for every `t`
+in (0, 250]**. So 100, 120 and 150 impose *identical* width and height bounds on
+every room whose minimum is a whole number of grid units. Over the placeholder
+table the harness runs, **zero of ten** room types move. This is why the sweep was
+right to expect very little — and it is a stronger statement than "very little".
+It is exactly nothing, and provably so.
+
+### Half two: the eroded area moves, and it is the only solver channel
+
+`amm = (250w − t)(250h − t)` shrinks with `t`, so the area floor bites harder:
+
+| grid rect | m² at 100 | m² at 150 | loss | as % of the rect |
+|---|---:|---:|---:|---:|
+| 8 × 8 | 3.610 | 3.422 | 0.188 | 5.19 % |
+| 11 × 11 | 7.022 | 6.760 | 0.263 | 3.74 % |
+| 22 × 14 | 18.360 | 17.922 | 0.438 | 2.38 % |
+
+Against the placeholder table, **7 of 10** room types need a bigger grid rect at
+150 than at 100 — `wc` +20 %, `hall` +14.3 %, `bathroom` +12.5 %. Against the
+*derived ergonomic* floor, **0 of 10** do: those minima sit far enough below their
+linear bounds that the area constraint is slack and `t` cannot reach it.
+
+### Half three: the shipped ergonomic layer, which is where it actually costs
+
+ADR 0009 exempted the ergonomic layer from ADR 0007's congruence, and priced that
+exemption once — at a `t_int` nothing now ships. **The price is a function of
+`t_int`, and it moved when `t_int` did.** Those minima are millimetres, not grid
+units, so `⌈(min + t)/250⌉` depends on where each sits inside its step:
+
+| `t_int` | residue | congruent axes | wasted mm, summed over the table |
+|---:|---:|---:|---:|
+| 100 | 150 | **12 of 36** | 2 524 |
+| 120 | 130 | 0 of 36 | 5 304 |
+| **150** | **100** | **6 of 36** | **4 224** |
+
+**14 of 36 shipped clear dimensions gain a whole grid unit — 250 mm on that axis —
+going from 100 to 150.** The reason is an accident that has now been spent: at
+`t_int` = 100 the residue class is 150 (mod 250), and 900, 1400, 1650, 1900 and
+3150 mm are all congruent to it. A third of the table was exactly on the lattice
+by coincidence. At 150 it is not.
+
+The concrete cases, with what the room is actually handed:
+
+| axis | published | at 100 | at 150 |
+|---|---:|---:|---:|
+| `hall.short`, `corridor.short/long`, `kitchen.short`, `utility.short`, `storage.long`, `entrance_lobby.short` | 900 mm | 900 mm clear | **1 100 mm clear** |
+| `hall.long`, `entrance_lobby.long` | 1 138 mm | 1 150 | **1 350** |
+| `bedroom_double.short` | 1 650 mm | 1 650 | **1 850** |
+| `bedroom_double.long`, `bedroom_single.long` | 1 900 mm | 1 900 | **2 100** |
+| `shower_room.long` | 1 400 mm | 1 400 | **1 600** |
+| `living_dining.long` | 3 150 mm | 3 150 | **3 350** |
+
+This is the answer to the inherited half of the ticket, and it is **not the answer
+the instruction was looking for**. It asked for solve timings; the cost landed on
+the standards table.
+
+### The sweep half, which is directional and not significant
+
+Suite T, 112 solves, `t_int` ∈ {100, 150} on both arms, the ground truth rebuilt
+to satisfy whichever reading the solver will enforce so the witness holds at both.
+
+Paired on the same Envelope, arm, exposure and seed — 41 slots solvable at both:
+
+| | both survive | neither | lost at 150 | gained at 150 |
+|---|---:|---:|---:|---:|
+| guillotine | 14 | 5 | 4 | 1 |
+| pinwheel | 12 | 4 | 1 | 0 |
+| **pooled** | **26** | **9** | **5** | **1** |
+
+Exact McNemar on the pooled discordants: **p = 0.219. Not significant.** Three
+further pinwheel scenarios stopped being constructible at all at 150.
+
+**Every loss is at 16 rooms or above.** At 8, 10 and 12 rooms — the whole of C13's
+band this family reaches — the discordant count is **zero** in both arms: every
+slot that survived at 100 survived at 150.
+
+> **`t_int` = 150 costs nothing inside the promised band.** Above it there is a
+> directional cost this sample cannot separate from noise, and it should be quoted
+> as directional, never as a measured penalty.
+
+## III.5 σ, and the two-phase fallback fires *less*
+
+The ticket's fourth question: if non-guillotine targets are harder, the fallback
+fires more on exactly the dwellings retrieval most wants to serve. **The sign is
+the other way, and this is the strongest result in Part III.**
+
+Suite C was designed to answer it and could not. It picked 8 and 24 rooms to match
+Part II's own σ grid, and 8 admits no pinwheel on this Envelope family while 24
+fails in both arms at every σ above 0.25. Its one usable result is the cliff
+*location*: at 24 rooms both arms are 100 % valid at σ = 0, drop to 50 % and 25 %
+at σ = 0.25, and are 0 % at σ = 0.5 and above. **The cliff is in the same place in
+both arms.** Suite C is kept rather than replaced, because that is the only direct
+comparison with Part II's own σ grid.
+
+Suite E re-runs it at 10, 12 and 16 rooms, where a pinwheel exists and the solver
+is not saturated. 96 solves.
+
+| σ | guillotine valid | pinwheel valid | guillotine INFEASIBLE | pinwheel INFEASIBLE |
+|---:|---:|---:|---:|---:|
+| 0.25 | 12/12 | 11/12 | 0 | 0 |
+| 0.5 | 11/12 | 11/12 | 1 | 0 |
+| 1.0 | 6/12 | 7/12 | 5 | 3 |
+| 2.0 | **0/12** | **3/12** | 11 | 7 |
+
+Paired across arms: 26 both, 13 neither, 3 only-guillotine, 6 only-pinwheel,
+McNemar **p = 0.51** — the survivor rate is a wash, as everywhere else.
+
+The infeasibility count is not. **INFEASIBLE is precisely what triggers the
+two-phase fallback** — C10's *"a merely noisy Proposal goes INFEASIBLE"* — so it,
+not the survivor rate, is the quantity item 4 asks about. Pooled over **every**
+suite in Part III, paired on the same slot:
+
+| | count |
+|---|---:|
+| paired slots | 212 |
+| both arms INFEASIBLE | 12 |
+| **only the guillotine arm** | **17** |
+| **only the pinwheel arm** | **2** |
+
+Exact McNemar **p = 0.0007**. The effect is not concentrated in one corner: it
+appears at the shipped σ = 0.5 (7 against 0 over 160 slots), at σ = 1.0 and 2.0
+(5 against 1 each), and at 10, 12, 16 and 24 rooms.
+
+> **A non-guillotine target reaches INFEASIBLE significantly less often than a
+> guillotine one.** The expected firing rate of the two-phase fallback does not
+> rise on the dwellings retrieval most wants to serve. It falls.
+
+**The mechanism is not established, and the obvious candidates are ruled out.**
+Separation-margin distributions are identical between arms (III.0), and so is the
+share of pairs τ fixes, and so is the fraction of room pairs the truth separates
+on exactly one axis (0.646 against 0.642). Whatever makes a pinwheel's extracted
+relation set less often self-contradictory, it is not any of those three. This is
+a real finding with an unexplained cause, and it is recorded that way rather than
+given a story.
+
+## III.6 The motivating number was measured on a superseded conversion
+
+The ticket's own table — 6.27 % of real dwellings non-guillotine, ~15 % at 8–10
+rooms — came from `guillotine_share.py` over `swiss_fit.json`, the **k = 1**
+conversion. **ADR 0016 superseded that**: a Room is one or two rectangles, and the
+shipped conversion writes `parts`, not `rects`. More rectangles per dwelling can
+only make a tiling harder to cut apart, so the figure was stale in a *known*
+direction.
+
+Re-measured paired, same 600 dwellings in the same order, only `k_of` differing —
+`fit_rects.py 600` against `fit_rects.py 600 --k2`, 419 converted by both arms:
+
+| rooms | n | guillotine k = 1 | guillotine k ≤ 2 | G→non-G | non-G→G |
+|---:|---:|---:|---:|---:|---:|
+| 4 | 37 | 0.9459 | 0.9730 | 1 | 2 |
+| 5 | 82 | 0.9878 | 0.8780 | 9 | 0 |
+| 6 | 92 | 0.9783 | 0.8913 | 8 | 0 |
+| 7 | 91 | 0.9451 | 0.8571 | 10 | 2 |
+| 8 | 61 | 0.8689 | 0.8361 | 3 | 1 |
+| 9 | 42 | 0.9524 | 0.7619 | 8 | 0 |
+| 10 | 14 | 0.7857 | 0.7857 | 1 | 1 |
+| **all** | **419** | **0.9451** | **0.8640** | **40** | **6** |
+
+**The non-guillotine share goes 5.49 % → 13.60 %** — roughly **2.5×** — with 40
+dwellings moving to non-guillotine against 6 moving back, exact McNemar
+**p = 3.1 × 10⁻⁷**. Rectangles per dwelling rise 6.57 → 7.02, +6.8 %, which is the
+mechanism: ADR 0014's second rectangle is exactly the piece that blocks a cut.
+
+The k = 1 arm reproduces the ticket's figure closely — 0.9451 here against 0.9373
+published — so the difference is the conversion, not the sample.
+
+> **The untested class was about two and a half times larger than the ticket
+> thought.** That makes the null result in III.2 more valuable, not less: the
+> solver was shown to be indifferent to a class covering roughly one real dwelling
+> in seven rather than one in sixteen.
+
+⚠️ **This is 419 dwellings against the ticket's 1,787.** The full k ≤ 2 run is
+~4 s a dwelling — five times the k = 1 arm — so it was stopped at its 600-dwelling
+checkpoint rather than run to 2 600. The overall share is solid; the per-room-count
+cells above 8 rooms are thin (14 dwellings at n = 10) and should not be quoted
+individually. Re-run both arms at 2 600 before anyone builds on a per-*n* figure.
+
+## III.7 Should `scenarios.py` generate these at all?
+
+Yes — and `pinwheel.py` is the answer for the job it does, which is **not** the
+job the ticket's second option describes.
+
+The ticket offers extending the generator or seeding ground truth from real
+converted dwellings, as alternatives. They are not alternatives; they answer
+different questions, and only one of them could have produced Part III.
+
+**A synthetic generator is the only thing that can support a paired comparison.**
+The whole force of III.2 is that Envelope, room mix, seed, Proposal noise and
+config are held fixed and *only* the cut structure moves. Real converted dwellings
+bring their own Envelopes, their own areas and their own room mixes, so a sweep
+over them measures the difference between the Swiss corpus and this harness's
+fixtures — a real question, and not this one. The 4-against-4 discordant count
+would not exist.
+
+**A real tiling is still the stronger fixture for the question it does answer**,
+which is whether the solver serves the corpus rather than whether it is sensitive
+to slicing structure. That is worth doing and it is not this ticket: it needs the
+converted Envelope to enter the harness as an Envelope, which `envelope_for` has
+no path for today.
+
+So: keep `_guillotine`, add `pinwheel_ground_truth` beside it, and treat the pair
+as a controlled axis rather than a replacement. What the generator must *not* do
+is quietly become the default — every published number in Parts I and II is a
+guillotine number, and re-basing the default would invalidate the comparison this
+part just established.
+
+**One fixture defect is now on the record** and belongs to whoever next runs this
+harness: `AREA_PER_ROOM_M2` = 9.65 is below what the placeholder table needs at 7
+and 8 rooms in *either* arm (III.1). Part II's small-*n* cells are measuring a
+generator that cannot always build the dwelling it is asked for, which is a
+different failure from the one they are read as reporting.
+
+## III.8 What Part III does not establish
+
+- **No real dwelling was solved.** The treatment is a synthetic pinwheel, which is
+  the canonical non-guillotine plan and not the only one. The converted corpus
+  contains whatever shapes it contains; III.6 says why that is a separate run.
+- **Below 7 rooms is unmeasured, and unmeasurable on this Envelope family.** The
+  L-shape's notch leaves the main part with four rooms or fewer, and four
+  rectangles are always guillotine. The bottom of C13's 3–10 band still has no
+  non-guillotine measurement of any kind.
+- **Only one non-guillotine shape was tested.** Depth-nested pinwheels were built
+  and add nothing measurable, but a spiral, a nested-U or a genuinely irregular
+  tiling was not tried.
+- **The 24-room difference is not resolved.** At 15 s it is 2–0 to the guillotine
+  arm and at 30 s 6/8 against 2/8, on 8 solves a cell. It could be a real
+  convergence-rate penalty at the very top of the range or it could be noise; this
+  sample cannot say. It sits well outside the v1 gate either way.
+- **The infeasibility advantage has no mechanism** (III.5).
+- **The corpus re-measurement is 419 dwellings, not 1 787** (III.6). The overall share is solid; per-room-count cells above 8 rooms are thin.
+- **`t_int` above 16 rooms is directional only** (III.4), p = 0.219.
+- **Suite B is underpowered by construction** (III.3) and the τ answer rests on
+  the margin distributions rather than on it.
+- **Everything ran at 250 mm.** The grid is still never swept — the same gap Part
+  II.8 records, and III.4's half three makes it sharper rather than closing it.
+- **Timings are this machine's.** Same 4-core Ivy Bridge as Parts I and II, so the
+  arms are comparable with each other and with every published number, and none of
+  them is a modern-CPU figure.
+
+## Reproducing Part III
+
+```
+cd experiments/solver-toy
+python pinwheel.py                  # the generator, and where a pinwheel exists
+python t_int_arithmetic.py          # III.4 halves one to three, no solver
+python pinwheel_area_premium.py     # III.1, the floor-area premium
+python relation_margins.py          # III.0, what tau actually gates on
+python sweep_ng.py A T B C D E      # 568 slots / 483 solves, serial, ~2 h
+python report_ng.py                 # every table above
+python corpus_guillotine.py         # III.6, needs both converted arms
+```
+
+Rows land in `results/N9*.jsonl`, resumable exactly like Part II's. **Run nothing
+else on the machine while sweeping.** Suites A, B, C, E and T run at the shipped
+15 s; suite D runs at 30 s, and only suite D's rows can answer a budget above 15.

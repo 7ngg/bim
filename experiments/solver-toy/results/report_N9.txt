@@ -1,0 +1,217 @@
+======================================================================================================================
+Ticket 29 -- does the solver handle a target no sequence of cuts can
+take apart? Guillotine baseline against a pinwheel treatment, paired
+on Envelope, room count, seed, noise and config.
+======================================================================================================================
+
+A. Pooled over the whole main grid
+         arm  solves   valid  INFEAS  no-brief     p50     p90     max  first p50   fixed/cand    sep
+  guillotine      65   76.9%       1         5    1.29   10.41   14.57    0.61       99/113   0.646
+    pinwheel      55   74.5%       0        15    1.59    9.56   12.24    0.71      114/129   0.642
+
+A. THE HEADLINE TEST -- paired across arms on the same (n, exposure, seed) slot. `lost` means the guillotine arm produced a survivor there and the pinwheel arm did not.
+         arm   both  neither lost at pinwheel gained at pinwheel  p (McNemar)   no-Brief lost
+ *both arms*     37       10              4               4       1.0000              10
+
+         arm     n   both lost at pinwheel gained at pinwheel
+ *both arms*     8      5              0               0
+ *both arms*    10     10              0               0
+ *both arms*    12     10              0               0
+ *both arms*    16     10              0               0
+ *both arms*    20      2              2               4
+ *both arms*    24      0              2               0
+
+A. Time budget -- Part II.3's curve, per arm
+  budget   guillotine     pinwheel   (share of solves reaching a zero-slack Plan)
+    3.0s        49.2%        41.8%
+    5.0s        58.5%        56.4%
+    7.5s        64.6%        63.6%
+   10.0s        67.7%        67.3%
+   15.0s        76.9%        74.5%
+
+A. By room count (both exposures pooled)
+             n |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+               |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+             7 |    5  80.0%    0.13    0.17    0     1.0   0.524 |        no non-guillotine tiling exists         |
+             8 |   10 100.0%    0.27    0.37    0     1.0   0.461 |    5 100.0%    0.25    0.28    0     6.0   0.521 |   -0.01
+            10 |   10 100.0%    0.44    2.01    0     1.0   0.333 |   10 100.0%    0.65    1.46    0     9.0   0.364 |   +0.21
+            12 |   10 100.0%    1.43    3.45    0     1.0   0.298 |   10 100.0%    1.37    2.04    0    11.0   0.324 |   -0.06
+            16 |   10 100.0%    5.11    9.78    0     1.0   0.232 |   10 100.0%    4.98    5.96    0    14.0   0.234 |   -0.13
+            20 |   10  40.0%   11.74   13.38    0     1.0   0.187 |   10  60.0%   10.59   11.07    0    18.0   0.198 |   -1.14
+            24 |   10  20.0%   10.53   14.57    1     1.0   0.163 |   10   0.0%       -       -    0    21.0   0.166 |       -
+
+A. By exposure and count
+      exposure              n |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+                              |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+ corpus_median              7 |    0      -       -       -    0       -       - |        no non-guillotine tiling exists         |
+ corpus_median              8 |    5 100.0%    0.29    0.59    0     1.0   0.457 |        no non-guillotine tiling exists         |
+ corpus_median             10 |    5 100.0%    0.41    2.01    0     1.0   0.329 |    5 100.0%    0.41    3.15    0     9.0   0.382 |   +0.00
+ corpus_median             12 |    5 100.0%    1.85    2.46    0     1.0   0.297 |    5 100.0%    1.33    1.86    0    11.0   0.324 |   -0.51
+ corpus_median             16 |    5 100.0%    5.52   13.39    0     1.0   0.232 |    5 100.0%    4.98    7.83    0    14.0   0.235 |   -0.55
+ corpus_median             20 |    5  60.0%   11.74   13.38    0     1.0   0.186 |    5  60.0%   10.59   10.81    0    18.0   0.198 |   -1.14
+ corpus_median             24 |    5   0.0%       -       -    1     1.0   0.163 |    5   0.0%       -       -    0    21.0   0.166 |       -
+      detached              7 |    5  80.0%    0.13    0.17    0     1.0   0.524 |        no non-guillotine tiling exists         |
+      detached              8 |    5 100.0%    0.27    0.30    0     1.0   0.464 |    5 100.0%    0.25    0.28    0     6.0   0.521 |   -0.01
+      detached             10 |    5 100.0%    0.59    2.16    0     1.0   0.338 |    5 100.0%    0.75    1.46    0     9.0   0.347 |   +0.16
+      detached             12 |    5 100.0%    1.29    3.65    0     1.0   0.300 |    5 100.0%    1.59    3.15    0    11.0   0.324 |   +0.30
+      detached             16 |    5 100.0%    5.11    9.69    0     1.0   0.232 |    5 100.0%    5.60    5.88    0    14.0   0.233 |   +0.49
+      detached             20 |    5  20.0%    6.07    6.07    0     1.0   0.188 |    5  60.0%   11.07   12.24    0    18.0   0.198 |   +4.99
+      detached             24 |    5  40.0%   10.53   14.57    0     1.0   0.163 |    5   0.0%       -       -    0    21.0   0.166 |       -
+
+T. Pooled -- t_int 100 and 150 together
+         arm  solves   valid  INFEAS  no-brief     p50     p90     max  first p50   fixed/cand    sep
+  guillotine      48   68.8%       2         8    1.09    9.08   12.11    0.70      106/121   0.626
+    pinwheel      37   75.7%       0        19    3.09   10.39   11.21    0.98      124/141   0.630
+
+T. t_int: what every published number was fitted at (100) against what ADR 0010 ships (150)
+         t_int              n |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+                              |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+           100              7 |    0      -       -       -    0       -       - |        no non-guillotine tiling exists         |
+           100              8 |    4 100.0%    0.31    0.40    0     1.0   0.464 |        no non-guillotine tiling exists         |
+           100             10 |    4 100.0%    1.43    1.95    0     1.0   0.322 |    4 100.0%    1.25    1.90    0     9.0   0.372 |   -0.19
+           100             12 |    4 100.0%    2.11    2.35    0     1.0   0.295 |    4 100.0%    1.32    3.09    0    11.0   0.322 |   -0.79
+           100             16 |    4  75.0%    6.99   11.40    0     1.0   0.235 |    4 100.0%   10.39   10.44    0    14.0   0.237 |   +3.40
+           100             20 |    4  50.0%    4.43   12.11    0     1.0   0.189 |    4 100.0%   10.20   11.21    0    18.0   0.197 |   +5.77
+           100             24 |    4  25.0%    9.88    9.88    1     1.0   0.163 |    4   0.0%       -       -    0    21.0   0.164 |       -
+           150              7 |    0      -       -       -    0       -       - |        no non-guillotine tiling exists         |
+           150              8 |    4 100.0%    0.23    0.23    0     1.0   0.464 |        no non-guillotine tiling exists         |
+           150             10 |    4 100.0%    0.39    0.56    0     1.0   0.322 |    4 100.0%    0.45    1.04    0     9.0   0.372 |   +0.06
+           150             12 |    4 100.0%    1.91    2.65    0     1.0   0.295 |    4 100.0%    2.93    3.11    0    11.0   0.322 |   +1.02
+           150             16 |    4  75.0%    7.62    9.08    0     1.0   0.242 |    1 100.0%    4.40    4.40    0    14.0   0.225 |   -3.22
+           150             20 |    4   0.0%       -       -    0     1.0   0.197 |    4  75.0%   10.28   10.44    0    18.0   0.197 |       -
+           150             24 |    4   0.0%       -       -    1     1.0   0.163 |    4   0.0%       -       -    0    21.0   0.164 |       -
+
+T. PAIRED -- the same Envelope, seed and Proposal at both t_int. This is the test that carries the finding.
+         arm   both  neither    lost at 150   gained at 150  p (McNemar)   no-Brief lost
+  guillotine     14        5              4               1       0.3750               0
+    pinwheel     12        4              1               0       1.0000               3
+ *both arms*     26        9              5               1       0.2188               3
+
+         arm     n   both    lost at 150   gained at 150
+  guillotine     8      4              0               0
+  guillotine    10      4              0               0
+  guillotine    12      4              0               0
+  guillotine    16      2              1               1
+  guillotine    20      0              2               0
+  guillotine    24      0              1               0
+    pinwheel    10      4              0               0
+    pinwheel    12      4              0               0
+    pinwheel    16      1              0               0
+    pinwheel    20      3              1               0
+
+T. The same rows read as a t_int effect within each arm:
+         arm  t_int  solves   valid  INFEAS  no-brief     p50     p90
+  guillotine    100      24   75.0%       1         4    1.71    9.88
+  guillotine    150      24   62.5%       1         4    0.46    7.62
+    pinwheel    100      20   80.0%       0         8    3.87   10.44
+    pinwheel    150      17   70.6%       0        11    2.93   10.28
+
+B. tau -- the valve on relation-hardness
+The shipped value is 4. If a denser relation graph moves the optimum, it moves here.
+           tau |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+               |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+             0 |    9  77.8%    0.61    4.17    1     1.0   0.309 |    6  50.0%    1.81    1.88    0    16.0   0.244 |   +1.20
+             1 |    9  77.8%    1.31    2.56    0     1.0   0.309 |    6  50.0%    1.16    4.24    0    16.0   0.244 |   -0.16
+             2 |    9  77.8%    0.59    2.12    0     1.0   0.309 |    6  66.7%    2.65   10.45    0    16.0   0.244 |   +2.06
+             4 |    9  77.8%    0.81    2.22    0     1.0   0.309 |    6  50.0%    3.24    3.68    0    16.0   0.244 |   +2.44
+             6 |    9  66.7%    0.29    2.09    0     1.0   0.309 |    6  50.0%    1.02    1.52    0    16.0   0.244 |   +0.73
+            10 |    9  77.8%    1.80   10.26    0     1.0   0.309 |    6  50.0%    3.63    4.06    0    16.0   0.244 |   +1.83
+
+B. tau by room count
+             n            tau |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+                              |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+             8              0 |    3 100.0%    0.13    1.56    0     1.0   0.476 |        no non-guillotine tiling exists         |
+             8              1 |    3 100.0%    0.13    0.92    0     1.0   0.476 |        no non-guillotine tiling exists         |
+             8              2 |    3 100.0%    0.13    0.25    0     1.0   0.476 |        no non-guillotine tiling exists         |
+             8              4 |    3 100.0%    0.26    0.32    0     1.0   0.476 |        no non-guillotine tiling exists         |
+             8              6 |    3 100.0%    0.26    0.29    0     1.0   0.476 |        no non-guillotine tiling exists         |
+             8             10 |    3 100.0%    0.27    0.38    0     1.0   0.476 |        no non-guillotine tiling exists         |
+            12              0 |    3  66.7%    0.45    0.61    1     1.0   0.288 |    3 100.0%    1.81    1.88    0    11.0   0.328 |   +1.36
+            12              1 |    3 100.0%    1.77    2.56    0     1.0   0.288 |    3 100.0%    1.16    4.24    0    11.0   0.328 |   -0.62
+            12              2 |    3 100.0%    1.75    2.12    0     1.0   0.288 |    3 100.0%    2.44    2.65    0    11.0   0.328 |   +0.69
+            12              4 |    3 100.0%    1.47    2.22    0     1.0   0.288 |    3 100.0%    3.24    3.68    0    11.0   0.328 |   +1.78
+            12              6 |    3 100.0%    2.09    2.82    0     1.0   0.288 |    3 100.0%    1.02    1.52    0    11.0   0.328 |   -1.07
+            12             10 |    3 100.0%    4.64   10.26    0     1.0   0.288 |    3 100.0%    3.63    4.06    0    11.0   0.328 |   -1.02
+            24              0 |    3  66.7%    4.17   12.36    0     1.0   0.164 |    3   0.0%       -       -    0    21.0   0.161 |       -
+            24              1 |    3  33.3%   10.54   10.54    0     1.0   0.164 |    3   0.0%       -       -    0    21.0   0.161 |       -
+            24              2 |    3  33.3%    9.16    9.16    0     1.0   0.164 |    3  33.3%   10.45   10.45    0    21.0   0.161 |   +1.29
+            24              4 |    3  33.3%   11.99   11.99    0     1.0   0.164 |    3   0.0%       -       -    0    21.0   0.161 |       -
+            24              6 |    3   0.0%       -       -    0     1.0   0.164 |    3   0.0%       -       -    0    21.0   0.161 |       -
+            24             10 |    3  33.3%   15.00   15.00    0     1.0   0.164 |    3   0.0%       -       -    0    21.0   0.161 |       -
+
+C. sigma -- Proposal noise, and the feasibility cliff
+Part II found v1's 0.5 m sits one notch below a cliff. n = 8 and 24 only: underpowered, see suite E.
+         sigma |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+               |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+           0.0 |    8 100.0%    3.85   10.72    0     1.0   0.314 |    4 100.0%    5.63    5.73    0    21.0   0.164 |   +1.78
+          0.25 |    8  75.0%    0.24   14.05    0     1.0   0.314 |    4  25.0%   10.29   10.29    0    21.0   0.164 |  +10.05
+           0.5 |    8  50.0%    0.32    0.33    1     1.0   0.314 |    4   0.0%       -       -    0    21.0   0.164 |       -
+           1.0 |    8  37.5%    0.15    0.72    2     1.0   0.314 |    4   0.0%       -       -    0    21.0   0.164 |       -
+           2.0 |    8  25.0%    0.17    0.20    6     1.0   0.314 |    4   0.0%       -       -    4    21.0   0.164 |       -
+
+C. sigma by room count
+             n          sigma |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+                              |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+             8            0.0 |    4 100.0%    0.12    0.12    0     1.0   0.464 |        no non-guillotine tiling exists         |
+             8           0.25 |    4 100.0%    0.24    1.14    0     1.0   0.464 |        no non-guillotine tiling exists         |
+             8            0.5 |    4 100.0%    0.32    0.33    0     1.0   0.464 |        no non-guillotine tiling exists         |
+             8            1.0 |    4  75.0%    0.15    0.72    0     1.0   0.464 |        no non-guillotine tiling exists         |
+             8            2.0 |    4  50.0%    0.17    0.20    2     1.0   0.464 |        no non-guillotine tiling exists         |
+            24            0.0 |    4 100.0%   10.72   12.98    0     1.0   0.163 |    4 100.0%    5.63    5.73    0    21.0   0.164 |   -5.09
+            24           0.25 |    4  50.0%   14.05   14.47    0     1.0   0.163 |    4  25.0%   10.29   10.29    0    21.0   0.164 |   -3.76
+            24            0.5 |    4   0.0%       -       -    1     1.0   0.163 |    4   0.0%       -       -    0    21.0   0.164 |       -
+            24            1.0 |    4   0.0%       -       -    2     1.0   0.163 |    4   0.0%       -       -    0    21.0   0.164 |       -
+            24            2.0 |    4   0.0%       -       -    4     1.0   0.163 |    4   0.0%       -       -    4    21.0   0.164 |       -
+
+D. The top of the range at 30 s, not the shipped 15
+         arm  solves   valid  INFEAS  no-brief     p50     p90     max  first p50   fixed/cand    sep
+  guillotine      16   68.8%       1         0   14.21   22.70   23.91    3.37      206/233   0.539
+    pinwheel      16   62.5%       0         0   11.84   26.10   28.80    4.21      206/233   0.537
+
+D. Paired across arms at 30 s
+         arm   both  neither lost at pinwheel gained at pinwheel  p (McNemar)   no-Brief lost
+ *both arms*      7        2              4               3       1.0000               0
+
+         arm     n   both lost at pinwheel gained at pinwheel
+ *both arms*    20      5              0               3
+ *both arms*    24      2              4               0
+
+D. Does the pinwheel arm catch up given 30 s?
+If it does, 20-24 is a time-limit finding. If it does not, it is a feasibility one.
+             n |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+               |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+            20 |    8  62.5%   11.56   14.21    0     1.0   0.191 |    8 100.0%   11.84   15.69    0    18.0   0.197 |   +0.28
+            24 |    8  75.0%   17.92   22.70    1     1.0   0.163 |    8  25.0%   14.02   28.80    0    21.0   0.164 |   -3.89
+
+E. sigma at n = 10, 12, 16 -- the band where a pinwheel exists and the solver is not saturated
+         sigma |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+               |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+          0.25 |   12 100.0%    3.87    7.84    0     1.0   0.284 |   12  91.7%    2.04    5.92    0    11.3   0.311 |   -1.83
+           0.5 |   12  91.7%    1.80    5.89    1     1.0   0.284 |   12  91.7%    2.02   10.51    0    11.3   0.311 |   +0.22
+           1.0 |   12  50.0%    2.12    5.77    5     1.0   0.284 |   12  58.3%    2.17    8.62    3    11.3   0.311 |   +0.05
+           2.0 |   12   0.0%       -       -   11     1.0   0.284 |   12  25.0%    4.34   12.80    7    11.3   0.311 |       -
+
+E. Paired across arms, pooled over sigma
+         arm   both  neither lost at pinwheel gained at pinwheel  p (McNemar)   no-Brief lost
+ *both arms*      0        9              0               3       0.2500               0
+
+         arm     n   both lost at pinwheel gained at pinwheel
+ *both arms*    12      0              0               1
+ *both arms*    16      0              0               2
+
+E. sigma by room count
+             n          sigma |    n  valid     p50     p90  inf   res   adj |    n  valid     p50     p90  inf   res   adj |   d-p50
+                              |          --- guillotine baseline ---           |          ---- pinwheel treatment ----          |
+            10           0.25 |    4 100.0%    0.33    1.68    0     1.0   0.322 |    4 100.0%    0.38    1.50    0     9.0   0.372 |   +0.06
+            10            0.5 |    4 100.0%    1.10    1.23    0     1.0   0.322 |    4 100.0%    1.48    2.16    0     9.0   0.372 |   +0.38
+            10            1.0 |    4  75.0%    2.12    5.77    1     1.0   0.322 |    4  50.0%    0.38    2.17    1     9.0   0.372 |   -1.74
+            10            2.0 |    4   0.0%       -       -    4     1.0   0.322 |    4   0.0%       -       -    2     9.0   0.372 |       -
+            12           0.25 |    4 100.0%    3.87    6.11    0     1.0   0.295 |    4 100.0%    2.29    2.33    0    11.0   0.322 |   -1.58
+            12            0.5 |    4 100.0%    2.55    4.27    0     1.0   0.295 |    4 100.0%    2.50    3.93    0    11.0   0.322 |   -0.05
+            12            1.0 |    4  50.0%    1.96    2.30    2     1.0   0.295 |    4  50.0%    0.54    1.45    2    11.0   0.322 |   -1.42
+            12            2.0 |    4   0.0%       -       -    3     1.0   0.295 |    4  25.0%    2.07    2.07    3    11.0   0.322 |       -
+            16           0.25 |    4 100.0%    7.84   13.64    0     1.0   0.235 |    4  75.0%    5.92   12.39    0    14.0   0.237 |   -1.91
+            16            0.5 |    4  75.0%    5.89    8.35    1     1.0   0.235 |    4  75.0%   10.51   13.28    0    14.0   0.237 |   +4.61
+            16            1.0 |    4  25.0%    9.36    9.36    2     1.0   0.235 |    4  75.0%    8.62   12.50    0    14.0   0.237 |   -0.75
+            16            2.0 |    4   0.0%       -       -    4     1.0   0.235 |    4  50.0%    4.34   12.80    2    14.0   0.237 |       -
+

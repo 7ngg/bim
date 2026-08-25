@@ -1,0 +1,24 @@
+Separation margins over the Proposal, the quantity tau gates on.
+Margin is second-cheapest minus cheapest separation, in grid units
+(250 mm). A pair below tau abstains and is never posted hard.
+
+         arm  scenarios    pairs     p10     p25     p50     p75     p90    mean  share < 4
+  guillotine         65     7355     3.0     7.0    14.0    24.0    34.0   16.55      12.5%
+    pinwheel         55     7110     3.0     7.0    14.0    24.0    34.0   16.71      11.9%
+
+Separation cost - how far a pair must move to be pulled apart.
+         arm     p50     p90     p99     max
+  guillotine   -13.0     0.0     4.0       7
+    pinwheel   -13.0     0.0     4.0       7
+
+What share of pairs tau actually fixes, per arm.
+If a pinwheel's margins were tighter, its curve would fall away
+faster and tau = 4 would be doing a different job in the two arms.
+
+  tau     guillotine       pinwheel    ratio
+    0         1.0000         1.0000    1.000
+    1         0.9841         0.9849    1.001
+    2         0.9474         0.9503    1.003
+    4         0.8683         0.8730    1.005   <- shipped
+    6         0.7905         0.7833    0.991
+   10         0.6265         0.6196    0.989
