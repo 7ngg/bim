@@ -774,7 +774,7 @@ honest statement is that v1 cannot express an interior obstacle of any kind.
 *Re-measure the conversion at two rectangles per Room*
 (`docs/wayfinder/tickets/40-re-measure-the-conversion-at-two-rectangles-per-room.md`),
 decision ADR
-[0015](../adr/0015-the-conversion-names-its-own-ls.md).
+[0016](../adr/0016-the-conversion-names-its-own-ls.md).
 
 Everything above §11 was measured with **one rectangle per room**, because that
 is what the model allowed. ADR
@@ -1026,7 +1026,7 @@ makes the search tractable, so the arm times out (**5 UNKNOWN of 80**, against 1
 at k = 1). **Tier C is unmeasurable at k ≤ 2 for the same reason Design B is**,
 and a rung that cannot be measured cannot be a rung.
 
-So the ladder is reduced to **two rungs, A and D** — see ADR 0015. Retrieval's
+So the ladder is reduced to **two rungs, A and D** — see ADR 0016. Retrieval's
 gate is unchanged and untouched by this; what goes is a four-valued conditioning
 field that is now 93 % one value and whose two middle rungs no longer separate
 anything.

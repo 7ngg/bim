@@ -103,7 +103,7 @@ for a corrected implementation with a selftest.
 
 **Two thirds of the Swiss drop and four fifths of the ResPlan drop were paying
 for a constraint ADR 0014 had already deleted.** ADR
-[0015](../../adr/0015-the-conversion-names-its-own-ls.md). Findings
+[0016](../../adr/0016-the-conversion-names-its-own-ls.md). Findings
 `docs/research/rectangularisation.md` §11. Harness
 `experiments/rectangularise/` — `fit_rects.py --k2`, `analyse_k2.py`,
 `validate_k2.py`, `name_rate.py`, `coverage_thinning.py`.

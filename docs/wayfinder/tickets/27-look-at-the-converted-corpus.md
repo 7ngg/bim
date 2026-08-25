@@ -197,7 +197,7 @@ is owed by whichever ticket draws first, which is this one.
 
 **Two things: one of your instructions is discharged, and the thing you are going
 to look at has changed shape.** ADR
-[0015](../../adr/0015-the-conversion-names-its-own-ls.md),
+[0016](../../adr/0016-the-conversion-names-its-own-ls.md),
 `docs/research/rectangularisation.md` §11.
 
 ✅ **The labelling defect is fixed at source.** `fit_rects.load_swiss_geoms` now

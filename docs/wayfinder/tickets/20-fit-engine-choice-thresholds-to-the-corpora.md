@@ -156,7 +156,7 @@ together, not separately.
 
 **Your "the population you are fitting to is not the corpus" section is right in
 principle and its numbers are now stale — in your favour.** ADR
-[0015](../../adr/0015-the-conversion-names-its-own-ls.md),
+[0016](../../adr/0016-the-conversion-names-its-own-ls.md),
 `docs/research/rectangularisation.md` §11.
 
 The conversion drop is **9.74 % of Swiss and 6.40 % of ResPlan**, not 31 % and

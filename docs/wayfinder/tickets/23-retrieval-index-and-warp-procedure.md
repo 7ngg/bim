@@ -234,7 +234,7 @@ being changed underneath you.
 
 **The coordination hazard is cleared: the conversion has moved, and you may now
 measure coverage against it.** ADR
-[0015](../../adr/0015-the-conversion-names-its-own-ls.md),
+[0016](../../adr/0016-the-conversion-names-its-own-ls.md),
 `docs/research/rectangularisation.md` §11.
 
 **Item 3's pool sizes and item 5's corpus-side budget both move, in your favour.**
@@ -288,7 +288,7 @@ unmeasurable at any affordable budget (§11.5).
 ⚠️ **`proposer.md` §4.4 is now stale in two places, and it is your file.** It
 records the conversion as *"settled, and it is a solve"* with the k = 1 yield and
 the four-rung ladder. Both moved: the yield is **90.3 % Swiss / 93.6 % ResPlan**,
-and **the ladder is reduced to two rungs, A and D** (ADR 0015 consequence 5) —
+and **the ladder is reduced to two rungs, A and D** (ADR 0016 consequence 5) —
 A → B now buys 2.0 points against 8.4, and tier C sits *below* tier A because
 dropping the hard relations removes the pruning and the arm times out. The
 tier conditioning field ADR 0008 gave the training set is therefore **binary now,
