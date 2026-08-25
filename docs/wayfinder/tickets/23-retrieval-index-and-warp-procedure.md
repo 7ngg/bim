@@ -4,7 +4,7 @@ title: The retrieval index and warp procedure
 parent: map
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - docs/spec/proposer.md
