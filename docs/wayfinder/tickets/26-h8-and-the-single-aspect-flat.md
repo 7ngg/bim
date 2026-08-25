@@ -202,3 +202,37 @@ fewer arrangements are distinguishable. See the *Variant generation and ranking*
 patch — this is a **second, independent** cause of the flat-versus-house
 diversity gap that patch records, and the aspect-ratio axis it proposes does not
 touch it.
+
+---
+
+## Handed here by *Look at the converted corpus* (2026-08-25)
+
+**H8's geometric half arrives from the corpus side, and it is not zero.** ADR
+[0017](../../adr/0017-three-of-the-conversions-fidelity-headlines-are-constraints-restated.md),
+failure mode 3.
+
+A room that faced the outside in Swiss Dwellings and does **not** after
+conversion: **579 of 14,200 façade-facing rooms (4.1 %)**, spread over **521 of
+2,317 dwellings (22.5 %)** — 469 dwellings lose one room's frontage, 46 lose two,
+6 lose three.
+
+**This is the only fidelity number in the conversion that nothing constrains.**
+Contact, separation relations and the area band are all posted *hard*, so their
+zeros measure the constraint rather than the conversion; `boundary_lost` is
+posted nowhere and is therefore a real measurement. It is also, per ADR 0017, one
+of only four numbers on the conversion that can honestly be quoted as evidence.
+
+**Why it lands on H8.** A Proposer trained on this corpus will sometimes propose
+an arrangement in which a habitable room has no façade — an interior bedroom the
+corpus did not contain, manufactured by squaring. If H8 is a hard rule, it will
+fire on arrangements the corpus never actually contained, and the Proposer will
+have been taught to produce them. That is a different problem from a
+single-aspect flat and it needs to be told apart from one.
+
+⚠️ **`boundary_lost` is contact with the Envelope boundary, not window
+frontage.** `fit_rects` knows nothing about which Envelope edges are exterior and
+which are party walls — ADR 0003 types them, the fit does not read the type. So
+4.1 % is an **upper bound on lost daylight and a lower bound on nothing**: a room
+that lost contact with a party edge lost no window. Whoever takes this must
+decide whether the number needs re-measuring against typed edges before H8 can
+lean on it.

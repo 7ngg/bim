@@ -89,3 +89,52 @@ the answer puts it.
 `data/acceptance/rules.json` is also claimed by 16, 20 and 26;
 `docs/spec/acceptance-bar.md` by 26. Per the map's Notes this is a merge hazard,
 not a dependency — do not run this at the same time as any of them.
+
+---
+
+## Handed here by *Look at the converted corpus* (2026-08-25)
+
+⚠️ **The acceptance bar has nothing to say about a Plan with a hole in it, and
+that gap is now measured rather than suspected.** ADR
+[0017](../../adr/0017-three-of-the-conversions-fidelity-headlines-are-constraints-restated.md),
+failure mode 2.
+
+Exact tiling is posted **soft** (C10's amendment), so an Envelope cell no Space
+claims is legal and the objective merely charges for it. **Nobody had ever drawn
+one.** Rendered, it is floor with walls round it and no name —
+indistinguishable on a drawing from a room, and a Practitioner has nothing to
+call it.
+
+Measured over 400 converted dwellings
+(`experiments/rectangularise/void_census.py`), separating the Envelope's
+deliberate notch **under-cut** — correctly left empty — from real dwelling floor:
+
+| | median | p90 | max |
+|---|---:|---:|---:|
+| uncovered, total | 2.31 m² | 6.63 m² | 11.00 m² |
+| — Envelope over-reach *(correct)* | 0.44 m² | 4.06 m² | 8.56 m² |
+| — real floor, unclaimed | **1.19 m²** | 3.25 m² | 8.38 m² |
+| — of that, **enclosed** by Spaces | 0.00 m² | 0.44 m² | 3.69 m² |
+
+Most of the unclaimed floor opens onto the Envelope edge and reads as a
+re-entrant in the outline, which is harmless. The enclosed remainder is not:
+**15.0 % of dwellings carry an enclosed void ≥ 0.25 m², 10.0 % ≥ 0.5 m², 4.8 %
+≥ 1 m².**
+
+**Why this is yours and not the corpus's.** The number above is the conversion's,
+but the rule is the acceptance bar's. **C6 already discards an expired candidate
+whose best objective is ≥ `soft_weight`** — that is a candidate with unassigned
+floor at *timeout*. It says nothing about an **OPTIMAL** candidate that carries a
+1 m² unnamed hole because the tiling term simply lost to another. A ticket about
+what a dwelling must contain to pass is the right home for *"and it must contain
+no floor that belongs to nothing"*.
+
+**What to decide:** whether unassigned floor inside the Envelope is a finding at
+all, and if so whether it is severity-graded by area, by enclosure (enclosed
+versus edge-open, which the census separates), or refused outright. A threshold
+picked by eye is worse than none — the distribution above is the input to
+choosing one.
+
+⚠️ **Do not reach for `uncovered` in a fit record as the quantity to gate on.**
+It sums the correct case and the incorrect one together, which is exactly why
+nobody had noticed this. `void_census.py` splits them.

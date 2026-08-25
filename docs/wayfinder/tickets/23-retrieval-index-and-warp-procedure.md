@@ -294,3 +294,33 @@ dropping the hard relations removes the pruning and the arm times out. The
 tier conditioning field ADR 0008 gave the training set is therefore **binary now,
 not four-valued**; retrieval's tier-A gate is unchanged. §2.3's two-part slot with
 a presence token needs no change — it already carries what the conversion emits.
+
+---
+
+## Handed here by *Look at the converted corpus* (2026-08-25)
+
+**Two corrections to the number you were told to plan around, and one of them is
+to what the number *means*.** `docs/research/rectangularisation.md` §12.2.
+
+1. **Use 0.1262, not 0.1358.** §11.4 flags *"roughly one axis-pair in seven"* as
+   the assertions a warp is least entitled to trust. That 0.1358 is the
+   **paired** rate — over the 1,779 dwellings *both* arms converted, which is the
+   right measure of what ADR 0016 bought and the wrong one for describing the
+   pool you retrieve from. Over all **2,317 conversions and 97,090 axis-pairs**
+   it is **0.1262**: one in eight. The 538 dwellings k ≤ 2 rescued carry a
+   *lower* spurious rate than the ones both arms managed.
+2. ⚠️ **§11.4's account of what a spurious relation is is wrong**, and it changes
+   which pairs item 4's per-room confidence should mark. It says one rectangle
+   *"must pick a side when a room wraps another"*. By construction a `spurious`
+   relation is a pair whose bounding boxes **overlapped** on that axis in the
+   corpus and no longer do after squaring — the truth abstains because the
+   projections overlap, and squaring resolves the overlap. Wrapping is one cause
+   of overlap, not the only one, and **not the common one**. Rendered, the picks
+   read as what a person would draw (ADR 0017), so the caution is about
+   *provenance*, not about the choices being bad.
+
+⚠️ **A third thing, if the warp ever moves a Room's parts independently.** The
+conversion leaves **median 1.19 m² of real dwelling floor unclaimed**, and 10.0 %
+of dwellings carry an *enclosed* void ≥ 0.5 m² — so a retrieved dwelling may
+already contain a hole before the warp touches it. Do not assume the pool is
+exactly tiled.

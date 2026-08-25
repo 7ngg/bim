@@ -3,7 +3,7 @@ id: 27
 title: Look at the converted corpus
 parent: map
 labels: [wayfinder:prototype]
-status: open
+status: closed
 assignee: tng
 blocked_by: []
 writes:
@@ -235,3 +235,126 @@ still applies.
 ⚠️ **371 of 2,317 conversions are FEASIBLE rather than OPTIMAL**, so a small
 minority are not the best available tiling. If one renders badly, check its
 status before concluding the conversion is at fault.
+
+---
+
+## Resolution
+
+**A converted dwelling reads as a home. The conversion is accepted, with four
+failure modes named and three of its own fidelity headlines demoted from
+evidence to restatement.** ADR
+[0017](../../adr/0017-three-of-the-conversions-fidelity-headlines-are-constraints-restated.md).
+
+67 dwellings rendered beside their originals across ten sampled bands —
+`experiments/rectangularise/render_sheet.py`, sheets at `out/sheets/SHEET.html`.
+Three panels each: the corpus polygons, the conversion **drawn as a plan** with
+150 mm walls straddling every rectangle edge, and the two overlaid. Drawing the
+walls is the part that makes the test valid: an outline drawing of the same
+rectangles reads as a diagram and flatters the conversion, and what a person
+judges is a plan.
+
+### 1. Is the conversion acceptable as it stands? Yes.
+
+At p95 it is effectively lossless — the original with its walls straightened. At
+the median (cell agreement 0.935) it is a plausible flat that keeps the
+original's arrangement, circulation and room sizes. ADR 0016's L-shaped
+corridors read as real circulation spines rather than as two rooms with the wall
+left out, which is what k = 1 was producing.
+
+### 2. The failure modes, named
+
+Full evidence in ADR 0017. In order of how much they matter:
+
+1. **Off-frame wings.** `dwelling_frame` rotates a dwelling onto **one** angle.
+   A dwelling built on two — a wing splayed off a spine — is sheared into a
+   **different flat**: plausible, but not the one converted. 1.5 % of dwellings
+   have a room off frame by 10–20° and score cell agreement 0.705 with
+   worst-room IoU **0.167**; 1.2 % are worse. The whole p5 tail, and *not* a
+   solver failure — they come back OPTIMAL. Ticket *The dwelling that is built
+   on two angles*.
+2. **Floor no Room claims.** Median **1.19 m²** of real dwelling floor unclaimed;
+   **10.0 % of dwellings carry an enclosed void ≥ 0.5 m²** — a room-shaped hole
+   with walls round it and no name. Invisible because it hides inside
+   `uncovered`, which also counts the Envelope's correct notch under-cut.
+   Handed to *A dwelling with no toilet passes*.
+3. **Lost façade.** 4.1 % of façade-facing rooms lose frontage, 22.5 % of
+   dwellings lose at least one. Handed to *H8 and the single-aspect flat*.
+4. **Envelope loss is the dominant quality term — but the two-notch cap is not
+   what causes it.** Above 0.10 loss, 53.5 % of dwellings have a room at
+   IoU ≤ 0.5; above 0.20, 77.8 %. Yet the cap sits at the **knee of its own
+   ladder** (median loss 0.161 / 0.050 / **0.018** / 0.011 / 0.010 at k = 0…4),
+   raising it to four leaves 56 % of the worst 230 dwellings still above 0.10,
+   and the four-notch ablation arm converts 88.0 % against 93.2 %. Ticket *The
+   two-notch cap is now evidenced, and more notches is not the fix*.
+
+### 3. Are the added relations the right choices? Yes — and the question was asked the wrong way round.
+
+They are not *"the pairs where one room wraps another and the fit picks a side"*.
+By construction a `spurious` relation is a pair whose bounding boxes
+**overlapped** on that axis in the corpus and no longer do after squaring;
+squaring necessarily turns an ambiguous separation into a definite one, and that
+is the **only** free choice the fit makes about relations at all. Rendered, the
+picks are what a person would draw.
+
+The 15.7 % in the question above is the k = 1 figure. **Two k ≤ 2 rates are both
+correct**: **13.58 %** paired over the 1,779 dwellings both arms converted (the
+like-for-like measure, and the only one `rectangularisation.md` §11.4 publishes),
+and **12.62 %** over all 2,317 conversions and 97,090 axis-pairs — what the
+corpus the Proposer sees actually contains, and the one to quote downstream. The
+538 dwellings k ≤ 2 rescued carry a *lower* spurious rate than the ones both
+arms managed.
+
+### 4. Is cell agreement the right headline? Honest, but it must not travel alone — and three companions are not evidence.
+
+It ranks dwellings the way looking at them does (rank correlation **0.825** with
+worst-room IoU), and of the 69.6 % scoring ≥ 0.90 only **0.8 %** hide a room at
+IoU ≤ 0.30. So it is not self-serving in the damaging way. But it averages over
+cells and a person looks at the worst room: in the 0.88–0.92 band the worst room
+runs p10 0.45 to p90 0.82. **Publish worst-room IoU beside it.**
+
+The larger finding is about the numbers standing *next* to it. `edges_lost = 0`,
+"zero separation directions flipped" and per-room area error inside ±10 % are all
+**hard constraints restated** — a dwelling that would violate any is *refused*,
+not converted. **"Zero adjacencies destroyed" and "9.5 % refused" are one fact
+stated twice**, and only one of them was in the headline. What is genuinely free:
+cell agreement, the IoU distribution, the refusal rate, and `boundary_lost`.
+
+### 5. What was refused
+
+242 of 2,549 (**9.5 %**) INFEASIBLE. Rendered, they are **ordinary flats** —
+nothing a person would call unrepresentable. The ablation names hard **adjacency**
+as the cause (99.2 % convert without it against 93.2 % shipped; relaxing the area
+band to ±25 % recovers only 5 of 13). Refused dwellings are slightly larger
+(median 8 rooms against 7) and slightly thinner (55.4 % against 42.6 % have a room
+below the 1.25 m centreline leg floor). Not reopened here — the reject rule is
+ADR 0008's and this ticket was forbidden it — but recorded: **the refusal rate is
+where the adjacency guarantee's cost is actually paid.**
+
+### 6. Discharged from other tickets
+
+✅ **ADR 0014's tag placement reads as deliberate.** An L-shaped Space tagged at
+the centroid of its **largest constituent rectangle** looks placed, not slid.
+*Whether a Room may be more than one rectangle* item 4 asked for a drawn example
+and there was no renderer to give one; there is now, and the answer is yes.
+
+✅ **The face-convention check** was already discharged by
+*One internal thickness* and was not repeated.
+
+✅ **The `swiss_fit.json` labelling defect** was fixed at source by ADR 0016;
+`render_sheet.py` reloads types and asserts they match the record rather than
+working around it. No mismatch fired over 67 dwellings.
+
+### Assets
+
+- `experiments/rectangularise/render_sheet.py` — the renderer. **A prototype;
+  it must not become the engine's.** Picks: `spread`, `median`, `p5`, `p95`,
+  `worstroom`, `k2`, `corridor`, `spurious`, `infeasible`, `feasible`.
+- `experiments/rectangularise/void_census.py` — the unassigned-floor split and
+  the frame-residual measurement.
+- `out/sheets/SHEET.html` — the sheet index. Regenerate; `out/` is gitignored.
+- `experiments/rectangularise/README.md` — updated with both, and with the
+  constraint-restated table.
+
+⚠️ **There is still no renderer on this map**, and this is the second ticket to
+need one and have to build it first. *The annotation spec is US-shaped*, the IFC
+tickets and the acceptance bar will each need to look at a plan.

@@ -1064,3 +1064,88 @@ consequence 5's ~17 CPU-hours for both corpora becomes roughly **70**.
 written: door-width adjacency is still the only adjacency measured, and interior
 shafts are still handed to habitable rooms. A second rectangle does not give the
 Envelope an interior obstacle.
+
+---
+
+## 12. ⚠️ Three of §11's fidelity headlines are constraints restated
+
+*Look at the converted corpus* (ADR
+[0017](../adr/0017-three-of-the-conversions-fidelity-headlines-are-constraints-restated.md))
+rendered 67 converted dwellings beside their originals. The verdict is that a
+converted dwelling **reads as a home** — but the looking also found that three of
+the numbers this document quotes as fidelity results are the *constraint set*
+restated, and they must stop being cited as evidence.
+
+Each is posted **hard** in `fit_rects`, so a dwelling that would violate it is
+**refused** rather than converted, and the resulting zero measures the constraint:
+
+| quoted here as | what it actually is |
+|---|---|
+| §11.3 *"adjacencies destroyed, 0 of 17,367"* | contact is a hard constraint. **"Zero adjacencies destroyed" and "9.5 % refused" are one fact stated twice.** |
+| §11.3 / §11.4 *"0 weakened, 0 flipped"* | the true relations are posted hard. §3 already says this — *"with them, flipped and weakened are both exactly zero **by construction**"* — but the summary tables at §11.3 and §11.4 repeat the zeros without it. |
+| §11.3 per-room area error inside ±10 % | the band **is** ±10 %, posted hard. p99 of \|aerr\| is 0.111. |
+
+§11.3 does say these are *"guarantees of the formulation rather than of the
+rectangle count"*. That is correct and is not enough: read from the summary
+tables alone they look like measurements, and they have been quoted that way on
+the map.
+
+**What is genuinely free, and therefore quotable:** `cell_agreement`, the IoU
+distribution, **the refusal rate**, and `boundary_lost`.
+
+### 12.1 Cell agreement never travels alone
+
+Checked against the eye, cell agreement is honest — it ranks dwellings the way
+looking at them does (rank correlation **0.825** with worst-room IoU), and of the
+69.6 % of conversions scoring ≥ 0.90 only **0.8 %** hide a room at IoU ≤ 0.30. But
+it averages over cells and a person looks at the worst room, and at a fixed
+agreement the worst room is wide:
+
+| cell agreement | dwellings | worst-room IoU p10 | median | p90 | share ≤ 0.30 |
+|---|---:|---:|---:|---:|---:|
+| 0.95–1.00 | 922 | 0.74 | 0.90 | 0.96 | 0.1 % |
+| 0.88–0.92 | 410 | 0.45 | 0.68 | 0.82 | 2.9 % |
+| 0.78–0.84 | 180 | 0.23 | 0.47 | 0.67 | 17.2 % |
+| < 0.78 | 156 | 0.00 | 0.25 | 0.47 | 58.3 % |
+
+**Publish worst-room IoU beside every cell agreement.**
+
+### 12.2 §11.4's spurious rate is the paired one, and there is a second
+
+§11.4 gives Swiss k ≤ 2 as **0.1358**. That is over the **1,779 dwellings both
+arms converted** — the right number for measuring what the second rectangle
+bought, and the wrong one for describing the corpus. Over **all 2,317
+conversions and 97,090 axis-pairs** the rate is **0.1262**.
+
+The gap is not rounding. The 538 dwellings k ≤ 2 rescued and k = 1 refused carry
+a *lower* spurious rate than the ones both arms managed, so rescuing them
+improved the corpus twice over. **Ticket 23 should use 0.1262** — roughly one
+axis-pair in eight, not one in seven.
+
+⚠️ **And §11.4's explanation of what a spurious relation *is* is wrong.** It says
+ADR 0008 *"adds a separation assertion on the axis-pairs the truth abstained on,
+because one rectangle must pick a side when a room wraps another."* By
+construction a `spurious` relation is a pair whose bounding boxes **overlapped**
+on that axis and no longer do after squaring — the truth abstains because the
+projections overlap, and squaring resolves the overlap. Wrapping is one cause of
+overlap and not the only one. Rendered, the picks read as what a person would
+draw; the caution ticket 23 is owed stands, but the reason is *overlap resolved*,
+not *side picked*.
+
+### 12.3 Two things the rendering found that no number here reports
+
+**Floor no Room claims.** Exact tiling is soft, so an Envelope cell no Room takes
+is legal. Measured over 400 dwellings by `void_census.py`, splitting the
+Envelope's deliberate notch under-cut (correctly empty) from real floor: median
+**1.19 m²** of real dwelling floor unclaimed, and **10.0 % of dwellings carry an
+*enclosed* void ≥ 0.5 m²** — a room-shaped hole with walls round it and no name.
+Invisible here because `uncovered` sums the correct case and the incorrect one.
+Handed to the acceptance bar.
+
+**Off-frame wings.** `dwelling_frame` rotates a dwelling onto one angle. A
+dwelling built on two is sheared into a *different flat* — **1.5 % of dwellings**
+have a room off frame by 10–20°, scoring cell agreement 0.705 with worst-room IoU
+**0.167**, and they come back **OPTIMAL** while doing it. Ticketed as *The
+dwelling that is built on two angles*.
+
+Harness: `render_sheet.py`, `void_census.py`. Sheets at `out/sheets/SHEET.html`.
