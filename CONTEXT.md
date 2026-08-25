@@ -386,13 +386,22 @@ sitting near one, and it is named by the Wall segment it pierces, so it is named
 by the pair of rooms it connects. An Opening is **typed** from a regional
 catalogue rather than dimensioned freely — door leaves come in a discrete set that
 differs by country, and a door of an invented width is the clearest tell that a
-plan was generated. A **cased opening** is an Opening with no leaf, which is how
-most homes join a kitchen to a living room and which a model that only knows
-hinged doors cannot say.
+plan was generated. A **cased opening** is an Opening with no leaf, which a model
+that only knows hinged doors cannot say.
+
+_Avoid_: "which is how most homes join a kitchen to a living room". That is a
+Western prior and the one profile v1 ships refutes it twice — the `AZ` catalogue
+manufactures a **glazed living-room door**, and a gas hob is the Baku norm. In
+`AZ` the only cased opening is between `living` and `dining`, and an open kitchen
+is expressed by **merging Rooms** in the Brief rather than by deleting a leaf.
+`openings.md` §5.
 
 An Opening has **three widths and they are not the same number**: the *structural
 opening* that voids the wall, the *leaf* that is manufactured, and the *clear*
-width you can carry furniture through. Which one is meant is always stated.
+width you can carry furniture through. Which one is meant is always stated —
+which is not the same as all three being published. v1 publishes structural and
+leaf and **refuses to publish clear**, the frame section being a joinery detail
+no region profile carries and no shipped rule consuming it.
 
 An Opening's **height is catalogue and its placement is not.** The catalogue mark
 fixes height and width together — a GOST mark reads *height*-then-*width*, so `OR
@@ -403,10 +412,14 @@ the catalogue could not carry it and an invented per-instance sill would be the
 same tell as an invented width.
 
 **Head datum** — the single line every window hangs from, and the reason a sill is
-derived rather than stored: `sill = head datum − opening height`. It is the
-tallest opening in the region catalogue, because a balcony door and the window
-beside it share a lintel. Doors sit below it at their own catalogue height. ADR
-0012.
+derived rather than stored: `sill = head datum − opening height`. Doors sit below
+it at their own catalogue height. ADR 0012.
+
+_Avoid_: "because a balcony door and the window beside it share a lintel". The
+number is right and that reason is **dead in v1**, which models no balcony, so
+the entry the datum was read off can never be placed. What justifies 2200 is that
+an AZ window head sits **above** the door head, which is what a real elevation
+does and what keeps doors reading at their own 2100. `openings.md` §2.5.
 
 **Fall barrier** — guarding at a window, held separately from the window's sill
 height, because the height that protects against a fall and the height that lets a
@@ -422,7 +435,38 @@ schedule prints `—`. ADR 0012.
 **Swing footprint** — the region a door leaf sweeps, taken as the leaf-side
 square anchored at the hinge. Deliberately the bounding box of the swept
 quarter-disc rather than the disc: conservative, integer, and checkable before
-any fixture or furniture exists.
+any fixture or furniture exists. Its side is the **leaf** width, not the
+structural opening — 100 mm smaller, which is 100 mm of relief in every wet room.
+
+**Receiving Space** — of the two Spaces an Opening joins, the one the Opening
+*belongs to* when you name it out loud: "the bathroom door". Resolved by a fixed
+ladder — private, then wet, then further from the entrance, then smaller — and it
+is the single answer three separate rules read: which catalogue entry the door
+takes, which side the [[Nib]] is measured into, and which way the door swings.
+`openings.md` §3.3.
+
+_Avoid_: "the room the door opens into" as a synonym. A door swings into its
+Receiving Space by default and may be flipped out of it when clearance fails, so
+the two coincide in the normal case and come apart in exactly the case worth
+naming.
+
+**Nib** — the clear run of wall left at a door's **leading edge** — the handle
+side, not the hinge side — maintained back into the [[Receiving Space]]. 300 mm
+along the wall, 1200 mm deep. The along-the-wall half is ergonomic: architrave,
+handle, elbow. The depth is accessibility, kept because it costs no wall run.
+
+It is the reason a door needs more shared wall than its own width: jamb + opening
++ nib, the same total whichever end the door is hinged at, and the 400 mm the
+solver's contact threshold had never reserved. ADR 0021.
+
+**Placement order** — Openings are placed **breadth-first from the primary
+entrance**, each pushed to the end of its shared run nearest where the path
+arrives. Realised circulation is a tree rooted at the front door, so the order is
+determined rather than searched. It is the rule an architect follows without
+naming it — you place doors as you walk in — and it is what leaves the far wall of
+a room unbroken. The **hinge** is then derived from the position rather than
+chosen, so the schedule's handing column and the plan's swing arc cannot
+disagree. ADR 0021.
 
 **Storey** — the level a Plan's geometry sits on, and **the only thing in this
 model that has a height**. Exactly one in v1, and the Acceptance bar says so. It
