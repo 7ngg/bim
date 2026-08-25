@@ -4,7 +4,7 @@ title: The partition footprint has a mean and no spread
 parent: map
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - experiments/thickness-fidelity/
