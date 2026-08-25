@@ -1,0 +1,135 @@
+ADR 0007 residue class -- a published minimum must satisfy
+    minimum_mm + t_int == 0 (mod 250)
+
+ t_int  residue   what it means
+   100      150  <- what EVERY experiment on this map actually ran at
+   120      130  <- what ticket 29 and ADR 0010 s3 both say was run. Nothing was.
+   150      100  <- what ADR 0010 ships
+
+==============================================================================
+HALF ONE -- the linear minima, for a GRID-ALIGNED table. Invariant.
+==============================================================================
+`GRID*w - t >= GRID*min` gives `w >= min + ceil(t/GRID)`, and
+ceil(t/250) is 1 for every t in (0, 250]. So 100, 120 and 150 impose
+the SAME width and height bound -- but ONLY because every minimum in
+this table is a whole number of grid units. See HALF THREE.
+
+      kind  min_w   w@100   w@120   w@150   moves?
+  bathroom      6       7       7       7   no
+   bedroom      8       9       9       9   no
+  corridor      4       5       5       5   no
+    dining      9      10      10      10   no
+      hall      5       6       6       6   no
+   kitchen      7       8       8       8   no
+    living     11      12      12      12   no
+     study      7       8       8       8   no
+   utility      5       6       6       6   no
+        wc      4       5       5       5   no
+
+  room types whose linear bound moves between 100 and 150: 0
+
+==============================================================================
+HALF TWO -- the eroded AREA. Moves continuously, and is the only
+channel through which t_int can reach a solve at all.
+==============================================================================
+`amm = (250w - t)(250h - t)` shrinks with t, so the area floor bites
+harder. This is what the sweep has to measure.
+
+     rect    m2@100    m2@120    m2@150  loss 100->150  as % of the rect
+   8x8        3.610     3.534     3.422          0.188             5.19%
+   9x8        4.085     4.004     3.885          0.200             4.90%
+  11x11       7.022     6.917     6.760          0.263             3.74%
+  12x14       9.860     9.734     9.547          0.312             3.17%
+  13x15      11.498    11.362    11.160          0.338             2.94%
+  18x10      10.560    10.424    10.223          0.338             3.20%
+  22x14      18.360    18.184    17.922          0.438             2.38%
+
+Which published minima the area move actually threatens:
+a room at exactly its area floor at t = 100 that falls below it at 150.
+
+  placeholder: 7 of 10 room types need a bigger grid rect at 150 than at 100
+        bathroom   64 ->  72 grid cells (+12.5%)
+         bedroom  121 -> 132 grid cells (+9.1%)
+          dining  121 -> 132 grid cells (+9.1%)
+            hall   56 ->  64 grid cells (+14.3%)
+         kitchen   90 -> 100 grid cells (+11.1%)
+           study   90 -> 100 grid cells (+11.1%)
+              wc   30 ->  36 grid cells (+20.0%)
+  derived ergonomic: 0 of 10 room types need a bigger grid rect at 150 than at 100
+
+==============================================================================
+HALF THREE -- the SHIPPED ergonomic layer, whose minima are
+millimetres and are NOT on the lattice (ADR 0009 exempts them).
+==============================================================================
+Here the linear bound CAN move, because `ceil((min_mm + t)/250)`
+depends on where `min_mm` sits inside its grid step. This is the
+half that reaches the shipped system, and it is not what the
+solver harness measures -- the harness still runs the placeholder.
+
+                kind  min_mm   w@100   w@120   w@150   moves 100->150?
+      bathroom.short    1000       5       5       5   no
+       bathroom.long    1700       8       8       8   no
+bedroom_double.short    1650       7       8       8   YES
+ bedroom_double.long    1900       8       9       9   YES
+bedroom_principal.short    2100       9       9       9   no
+bedroom_principal.long    2300      10      10      10   no
+bedroom_single.short    1200       6       6       6   no
+ bedroom_single.long    1900       8       9       9   YES
+      corridor.short     900       4       5       5   YES
+       corridor.long     900       4       5       5   YES
+        dining.short    1300       6       6       6   no
+         dining.long    1500       7       7       7   no
+entrance_lobby.short     900       4       5       5   YES
+ entrance_lobby.long    1138       5       6       6   YES
+          hall.short     900       4       5       5   YES
+           hall.long    1138       5       6       6   YES
+       kitchen.short     900       4       5       5   YES
+        kitchen.long    2100       9       9       9   no
+kitchen_dining.short    1300       6       6       6   no
+ kitchen_dining.long    2200      10      10      10   no
+        living.short    1850       8       8       8   no
+         living.long    2000       9       9       9   no
+ living_dining.short    1850       8       8       8   no
+  living_dining.long    3150      13      14      14   YES
+living_dining_kitchen.short    1850       8       8       8   no
+living_dining_kitchen.long    4050      17      17      17   no
+   shower_room.short    1000       5       5       5   no
+    shower_room.long    1400       6       7       7   YES
+       storage.short     600       3       3       3   no
+        storage.long     900       4       5       5   YES
+         study.short     800       4       4       4   no
+          study.long    1050       5       5       5   no
+       utility.short     900       4       5       5   YES
+        utility.long    1500       7       7       7   no
+            wc.short     800       4       4       4   no
+             wc.long    1000       5       5       5   no
+
+  14 of 36 shipped clear dimensions gain a whole
+  grid unit -- 250 mm on that axis -- going from t_int 100 to 150.
+      bedroom_double.short  1650 mm: w 7 -> 8 (1600 -> 1850 mm clear delivered)
+       bedroom_double.long  1900 mm: w 8 -> 9 (1850 -> 2100 mm clear delivered)
+       bedroom_single.long  1900 mm: w 8 -> 9 (1850 -> 2100 mm clear delivered)
+            corridor.short   900 mm: w 4 -> 5 (850 -> 1100 mm clear delivered)
+             corridor.long   900 mm: w 4 -> 5 (850 -> 1100 mm clear delivered)
+      entrance_lobby.short   900 mm: w 4 -> 5 (850 -> 1100 mm clear delivered)
+       entrance_lobby.long  1138 mm: w 5 -> 6 (1100 -> 1350 mm clear delivered)
+                hall.short   900 mm: w 4 -> 5 (850 -> 1100 mm clear delivered)
+                 hall.long  1138 mm: w 5 -> 6 (1100 -> 1350 mm clear delivered)
+             kitchen.short   900 mm: w 4 -> 5 (850 -> 1100 mm clear delivered)
+        living_dining.long  3150 mm: w 13 -> 14 (3100 -> 3350 mm clear delivered)
+          shower_room.long  1400 mm: w 6 -> 7 (1350 -> 1600 mm clear delivered)
+              storage.long   900 mm: w 4 -> 5 (850 -> 1100 mm clear delivered)
+             utility.short   900 mm: w 4 -> 5 (850 -> 1100 mm clear delivered)
+
+  WHY: ADR 0007 congruence over the layer ADR 0009 exempted from it.
+  A minimum loses nothing to the grid exactly when it is congruent to
+  the residue class -- and at t_int = 100 a third of this table was,
+  by accident. 900, 1400, 1650, 1900 and 3150 are all 150 (mod 250).
+
+   t_int  residue  congruent   of    wasted mm, summed over the table
+     100      150         12   36                            2524 mm
+     120      130          0   36                            5304 mm
+     150      100          6   36                            4224 mm
+
+  The exemption was priced once, at a t_int nothing now ships. Its
+  cost is a function of t_int and moved when t_int did.

@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:task]
 status: open
 assignee:
-blocked_by: [29]
+blocked_by: []
 writes:
   - experiments/solver-toy/
   - docs/research/solver-formulation.md
@@ -85,3 +85,33 @@ that blocked *The Proposal cannot express zoning* on ADR 0014.
 measured cost, or — the outcome to be genuinely open to — a finding that the
 property collapses into predicates the existing graph already supports, and no
 new solver machinery is owed.
+
+## Unblocked by *The solver has only ever seen guillotine layouts* (ADR 0018)
+
+**The rig is not moving, so pricing an encoding against it now measures the
+encoding.** That was the whole reason for the block: 29 was expected to re-base
+the ground truth every timing on this map was measured against. It re-based
+nothing — 4 discordant slots each way, McNemar p = 1.00, and zero discordant at
+8–16 rooms — so **15 s, τ = 4 and Part II's percentiles all stand at their
+published values** and are the correct baseline to price a per-Room hop-count
+integer against.
+
+Three things 29 leaves you that change how to run this:
+
+1. **`experiments/solver-toy/` is yours alone now.** 29 is closed. It added
+   `pinwheel.py`, `sweep_ng.py`, `report_ng.py`, `relation_margins.py`,
+   `t_int_arithmetic.py`, `pinwheel_area_premium.py` and `corpus_guillotine.py`,
+   and deliberately left `_guillotine` the **default** — do not re-base it.
+   `sweep_ng.py`'s paired-arm shape is reusable as-is if you want to price the
+   encoding on both cut structures rather than one.
+2. **A hop-count integer should be priced on the non-guillotine arm too**, and
+   cheaply — it is one extra value of `truth` in the same suite. 29's own result
+   makes that worth doing rather than optional: the arms agree on *survivor rate*
+   but the pinwheel arm reaches INFEASIBLE **significantly less often** (17
+   against 2, p = 0.0007), so a new hard integer's effect on infeasibility is
+   exactly the axis where the two arms are known to differ.
+3. ⚠️ **A fixture defect you will hit at small `n`.** `AREA_PER_ROOM_M2` = 9.65 is
+   below what the placeholder table needs at 7 and 8 rooms in **either** arm —
+   both need 11.58. Below 7 rooms this Envelope family has no non-guillotine
+   tiling at all. If you sweep low room counts, that is the harness talking, not
+   your encoding.

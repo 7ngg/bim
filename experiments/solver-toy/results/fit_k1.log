@@ -1,0 +1,6 @@
+dwellings: 46800; fitting 600  k_max=1 select=shape force=False hint=truth leg=5 join=5 time=10.0
+  200  {'OPTIMAL': 150, 'INFEASIBLE': 50}  228s  1.14s/dwelling
+  400  {'OPTIMAL': 286, 'INFEASIBLE': 113, 'ROOM_LOST_IN_RASTER': 1}  405s  1.01s/dwelling
+  600  {'OPTIMAL': 420, 'INFEASIBLE': 176, 'ROOM_LOST_IN_RASTER': 4}  582s  0.97s/dwelling
+done: {'OPTIMAL': 420, 'INFEASIBLE': 176, 'ROOM_LOST_IN_RASTER': 4}
+wrote C:\Users\tng\g2p\bim-wf-29\experiments\rectangularise\out\swiss_fit_k1.json

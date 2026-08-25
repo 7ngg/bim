@@ -1,0 +1,42 @@
+Smallest interior area per room at which a dwelling can be built and
+typed. `typed/seeds`; `*` marks uplifts where some seed produced no
+tiling at all. The clear reading is on, t_int = 100.
+
+guillotine:
+ per room     n=7     n=8    n=10    n=12    n=16    n=24
+     9.65     0/4     3/4     4/4     2/4     4/4     4/4
+    10.13     4/4     3/4     4/4     4/4     4/4     4/4
+    10.62     3/4     3/4     4/4     4/4     4/4     4/4
+    11.10     4/4     3/4     4/4     4/4     4/4     4/4
+    11.58     4/4     4/4     4/4     4/4     4/4     4/4
+    12.54     4/4     4/4     4/4     4/4     4/4     4/4
+    14.47     4/4     4/4     4/4     4/4     4/4     4/4
+
+pinwheel:
+ per room     n=7     n=8    n=10    n=12    n=16    n=24
+     9.65     0/4     1/4     3/4     2/4     4/4     4/4
+    10.13     0/4     2/4     4/4     4/4     4/4     4/4
+    10.62     1/4     0/4     4/4     4/4     4/4     4/4
+    11.10     2/4     2/4     4/4     4/4     4/4     4/4
+    11.58     4/4     4/4     4/4     4/4     4/4     4/4
+    12.54     4/4     4/4     4/4     4/4     4/4     4/4
+    14.47     4/4     4/4     4/4     4/4     4/4     4/4
+
+Smallest area per room at which every seed typed:
+   n   guillotine   pinwheel   premium
+   7       10.133      11.58      +14%
+   8        11.58      11.58       +0%
+  10         9.65     10.133       +5%
+  12       10.133     10.133       +0%
+  16         9.65       9.65       +0%
+  24         9.65       9.65       +0%
+
+And what the pinwheel is, where it exists - residue is the largest
+block no sequence of cuts takes apart; 1 means guillotine.
+   n  residue(G)  residue(P)
+   7           1           5
+   8           1           6
+  10           1           9
+  12           1          11
+  16           1          14
+  24           1          21
