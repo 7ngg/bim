@@ -23,7 +23,9 @@ def main():
     print("=" * 78)
     for k, v in st.most_common():
         print(f"  {k:<24} {v:>6}  {v / n:.4f}")
-    ok = [r for r in recs if "rects" in r]
+    # A k <= 2 record carries `parts` and no `rects` -- a Room is a list of
+    # rectangles there, and only the k = 1 file can flatten it to one per Room.
+    ok = [r for r in recs if "rects" in r or "parts" in r]
     print(f"\n  converted: {len(ok)} / {n} = {len(ok) / n:.4f}")
 
     # ------------------------------------------------------------ notches
@@ -98,7 +100,7 @@ def main():
     print(f"{'rooms':>6} {'tried':>7} {'converted':>10} {'IoU med':>9} {'agree med':>10}")
     for k in range(4, 11):
         sub = [r for r in recs if r.get("n") == k]
-        good = [r for r in sub if "rects" in r]
+        good = [r for r in sub if "rects" in r or "parts" in r]
         if not sub:
             continue
         i = [x for r in good for x in r["iou"]]

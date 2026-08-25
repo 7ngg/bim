@@ -83,6 +83,18 @@ MAX_NOTCHES = 2         # ADR 0003: v1 Envelope is bbox minus at most two notche
 MIN_NOTCH_CELLS = 4     # 0.25 m2: below this a 'notch' is a rasterisation sliver
 WORKERS = 4              # ticket 15: two workers is a floor for correctness
 
+# ADR 0014: a Room is one or two axis-aligned rectangles. A rectangle beyond the
+# first carries a universal leg floor of 900 mm CLEAR, and the two must share at
+# least 900 mm of edge. This fit works on the watershed / CENTRELINE plane, so a
+# part w cells wide is 250w mm centreline and 250w - t_int clear. The realisable
+# value of a 900 mm clear floor at the shipped grid and t_int 150 is 1 100 mm
+# (ADR 0009, CONTEXT.md's *Realisable minimum*), which is 5 cells: 4 cells give
+# 1 000 - 150 = 850 mm clear and miss it.
+T_INT_MM = 150          # ADR 0010
+LEG_CLEAR_MM = 900      # ADR 0014: hall/corridor minimum, no new provenance
+LEG_CELLS = int(math.ceil((LEG_CLEAR_MM + T_INT_MM) / GRID_MM))   # 5
+JOIN_CELLS = LEG_CELLS  # ADR 0014's join predicate is the same 900 mm clear
+
 
 # ------------------------------------------------------------------ watershed
 
@@ -347,46 +359,159 @@ def agreement_terms(m, i, X1, X2, Y1, Y2, rowpre, nx, ny):
     return out
 
 
+def contact_opts(m, a, b, L, X1, X2, Y1, Y2, nx, ny, pres, tag):
+    """Literals whose truth implies parts a and b share a flush edge of >= L cells.
+
+    One-directional -- `lit => contact` -- so a caller asserts AddBoolOr over the
+    returned list. Choosing an option that involves an absent part also forces
+    that part present, which is `solver_parts._gated`'s lesson posted the other
+    way round: an absent part sits at the origin with zero size, and every face
+    it appears to offer has zero overlap, so absence is already self-killing
+    here. The implication is belt and braces, and it is what lets the join and
+    the adjacency OR mean what they say.
+    """
+    opts = []
+    for (u, v) in ((a, b), (b, a)):
+        for axis in (0, 1):
+            lit = m.NewBoolVar(f"{tag}{len(opts)}_{a}_{b}")
+            if axis == 0:
+                m.Add(X2[u] == X1[v]).OnlyEnforceIf(lit)
+                lo = m.NewIntVar(0, ny, f"lo{tag}{len(opts)}_{a}_{b}")
+                hi = m.NewIntVar(0, ny, f"hi{tag}{len(opts)}_{a}_{b}")
+                m.AddMaxEquality(lo, [Y1[u], Y1[v]])
+                m.AddMinEquality(hi, [Y2[u], Y2[v]])
+                m.Add(hi - lo >= L).OnlyEnforceIf(lit)
+            else:
+                m.Add(Y2[u] == Y1[v]).OnlyEnforceIf(lit)
+                lo = m.NewIntVar(0, nx, f"lo{tag}{len(opts)}_{a}_{b}")
+                hi = m.NewIntVar(0, nx, f"hi{tag}{len(opts)}_{a}_{b}")
+                m.AddMaxEquality(lo, [X1[u], X1[v]])
+                m.AddMinEquality(hi, [X2[u], X2[v]])
+                m.Add(hi - lo >= L).OnlyEnforceIf(lit)
+            for k in (a, b):
+                if k in pres:
+                    m.AddImplication(lit, pres[k])
+            opts.append(lit)
+    return opts
+
+
 def fit(env, n, areas, boxes, edges, truth=None, rel_true=None,
-        time_limit=TIME_LIMIT, area_tol=AREA_TOL):
-    """Fit n rectangles into a v1-expressible Envelope.
+        time_limit=TIME_LIMIT, area_tol=AREA_TOL, k_max=1,
+        leg_cells=LEG_CELLS, join_cells=JOIN_CELLS, hint_parts=None,
+        k_of=None, force_second=False):
+    """Fit n Rooms of 1..k_max rectangles each into a v1-expressible Envelope.
 
     Constraint structure copies the shipped formulation exactly (C10, amended):
     adjacency and no-overlap are HARD, exact tiling is SOFT. Posting coverage
     hard is what made the first version of this reject almost every real
     dwelling -- and it would also have been the wrong model, since the solver
     this corpus feeds does not post it hard either.
+
+    At k_max = 1 this is the shipped fit, structurally unchanged. At k_max = 2 a
+    Room becomes 1..2 PARTS, per ADR 0014, and the units move with it:
+
+      area        binds per ROOM, over the sum of its parts -- a room area is a
+                  room area whatever its shape.
+      leg floor   binds per PART, and only on a secondary. The primary is left
+                  unbound exactly as at k = 1, so the arms differ in freedom and
+                  not in what the truth is asked to satisfy.
+      join        the two parts of a Room share an edge of at least `join_cells`.
+      adjacency   binds per ROOM: any part of i flush with any part of j. Per
+                  part would demand every leg touch, which is not what a door is.
+      relations   bind per PART PAIR, which is what "Room a is left of Room b"
+                  means once a is two boxes -- and is equivalent to posting it
+                  over the two Rooms' bounding boxes, without the aux variables.
+
+    The conversion is entitled to choose k where the solver is not (ADR 0014).
+    The reason is the objective: the solver's is corner displacement, which knows
+    nothing about what a room is for, while this one is misassigned cells against
+    the real room. Here the ground truth IS the taste, so `solver decides` and
+    `the Proposal decides` are the same decision made by the same evidence.
     """
     ny, nx = env.shape
     obstacles = obstacle_rects(~env)
     total = int(env.sum())
 
     m = cp_model.CpModel()
+    parts_of, room_of = {}, {}
     X1, X2, Y1, Y2, XI, YI, AREA = [], [], [], [], [], [], []
+    W_, H_ = [], []
+    pres = {}
+    if k_of is None:
+        k_of = [k_max] * n
     for i in range(n):
-        x1 = m.NewIntVar(0, nx, f"x1_{i}")
-        x2 = m.NewIntVar(0, nx, f"x2_{i}")
-        y1 = m.NewIntVar(0, ny, f"y1_{i}")
-        y2 = m.NewIntVar(0, ny, f"y2_{i}")
-        w = m.NewIntVar(1, nx, f"w_{i}")
-        h = m.NewIntVar(1, ny, f"h_{i}")
-        m.Add(x2 == x1 + w)
-        m.Add(y2 == y1 + h)
-        ar = m.NewIntVar(1, nx * ny, f"a_{i}")
-        m.AddMultiplicationEquality(ar, [w, h])
-        lo = max(1, int(math.floor(areas[i] * (1 - area_tol))))
-        hi = max(lo, int(math.ceil(areas[i] * (1 + area_tol))))
-        m.Add(ar >= lo)
-        m.Add(ar <= hi)
-        AREA.append(ar)
-        X1.append(x1); X2.append(x2); Y1.append(y1); Y2.append(y2)
-        XI.append(m.NewIntervalVar(x1, w, x2, f"xi_{i}"))
-        YI.append(m.NewIntervalVar(y1, h, y2, f"yi_{i}"))
+        parts_of[i] = []
+        for s in range(k_of[i]):
+            p = len(X1)
+            parts_of[i].append(p)
+            room_of[p] = i
+            second = s > 0
+            x1 = m.NewIntVar(0, nx, f"x1_{p}")
+            x2 = m.NewIntVar(0, nx, f"x2_{p}")
+            y1 = m.NewIntVar(0, ny, f"y1_{p}")
+            y2 = m.NewIntVar(0, ny, f"y2_{p}")
+            w = m.NewIntVar(0 if second else 1, nx, f"w_{p}")
+            h = m.NewIntVar(0 if second else 1, ny, f"h_{p}")
+            m.Add(x2 == x1 + w)
+            m.Add(y2 == y1 + h)
+            ar = m.NewIntVar(0 if second else 1, nx * ny, f"a_{p}")
+            m.AddMultiplicationEquality(ar, [w, h])
+            if second:
+                # Absent by zero size, not by an optional interval: measured in
+                # `room-rectangles/smoke_zero_box.py`, AddNoOverlap2D in the
+                # pinned ortools ignores a zero-area box. Pinned to the origin
+                # when absent so its coordinates stop being free variables.
+                pr = m.NewBoolVar(f"pres_{p}")
+                pres[p] = pr
+                m.Add(w == 0).OnlyEnforceIf(pr.Not())
+                m.Add(h == 0).OnlyEnforceIf(pr.Not())
+                m.Add(x1 == 0).OnlyEnforceIf(pr.Not())
+                m.Add(y1 == 0).OnlyEnforceIf(pr.Not())
+                m.Add(w >= leg_cells).OnlyEnforceIf(pr)
+                m.Add(h >= leg_cells).OnlyEnforceIf(pr)
+                # The leg floor binds the PRIMARY too, once this Room is two
+                # rectangles. ADR 0014 writes it as "any rectangle beyond the
+                # first", but it also binds minima "per constituent rectangle"
+                # so that "each leg of an L must be usable", and a 250 mm
+                # primary beside a 1 250 mm secondary is not an L -- it is a
+                # rectangle with a wart. Gated, so a Room that stays one
+                # rectangle keeps exactly the freedom it has at k = 1.
+                #
+                # It also buys the symmetry break below: with both parts
+                # carrying the same floor, which one is `primary` is arbitrary,
+                # so the pair can be ordered without deleting a solution. Order
+                # lexicographically on (x1, y1), which is a strict total order
+                # because two non-overlapping rectangles cannot share both.
+                q = parts_of[i][0]
+                m.Add(W_[q] >= leg_cells).OnlyEnforceIf(pr)
+                m.Add(H_[q] >= leg_cells).OnlyEnforceIf(pr)
+                m.Add(X1[q] * (ny + 1) + Y1[q]
+                      <= x1 * (ny + 1) + y1).OnlyEnforceIf(pr)
+                # Design A, ADR 0014: presence FIXED by what named this Room two
+                # rectangles, not searched. The presence booleans are what cost
+                # Design B its 3.9x variables; fixing them removes the search
+                # without removing the shape.
+                if force_second:
+                    m.Add(pr == 1)
+            AREA.append(ar)
+            W_.append(w); H_.append(h)
+            X1.append(x1); X2.append(x2); Y1.append(y1); Y2.append(y2)
+            XI.append(m.NewIntervalVar(x1, w, x2, f"xi_{p}"))
+            YI.append(m.NewIntervalVar(y1, h, y2, f"yi_{p}"))
 
+    np_ = len(X1)
     for (ox1, oy1, ox2, oy2) in obstacles:
         XI.append(m.NewIntervalVar(ox1, ox2 - ox1, ox2, f"ox{len(XI)}"))
         YI.append(m.NewIntervalVar(oy1, oy2 - oy1, oy2, f"oy{len(YI)}"))
     m.AddNoOverlap2D(XI, YI)
+
+    # Area binds per ROOM, over the sum of its parts.
+    for i in range(n):
+        lo = max(1, int(math.floor(areas[i] * (1 - area_tol))))
+        hi = max(lo, int(math.ceil(areas[i] * (1 + area_tol))))
+        tot_i = sum(AREA[p] for p in parts_of[i])
+        m.Add(tot_i >= lo)
+        m.Add(tot_i <= hi)
 
     # Exact tiling, SOFT: the shortfall is penalised, not forbidden.
     covered = m.NewIntVar(0, total, "covered")
@@ -404,39 +529,54 @@ def fit(env, n, areas, boxes, edges, truth=None, rel_true=None,
     # Relations the truth ABSTAINS on are left free. They are where one room
     # wraps another, and a rectangle model has to pick a side; that choice is
     # forced by the model, not an error in it.
+    #
+    # A Room relation binds every PART of it. Gated on presence: with q absent,
+    # `x2[p] <= x1[q]` reads `x2[p] <= 0` and forces a present part to zero
+    # width -- the defect `room-rectangles/README.md` records as reporting 36%
+    # INFEASIBLE against a control at 0% and making an L look compulsory.
     if rel_true is not None:
         for (i, j), (rx, ry) in rel_true.items():
-            if rx == "L":
-                m.Add(X2[i] <= X1[j])
-            elif rx == "R":
-                m.Add(X2[j] <= X1[i])
-            if ry == "B":
-                m.Add(Y2[i] <= Y1[j])
-            elif ry == "A":
-                m.Add(Y2[j] <= Y1[i])
+            if rx is None and ry is None:
+                continue
+            for p in parts_of[i]:
+                for q in parts_of[j]:
+                    gate = [pres[k] for k in (p, q) if k in pres]
+
+                    def post(c, gate=gate):
+                        if gate:
+                            m.Add(c).OnlyEnforceIf(gate)
+                        else:
+                            m.Add(c)
+
+                    if rx == "L":
+                        post(X2[p] <= X1[q])
+                    elif rx == "R":
+                        post(X2[q] <= X1[p])
+                    if ry == "B":
+                        post(Y2[p] <= Y1[q])
+                    elif ry == "A":
+                        post(Y2[q] <= Y1[p])
 
     # Every real adjacency must survive: flush faces, overlapping by a door run.
+    # At room level -- any part of i against any part of j.
     for (i, j) in edges:
         opts = []
-        for (a, b) in ((i, j), (j, i)):
-            for axis in (0, 1):
-                lit = m.NewBoolVar(f"adj_{i}_{j}_{a}_{axis}")
-                if axis == 0:
-                    m.Add(X2[a] == X1[b]).OnlyEnforceIf(lit)
-                    lo = m.NewIntVar(0, ny, f"lo{len(opts)}_{i}_{j}")
-                    hi = m.NewIntVar(0, ny, f"hi{len(opts)}_{i}_{j}")
-                    m.AddMaxEquality(lo, [Y1[a], Y1[b]])
-                    m.AddMinEquality(hi, [Y2[a], Y2[b]])
-                    m.Add(hi - lo >= DOOR_CELLS).OnlyEnforceIf(lit)
-                else:
-                    m.Add(Y2[a] == Y1[b]).OnlyEnforceIf(lit)
-                    lo = m.NewIntVar(0, nx, f"lo{len(opts)}_{i}_{j}")
-                    hi = m.NewIntVar(0, nx, f"hi{len(opts)}_{i}_{j}")
-                    m.AddMaxEquality(lo, [X1[a], X1[b]])
-                    m.AddMinEquality(hi, [X2[a], X2[b]])
-                    m.Add(hi - lo >= DOOR_CELLS).OnlyEnforceIf(lit)
-                opts.append(lit)
+        for p in parts_of[i]:
+            for q in parts_of[j]:
+                opts += contact_opts(m, p, q, DOOR_CELLS, X1, X2, Y1, Y2,
+                                     nx, ny, pres, f"adj{i}x{j}n")
         m.AddBoolOr(opts)
+
+    # The two parts of a Room share an edge. Anything shorter is a pinch, not an
+    # L -- ADR 0014's join predicate, at the same 900 mm clear as the leg floor.
+    for i in range(n):
+        ps = parts_of[i]
+        if len(ps) < 2:
+            continue
+        for a, b in zip(ps, ps[1:]):
+            opts = contact_opts(m, a, b, join_cells, X1, X2, Y1, Y2,
+                                nx, ny, {}, f"jn{i}n")
+            m.AddBoolOr(opts).OnlyEnforceIf(pres[b])
 
     # Objective: the number of 250 mm cells the rectangularisation gets wrong.
     #
@@ -448,19 +588,32 @@ def fit(env, n, areas, boxes, edges, truth=None, rel_true=None,
     # SHIPPED objective -- is wrong here and was measured to be: it minimises how
     # far corners move, which among exact tilings is nearly uncorrelated with how
     # much of the dwelling ends up in the right room (IoU median 0.14).
+    #
+    # An absent part contributes nothing without being gated: its rows are never
+    # active, because `Y1 <= y` and `Y2 >= y + 1` cannot both hold at zero height.
     agree = []
-    for i in range(n):
-        if truth is None:
-            break
-        rowpre = []
-        mask = (truth == i)
-        for y in range(ny):
-            row = np.concatenate([[0], np.cumsum(mask[y].astype(np.int32))])
-            rowpre.append([int(v) for v in row])
-        agree += agreement_terms(m, i, X1, X2, Y1, Y2, rowpre, nx, ny)
-        for var, tgt in ((X1[i], boxes[i][0]), (Y1[i], boxes[i][1]),
-                         (X2[i], boxes[i][2]), (Y2[i], boxes[i][3])):
-            m.AddHint(var, tgt)
+    if truth is not None:
+        rowpre_of = {}
+        for i in range(n):
+            mask = (truth == i)
+            rows = []
+            for y in range(ny):
+                row = np.concatenate([[0], np.cumsum(mask[y].astype(np.int32))])
+                rows.append([int(v) for v in row])
+            rowpre_of[i] = rows
+        for p in range(np_):
+            agree += agreement_terms(m, p, X1, X2, Y1, Y2,
+                                     rowpre_of[room_of[p]], nx, ny)
+        for i in range(n):
+            hp = (hint_parts or {}).get(i)
+            ps = parts_of[i]
+            if hp is None:
+                hp = [boxes[i]]
+            hp = list(hp) + [(0, 0, 0, 0)] * (len(ps) - len(hp))
+            for p, box in zip(ps, hp):
+                for var, tgt in ((X1[p], box[0]), (Y1[p], box[1]),
+                                 (X2[p], box[2]), (Y2[p], box[3])):
+                    m.AddHint(var, tgt)
     agreement = m.NewIntVar(0, total, "agreement")
     m.Add(agreement == sum(agree))
     m.Minimize(uncovered + (covered - agreement))
@@ -472,20 +625,76 @@ def fit(env, n, areas, boxes, edges, truth=None, rel_true=None,
     st = s.Solve(m)
     dt = time.time() - t
     name = s.StatusName(st)
+    out = {"status": name, "seconds": dt, "obstacles": len(obstacles),
+           "k_max": k_max, "n_parts": np_, "k_offered": list(k_of)}
     if st not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-        return {"status": name, "seconds": dt, "obstacles": len(obstacles)}
-    rects = [(s.Value(X1[i]), s.Value(Y1[i]), s.Value(X2[i]), s.Value(Y2[i]))
-             for i in range(n)]
-    return {"status": name, "seconds": dt, "obstacles": len(obstacles),
-            "objective": s.ObjectiveValue(), "uncovered": s.Value(uncovered),
-            "agreement": s.Value(agreement),
-            "rects": rects, "domain_cells": total}
+        return out
+    parts = []
+    for i in range(n):
+        got = []
+        for p in parts_of[i]:
+            r = (s.Value(X1[p]), s.Value(Y1[p]), s.Value(X2[p]), s.Value(Y2[p]))
+            if r[2] > r[0] and r[3] > r[1]:
+                got.append(r)
+        parts.append(got)
+    out.update({"objective": s.ObjectiveValue(), "uncovered": s.Value(uncovered),
+                "agreement": s.Value(agreement), "parts": parts,
+                "k_used": [len(g) for g in parts], "domain_cells": total})
+    if max(k_of) == 1:
+        out["rects"] = [g[0] for g in parts]
+    return out
 
 
-# ------------------------------------------------------------------ per dwelling
+def two_rect_hint(mask, leg_cells):
+    """A greedy 1..2 rectangle cover of one room's truth mask.
+
+    Seeds the search at the shape the room actually is: the largest rectangle
+    inside it, then the largest rectangle inside what is left. Only offered as a
+    second part when that remainder clears the leg floor and touches the first,
+    which is the same pair of conditions the model posts.
+    """
+    r1 = max_rect_in_mask(mask)
+    if r1 is None:
+        return None
+    rest = mask.copy()
+    rest[r1[1]:r1[3], r1[0]:r1[2]] = False
+    if not rest.any():
+        return [r1]
+    best = None
+    for cells in components(rest):
+        m2 = np.zeros_like(mask)
+        for (cy, cx) in cells:
+            m2[cy, cx] = True
+        r2 = max_rect_in_mask(m2)
+        if r2 is None:
+            continue
+        if r2[2] - r2[0] < leg_cells or r2[3] - r2[1] < leg_cells:
+            continue
+        if best is None or (r2[2] - r2[0]) * (r2[3] - r2[1]) > (best[2] - best[0]) * (best[3] - best[1]):
+            best = r2
+    if best is None:
+        return [r1]
+    # The join: the two must share an edge of at least the leg floor, or the
+    # hint is infeasible and CP-SAT throws it away for nothing. Same for the
+    # primary's own floor and the (x1, y1) ordering the symmetry break posts --
+    # a hint that breaks either is silently discarded, which is worse than no
+    # hint because it looks like one was given.
+    if r1[2] - r1[0] < leg_cells or r1[3] - r1[1] < leg_cells:
+        return [r1]
+    flush_x = (r1[2] == best[0] or best[2] == r1[0]) and \
+        min(r1[3], best[3]) - max(r1[1], best[1]) >= leg_cells
+    flush_y = (r1[3] == best[1] or best[3] == r1[1]) and \
+        min(r1[2], best[2]) - max(r1[0], best[0]) >= leg_cells
+    if not (flush_x or flush_y):
+        return [r1]
+    return sorted([r1, best], key=lambda r: (r[0], r[1]))
+
 
 def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
-                 max_notches=MAX_NOTCHES, rel_scope="all"):
+                 max_notches=MAX_NOTCHES, rel_scope="all", k_max=1,
+                 leg_cells=LEG_CELLS, join_cells=JOIN_CELLS,
+                 time_limit=TIME_LIMIT, hint="truth", k_select="shape",
+                 force_second=False):
     lab, x0, y0 = watershed(geoms)
     if lab is None:
         return {"status": "NO_RASTER"}
@@ -532,24 +741,72 @@ def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
         # of the flat is a different kind of wrong from one between neighbours,
         # and it is worth knowing whether the cheap half buys most of the fidelity.
         rt_post = {k: v for k, v in rt.items() if k in edges}
+
+    # WHICH Rooms get a second rectangle, and where the hint starts.
+    #
+    # ADR 0014 refuses to let the SOLVER decide, and measured why: Design B --
+    # every Room free to take a second box -- costs 3.9x the variables and
+    # 11-12x the time to a first Plan, against 1.2-1.7x for Design A, which
+    # gives a second box only to the Rooms something else named. Measured here
+    # at k_select="free", the shipped 10 s budget then decides NOTHING: 0 of 40
+    # dwellings proved either optimal or infeasible, so `converted` stopped
+    # meaning representable and started meaning `found something in 10 s`.
+    #
+    # The conversion is the one place Design A is free, because the taste it
+    # needs is sitting in front of it: the real room. `two_rect_hint` reads the
+    # room's own mask and says whether a second rectangle clearing the leg floor
+    # and joining the first is there to be had. That NAMES the Rooms, exactly as
+    # a Proposal does at serving time -- which is also what the converted
+    # dwelling has to become.
+    hint_parts, k_of = None, [1] * n
+    if k_max > 1:
+        if k_select == "free":
+            k_of = [k_max] * n
+            if hint == "shape":
+                hint_parts = {}
+        elif k_select == "shape":
+            hint_parts = {}
+        else:
+            raise ValueError(f"unknown k_select {k_select!r}")
+        if hint_parts is not None:
+            for i in range(n):
+                h = two_rect_hint(sub == i, leg_cells)
+                if h is not None:
+                    hint_parts[i] = h
+                    if k_select == "shape":
+                        k_of[i] = len(h)
+        if hint != "shape":
+            hint_parts = None
+
     res = fit(env, n, areas_e, boxes_e, edges if use_adj else set(),
-              truth=sub, rel_true=rt_post, area_tol=area_tol)
+              truth=sub, rel_true=rt_post, area_tol=area_tol, k_max=k_max,
+              leg_cells=leg_cells, join_cells=join_cells, time_limit=time_limit,
+              hint_parts=hint_parts, k_of=k_of, force_second=force_second)
     res["truth_boxes"] = boxes_e
     res.update(envinfo)
     res["n"] = n
     res["edges_true"] = len(edges)
     res["cells"] = int(env.sum())
-    if "rects" not in res:
+    res["hint"] = hint if k_max > 1 else "truth"
+    res["k_select"] = k_select if k_max > 1 else "-"
+    if "parts" not in res:
         return res
 
-    # Loss, measured back against the real rooms in the Envelope frame.
+    # Everything below measures the fitted ROOM -- the union of its parts --
+    # against the real room. At k = 1 a room is one rectangle and every number
+    # here is the one the shipped fit reported.
+    room_mask = []
+    for i in range(n):
+        cm = np.zeros(env.shape, dtype=bool)
+        for (rx1, ry1, rx2, ry2) in res["parts"][i]:
+            cm[ry1:ry2, rx1:rx2] = True
+        room_mask.append(cm)
+
     ious, aerr, agree = [], [], 0
-    for i, (rx1, ry1, rx2, ry2) in enumerate(res["rects"]):
-        cell = np.zeros(env.shape, dtype=bool)
-        cell[ry1:ry2, rx1:rx2] = True
-        truth = sub == i
-        inter = int((cell & truth).sum())
-        union = int((cell | truth).sum())
+    for i in range(n):
+        cell, truth_i = room_mask[i], (sub == i)
+        inter = int((cell & truth_i).sum())
+        union = int((cell | truth_i).sum())
         ious.append(inter / union if union else 0.0)
         aerr.append((int(cell.sum()) - areas_e[i]) / areas_e[i] if areas_e[i] else 0.0)
         agree += inter
@@ -559,30 +816,36 @@ def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
 
     # Did every real adjacency in fact survive? Hard-constrained, so this is an
     # assertion rather than a measurement -- it fires only if the model is wrong.
-    kept = set()
-    for (i, j) in edges:
-        a, b = res["rects"][i], res["rects"][j]
-        if a[2] == b[0] or b[2] == a[0]:
-            if min(a[3], b[3]) - max(a[1], b[1]) >= DOOR_CELLS:
-                kept.add((i, j))
-        elif a[3] == b[1] or b[3] == a[1]:
-            if min(a[2], b[2]) - max(a[0], b[0]) >= DOOR_CELLS:
-                kept.add((i, j))
+    # Counted as shared cell faces between the two room masks, which for flush
+    # rectangles is the overlap run the constraint posted.
+    def shared_faces(a, b):
+        c = int((a[:, :-1] & b[:, 1:]).sum()) + int((a[:, 1:] & b[:, :-1]).sum())
+        c += int((a[:-1, :] & b[1:, :]).sum()) + int((a[1:, :] & b[:-1, :]).sum())
+        return c
+
+    kept = {(i, j) for (i, j) in edges
+            if shared_faces(room_mask[i], room_mask[j]) >= DOOR_CELLS}
     res["edges_lost"] = len(edges - kept)
 
     # Does the fit KEEP the separation relations a bounding box preserves for
     # free? This is the one comparison that decides the conversion, because the
-    # relation -- not the geometry -- is what the Proposal transmits.
-    rf = rel_of(res["rects"])
+    # relation -- not the geometry -- is what the Proposal transmits. Taken over
+    # the fitted Room's bounding box, which is what a Room-level relation means.
+    fit_boxes = []
+    for i in range(n):
+        ys, xs = np.nonzero(room_mask[i])
+        fit_boxes.append((int(xs.min()), int(ys.min()),
+                          int(xs.max()) + 1, int(ys.max()) + 1))
+    rf = rel_of(fit_boxes)
     c = Counter()
-    for k, t in rt.items():
+    for k, tv in rt.items():
         f = rf[k]
         for ax in (0, 1):
-            if t[ax] == f[ax]:
+            if tv[ax] == f[ax]:
                 c["same"] += 1
-            elif t[ax] is not None and f[ax] is None:
+            elif tv[ax] is not None and f[ax] is None:
                 c["weakened"] += 1
-            elif t[ax] is None and f[ax] is not None:
+            elif tv[ax] is None and f[ax] is not None:
                 c["spurious"] += 1
             else:
                 c["flipped"] += 1
@@ -591,27 +854,20 @@ def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
     # Does a room that faced the outside still face it? This is the geometric
     # half of H8 -- the fit knows nothing about which Envelope edges are
     # exterior versus party, so it is boundary contact, not window frontage.
-    def boundary_run(x1, y1, x2, y2):
-        run = 0
-        h, w = env.shape
-        for x in range(x1, x2):
-            if y1 == 0 or not env[y1 - 1, x]:
-                run += 1
-            if y2 == h or not env[y2, x]:
-                run += 1
-        for y in range(y1, y2):
-            if x1 == 0 or not env[y, x1 - 1]:
-                run += 1
-            if x2 == w or not env[y, x2]:
-                run += 1
-        return run
+    outside = ~env
+
+    def boundary_run_mask(cm):
+        pad = np.pad(outside, 1, constant_values=True)
+        c = int((cm & pad[:-2, 1:-1]).sum()) + int((cm & pad[2:, 1:-1]).sum())
+        c += int((cm & pad[1:-1, :-2]).sum()) + int((cm & pad[1:-1, 2:]).sum())
+        return c
 
     kept_b = lost_b = 0
     for i in range(n):
-        t_run = boundary_run(*boxes_e[i])
-        f_run = boundary_run(*res["rects"][i])
-        if t_run >= DOOR_CELLS:
-            if f_run >= DOOR_CELLS:
+        tm = np.zeros(env.shape, dtype=bool)
+        tm[boxes_e[i][1]:boxes_e[i][3], boxes_e[i][0]:boxes_e[i][2]] = True
+        if boundary_run_mask(tm) >= DOOR_CELLS:
+            if boundary_run_mask(room_mask[i]) >= DOOR_CELLS:
                 kept_b += 1
             else:
                 lost_b += 1
@@ -620,13 +876,23 @@ def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
     return res
 
 
-def load_swiss_geoms(items):
+def load_swiss_geoms(items, keep_types=None):
+    """Rotate a dwelling's room polygons into its own frame.
+
+    `keep_types` collects the entity_subtype of each polygon that SURVIVES the
+    filter, in the order the geometry list ends up in. Labelling a fitted
+    dwelling from the unfiltered source list instead is the defect ticket 27
+    measured at 22 of 1,787 dwellings (1.23 %): where a polygon below
+    MIN_ROOM_AREA is not last, every label after it is off by one.
+    """
     geoms = []
-    for _, wkt in items:
+    for st, wkt in items:
         from shapely import from_wkt
         g = _poly(from_wkt(wkt))
         if g is not None and g.area >= MIN_ROOM_AREA:
             geoms.append(g)
+            if keep_types is not None:
+                keep_types.append(st)
     if not (BAND[0] <= len(geoms) <= BAND[1]):
         return None
     ang, cen = dwelling_frame(geoms)
@@ -635,35 +901,59 @@ def load_swiss_geoms(items):
     return [rotate(g, -ang, origin=cen) for g in geoms]
 
 
-def main_resplan(n_target):
+def main_resplan(n_target, opts):
     """The same fit over ResPlan, whose scale must be recovered per plan."""
     import io
     import measure_resplan as R
 
+    out_path = OUT / opts["out"]
     plans = R.Restricted(io.BufferedReader(open(R.PKL, "rb"))).load()
-    print(f"plans: {len(plans)}; fitting {n_target}", flush=True)
+    print(f"plans: {len(plans)}; fitting {n_target}  k_max={opts['k_max']} "
+          f"select={opts['k_select']}", flush=True)
+    # OR-Tools can abort the PROCESS on an internal CHECK failure -- the ResPlan
+    # fit died that way after 1,000 plans, and it is a C++ abort Python cannot
+    # catch. `--resume` picks up from the last checkpoint so a corpus-scale run
+    # is a restart loop rather than one long gamble.
     recs, status = [], Counter()
+    done = set()
+    if opts["resume"] and out_path.exists():
+        recs = json.load(open(out_path))
+        if opts["redo"]:
+            keep = [r for r in recs if r["status"] not in opts["redo"]]
+            print(f"redo {opts['redo']}: dropping "
+                  f"{len(recs) - len(keep)} records to re-attempt", flush=True)
+            recs = keep
+        done = {r["k"] for r in recs}
+        for r in recs:
+            status[r["status"]] += 1
+        print(f"resuming: {len(recs)} already done", flush=True)
     t0 = time.time()
     for p in plans:
         if len(recs) >= n_target:
             break
         if int(p.get("id", -1)) in R.BROKEN_IDS:
             continue
+        if str(p.get("id")) in done:
+            continue
         geoms = resplan_geoms(p, R)
         if geoms is None:
             continue
-        r = run_dwelling(geoms)
+        r = run_dwelling(geoms, k_max=opts["k_max"], hint=opts["hint"],
+                         leg_cells=opts["leg"], join_cells=opts["join"],
+                         time_limit=opts["time_limit"],
+                         k_select=opts["k_select"], force_second=opts["force"])
         r["k"] = str(p.get("id"))
         status[r["status"]] += 1
         recs.append(r)
-        if len(recs) % 200 == 0:
+        if len(recs) % opts["every"] == 0:
             el = time.time() - t0
+            fresh = max(len(recs) - len(done), 1)
             print(f"  {len(recs)}  {dict(status)}  {el:.0f}s  "
-                  f"{el / len(recs):.2f}s/plan", flush=True)
-            json.dump(recs, open(OUT / "resplan_fit.json", "w"))
+                  f"{el / fresh:.2f}s/plan", flush=True)
+            json.dump(recs, open(out_path, "w"))
     print(f"done: {dict(status)}", flush=True)
-    json.dump(recs, open(OUT / "resplan_fit.json", "w"))
-    print(f"wrote {OUT / 'resplan_fit.json'}", flush=True)
+    json.dump(recs, open(out_path, "w"))
+    print(f"wrote {out_path}", flush=True)
 
 
 def resplan_geoms(p, R):
@@ -693,14 +983,57 @@ def resplan_geoms(p, R):
     return [rotate(g, -ang, origin=cen) for g in geoms]
 
 
-def main():
+def parse_opts(argv):
+    """Flags, so the two arms differ only in what is stated on the command line."""
+    def flag(name, cast, default):
+        for a in argv:
+            if a.startswith(name + "="):
+                return cast(a.split("=", 1)[1])
+        return default
+
+    k_max = 2 if "--k2" in argv else 1
+    resplan = "--resplan" in argv
+    default_out = ("resplan_fit" if resplan else "swiss_fit") + \
+        ("_k2" if k_max > 1 else "") + ".json"
+    return {
+        "k_max": k_max,
+        "resplan": resplan,
+        "hint": flag("--hint", str, "shape" if k_max > 1 else "truth"),
+        "leg": flag("--leg", int, LEG_CELLS),
+        "join": flag("--join", int, JOIN_CELLS),
+        "time_limit": flag("--time", float, TIME_LIMIT),
+        "out": flag("--out", str, default_out),
+        "only": flag("--only", str, ""),
+        "every": flag("--every", int, 200),
+        "k_select": flag("--select", str, "shape"),
+        "force": "--force-second" in argv,
+        "resume": "--resume" in argv,
+        # Re-attempt records that came back with one of these statuses, at
+        # whatever --time this run is given. A timeout has no verdict, so the
+        # honest way to close one is to give it more budget, not to read it as
+        # a drop.
+        "redo": set(flag("--redo", str, "").split(",")) - {""},
+    }
+
+
+def swiss_keys():
+    """The dwelling order every Swiss run uses, so two runs are PAIRED.
+
+    Cached, because parsing the 2.4 GB geometry CSV costs ~90 s and this ticket
+    runs it a dozen times over: two paired arms, eight ablation arms, and the
+    re-runs. The cache is keyed on nothing -- delete `out/swiss_dw.pkl` if the
+    corpus or the filters change.
+    """
     import hashlib
+    import pickle
     import pandas as pd
     from measure_swiss import COLS, GEOM, MD5_EMPTY, NOT_A_ROOM
 
-    n_target = int(sys.argv[1]) if len(sys.argv) > 1 else 2000
-    if "--resplan" in sys.argv:
-        return main_resplan(n_target)
+    cache = OUT / "swiss_dw.pkl"
+    if cache.exists():
+        dw, keys = pickle.load(open(cache, "rb"))
+        return dw, keys
+
     dw = defaultdict(list)
     for chunk in pd.read_csv(GEOM, usecols=COLS, chunksize=500_000, dtype=str):
         a = chunk[(chunk["entity_type"] == "area") &
@@ -712,29 +1045,70 @@ def main():
             dw[(s, f, ap)].append((st, wkt))
     keys = sorted(dw.keys())
     keys.sort(key=lambda k: hashlib.md5("|".join(k).encode()).hexdigest())
-    print(f"dwellings: {len(dw)}; fitting {n_target}", flush=True)
+    pickle.dump((dict(dw), keys), open(cache, "wb"), protocol=4)
+    return dw, keys
+
+
+def main():
+    n_target = int(sys.argv[1]) if len(sys.argv) > 1 and not sys.argv[1].startswith("-") else 2000
+    opts = parse_opts(sys.argv)
+    if opts["resplan"]:
+        return main_resplan(n_target, opts)
+
+    out_path = OUT / opts["out"]
+    dw, keys = swiss_keys()
+    only = None
+    if opts["only"]:
+        only = set(json.load(open(opts["only"])))
+        print(f"restricted to {len(only)} keys from {opts['only']}", flush=True)
+    print(f"dwellings: {len(dw)}; fitting {n_target}  k_max={opts['k_max']} "
+          f"select={opts['k_select']} force={opts['force']} hint={opts['hint']} "
+          f"leg={opts['leg']} join={opts['join']} "
+          f"time={opts['time_limit']}", flush=True)
 
     recs, status = [], Counter()
+    done = set()
+    if opts["resume"] and out_path.exists():
+        recs = json.load(open(out_path))
+        if opts["redo"]:
+            keep = [r for r in recs if r["status"] not in opts["redo"]]
+            print(f"redo {opts['redo']}: dropping "
+                  f"{len(recs) - len(keep)} records to re-attempt", flush=True)
+            recs = keep
+        done = {r["k"] for r in recs}
+        for r in recs:
+            status[r["status"]] += 1
+        print(f"resuming: {len(recs)} already done", flush=True)
     t0 = time.time()
     for k in keys:
         if len(recs) >= n_target:
             break
-        geoms = load_swiss_geoms(dw[k])
+        kk = "|".join(k)
+        if only is not None and kk not in only:
+            continue
+        if kk in done:
+            continue
+        types = []
+        geoms = load_swiss_geoms(dw[k], types)
         if geoms is None:
             continue
-        r = run_dwelling(geoms)
-        r["k"] = "|".join(k)
-        r["types"] = [t for t, _ in dw[k]][:r.get("n", 0)]
+        r = run_dwelling(geoms, k_max=opts["k_max"], hint=opts["hint"],
+                         leg_cells=opts["leg"], join_cells=opts["join"],
+                         time_limit=opts["time_limit"],
+                         k_select=opts["k_select"], force_second=opts["force"])
+        r["k"] = kk
+        r["types"] = types
         status[r["status"]] += 1
         recs.append(r)
-        if len(recs) % 200 == 0:
+        if len(recs) % opts["every"] == 0:
             el = time.time() - t0
+            fresh = max(len(recs) - len(done), 1)
             print(f"  {len(recs)}  {dict(status)}  {el:.0f}s  "
-                  f"{el / len(recs):.2f}s/dwelling", flush=True)
-            json.dump(recs, open(OUT / "swiss_fit.json", "w"))
+                  f"{el / fresh:.2f}s/dwelling", flush=True)
+            json.dump(recs, open(out_path, "w"))
     print(f"done: {dict(status)}", flush=True)
-    json.dump(recs, open(OUT / "swiss_fit.json", "w"))
-    print(f"wrote {OUT / 'swiss_fit.json'}", flush=True)
+    json.dump(recs, open(out_path, "w"))
+    print(f"wrote {out_path}", flush=True)
 
 
 if __name__ == "__main__":

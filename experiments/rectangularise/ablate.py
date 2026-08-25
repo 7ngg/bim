@@ -6,7 +6,13 @@ is rejecting FOR -- otherwise nobody tuning this later knows which knob moves it
 
 Relaxes one family at a time over the same dwellings.
 
-Run: python experiments/rectangularise/ablate.py [n]
+The arms ARE ADR 0008's fidelity ladder, which is why re-running this is not
+merely diagnosis: `as shipped` is tier A, `relations, neighbours only` is tier B,
+`no hard relations` is tier C and `relations + adjacency off` is tier D. Ticket
+40 item 3 asks whether the ladder still earns its complexity at k <= 2, and this
+is the run that answers it.
+
+Run: python experiments/rectangularise/ablate.py [n] [--k2]
 """
 import hashlib
 import sys
@@ -23,6 +29,9 @@ from measure_swiss import COLS, GEOM, MD5_EMPTY, NOT_A_ROOM  # noqa: E402
 # two arms that drop the hard relations run ~7x slower, because the relations
 # are what prunes the search, so they are measured on fewer dwellings and their
 # figures carry a wider band.
+TIER = {"as shipped": "A", "relations, neighbours only": "B",
+        "no hard relations": "C", "relations + adjacency off": "D"}
+
 ARMS = [
     ("as shipped",                dict(), 250),
     ("area band +/-25%",          dict(area_tol=0.25), 250),
@@ -36,7 +45,8 @@ ARMS = [
 
 
 def main():
-    n_target = int(sys.argv[1]) if len(sys.argv) > 1 else 250
+    n_target = int(sys.argv[1]) if len(sys.argv) > 1 and not sys.argv[1].startswith("-") else 250
+    k_max = 2 if "--k2" in sys.argv else 1
     dw = defaultdict(list)
     for chunk in pd.read_csv(GEOM, usecols=COLS, chunksize=500_000, dtype=str):
         a = chunk[(chunk["entity_type"] == "area") &
@@ -56,7 +66,7 @@ def main():
         g = F.load_swiss_geoms(dw[k])
         if g is not None:
             geoms.append(g)
-    print(f"dwellings: {len(geoms)}\n", flush=True)
+    print(f"dwellings: {len(geoms)}  k_max={k_max}\n", flush=True)
 
     print(f"{'arm':<28} {'n':>5} {'converted':>10} {'INFEASIBLE':>11} "
           f"{'UNKNOWN':>9} {'other':>7}")
@@ -64,11 +74,12 @@ def main():
         sub = geoms[:n]
         st = Counter()
         for g in sub:
-            st[F.run_dwelling(g, **kw)["status"]] += 1
+            st[F.run_dwelling(g, k_max=k_max, **kw)["status"]] += 1
         ok = st["OPTIMAL"] + st["FEASIBLE"]
         other = sum(v for k, v in st.items()
                     if k not in ("OPTIMAL", "FEASIBLE", "INFEASIBLE", "UNKNOWN"))
-        print(f"{label:<28} {len(sub):>5} {ok / len(sub):>10.4f} {st['INFEASIBLE']:>11} "
+        print(f"{label:<28} {TIER.get(label, '-'):>4} {len(sub):>5} "
+              f"{ok / len(sub):>10.4f} {st['INFEASIBLE']:>11} "
               f"{st['UNKNOWN']:>9} {other:>7}", flush=True)
 
 

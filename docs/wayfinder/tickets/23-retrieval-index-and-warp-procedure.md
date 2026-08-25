@@ -227,3 +227,70 @@ threshold as needing a re-fit.
 rectangles per Room* is about to move the conversion this ticket's coverage
 figures are measured on. Do not re-measure coverage against a conversion that is
 being changed underneath you.
+
+---
+
+## Handed here by *Re-measure the conversion at two rectangles per Room* (2026-08-25)
+
+**The coordination hazard is cleared: the conversion has moved, and you may now
+measure coverage against it.** ADR
+[0015](../../adr/0015-the-conversion-names-its-own-ls.md),
+`docs/research/rectangularisation.md` §11.
+
+**Item 3's pool sizes and item 5's corpus-side budget both move, in your favour.**
+The conversion drop falls **30.70 % → 9.74 %** on Swiss and **40.10 % → 6.40 %**
+on ResPlan, paired, with zero dwellings lost. Do not apply a single corpus-wide
+factor — `experiments/rectangularise/coverage_thinning.py` measures the thinning
+**per room multiset**, which is the unit retrieval actually gates in:
+
+| | k = 1 | k ≤ 2 | pool × |
+|---|---:|---:|---:|
+| band 4–6 | 0.8344 | 0.9424 | 1.129 |
+| band 7–10 | 0.5880 | 0.8736 | **1.486** |
+| median over 25 multisets | 0.7638 | 0.9318 | 1.219 |
+| worst-thinned multiset | 0.2206 | 0.7794 | **3.533** |
+
+The spread is the finding. The multisets that thinned hardest — two bathrooms, a
+storeroom, an open-plan living/dining and three private rooms — are exactly the
+ones a Brief in the weak band lands in, and they gain most. **§2.2's coverage
+table is still yours to restate; this is the quantity to restate it with.**
+
+**The 4-versus-10-room asymmetry that made your item 3 hard is mostly gone.**
+*"83 % of 4-room dwellings convert against 46 % of 10-room"* becomes 94.8 % and
+82.6 %; the spread across the band goes from 35 points to 12. The index no longer
+thins hardest where it was already thinnest.
+
+**Item 4's per-room confidence: the invented assertions fall, and not by much.**
+The conversion's spurious separations — pairs the truth abstained on where a
+rectangle had to pick a side — go **15.64 % → 13.58 %** of axis-pairs on Swiss and
+**20.52 % → 14.30 %** on ResPlan. Real, and smaller than the conversion-rate move:
+**the second rectangle rescues dwellings more than it disambiguates pairs.** Still
+expect roughly one axis-pair in seven to be an assertion the corpus never made,
+and still mark them.
+
+⚠️ **A retrieved dwelling is now one or two boxes per Room, so the warp warps a
+two-part tiling.** An anisotropic scale is affine and preserves incidence, so the
+join survives a uniform stretch — but that is an argument, not a measurement, and
+ADR 0014's join predicate is a **hard** acceptance rule (two parts sharing at
+least 900 mm of edge, realisable 1 100 mm). A warp that scales a 1 100 mm join
+down by 15 % emits a Proposal the bar rejects. **Item 2 owes that check**, and it
+is cheap: the join length is one number per two-part Room.
+
+⚠️ **`select_relations`'s missing positive-cost filter is unchanged and still
+yours.** ADR 0014 handed it here; nothing in this ticket touched
+`docs/spec/proposer.md`, which remains your sole claim.
+
+**Every figure above is a lower bound.** Which Rooms may take a second rectangle
+is named room-locally from the real room's shape, and `name_rate.py` puts the
+miss at **2.05 %** of rooms. Design B — letting the fit choose freely — is
+unmeasurable at any affordable budget (§11.5).
+
+⚠️ **`proposer.md` §4.4 is now stale in two places, and it is your file.** It
+records the conversion as *"settled, and it is a solve"* with the k = 1 yield and
+the four-rung ladder. Both moved: the yield is **90.3 % Swiss / 93.6 % ResPlan**,
+and **the ladder is reduced to two rungs, A and D** (ADR 0015 consequence 5) —
+A → B now buys 2.0 points against 8.4, and tier C sits *below* tier A because
+dropping the hard relations removes the pruning and the arm times out. The
+tier conditioning field ADR 0008 gave the training set is therefore **binary now,
+not four-valued**; retrieval's tier-A gate is unchanged. §2.3's two-part slot with
+a presence token needs no change — it already carries what the conversion emits.
