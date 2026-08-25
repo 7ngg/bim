@@ -9,7 +9,7 @@ blocked_by: []
 writes:
   - docs/research/solver-formulation.md
   - experiments/solver-toy/
-  - docs/adr/0018-the-solver-is-slicing-independent-and-the-ground-truth-keeps-two-arms.md
+  - docs/adr/0019-the-solver-is-slicing-independent-and-the-ground-truth-keeps-two-arms.md
 ---
 
 # The solver has only ever seen guillotine layouts
@@ -115,7 +115,7 @@ untouched by any of the above and stays the headline.
 ## Resolution
 
 **The solver does not care, and the untested strength is now a measured one.**
-ADR [0018](../../adr/0018-the-solver-is-slicing-independent-and-the-ground-truth-keeps-two-arms.md).
+ADR [0019](../../adr/0019-the-solver-is-slicing-independent-and-the-ground-truth-keeps-two-arms.md).
 Findings `docs/research/solver-formulation.md` **Part III**. Harness
 `experiments/solver-toy/` — `pinwheel.py`, `sweep_ng.py`, `report_ng.py`,
 `relation_margins.py`, `t_int_arithmetic.py`, `pinwheel_area_premium.py`,

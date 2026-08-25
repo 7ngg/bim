@@ -86,7 +86,7 @@ measured cost, or — the outcome to be genuinely open to — a finding that the
 property collapses into predicates the existing graph already supports, and no
 new solver machinery is owed.
 
-## Unblocked by *The solver has only ever seen guillotine layouts* (ADR 0018)
+## Unblocked by *The solver has only ever seen guillotine layouts* (ADR 0019)
 
 **The rig is not moving, so pricing an encoding against it now measures the
 encoding.** That was the whole reason for the block: 29 was expected to re-base
