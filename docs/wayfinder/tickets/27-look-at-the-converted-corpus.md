@@ -4,7 +4,7 @@ title: Look at the converted corpus
 parent: map
 labels: [wayfinder:prototype]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - experiments/rectangularise/ — no shared artifact
