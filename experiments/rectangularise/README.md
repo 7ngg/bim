@@ -23,6 +23,8 @@ gitignored; regenerate by running the scripts.
 | `analyse_k2.py [k1] [k2]` | **ticket 40**: what a second rectangle per Room buys, paired on the dwelling key | seconds |
 | `name_rate.py [n]` | how wide the lower bound is — which rooms Design A's naming misses, and why | ~10 min at 400 |
 | `coverage_thinning.py [k1] [k2]` | the pool thinning factor, for ticket 23 to redo `proposer.md` §2.2 with | seconds |
+| `render_sheet.py [--pick=] [--n=]` | **ticket 27**: draw a converted dwelling beside the real one — the eyeball check no metric stands in for | ~4 s/dwelling |
+| `void_census.py [n]` | ticket 27: how much floor no Room claims, and how many rooms the one dwelling frame shears | ~2 s/dwelling |
 
 Order: `measure_*` before `analyse_swiss.py`, `fit_rects.py` before
 `analyse_fit.py`.
@@ -77,6 +79,30 @@ dwelling or a restart-from-checkpoint loop, not a `try`.
 `is_valid`. Every set operation goes through `_op()` in `measure_swiss.py`, which
 repairs with `make_valid` and falls back to snapping to a 1 mm grid — the model's
 own resolution per ADR 0001 — and counts each repair rather than swallowing it.
+
+## Looking at it (ticket 27)
+
+```
+python experiments/rectangularise/render_sheet.py --pick=spread --n=8
+```
+
+then open `out/sheets/SHEET.html`. Picks: `spread` (across the agreement range
+and across room counts), `median`, `p5`, `p95`, `worstroom`, `k2`, `corridor`,
+`spurious`, `infeasible`, `feasible`. `--plane=centreline` turns off the
+t_int/2 inset; the default `clear` is the one that compares like with like.
+
+**Three of the conversion's fidelity headlines are constraints restated, not
+measurements**, and quoting them as evidence overstates what was checked:
+
+| quoted as | actually |
+|---|---|
+| "zero adjacencies destroyed" (`edges_lost = 0`) | contact is a HARD constraint; a dwelling that would lose one is refused instead. The number that carries the information is the refusal rate. |
+| "zero separation directions flipped" | the true relations are posted hard (`use_rel`). `flipped` and `weakened` are 0 by construction, over all 97,090 axis-pairs. |
+| per-room area error inside ±10 % | the area band IS ±10 %, posted hard. p99 of \|aerr\| is 0.111. |
+
+What is genuinely free, and therefore worth quoting: `cell_agreement`, the IoU
+distribution, the **refusal rate**, and `boundary_lost` — the one fidelity
+number nothing constrains.
 
 ## Three approaches that were measured and rejected
 
