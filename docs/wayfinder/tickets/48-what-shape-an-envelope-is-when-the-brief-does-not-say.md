@@ -4,7 +4,7 @@ title: What shape an Envelope is when the Brief does not say
 parent: map
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - docs/spec/brief.md
