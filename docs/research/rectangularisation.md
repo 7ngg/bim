@@ -17,6 +17,11 @@ C11. Harness in `experiments/rectangularise/`:
 | `ablate.py` | which constraint the reject rule is rejecting for |
 | `survivorship.py` | whether the surviving corpus is the same corpus |
 | `rectilinear_k.py` | how many rectangles a real room actually needs (§9) |
+| `fit_rects.py --k2` | the same fit at one or two rectangles per Room (§11) |
+| `analyse_k2.py` | the two arms paired on the dwelling key (§11) |
+| `validate_k2.py` | an independent check on the emitted geometry (§11.3) |
+| `name_rate.py` | how wide the k ≤ 2 lower bound is (§11.1) |
+| `coverage_thinning.py` | the pool multiplier ticket 23 needs (§11) |
 
 ---
 
@@ -32,6 +37,13 @@ amendment has the shipping solver post them.
 Its reject rule is not a percentile. It is **representability**: a dwelling that
 cannot be expressed as a rectangular tiling comes back INFEASIBLE, and that is
 the drop.
+
+> ⚠️ **Every conversion figure in §§1–10 is at ONE rectangle per room, and the
+> headline number has since moved.** ADR 0014 gives a Room a second rectangle and
+> **§11** re-measures the whole conversion with it: the Swiss drop falls
+> **30.70 % → 9.74 %** and ResPlan's **40.10 % → 6.40 %**, with zero dwellings
+> lost and every guarantee below intact. Read §§1–10 as the construction and the
+> reasoning, which are unchanged, and §11 for any number about *yield*.
 
 **Two things in the ticket's premise are wrong**, and both were inherited from
 the papers rather than measured:
@@ -754,3 +766,301 @@ It is small and it is still the thing an architect notices first, because what i
 draws is **a bedroom over a riser**. The map parks risers under *Structural and
 services reality*; this note is where the corpus consequence shows up, and the
 honest statement is that v1 cannot express an interior obstacle of any kind.
+
+---
+
+## 11. The same conversion at two rectangles per Room
+
+*Re-measure the conversion at two rectangles per Room*
+(`docs/wayfinder/tickets/40-re-measure-the-conversion-at-two-rectangles-per-room.md`),
+decision ADR
+[0015](../adr/0015-the-conversion-names-its-own-ls.md).
+
+Everything above §11 was measured with **one rectangle per room**, because that
+is what the model allowed. ADR
+[0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md)
+gives every Room a second one. **The 31 % drop was a price paid for a constraint
+that no longer exists**, and §9 said so without moving the number.
+
+Paired re-run: the **same 2,600 Swiss dwellings and 1,000 ResPlan plans** in the
+same order through the same code, with only `k_of` changed. Harness
+`fit_rects.py --k2`, analysis `analyse_k2.py`, independent geometric check
+`validate_k2.py`.
+
+### 11.0 The headline
+
+**Two thirds of the Swiss drop and four fifths of the ResPlan drop were paying
+for the deleted constraint**, and **not one dwelling is lost** — the assertion a
+strict relaxation owes.
+
+| | Swiss k = 1 | Swiss k ≤ 2 | ResPlan k = 1 | ResPlan k ≤ 2 |
+|---|---:|---:|---:|---:|
+| converted | 0.6930 | **0.9026** | 0.5990 | **0.9360** |
+| dropped | **0.3070** | **0.0974** | **0.4010** | **0.0640** |
+| gained | — | 538 | — | 337 |
+| lost | — | **0** | — | **0** |
+
+McNemar exact **p = 2.2 × 10⁻¹⁶²** and **7.1 × 10⁻¹⁰²**. Both k = 1 arms
+reproduce the shipped files exactly — Swiss 1,787 / 805 / 8, ResPlan 597 / 399 /
+2 / 2 — so the refactor changed nothing at one rectangle and the pairing is
+sound.
+
+**Swiss excludes 33 dwellings (1.27 %) as UNDECIDED**, because at k ≤ 2 some
+solves return UNKNOWN at the 10 s budget. A timeout has no verdict: counting it
+as a drop would report the time limit as a finding. ResPlan's undecided share was
+**16.5 %** at 10 s, so it was re-run at 30 s and **every plan resolved** — and
+they resolved overwhelmingly to conversions, INFEASIBLE moving only 60 → 62,
+which is what makes excluding them the right treatment rather than a convenient
+one.
+
+### 11.1 The two-rectangle model is a lower bound, and this is how wide
+
+⚠️ **Quote this section's numbers as a floor, never as the value.** Which Rooms
+may take a second rectangle is **named from the real room's own shape** — ADR
+0014's Design A — not searched. That was forced, not preferred; see §11.5.
+`name_rate.py` classifies 2,734 real rooms exactly (a mask is an L iff its bbox
+complement is one corner-anchored rectangle):
+
+| shape, on the watershed plane | share of rooms |
+|---|---:|
+| a rectangle already | 0.2191 |
+| an **L** | 0.2582 |
+| something else — T, U, S, Z, or a staircase off an angled wall | 0.5227 |
+
+and of the rooms that got **no** second rectangle:
+
+| reason | share of rooms |
+|---|---:|
+| not an L at all | 0.4342 |
+| **an L, but a leg is below ADR 0014's floor** | 0.2319 |
+| **an L, both legs legal, the greedy naming missed it** | **0.0205** |
+
+So the bound is **about two points of rooms wide, not thirty-seven**. The gap
+between the 9.85 % of Swiss rooms offered a second rectangle here and ADR 0014's
+*"47 % need two or more"* is almost entirely two things that are not
+conservatism: the watershed raster is blockier than the room polygon, and
+**23.2 % of rooms are Ls whose short leg is under 900 mm clear**, which ADR 0014
+refuses on purpose — *below that it is not a leg of a room, it is a niche.* That
+is the rule working.
+
+⚠️ One residual is genuinely unmeasured: the naming is **room-local**, and a Room
+whose best *global* fit wants a non-maximal first rectangle is invisible to it.
+Only a Design B run could see that, and §11.5 is why there is none.
+
+### 11.2 Where the gain lands — the 4-versus-10-room asymmetry collapses
+
+This is the half that matters more than the headline. ADR 0008's cost fell
+"where the corpus can least afford it" (§6.3): 83 % of 4-room dwellings converted
+against 46 % of 10-room, thinning retrieval's index hardest in exactly the band
+`proposer.md` §2.1 already showed weakest.
+
+| rooms | dwellings | k = 1 | k ≤ 2 | delta |
+|---:|---:|---:|---:|---:|
+| 4 | 193 | 0.8290 | 0.9482 | +0.1192 |
+| 5 | 377 | 0.8700 | 0.9576 | +0.0875 |
+| 6 | 527 | 0.8159 | 0.9336 | +0.1176 |
+| 7 | 515 | 0.7049 | 0.9126 | +0.2078 |
+| 8 | 499 | 0.5551 | 0.8677 | +0.3126 |
+| 9 | 333 | 0.4985 | 0.8498 | **+0.3514** |
+| 10 | 115 | 0.4783 | 0.8261 | **+0.3478** |
+
+**The gain rises monotonically with room count**, and the spread across the band
+goes from **35 points** (0.829 → 0.478) to **12** (0.948 → 0.826). A 10-room
+dwelling converted 46 % of the time and now converts 83 % — what a 4-room
+dwelling managed before. ResPlan is flatter and moves the same way: every room
+count lands between 0.90 and 1.00 where it ran 0.46–0.65.
+
+The conversion has stopped being a filter that prefers small dwellings. **The
+percentage was never the point; the slope was.**
+
+### 11.3 Fidelity improves, and every ADR 0008 guarantee holds
+
+Measured on the dwellings **both** arms convert, so the comparison is not
+contaminated by the newly-gained ones.
+
+| | Swiss k = 1 | Swiss k ≤ 2 | ResPlan k = 1 | ResPlan k ≤ 2 |
+|---|---:|---:|---:|---:|
+| cell agreement | 0.9008 | **0.9397** | 0.7617 | **0.8710** |
+| median room IoU | 0.8900 | **0.9412** | 0.6773 | **0.8713** |
+| **worst room IoU** | 0.6176 | **0.7742** | 0.2308 | **0.5714** |
+| mean \|area error\| | 0.0513 | 0.0441 | 0.0663 | 0.0590 |
+| **adjacencies lost** | **0** | **0** | **0** | **0** |
+| **relations flipped** | **0** | **0** | **0** | **0** |
+| **relations weakened** | **0** | **0** | **0** | **0** |
+| solve seconds | 0.69 | 1.16 | 1.01 | 10.04 |
+
+Nothing is traded. The number to look at is the **worst room in a dwelling**: it
+gains 0.157 of IoU on Swiss and **0.341** on ResPlan. That is the room that used
+to be squeezed into a box that did not fit it, and on ResPlan it was previously
+getting less than a quarter of itself right.
+
+**Zero adjacencies destroyed, zero separation directions flipped and zero
+weakened, across 69,040 Swiss and 22,940 ResPlan axis-pairs.** These are
+guarantees of the formulation rather than of the rectangle count, and ticket 40
+was told they must still hold. `validate_k2.py` re-derives them and the ADR 0014
+predicates — leg floor, join, non-overlap, the symmetry break — from the emitted
+geometry, sharing no code with the model: **17,283 parts over 2,317 dwellings,
+1,543 Rooms of two rectangles, zero failures.**
+
+### 11.4 The relations the conversion has to invent, for ticket 23
+
+ADR 0008 adds a separation assertion on the axis-pairs the truth **abstained**
+on, because one rectangle must pick a side when a room wraps another. *The
+retrieval index and warp procedure* flags those as the pairs a warp is least
+entitled to trust. An L does not have to pick a side.
+
+| | same | **spurious** | weakened | flipped |
+|---|---:|---:|---:|---:|
+| Swiss k = 1 | 0.8436 | **0.1564** | 0 | 0 |
+| Swiss k ≤ 2 | 0.8642 | **0.1358** | 0 | 0 |
+| ResPlan k = 1 | 0.7948 | **0.2052** | 0 | 0 |
+| ResPlan k ≤ 2 | 0.8570 | **0.1430** | 0 | 0 |
+
+Swiss falls 15.64 % → 13.58 %, ResPlan 20.52 % → 14.30 %. Real, and smaller than
+the conversion-rate move: **the second rectangle rescues dwellings more than it
+disambiguates pairs.** Ticket 23 should still expect roughly one axis-pair in
+seven to be an assertion the corpus never made, and item 4's per-room confidence
+still has to mark them.
+
+### 11.5 ⚠️ Design B is not measurable at the shipped budget, and that is a finding
+
+The obvious rig — give **every** Room an optional second rectangle and let the
+fit decide — was built first and abandoned on measurement. Over 40 dwellings at
+the shipped 10 s limit:
+
+| arm | s/dwelling | OPTIMAL | FEASIBLE | INFEASIBLE | UNKNOWN |
+|---|---:|---:|---:|---:|---:|
+| **B** — every Room free | 10.38 (capped) | **0** | 26 | **0** | 14 |
+| **A** — the real room names its Ls | 3.64 | 30 | 6 | 3 | 1 |
+| k = 1 control | 0.85 | 31 | 0 | 9 | 0 |
+
+**Design B proves nothing about any dwelling.** Zero optimal and zero infeasible
+means the reject rule has stopped existing: `converted` degrades to *found
+something in 10 s*, and ADR 0008 §4's **"the tier is decidable, not a timeout"**
+is false in that arm. This is ADR 0014's *"Design A pays for the parts it uses;
+Design B pays for the parts it might use"* — its 11–12× against 1.2–1.7× —
+reproduced on a different solver with a different objective.
+
+⚠️ So no measurement on this map has ever priced an unconstrained k ≤ 2
+conversion, and none affordably can. §11.1 bounds what that costs at ~2 points of
+rooms.
+
+### 11.6 The conversion may choose k where the solver may not, and now the corpus says so
+
+ADR 0014 refuses to let the **solver** grow its own second rectangle, on evidence
+that it puts them on the wrong rooms — Spearman **+0.795** against the corpus,
+positive being the wrong sign. The conversion is a different case and the ADR
+says why: its objective is **misassigned cells against the real room**, so the
+ground truth is the taste. That was an argument. This is the measurement.
+
+| room type | rooms | conversion fits 2 | ADR 0014's free **solver** |
+|---|---:|---:|---:|
+| LIVING_DINING | 1,358 | **0.4219** | — |
+| CORRIDOR | 2,952 | **0.2202** | 0.100 |
+| LIVING_ROOM | 483 | 0.1718 | — |
+| ROOM | 4,549 | 0.0290 | — |
+| KITCHEN | 2,484 | 0.0238 | 0.179 |
+| BEDROOM | 1,223 | 0.0213 | 0.295 |
+| STOREROOM | 653 | 0.0046 | 0.338 |
+| BATHROOM | 3,788 | 0.0034 | 0.282 |
+
+**The ordering is inverted, which is the right answer.** The free solver reached
+hardest for stores, bedrooms and bathrooms and least for corridors; the
+conversion does the opposite, and its top two are the open-plan living/dining
+room and the corridor — the two types §4 already identified as the corpus's
+non-rectangular ones (26–30 % rectangular against 69–72 % for bedrooms and
+stores). *An L-shaped corridor is L-shaped to reach a wing*, now measured being
+one 22 % of the time.
+
+**98.5 % of offered second rectangles are used** (1,543 of 1,551), so the naming
+is not merely permissive: where it names an L, the fit wants one.
+
+### 11.7 What is still dropped is a different population
+
+`survivorship.py`, both arms, joined against `swiss_rects.json`.
+
+| over-represented in the dropped set | k = 1 | k ≤ 2 |
+|---|---:|---:|
+| STOREROOM | 1.71× | 1.57× |
+| BEDROOM | 1.25× | 1.25× |
+| **LIVING_DINING** | **1.37×** | **1.02×** |
+| bbox overlap fraction, dropped ÷ converted | 2.90× | 2.07× |
+| median rooms, converted vs dropped | 6 vs 8 | 7 vs 8 |
+| median m², converted vs dropped | 71.7 vs 89.9 | 76.4 vs 91.0 |
+
+**The living/dining over-representation is gone** — 1.37× → 1.02×, on exactly the
+type that takes a second rectangle most often (§11.6). The L absorbs the
+interlocked open-plan dwellings ADR 0008 was losing, which ticket 40 predicted
+off the ablation and is here measured directly rather than inferred.
+
+What remains dropped is **storeroom- and bedroom-heavy**, and naming it is worth
+more than the percentage: it is no longer *"the dwelling with a wrapped living
+room"*, it is *"the dwelling with several small interlocked ancillary rooms"*. A
+store is 72 % rectangular (§4) and is being dropped anyway, so its cause is **not
+its own shape** — it is that a dwelling carrying several of them has more pairs
+to satisfy at once. ADR 0008's size bias narrows without closing.
+
+### 11.8 The fidelity ladder no longer earns its complexity
+
+`ablate.py 250 --k2`. ADR 0008's tiers **are** these arms, so re-running the
+ablation is how the ladder gets re-measured rather than a separate exercise.
+
+| arm | tier | k = 1 | k ≤ 2 |
+|---|---|---:|---:|
+| **as shipped** | **A** | 0.7360 | **0.9320** |
+| area band ±25 % | — | 0.9080 | 0.9760 |
+| area free | — | 0.9120 | 0.9800 |
+| up to 4 notches | — | 0.6680 | 0.8800 |
+| **relations, neighbours only** | **B** | 0.8200 | **0.9520** |
+| no hard adjacency | — | 0.9560 | 0.9920 |
+| **no hard relations** | **C** | 0.9375 | **0.9250** |
+| **relations + adjacency off** | **D** | 1.0000 | **1.0000** |
+
+**The ladder spans 6.8 points where it spanned 26.4.** Tier A alone now reaches
+0.9320, so B and C exist to rescue single-digit fractions of the corpus:
+**A → B buys 2.0 points**, against 8.4 at one rectangle.
+
+⚠️ **And tier C is now *below* tier A** — 0.9250 against 0.9320. That is not a
+paradox and it is not noise: dropping the hard relations removes the pruning that
+makes the search tractable, so the arm times out (**5 UNKNOWN of 80**, against 1
+at k = 1). **Tier C is unmeasurable at k ≤ 2 for the same reason Design B is**,
+and a rung that cannot be measured cannot be a rung.
+
+So the ladder is reduced to **two rungs, A and D** — see ADR 0015. Retrieval's
+gate is unchanged and untouched by this; what goes is a four-valued conditioning
+field that is now 93 % one value and whose two middle rungs no longer separate
+anything.
+
+**The ticket's own prediction is confirmed, and it was the right prediction.**
+It reasoned from the k = 1 ablation that *hard adjacency is the dominant reject
+cause* and that k ≤ 2 would attack it directly, because *"an L is precisely the
+shape that reaches an adjacency a rectangle cannot: a corridor that wraps a wing
+touches rooms on two sides of it."* Adjacency's grip falls from **+22.0 points to
++6.0**, and the area band's from **+17.2 to +4.4**. Both dominant causes are
+mostly gone, and they were the same cause wearing two coats: a room shape that
+could not reach.
+
+⚠️ **ADR 0008 consequence 7 survives unchanged**: four notches still converts
+*worse* than two, 0.8800 against 0.9320. A more articulated Envelope is harder to
+tile whatever the rectangle count, so the cap is evidenced twice now.
+
+### 11.9 What this section does not establish
+
+**Nobody has looked at a k ≤ 2 converted dwelling.** Every number here is a
+statistic over 3,600 fits; *Look at the converted corpus* is still owed, and is
+now owed against a conversion whose shapes are different from the ones it was
+written for.
+
+**371 of 2,317 Swiss and 594 of 936 ResPlan conversions are FEASIBLE rather than
+OPTIMAL**, so their reported loss is an **upper** bound on the true loss — §11.3
+understates k ≤ 2 rather than flattering it. At k = 1 essentially everything
+proved optimal.
+
+**Conversion now costs 4.3× the CPU** — 3.65 s/dwelling against 0.85 on Swiss,
+and ResPlan needs 30 s to decide every plan where 10 s left 16.5 % open. ADR 0008
+consequence 5's ~17 CPU-hours for both corpora becomes roughly **70**.
+
+**The 250 mm watershed is unchanged**, so §10's two defects stand exactly as
+written: door-width adjacency is still the only adjacency measured, and interior
+shafts are still handed to habitable rooms. A second rectangle does not give the
+Envelope an interior obstacle.

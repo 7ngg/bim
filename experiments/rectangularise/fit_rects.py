@@ -918,6 +918,11 @@ def main_resplan(n_target, opts):
     done = set()
     if opts["resume"] and out_path.exists():
         recs = json.load(open(out_path))
+        if opts["redo"]:
+            keep = [r for r in recs if r["status"] not in opts["redo"]]
+            print(f"redo {opts['redo']}: dropping "
+                  f"{len(recs) - len(keep)} records to re-attempt", flush=True)
+            recs = keep
         done = {r["k"] for r in recs}
         for r in recs:
             status[r["status"]] += 1
@@ -1003,6 +1008,11 @@ def parse_opts(argv):
         "k_select": flag("--select", str, "shape"),
         "force": "--force-second" in argv,
         "resume": "--resume" in argv,
+        # Re-attempt records that came back with one of these statuses, at
+        # whatever --time this run is given. A timeout has no verdict, so the
+        # honest way to close one is to give it more budget, not to read it as
+        # a drop.
+        "redo": set(flag("--redo", str, "").split(",")) - {""},
     }
 
 
@@ -1060,6 +1070,11 @@ def main():
     done = set()
     if opts["resume"] and out_path.exists():
         recs = json.load(open(out_path))
+        if opts["redo"]:
+            keep = [r for r in recs if r["status"] not in opts["redo"]]
+            print(f"redo {opts['redo']}: dropping "
+                  f"{len(recs) - len(keep)} records to re-attempt", flush=True)
+            recs = keep
         done = {r["k"] for r in recs}
         for r in recs:
             status[r["status"]] += 1

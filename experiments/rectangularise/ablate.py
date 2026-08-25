@@ -66,7 +66,7 @@ def main():
         g = F.load_swiss_geoms(dw[k])
         if g is not None:
             geoms.append(g)
-    print(f"dwellings: {len(geoms)}\n", flush=True)
+    print(f"dwellings: {len(geoms)}  k_max={k_max}\n", flush=True)
 
     print(f"{'arm':<28} {'n':>5} {'converted':>10} {'INFEASIBLE':>11} "
           f"{'UNKNOWN':>9} {'other':>7}")
@@ -74,7 +74,7 @@ def main():
         sub = geoms[:n]
         st = Counter()
         for g in sub:
-            st[F.run_dwelling(g, **kw)["status"]] += 1
+            st[F.run_dwelling(g, k_max=k_max, **kw)["status"]] += 1
         ok = st["OPTIMAL"] + st["FEASIBLE"]
         other = sum(v for k, v in st.items()
                     if k not in ("OPTIMAL", "FEASIBLE", "INFEASIBLE", "UNKNOWN"))

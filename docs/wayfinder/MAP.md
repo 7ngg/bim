@@ -34,13 +34,13 @@ and that is the failure this table exists to catch.
 |---|---|---|
 | Plan geometry model — Wall, WallSegment, Room/Space, integer mm, hosted Openings, wall **layer sets** | settled | ✅ its *one box per Room* premise is **weighed and reversed**: a Space is **one or two rectangles** and the Proposal decides which — ADR 0014. ⚠️ ADR 0001's erosion is untouched and is now **asserted** rather than inherited, but `acceptance-bar.md` §9's sliver *argument* is dead and replaced |
 | Envelope — inner-face ring of typed edges, rect/L/U/T | settled | ⚠️ *H8 and the single-aspect flat*, **now handed a measured table and a correction**: Brief feasibility over exposure × room count is **non-monotonic** — single-aspect fails at 6, 7, 8, mostly at 9 and **succeeds at 10**, where `envelope_for` switches L → U — so *"dead from 7 rooms"* is measuring the envelope n selects, not n. ⚠️ And **n = 6 fails at corpus-median exposure too**, which is the case the toy's own comment calls typical, so H8 is not only a single-aspect problem — `experiments/envelope-exposure/`. How an **invented** Envelope is derived is still fog, under *Variant generation and ranking* |
-| Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ⚠️ no converted plan has ever been looked at — *Look at the converted corpus*, now also handed a **labelling defect in `swiss_fit.json`**: `fit_rects.py` labels from the unfiltered list and **1.23 % of fitted dwellings are off by one**, and a second defect: **`why_k.clean()` does not do what it says** and its 58.3 % / 31.03 % clean-up figures are an artefact. ⚠️ **The 31 % conversion drop is re-owed** — it was paid for a one-rectangle constraint ADR 0014 removed — *Re-measure the conversion at two rectangles per Room* |
+| Corpus conversion — how a real dwelling becomes retrieval and training data | settled | ✅ **the 31 % drop is paid, and it was mostly a price for a deleted constraint** — ADR 0015 takes Swiss **30.70 % → 9.74 %** and ResPlan **40.10 % → 6.40 %**, paired, zero dwellings lost, every ADR 0008 guarantee re-asserted. **The slope moved more than the level**: the 83 %-at-4-rooms against 46 %-at-10 spread goes 35 points → 12, so the conversion has stopped preferring small dwellings. The `swiss_fit.json` labelling defect is **fixed at source**. ⚠️ Still true: **no converted plan has ever been looked at** — *Look at the converted corpus*, now owed against **two-rectangle** shapes and a changed record schema. ⚠️ **`why_k.clean()` does not do what it says** and its 58.3 % / 31.03 % figures remain an artefact. ⚠️ ADR 0008's *"decidable, not a timeout"* **is dead**: 1.27 % of Swiss and 16.5 % of ResPlan return UNKNOWN at 10 s, and ResPlan needs 30 s to decide at all |
 | Solver projection — CP-SAT, 250 mm grid, 15 s, τ = 4 | settled | ⚠️ every timing and the whole feasibility cliff rest on guillotine ground truth — *The solver has only ever seen guillotine layouts*. ⚠️ And it is now asked whether it can afford a **per-Room hop-count integer** — *What an ordered entry sequence costs the solver*, blocked on the first, because pricing a new encoding on a rig about to be re-based measures the rig |
 | Proposer source B — trained transformer: architecture, corpus prep, metric, stopping rule | settled | ✅ **its evaluation has three plan-quality terms for the first time** — sleeping-group count, longest-run allocation, social transit, all computable on a corpus dwelling and a generated Plan by the same code, which corner displacement is not. `proposer.md` §6.1. ⚠️ They are **evaluation only, not stop conditions**, and none has been measured on a generated Plan because no Proposer has been run |
 | Runtime and process split — engine / proposer service / BFF, job model, threads, JSON | settled | ⚠️ the honest end state (queue + result store) is fog, under *Persistence, accounts, hosting* |
 | DXF export | settled | — |
 | Proposal contract — what a source emits and the solver consumes | settled | ✅ **it carries no zoning, and that is the decision** — the node set is derivable from Room type, so ADR 0014's *only the Proposal knows* argument does not transfer. §1 records the refusal with its reasoning. ⚠️ The premise it was challenged on was **half false**: `wet.plumbing_group_count` is a set-versus-set predicate shipping today, so the Proposal is pairwise and the *system* is not |
-| Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure* |
+| Proposer source A — retrieval-and-warp, which ships first | partial | gate and coverage decided, **mechanism not** — *The retrieval index and warp procedure*, which is now **unblocked and re-supplied**: the conversion it warps has settled at two rectangles per Room, and ADR 0015 hands it the per-multiset **pool multiplier** (median 1.219, up to **3.53** on the multisets that thinned hardest) to restate `proposer.md` §2.2 with. ⚠️ It also inherits two staleness items in its own file — §4.4's yield and the **ladder now reduced to two rungs** — and one new check: a warp that scales a two-part Room down can break ADR 0014's **hard 900 mm join** |
 | Acceptance bar — 38 predicates (**39 once `dim.leg_join` lands**), enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ⚠️ **And the bar has no rule of the shape *this dwelling owes a room at all*** — every predicate is per-Room, per-Wall or per-Opening, so **a flat with a bath and no toilet passes all 38 and exports** — *A dwelling with no toilet passes every check*, which arrives with a **mandatory, first-hand source** (AzDTN cl. 5.2) and no home for the rule family it implies. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists. ⚠️ **And five more rules are owed, from *Where a set-versus-set property lives***, specified ready to transcribe at `zoning.md` §5b — one hard (`zone.sleeping_group_count`, at most two sleeping groups, 97.5 % of real dwellings) and four soft or warn, of which **`zone.no_social_transit` is the one nobody had written**: `circ.no_private_transit` blocks routing through a bedroom and *nothing* blocks routing through the living room, which 18.2 % of real dwellings do. ⚠️ Every dimensional rule now has to declare **which part it binds** — ADR 0014 binds minima and aspect per part, area per Room — and one new soft rule, `dim.prefer_single_part`, is owed to `rules.json`'s holder — as is a **locale dimension on every Homeowner-facing message**, since §11 requires a plain-language message per rule, all 38 are English, and the surface is now Azerbaijani: a schema change, not a translation pass |
 | Standards table — region-invariant ergonomic floor + the `AZ` profile | settled | ✅ **all four owed items paid** — the mapping exists (`profiles.AZ.rooms.mapping`, 18 rows, 162 gates), the room names turned out to be **in AzDTN 2.7-2's own text in this repo** (14 of 18 `verified`), the three-into-one gap resolved by **keeping three** (the norm carries `hol` and `dəhliz`; `giriş holu` is ours and labelled), and the corpus medians are recorded with their tail warning — *Two room vocabularies in one file*. ✅ its thickness is measured-vindicated: 150 lands **4 mm from the corpus-optimal 146**. ⚠️ **The merged 7,58 m² hall/lobby/corridor median can default nothing** now the three stay apart — rung 2 is empty for all three. ⚠️ One resolution step — `(type, otaq_count) → target, width, name` — is **named in no spec**; handed to `brief.md`'s holder |
 | Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*, which now also holds a defect the audience split creates: **the room tag's fallback is a room number plus a `practitioner` schedule**, so on the Homeowner preview it points at a document that presentation filters out — reproduced at a 1,85 m bedroom. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three*. ✅ the room tag and room schedule are **settled for a concave Space** (ADR 0014) and the Drawing check needed **no new predicate** — chains measure wall faces, not rooms |
@@ -89,7 +89,7 @@ order** — the done-test decides order:
 | `experiments/region-profile/gate_check.py` | **no claimant.** 31 declared it on resolution rather than taking it quietly — 162 vocabulary gates, the file now runs 229 |
 | `docs/spec/ifc-export.md` | 41 — sole claimant. New, and it takes over a row that had **no ticket at all** |
 | `experiments/solver-toy/` | 29, **43** — 43 is new and **blocked on 29**, deliberately: 29 re-bases the ground truth every timing on this map was measured against, so pricing a new encoding first would measure the rig |
-| `experiments/rectangularise/`, `docs/research/rectangularisation.md` | 40, 27 — 40 rewrites the fit, 27 renders its output. **Sequence them**: rendering a conversion that is about to change is wasted |
+| `experiments/rectangularise/`, `docs/research/rectangularisation.md` | 27 — **sole claimant now, 40 is closed.** The sequencing hold is lifted: the fit has been rewritten and settled, so there is a stable conversion to render. Render `out/swiss_fit_k2.json`, whose records carry **`parts`** and no `rects` |
 
 ✅ **39 and 28 are closed and their collisions are gone.** 39 had the widest
 write-set on the map and 28 had the widest after it; both were taken when the
@@ -331,7 +331,33 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   soft): **retrieval admits tier A only**, training takes every dwelling. ⚠️
   **Invalidates *What the model proposes*' coverage table.** ⚠️ Its follow-on is what
   *Whether a Room may be more than one rectangle* rests on: only **2.67%** of real
-  dwellings have every room a rectangle.
+  dwellings have every room a rectangle. ⚠️ **Its 69% / 60% yield and its whole
+  fidelity ladder are superseded** — see *Re-measure the conversion at two
+  rectangles per Room* below.
+- [Re-measure the conversion at two rectangles per Room](tickets/40-re-measure-the-conversion-at-two-rectangles-per-room.md)
+  — **two thirds of the Swiss drop and four fifths of the ResPlan drop were paying
+  for a constraint ADR 0014 had already deleted.** ADR 0015,
+  `docs/research/rectangularisation.md` §11, `experiments/rectangularise/`.
+  Paired on the same 2,600 dwellings and 1,000 plans: **30.70% → 9.74%** Swiss and
+  **40.10% → 6.40%** ResPlan, **zero lost**, p = 2.2e-162 and 7.1e-102. **The slope
+  moved more than the level** — the gain is monotonic in room count (+0.119 at
+  n = 4, **+0.351 at n = 9**) so the 4-versus-10-room spread goes 35 points → 12 and
+  the conversion stops being a filter that prefers small dwellings. Fidelity
+  *improves* — the **worst room** in a dwelling gains 0.157 IoU on Swiss and
+  **0.341** on ResPlan — and zero adjacencies, flips or weakenings across 91,980
+  axis-pairs, re-derived by `validate_k2.py` from the emitted geometry. **ADR
+  0014's central claim is now measured from the other side**: the conversion's
+  type ordering *inverts* the free solver's (living/dining 0.42 and corridor 0.22
+  at the top, storeroom 0.005 and bathroom 0.003 at the bottom), so *the ground
+  truth is the taste* stops being an argument. ⚠️ **The ticket's own item 1 pointed
+  at Design B, which is unmeasurable**: every Room free returns **0 OPTIMAL and 0
+  INFEASIBLE** in 10 s, so the reject rule stops existing — the conversion uses
+  Design A and **every figure is a lower bound**, ~2 points of rooms wide
+  (`name_rate.py`). ⚠️ **ADR 0008's "decidable, not a timeout" is dead.** ⚠️ **The
+  fidelity ladder is cut to two rungs**: A→D spans 6.8 points where it spanned
+  26.4, and **tier C sits below tier A** because dropping hard relations removes
+  the pruning and the arm times out. ✅ Fixes *Look at the converted corpus*'
+  labelling defect **at source**.
 - [Validate the arrangement metric against the solver](tickets/24-validate-the-arrangement-metric.md)
   — **the metric predicts, and it was defined wrong in three places.**
   `docs/research/arrangement-metric.md`, `docs/spec/proposer.md` §5.1–5.5,
@@ -791,6 +817,15 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   kitchen and a bathroom is at three before `resolve` adds anything — so that mass is
   `apartment_id` grouping, not a market. Any statistic taken off the corpus and shown to a
   Homeowner inherits that gap, and the band's floor is the first place it was noticed.
+  **Sharpened again by *Re-measure the conversion at two rectangles per Room*, and this
+  time a bias was removed rather than found.** The conversion itself was skewing the
+  training corpus small — it converted 83 % of 4-room dwellings against 46 % of 10-room,
+  so a model trained on survivors was learning that homes are smaller and simpler than
+  they are. At two rectangles the spread is 35 points → 12 and the dropped set's median
+  size gap narrows from 6-versus-8 rooms to 7-versus-8. What is left of this patch is
+  the half no conversion can fix: the corpus's own room-count distribution is still not
+  the Brief distribution, and **`STOREROOM`-heavy dwellings are still dropped at 1.57×**,
+  so the surviving corpus under-represents the flat with a lot of small ancillary rooms.
 - **Plan quality beyond the validator** — there now *is* a ranking signal (six soft
   rules, two warns, including the aspect-ratio term added because a plan can pass
   everything and still read as generated). Fog is whether it correlates with human

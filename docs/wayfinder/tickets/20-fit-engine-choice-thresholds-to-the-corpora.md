@@ -149,3 +149,43 @@ on 42,986 Swiss dwellings, so 30 % does sit past the tail as its note claims.
 But corridor is also the **second-largest absorber** (+4.00 m² per 40 m² of
 dwelling), so tightening it moves slack into the living room. Fit the two
 together, not separately.
+
+---
+
+## Handed here by *Re-measure the conversion at two rectangles per Room* (2026-08-25)
+
+**Your "the population you are fitting to is not the corpus" section is right in
+principle and its numbers are now stale — in your favour.** ADR
+[0015](../../adr/0015-the-conversion-names-its-own-ls.md),
+`docs/research/rectangularisation.md` §11.
+
+The conversion drop is **9.74 % of Swiss and 6.40 % of ResPlan**, not 31 % and
+40 %. More to your point, **the non-uniformity you warn about is mostly gone**:
+*"83 % of 4-room dwellings convert against 46 % of 10-room"* becomes **94.8 % and
+82.6 %**, and the spread across C13's band goes from 35 points to 12. The
+surviving population is far less **biased toward the small and the simple** than
+when you were written — the dropped set's median size gap narrows from
+6-versus-8 rooms to 7-versus-8.
+
+⚠️ **The bias is narrower, not absent, and its composition changed.** What is
+still dropped is **storeroom-heavy (1.57×) and bedroom-heavy (1.25×)** — but the
+`LIVING_DINING` over-representation is **gone** (1.37× → 1.02×). So a threshold
+fitted on survivors now under-represents *the flat with several small ancillary
+rooms*, not *the flat with a wrapped open-plan living room*. If any predicate you
+fit is sensitive to store or bedroom geometry, that is the direction of the
+residual error.
+
+**Your instruction stands unchanged, and it is the right one**: say which
+population each fitted number came from, and prefer the raw polygons for any
+predicate well-defined on a polygon. Use `out/swiss_fit_k2.json` —
+⚠️ **its records carry `parts` (a list of rectangles per Room) and no `rects`
+key**, so a per-Room rectangle no longer exists for 9.85 % of rooms. For a
+predicate that binds **per constituent rectangle** (ADR 0014 binds minimum clear
+dimensions and aspect that way, and area per Room), that distinction is not
+cosmetic.
+
+✅ **One thing you were owed is discharged**: the room-type labels in the fitted
+files are correct now — `load_swiss_geoms` collects them from the filtered
+polygon list, fixing the 1.23 % off-by-one that *Look at the converted corpus*
+found. The original `out/swiss_fit.json` still has it; regenerate rather than
+repair.

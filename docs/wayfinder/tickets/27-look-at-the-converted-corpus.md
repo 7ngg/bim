@@ -190,3 +190,48 @@ proved is that the resulting placement **reads well**: whether an L's tag sittin
 in the fat leg looks deliberate or looks like it slid there. Ticket 28 item 4
 asked for a drawn example and there is no renderer on this map to give one, so it
 is owed by whichever ticket draws first, which is this one.
+
+---
+
+## Handed here by *Re-measure the conversion at two rectangles per Room* (2026-08-25)
+
+**Two things: one of your instructions is discharged, and the thing you are going
+to look at has changed shape.** ADR
+[0015](../../adr/0015-the-conversion-names-its-own-ls.md),
+`docs/research/rectangularisation.md` §11.
+
+✅ **The labelling defect is fixed at source.** `fit_rects.load_swiss_geoms` now
+collects `entity_subtype` from the **filtered** polygon list, so a dropped
+sub-minimum polygon no longer shifts every label after it. The instruction above
+to relabel from `swiss_rects.json` is **discharged for any file produced from
+now on** — `out/swiss_fit_k1.json` and `out/swiss_fit_k2.json` are correct.
+⚠️ The original `out/swiss_fit.json` is untouched and still carries the 1.23 %
+off-by-one; regenerate rather than repair it.
+
+⚠️ **A converted room is now one *or two* rectangles, and your renderer must draw
+both.** The record schema changed: a k ≤ 2 file carries **`parts`** — a list of
+rectangle lists, one per Room — and **no `rects` key**. A k = 1 file still carries
+both. `k_used` gives the count per Room and `k_offered` what the naming allowed.
+`experiments/rectangularise/validate_k2.py` is the reference reader.
+
+**What you will see that you would not have seen before.** 9.85 % of Swiss rooms
+are two rectangles, and they are not spread evenly — **42.2 % of open-plan
+living/dining rooms and 22.0 % of corridors**, against 0.3 % of bathrooms and
+0.5 % of storerooms. So the L-shaped corridor wrapping a wing is the thing to look
+for first, and it is the case the one-rectangle conversion was mangling.
+
+**And the reason to look is stronger than it was.** The worst room in a converted
+dwelling gains **0.157 of IoU** on Swiss and **0.341** on ResPlan — on ResPlan it
+was previously getting less than a quarter of itself right. That is precisely the
+room a person's eye lands on, and no statistic in §11 can say whether it now reads
+as a home.
+
+⚠️ **Sequencing note now resolved.** This ticket was told to wait because the
+conversion was about to move. **It has moved and settled**; render against
+`swiss_fit_k2.json`. The plane caveat above is unchanged — the fitted rectangles
+are still on the watershed/centreline plane, and the 1.17×–1.58× per-type ratio
+still applies.
+
+⚠️ **371 of 2,317 conversions are FEASIBLE rather than OPTIMAL**, so a small
+minority are not the best available tiling. If one renders badly, check its
+status before concluding the conversion is at fault.
