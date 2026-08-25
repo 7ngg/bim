@@ -4,7 +4,7 @@ title: The solver has only ever seen guillotine layouts
 parent: map
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - docs/research/solver-formulation.md
