@@ -4,7 +4,7 @@ title: Opening placement rules
 parent: map
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: tng
 blocked_by: [7, 14]
 writes:
   - docs/spec/openings.md (new)
