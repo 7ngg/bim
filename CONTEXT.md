@@ -530,6 +530,19 @@ the failure this term exists to prevent. v1 ships `az_umumi_sahe`: the sum of
 Space areas, measured to finished faces at floor level, partitions **not**
 counted.
 
+**Partition footprint** — the plan area the internal walls of one dwelling
+occupy, always stated as a **share of Σ Space area** and never as a share of the
+interior. The two denominators are different numbers — a footprint of *f* against
+Σ Space is *f*/(1+*f*) against the interior — and the interior it implies is
+`Σ Space × (1 + f)`, so a reader who takes the published share for the other one
+sizes a box wrong in the direction that matters. Per-dwelling, not a constant: it
+is a property of how much partition a *layout* needs, which is why it is only
+known after the solve and why anything reading it before then reads a quantile of
+a measured distribution rather than a value.
+_Avoid_: "wall ratio", "efficiency", "net-to-gross" — all three are quoted
+against gross area elsewhere in the industry, which is the wrong denominator
+here, and `efficiency` is separately a live `ENGINE_CHOICE` field.
+
 **Centreline dimension** — the same distance measured between wall *axes*. Larger
 than the clear dimension by half a wall on each side. What the solver works in.
 

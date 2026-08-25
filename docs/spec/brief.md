@@ -254,9 +254,16 @@ Resolution order:
    1. **a stated `target_area`**, as `interior = target_area × (1 + f)`.
       `target_area` is `ümumi sahə` and does **not** count partitions (ADR 0010),
       so the interior it implies is larger by the partition footprint —
-      measured at **5.7 %** of Σ Space area at the shipped `t_int` of 150, over
-      14,063 dwellings. `efficiency` is not used on this path, because the
+      **`f = 0.0575`**, the p50 of Σ Space area at the shipped `t_int` of 150 over
+      13,967 dwellings. `efficiency` is not used on this path, because the
       quantity it stood in for is measured.
+
+      **This is the p50, and §9.4 bound 6's `f_hi`/`f_lo` are tails of the same
+      distribution — deliberately, not inconsistently.** Sizing a box is a point
+      prediction of geometry and wants the centre; a one-way refusal wants an end.
+      A tail here would draw the Envelope 1,86 m² too big on a stated 95 m². One
+      quantity, two consumers, two statistics —
+      `docs/research/single-internal-thickness.md` §3.5.
    2. otherwise `Σ Room.target_area / efficiency`.
 
    `efficiency` and the default aspect ratio are `ENGINE_CHOICE` and owned by
@@ -564,14 +571,45 @@ warn   when   Σ upper_band  <  interior / (1 + f_lo)
 ```
 
 `f_hi` and `f_lo` are the high and low ends of the per-dwelling partition footprint
-at the shipped `t_int` of 150, as a share of Σ Space area. Taking the **high** end
-for the refusal means it fires only where no partition footprint the corpus
-supports could rescue the Brief. **The spread is not published** — mean and p50 are
-both **5.7 %** over 14,063 dwellings and nothing else was reported — so today
-`f_hi = f_lo = 0.057`, the two lines coincide, and only the refusal exists. Getting
-p5 and p95 is one line of `experiments/thickness-fidelity/`; §12 hands it on. **This
-is the only inexact number in this section**, and it is named as such rather than
-rounded away.
+at the shipped `t_int` of 150, as a share of **Σ Space area** — never of the
+interior; they are different numbers and `CONTEXT.md`'s **Partition footprint**
+says which. Taking the **high** end for the refusal means it fires only where no
+partition footprint the corpus supports could rescue the Brief.
+
+**They are a table over engine room count, not two constants.** The footprint
+varies materially with `n` — Spearman ρ = +0.379, median 4.30 % at four rooms
+against 6.37 % at ten — so a pooled figure excuses a four-room Brief with
+eight-room partition density, and the four-room figure alone over-refuses at nine.
+Measured over 13,967 dwellings, `docs/research/single-internal-thickness.md` §3.5:
+
+| engine rooms `n` | `f_lo` (p5) | `f_hi` (p99) |
+|---:|---:|---:|
+| 3 | 0.0193 | 0.0722 ⚠️ |
+| **4** | **0.0233** | **0.0801** |
+| 5 | 0.0292 | 0.0768 |
+| 6 | 0.0367 | 0.0879 |
+| 7 | 0.0417 | 0.0854 |
+| 8 | 0.0443 | 0.0912 |
+| 9 | 0.0454 | 0.0900 |
+| 10 | 0.0496 | 0.0951 |
+
+⚠️ The `n = 3` row rests on 422 dwellings, so its p99 is indicative rather than
+measured; §5.1 of `room-area-bands.md` finds no three-room mix whose caps bind, so
+it is also the row least likely to be exercised.
+
+**`f_hi` is p99 and `f_lo` is p5, and the asymmetry is deliberate.** The two
+failure directions do not cost the same: an `f_hi` set too low refuses a buildable
+Brief, which is unrecoverable, while one set too high lets a doomed Brief reach
+the solve, where `acceptance-bar.md` §11 explains it in terms of **area** — the
+correct explanation for this failure, not a wrong one. So the refusal buys the
+extra order of magnitude; `f_lo` stays at p5 because it only moves a warn. The
+maximum is not used: 13.34 % is one dwelling in 15,000, and a hard refusal resting
+on the single fattest record is weaker evidence than a percentile.
+
+**What this decides, so the table is not read as a rounding note.** At §5.1's
+commonest four-room mix, Σ upper_band is 85.67 m², so bound 6 refuses a four-room
+Brief whose stated interior exceeds **92.53 m²**. That is inside the ordinary Baku
+four-otaq range, and this section's own worked example is a 95 m² flat.
 
 `Σ upper_band` is `dim.max_area`'s bound summed over the ResolvedBrief:
 `k[type] × target_area` where a target exists — stated, or set by §9.2's ladder —
@@ -723,7 +761,8 @@ says so.
 | `efficiency` and default aspect ratio for a derived Envelope | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
 | whether the band's parse-time notice is shown, and how | *Homeowner product surface* |
 | ~~whether a room count outside 4–10 is refused at parse time~~ — **discharged**: ADR 0013's gate and promise are §9.4 bounds 3 and 4 | — |
-| **`f_hi` and `f_lo` for §9.4 bound 6** — p5 and p95 of the per-dwelling partition footprint at `t_int` 150. Mean and p50 are published at 5.7 %; the spread is not, and it is one line of the same harness | *The partition footprint has a mean and no spread*, which holds `experiments/thickness-fidelity/` |
+| ~~**`f_hi` and `f_lo` for §9.4 bound 6**~~ — **discharged** by *The partition footprint has a mean and no spread*, which measured the spread and wrote the values into §9.4 directly rather than handing them on again. They came back as a **per-`n` table** rather than the two constants this row asked for, and `f_hi` as p99 rather than p95 | — |
+| **`f_hi(n)`/`f_lo(n)` need somewhere to live in data.** §9.4 now carries an eight-row table inline. It is a parse-time constant of the same kind as `room-area-bands.md` §6.1's `k`, and it belongs beside it rather than in prose | whoever next holds `rules.json` — the table moves with §9.4's findings schema |
 | **`reachable_in_v1: false` on `corridor` and `entrance_lobby`** (§3.1). Nothing invents them and no Brief may name them, so two of eighteen types are dead paths that the file still presents as live — the same marker `kitchen_niche` and `wardrobe_1room_entry` already carry | whoever next holds `room-constraints.json` — *Opening placement rules*, *The annotation spec is US-shaped* |
 | **The composition rule enforcing AzDTN cl. 5.2's mandatory auxiliary set.** §3.1 guarantees the `holl` half *by construction* — every ResolvedBrief has exactly one `hall` — so that rule may assert it rather than test it. The kitchen, bath-or-shower, WC and storage halves are untouched | *A dwelling with no toilet passes every check* |
 | **§9.4 returns a set of findings, not a verdict** — each with a severity, a Brief field and a Homeowner-facing message. All six messages are Azerbaijani per `homeowner-surface.md` §2, so this is the same **locale dimension** already owed on the 38 rule messages and should land as one schema change, not two | whoever next holds `rules.json` |
@@ -753,7 +792,16 @@ says so.
   the unreachable shape is largely the one the bar would reject anyway. It is
   likeliest to bind at the top of C13's band, and the measurement is handed on in
   §12.
-- **§9.4 bound 6 is a point estimate, not an interval.** Its threshold divides by
-  the partition footprint, and only that footprint's mean and p50 have been
-  published. Until p5 and p95 land, the refusal and the warning coincide and both
-  sit on one number.
+- ~~**§9.4 bound 6 is a point estimate, not an interval.**~~ — **closed.** The
+  spread is measured and bound 6 now carries a per-`n` table:
+  `docs/research/single-internal-thickness.md` §3.5. What replaces it is smaller
+  and honest: **`f_hi` restores ADR 0015's implication empirically, not
+  provably.** The implication needs `f_hi` to bound the footprint of *every* Plan
+  the engine can reach, and what is measured is a p99 of **corpus** dwellings —
+  a proxy. The engine's own reachable maximum has never been measured, because no
+  Proposer has been run. p99 leaves one dwelling in a hundred above the line by
+  construction, and ADR 0015 consequence 5 already names this bound as the map's
+  one near miss.
+- **The `n = 3` row of that table rests on 422 dwellings**, so its p99 is
+  indicative. `room-area-bands.md` §5.1 finds no three-room mix whose caps bind,
+  so nothing currently reads it.

@@ -59,6 +59,15 @@ argument.**
    ADR 0010 shipped.** Verified at 4.8 % for the corpus and 4.5 % at `t_int` = 120;
    measured **5.7 %** at 150. Quoted in two places. §6.4.
 
+**Added by ticket 44: that 5.7 % is a median, and two consumers read its ends.**
+The spread is p5 **3.53 %** to p99 **8.87 %** — a 22 % coefficient of variation
+that a point estimate hid — and it varies materially with room count, ρ = +0.379,
+median **4.30 %** at four rooms against **6.37 %** at ten. So `brief.md` §9.4
+bound 6's `f_hi` and `f_lo` ship as a **per-`n` table, not constants**: pooling
+excuses a four-room Brief with eight-room partition density, and taking the
+four-room value alone over-refuses at nine. The centre reproduced at **5.71 %** on
+a disjoint, unconditioned sample. §3.5.
+
 **A fourth, which cuts the other way and is easy to misuse.** The prior's
 *"an 8-entry catalogue matches 58.5 % of real walls"* is measured on all walls.
 On **internal** walls the same catalogue covers **74.7 %**, twelve entries cover
@@ -497,6 +506,185 @@ free parameter. Non-room areas an apartment holds (shafts, stairs, balconies) ar
 subtracted before the closing, so they are not counted as partition; without that
 subtraction the footprint would be overstated and the drift understated.
 
+### 3.5 The footprint's spread — added by ticket 44
+
+§6.4 published this footprint's **centre** and nothing else. `brief.md` §9.4
+bound 6 reads two *ends* of it — `f_hi` and `f_lo` — so until this section
+existed both had to be set to the mean, the refusal and the warning coincided,
+and a hard refusal rested on a point estimate. ADR 0015 consequence 5 named that
+as the map's one near miss and `brief.md` §13 disclosed it.
+
+Measured on **13,967** dwellings, `t_int` = 150, as a share of Σ Space area:
+
+```
+p1=2.60  p5=3.53  p10=4.07  p25=4.96  p50=5.75  p75=6.50  p90=7.18  p95=7.71  p99=8.87
+mean 5.71   sd 1.27   min 0.59   max 13.34   skew -0.01
+```
+
+Bootstrap, 2,000 resamples: p5 ∈ [3.48, 3.58], p95 ∈ [7.66, 7.77],
+p99 ∈ [8.80, 9.03]. The distribution is **symmetric** (skew −0.01) and not
+heavy-tailed — p99 is 1.54× the median, the maximum 2.32× — so the tails are
+ordinary variation in how much partition a layout needs, not a few broken
+records.
+
+**The centre reproduced on a different sample, which is the stronger result.**
+§6.4's 5.7 % / 5.7 % came from stride 10 unioned with the floors
+`experiments/rectangularise/out/swiss_fit.json` had fitted. That file is
+gitignored and ADR 0016 replaced that fit entirely, so the original population is
+unreproducible in principle. This is **stride 3, unconditioned** — 14,966
+dwellings measured, 13,967 in band — and it lands at mean **5.71 %**, p50
+**5.75 %**. Two disjoint samples, one drawn under a conversion that no longer
+exists, agreeing to two significant figures. §6.4's table is restated on this
+sample below.
+
+It also removes a bias nobody had named: the old union over-weighted floors that
+*happened to convert*, and ADR 0016 has since shown the conversion was preferring
+small dwellings by 35 points of yield across the room-count range. A footprint
+census conditioned on convertibility was inheriting that.
+
+#### The split against room count is material, and it decides the spec's shape
+
+Bound 6 bites at **four rooms and only there** (`room-area-bands.md` §5.1), and
+partitions scale with room count, so a pooled percentile may be the wrong
+statistic for the one regime the bound fires in. It is.
+
+| n | dwellings | mean | p5 | p50 | p95 | p99 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 3 | 422 | 3.66 | 1.93 | 3.44 | 5.74 | 7.22 |
+| **4** | **978** | **4.49** | **2.33** | **4.30** | **6.85** | **8.01** |
+| 5 | 1,954 | 4.92 | 2.92 | 5.01 | 6.84 | 7.68 |
+| 6 | 2,935 | 5.65 | 3.67 | 5.70 | 7.52 | 8.79 |
+| 7 | 2,791 | 5.87 | 4.17 | 5.89 | 7.61 | 8.54 |
+| 8 | 2,673 | 6.07 | 4.43 | 6.02 | 8.03 | 9.12 |
+| 9 | 1,882 | 6.24 | 4.54 | 6.21 | 8.23 | 9.00 |
+| 10 | 754 | 6.45 | 4.96 | 6.37 | 8.72 | 9.51 |
+
+Spearman ρ(n, f) = **+0.379** over the band. The median climbs **4.30 → 6.37**
+from four rooms to ten. At n = 4 the bootstrapped p95 interval is [6.73, 6.99];
+pooled it is [7.66, 7.77]. **Disjoint**, so this is not sampling noise.
+
+That kills both single-constant options, in opposite directions:
+
+- a **pooled** `f_hi` (8.87) is too permissive at n = 4, excusing a four-room
+  Brief with eight-room partition density — the refusal then misses cases it
+  exists to catch, and the Homeowner pays the solve to reach a zero-survivor
+  screen;
+- an **n = 4** `f_hi` (8.01) is too strict at n = 9, where the measured p99 is
+  9.00 — and that is the expensive error, a refused Brief that was buildable.
+
+Today the second error is invisible, because §5.1 leaves n = 6–10 fifty-odd m² of
+headroom and the bound never fires there. That is a coupling to how
+`room-area-bands.md` §6.1 happens to be tuned, not a reason to ship a wrong
+number. **So `f_hi` and `f_lo` are a per-`n` table, not constants** — the rows
+above, over C13's 3–10 engine-room gate, measured rather than fitted. No
+functional form is proposed: eight rows is smaller than the nine-row `k` table
+§6.1 already ships, and a fitted `f(n)` would be the invented number this whole
+line of work exists to avoid.
+
+⚠️ **The `n = 3` row is thin.** 422 dwellings, so its p99 rests on about four
+observations and its p95 bootstraps to [5.40, 6.14]. Read the n = 3 p99 as
+indicative. It is also the row least likely to be exercised: §5.1 finds no
+three-room mix whose caps bind.
+
+#### Which tail is which — the sign, checked rather than argued
+
+Getting this backwards inverts a hard refusal, so it is worked rather than
+asserted. Bound 6 refuses when `Σ upper_band < interior / (1 + f)`. The stated
+`interior` is fixed, so a **larger** f means a **smaller** Σ Space area to fill,
+which is the case a programme is **most** able to fill — the case where the
+refusal is hardest to earn. On a 95 m² interior:
+
+| | f | refuse below |
+|---|---:|---:|
+| `f_lo` = p5 | 3.53 % | 91.76 m² |
+| p50 | 5.75 % | 89.83 m² |
+| `f_hi` = p95 | 7.71 % | 88.20 m² |
+
+The threshold **falls** as f rises. So the high end is the permissive one and
+belongs on the **refusal**, restoring ADR 0015's *every Plan from this Brief
+fails*; the low end has the higher threshold, so the **warn** fires on a strict
+superset — which is the nesting a warn/refuse pair must have, and it comes out
+right only with this assignment.
+
+#### `f_hi` is p99, not p95, and the two errors are not symmetric
+
+The ticket asked for p5 and p95. p95 leaves one dwelling in twenty above the
+line, so the refusal still fires on Briefs a thick-walled layout could have
+rescued. p99 cuts that to one in a hundred, and it costs nothing, because the two
+failure directions are not equally expensive:
+
+- `f_hi` **too low** → a buildable Brief is refused outright. Unrecoverable: no
+  Plan is generated and the Homeowner has nothing to react to.
+- `f_hi` **too high** → a doomed Brief reaches the solve, returns zero survivors,
+  and `acceptance-bar.md` §11 explains it **in terms of area** — which for this
+  particular failure is the correct explanation, not a wrong one.
+
+The second is strictly cheaper, so push `f_hi` up. Not to the maximum: 13.34 % is
+one record, and hanging a hard refusal on the single fattest dwelling in 15,000
+is weaker evidence than a percentile, not stronger. `f_lo` stays at p5 because it
+only moves a **warn**.
+
+**No competitor faces this trade at all.** `competitive-landscape.md` records
+eleven products and **none refuses anything at parse** — Maket disclaims
+"measurements, dimensions, or scale", Cedreo that its output has "no contract
+value". The refusal is a capability the market does not have, which is precisely
+why a wrong one is the expensive failure.
+
+#### What the constant actually decides
+
+`room-area-bands.md` §5.1's commonest four-room mix caps at Σ upper_band =
+**85.67 m²** at §6.1's absolute caps. Bound 6 refuses a four-room Brief whose
+stated interior exceeds `Σ upper_band × (1 + f_hi)`:
+
+| `f_hi` from | value | refused above |
+|---|---:|---:|
+| today's point estimate | 5.70 % | 90.55 m² |
+| p95, n = 4 | 6.85 % | 91.54 m² |
+| **p99, n = 4** | **8.01 %** | **92.53 m²** |
+| p99, pooled 4–10 | 8.87 % | 93.27 m² |
+
+**This is not a rounding note.** The refusal line lands between 90.5 and 93.3 m²,
+squarely inside the ordinary Baku four-otaq range, and `brief.md` §5's own worked
+example is a 95 m² flat. The spread this section measures is worth about **2 m²
+of real flats** at the boundary between *refused* and *generated*.
+
+The warn band it opens is worth 3.6–4.9 m² on a 95 m² interior, against **0.00 m²**
+today — the two lines coincide under a point estimate, so bound 6 currently has
+no warning at all, only a refusal.
+
+#### Rung 1 reads the same number and needs a different statistic
+
+`brief.md` §5 rung 1 derives `interior = target_area × (1 + f)`. That is a **point
+prediction of geometry**, not a one-way refusal, so it wants the **centre** — p50
+— and a tail there is simply wrong: at p95 it draws the box **1.86 m² too big** on
+a stated 95 m². One constant, two consumers, two statistics. This is the thing
+most likely to be lost when someone quotes "the partition footprint" without
+saying which end.
+
+#### Two denominators, and the document had only ever published one
+
+f is a share of **Σ Space area**, never of the interior. They are different
+numbers — *f*/(1+*f*) converts — and nothing in `brief.md` §5, `acceptance-bar.md`
+§8 or ADR 0010 says which is meant:
+
+| | % of Σ Space | % of interior |
+|---|---:|---:|
+| p5 | 3.53 | 3.41 |
+| p50 | 5.75 | 5.44 |
+| p99 | 8.87 | 8.15 |
+
+Filed as a `CONTEXT.md` term, **Partition footprint**, rather than a footnote,
+because the mis-read sizes an Envelope wrong in the direction that matters.
+
+#### The second estimator agrees on the shape
+
+The corpus's **own** partitions, via the morphological closing rather than the
+per-wall sum, over the same dwellings: p5 2.73, p50 4.85, p95 7.09, p99 8.35,
+mean 4.87, sd 1.34. Lower in level — the surveyor did not draw a uniform 150 —
+but the same spread (sd 1.34 against 1.27) and the same symmetric shape. The two
+estimators do not disagree about which tail is fat, so the sign claim above is
+not resting on one construction.
+
 ---
 
 ## 4. What a second thickness would actually buy
@@ -907,18 +1095,36 @@ measure. Recorded as such rather than scored as an error.
 > the 5% gate itself."* — ADR 0010, consequence 4; repeated in
 > `docs/spec/acceptance-bar.md` §8
 
-Measured, as a share of Σ Space area over 14,063 dwellings:
+Measured, as a share of Σ Space area. **Restated by ticket 44 on a larger,
+unconditioned sample** — stride 3, 13,967 in-band dwellings, against the 14,063 of
+the original stride-10-plus-fitted-floors union, whose population ADR 0016 has
+since made unreproducible. The old figures are superseded by these, not
+contradicted by them:
 
-| | mean | p50 |
-|---|---:|---:|
-| the corpus's own partitions | **4.8 %** | 4.7 % |
-| our footprint at `t_int` = 120 | **4.5 %** | 4.6 % |
-| **our footprint at `t_int` = 150** | **5.7 %** | **5.7 %** |
-| our footprint at `t_int` = 280 | 10.6 % | 10.7 % |
+| | mean | p50 | p5 | p95 | p99 |
+|---|---:|---:|---:|---:|---:|
+| the corpus's own partitions | **4.87 %** | 4.85 % | 2.73 % | 7.09 % | 8.35 % |
+| **our footprint at `t_int` = 150** | **5.71 %** | **5.75 %** | **3.53 %** | **7.71 %** | **8.87 %** |
+
+The original sample reported mean 5.7 % and p50 5.7 % at 150, and 4.8 % / 4.7 %
+for the corpus. **Both reproduce to two significant figures on a disjoint
+sample**, which is a stronger result than a re-run would have been. The two
+`t_int` variants the old table carried — 4.5 % at 120 and 10.6 % at 280 — are not
+restated here because neither ships; `analyse.py` still prints them.
+
+⚠️ **The old table was quoted without its filter.** Its population was already
+conditioned on C13's 4–10 room band and on a dwelling holding ≥ 3 m of internal
+wall — `analyse.py`'s own `load()` — and neither `brief.md` §5 nor
+`acceptance-bar.md` §8 says so when quoting the 5.7 %. The restated figures carry
+the same filter, stated.
 
 "Roughly 4–5 %" is **verified** for the corpus and for the 120 it replaced. At the
 **150 ADR 0010 actually shipped it is 5.7 %** — wider than the 5 % gate it is being
 compared to, not the same width as it.
+
+**And the spread now exists**: §3.5. The 5.7 % is a median with p5 3.53 and p99
+8.87 either side of it, which is what `brief.md` §9.4 bound 6 needed and did not
+have.
 
 This *strengthens* ADR 0010's argument rather than weakening it — the quantity
 change it flagged is larger than it said — but the number as written is stale, and
@@ -968,6 +1174,9 @@ The cost that binds is ADR 0001 consequence 5 and the hard validator rule
 | paper widths at 1:50 | — | **derived** | `thickness / 50`, against `annotation.md`'s solid poché |
 | the 5 % / 2 % area gates | — | **engine_choice** | `rules.json` `area.invented_envelope_hard` / `_soft`, both unfitted |
 | the corpus's own area accuracy | median 1.2 % | **verified** | Swiss Dwellings deposit description, quoted in `dataset-inventory.md` §1.2 |
+| partition footprint at `t_int` 150, percentiles and per-`n` table | p5 3.53 · p50 5.75 · p95 7.71 · p99 8.87 | **verified** | `footprint_spread.py`, 13,967 in-band dwellings at stride 3; centre reproduces §6.4's 5.7 % on a disjoint sample. §3.5 |
+| `f_hi` = p99 rather than p95 or the maximum | — | **engine_choice** | the quantile is a judgement about how much residual a hard refusal may carry; the *sign* is derived (§3.5) and the per-`n` shape is measured. Argued from the asymmetry of the two failure directions, not chosen for roundness |
+| Σ upper_band for the commonest four-room mix | 85.67 m² | **derived** | `room-area-bands.md` §6.1 absolute caps, summed over §5.1's mix |
 
 ---
 
@@ -1052,15 +1261,28 @@ recorded in §1 as unobtainable, not guessed.
 ## Reproducing
 
 ```
-python experiments/thickness-fidelity/extract.py 10        #  ~25 s
-python experiments/thickness-fidelity/measure.py           #  ~45 min
+python experiments/thickness-fidelity/extract.py 3         #  ~35 s
+python experiments/thickness-fidelity/measure.py           #  ~46 min
 python experiments/thickness-fidelity/analyse.py           #  seconds
+python experiments/thickness-fidelity/footprint_spread.py  #  seconds
 python experiments/thickness-fidelity/verify_prior.py      #  ~3 min
 python experiments/thickness-fidelity/resplan_thickness.py #  ~2 min
 python experiments/thickness-fidelity/reprice.py           #  instant
 python experiments/thickness-fidelity/draw_compare.py 5 1  #  seconds
 python experiments/thickness-fidelity/classify_check.py 3 1
 ```
+
+**§3.5's numbers do not need any of that.** `footprint_spread.py` falls back to
+`experiments/thickness-fidelity/series/footprint_150.csv.gz` — **committed**, 479
+KB, five columns per dwelling — and reproduces every percentile in that section
+without the 1.09 GB corpus, without `out/`, and in about a second. That file
+exists because ticket 44 spent 46 minutes recomputing a distribution that had
+already been computed once and published as two numbers; the series is what stops
+the next percentile question costing the same.
+
+⚠️ **The stride changed from 10 to 3**, and the fitted-floor union is gone. See
+§3.5: the original population cannot be rebuilt, because `swiss_fit.json` is
+gitignored and ADR 0016 replaced that fit outright.
 
 `experiments/thickness-fidelity/README.md` carries the two things that will bite
 whoever runs this next.
