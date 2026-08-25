@@ -56,9 +56,19 @@ proxy. Confidence is now **required**.
 
 Two reasons, and the second is the binding one:
 
-1. Both v1 sources can emit a genuine confidence — retrieval from how far each
-   room had to move under the warp, the model from its own logits — and either is
-   strictly better than a geometric proxy computed after the fact.
+1. Both v1 sources can emit a genuine confidence — retrieval from **whether the
+   corpus asserted that separation or the conversion invented it**, the model
+   from its own logits — and either is strictly better than a geometric proxy
+   computed after the fact.
+
+   > ⚠️ This read *"retrieval from how far each room had to move under the warp"*
+   > until §2.2.5. Displacement is **uninformative**: §2.2.2's warp cannot
+   > destroy a separation direction at any displacement, so severity is 0
+   > whether a room moved 30 mm or 3 m. What varies is provenance, and ADR 0016
+   > measures it at **12.62 %** of axis-pairs invented.
+
+   **Confidence is per pair.** The contract's `{id: float}` per-box alternative
+   is dead for retrieval, which has nothing per-Room to say.
 2. With two sources feeding one filter, the solver needs a **source-independent**
    statement of which relations to trust. A proxy derived from box geometry gives
    a retrieved plan and a sampled plan the same confidence for different reasons.
@@ -140,10 +150,15 @@ in proportion and that claim is false, and what comes out is the 90 %-right
 artefact C2 says is worse than a blank sheet. The budget is what makes the claim
 true, so it is a gate.
 
-**The budget's exact values are an ENGINE_CHOICE and are not yet fitted.** ±10 %
-and ±15 % are the values the coverage table above was measured at. Where warp
-fidelity actually breaks is unmeasured — it belongs to *The retrieval index and
-warp procedure*.
+⚠️ **The budget is not where fidelity lives, and the gate was measuring the wrong
+quantity.** ±10 % and ±15 % are the values the coverage table above was measured
+at, and the standing worry was that stretching a plan past them makes *"this is a
+real home's arrangement"* false. It does not — §2.2.2 shows a warp of the shape
+this spec now adopts cannot destroy a separation direction at any budget, for any
+dwelling and any target. What the gate leaves unconstrained is **per-room area**,
+which it never measured: it bounds the *total*. ADR
+[0018](../adr/0018-the-warp-is-a-solve-and-it-fits-the-brief.md); everything
+below is that decision written out.
 
 **Orientation.** Each retrieved dwelling yields up to **8 variants**: 4 rotations
 in 90° steps × mirrored or not. Mirroring is benign here — v1 is single storey,
@@ -156,6 +171,290 @@ Swiss Dwellings polygons sit in **arbitrary global orientation** — the corpus 
 geo-referenced, so a raw axis-aligned bounding box measures the site's north
 angle rather than the flat. Every shape figure in this spec comes from the
 **minimum-area rotated rectangle** of the union of a dwelling's rooms.
+
+#### 2.2.1 The index
+
+**A hash map on the collapsed room multiset, and nothing cleverer.** The gate's
+first term is an *exact* match, so the bucket is the pool and the other two terms
+are a scan of it. Over the 46,794-dwelling index there are **916 distinct
+multisets** in the Brief's own vocabulary (§4.1), and a bucket is the median 66–92
+of the coverage table.
+
+> Graph2Plan's 99 ms retrieval is **not a target and not a floor** — it is the
+> cost of a *similarity*, a graph kernel evaluated against every candidate.
+> Nothing here is a similarity. A lookup is one dict hit plus a linear scan of
+> its bucket, and it is microseconds. The retrieval step is not where this
+> system spends time; the warp is (§2.2.2), and even that is two orders of
+> magnitude under the projection solve.
+
+**What an index record carries.** Built offline, once, from the converted corpus
+(§4.4) — never from the raw polygons at serving time:
+
+| field | why |
+|---|---|
+| `parts[]` — one or two rectangles per Room, integer grid units | ADR 0014; the thing that is warped |
+| `types[]` in the collapsed vocabulary | the gate's first term |
+| the **cut-line frame**: the sorted distinct x and y coordinates, and each part's index span into them | §2.2.2 warps this, not the rectangles |
+| `notches_used`, and each notch's index span | the Envelope shape the candidate carries (§2.2.3) |
+| **per-pair relation provenance** — for every axis-pair, whether the *corpus* asserted that separation or the *conversion* invented it | §2.2.5; ADR 0016 measures the invented share at **12.62 %** of axis-pairs and only the conversion can tell them apart |
+| the entrance-adjacent Room, if the corpus identifies one | §2.2.6 |
+| `RegionProfile`/`CorpusProvenance` = `AZ`/`CH` | C14 |
+
+The last two are **new obligations on the conversion**, which today emits
+`rel: {same, spurious}` as counts rather than per pair. That is a change to
+`experiments/rectangularise/fit_rects.py`, handed to its holder — this ticket
+specifies the field, not the emitter.
+
+**Size.** 46,794 records at ~1 KB is under 50 MB resident: an in-process dict
+built at boot, not a service and not a database. It is rebuilt only when the
+corpus or the conversion changes, and it is versioned with them.
+
+#### 2.2.2 The warp
+
+**A converted dwelling is a rectangular tiling, and a tiling is its cut lines.**
+Write the distinct x-coordinates of every part edge as an increasing vector and
+the gaps between them as `gx`; likewise `gy`. Every part's width is a contiguous
+sum of `gx`, every part's height a contiguous sum of `gy`, and **the tiling's
+combinatorics live entirely in the index spans** — which parts sit left of which,
+which share an edge, which are adjacent — independent of the gap *values*, so
+long as every gap stays positive.
+
+**Two consequences, and the first is a theorem.**
+
+> **Any strictly increasing per-axis map preserves the sign of every separation
+> cost.** So for every pair the truth satisfied, the warped Proposal still
+> satisfies it; `select_relations` asserts only relations of non-positive cost
+> (§5.1); therefore a warp of this shape has **zero confident-wrong relations,
+> zero reversals and severity identically 0 against the source dwelling — for
+> every dwelling and every target**.
+
+That is retrieval's strongest claim over source B, which has no such guarantee,
+and it is why the ±10 %/±15 % budget was never protecting what it was thought to
+protect. Asserted, not argued: **21,074 asserted relations over 993 warps at
+τ = 4, across every configuration measured — affine and fitted, gated and
+ungated — zero confident-wrong, zero severity, zero reversals**
+(`experiments/warp/fit_warp.py`).
+
+The second consequence is that the gaps are therefore **free to be chosen**, and
+what they should be chosen for is the Brief.
+
+**So the warp is a solve, and it fits the Brief's per-room target areas.** One
+CP-SAT programme per candidate, over `len(gx) + len(gy)` integers — the same
+toolchain as the conversion (ADR 0008) and the projection, and **no new
+dependency**:
+
+```
+minimise   (1000 · n) · worst  +  Σ_r  w_r · dev_r
+subject to Σ gx = W,  Σ gy = H,  every gap ≥ 1               (grid units)
+           dev_r · target_r ≥ 1000 · |area_r − target_r|      (per-mille)
+           worst = max_r dev_r
+           every part's span ≥ its Room's realisable minimum, both axes
+           every part within dim.aspect_ratio_hard
+           every two-part Room's shared edge ≥ ADR 0014's join
+```
+
+Five things about that programme are decisions, not incidentals:
+
+1. **The objective is minimax on the *relative* deviation**, with the weighted
+   sum as a tie-break. An absolute objective spends every gap on the living room,
+   because 5 % of 30 m² is a bigger number than 40 % of a WC — and both the
+   acceptance bar and the Homeowner read the **worst** room.
+2. **`w_r` ranks a stated target above an invented one.** `brief.md` §6.1 makes a
+   stated target sovereign and an invented one ours to flex, so the objective
+   says so. Measured at an 8:1 weight: stated rooms land at p50 **0.029** against
+   invented at 0.039, p90 0.238 against 0.260.
+3. **Both axes are solved at once.** A Room's area is bilinear in the two gap
+   vectors and CP-SAT takes that through `AddMultiplicationEquality`.
+   Alternating linearises it and looks cheaper, but `dim.aspect_ratio_hard`
+   couples the axes, so freezing one manufactures infeasibility the joint model
+   does not have.
+4. **ADR 0014's join is a constraint, not a check.** A warp that scales a
+   1 100 mm shared edge down by 15 % emits a Proposal the bar rejects. The join
+   is one index span per two-part Room; constraining it costs one linear
+   inequality and removes the failure entirely.
+5. **The result is `INFEASIBLE`, never `UNKNOWN`.** 329 OPTIMAL, 1 FEASIBLE, 63
+   INFEASIBLE, **0 UNKNOWN** over 393 warps at a 3 s cap. ADR 0008 asks the
+   conversion to be *decidable rather than timed out*; this inherits that
+   property rather than claiming it.
+
+**Cost: median 72 ms, p90 534 ms.** Two orders of magnitude under the 15 s
+projection, so the warp is free at the granularity a job actually works in.
+
+**Rounding is not a separate step.** The gaps are integers in grid units by
+construction, so the warped tiling is on the shipped 250 mm grid with no rounding
+pass to get wrong — and no rounding pass means no chance of the incoherent
+per-coordinate rounding that would break the theorem above.
+
+#### 2.2.3 What happens when the Envelope has a notch the source does not
+
+**The Brief fixes the notch *count* and never the positions** — `brief.md` §5
+step 2, because a Homeowner who can place a notch can draw, and C2 says they
+cannot. Nothing had said where an invented notch goes.
+
+**The retrieved dwelling supplies it.** The notch is already in the cut-line
+frame — it is the part of the bbox no part covers — so it warps along with
+everything else, for free. Its position and proportion are then a **real
+dwelling's**, measured, rather than the invented constant the alternative needs.
+
+This makes the Envelope **per-candidate in its `invented` fields only**, and that
+is the price. Where `shape` is `stated`, the source's `notches_used` must equal
+it and the gate gains a fourth term; where `shape` is `invented`, no gate applies
+and each candidate carries its own notch geometry, surfaced as an
+`invented_value` Assumption the Homeowner corrects by editing `shape` — C4's
+Brief-as-interface, doing exactly the job it exists for.
+
+⚠️ **A stated rectangle nearly kills retrieval, and this is a finding for
+`brief.md`, not a knob here.** Of converted dwellings, **90.16 %** use two
+notches, 8.72 % one and **1.12 % none**; measured as area, only **6.5 %** leave
+under 2 % of their bounding box unoccupied and 15.0 % under 5 %. So
+`shape = rectangular` as a *stated* gate term admits single-digit percentages of
+the index. **`shape` absent must therefore not default to rectangular** — absence
+means unknown, and a default of "rectangle" would silently delete retrieval for
+most Briefs. Handed to `brief.md`'s holder.
+
+#### 2.2.4 Ranking inside the pool
+
+The gate admits a median 58–87 dwellings after conversion (§2.2.7). C6 wants many
+candidates and not 87 near-identical ones.
+
+1. **Gate** — dict hit, then scan the bucket on total area and aspect. Free.
+2. **Pre-rank** — order the bucket by the affine warp's worst-room deviation,
+   which needs no solve. A proxy, and only for choosing whom to warp.
+3. **Warp** the head of that order, then **re-rank on the real post-warp
+   number**. A warp that declines (§2.2.2) drops out here.
+4. **Take `m`**, never two orientation variants of the same source dwelling
+   unless the pool is exhausted.
+
+**Diversity is a post-hoc filter, not a ranking term.** As a term it needs a
+weight against area fidelity that nobody can fit; as a filter it is a rule with
+no free parameter.
+
+**`m` is an ENGINE_CHOICE and this spec does not fix it.** It is a cost dial as
+well as a latency dial — each candidate is a warp plus a 15 s projection, and
+*Language and runtime split* records that the measured 6.25 s does not hold under
+candidate parallelism. What retrieval supplies is the pool; what a job spends is
+owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. Every
+fidelity figure below is quoted at **m = 8** so it can be re-read at another.
+
+#### 2.2.5 Per-room confidence
+
+§1 promotes confidence from optional to required and named retrieval's source as
+*"how far each room had to move under the warp"*. **That is now known to be
+uninformative**: §2.2.2's theorem makes severity 0 whatever the displacement, so
+a room that moved 3 m and a room that moved 30 mm are equally trustworthy on the
+only axis the solver can feel.
+
+**Retrieval's confidence is provenance, per pair.** ADR
+[0016](../adr/0016-the-conversion-names-its-own-ls.md) and ADR
+[0017](../adr/0017-three-of-the-conversions-fidelity-headlines-are-constraints-restated.md)
+measure **12.62 %** of axis-pairs — one in eight, corpus-wide over 2,317
+conversions and 97,090 pairs — as `spurious`: pairs whose bounding boxes
+*overlapped* on that axis in the real dwelling and no longer do after squaring,
+so the truth abstained and the conversion had to pick a side. The corpus asserted
+the others.
+
+| pair | confidence |
+|---|---|
+| the corpus dwelling's own polygons asserted this separation | **1.0** |
+| the conversion invented it — `spurious` | **low**, and the solver drops it first |
+
+⚠️ **The caution is about provenance, not about the picks being bad.** ADR 0017
+renders them and they read as what a person would draw. What they are not is
+*evidence*, and a hard constraint wants evidence.
+
+This makes the contract's `{id: float}` per-box alternative dead for this source:
+retrieval has nothing per-Room to say and everything per-pair. §1's wording is
+corrected there.
+
+#### 2.2.6 The entrance, and the exposure ring
+
+**The exposure ring is not matched, and that is the finding.** ADR 0003 gives
+every Envelope edge a `condition` and an `entrance_side` flag, and *Acquire the
+datasets* measured the real distribution — median 0.37 exterior, **0 of 569**
+dwellings above 0.99. But the conversion **does not know exterior from party**:
+what it measured is boundary *contact*, not window frontage. Retrieval therefore
+hands *H8 and the single-aspect flat* no help, and says so rather than implying a
+match it cannot make.
+
+**The entrance is matched, and it is free.** Graph2Plan anchors its turning
+function at the front door; this system does not need a turning function, because
+it already has 8 orientation variants and the entrance is a single edge. **Choose
+the variant that puts the source's entrance-adjacent circulation on the Brief's
+`entrance_side` edge.** Aspect is orientation-invariant, so this costs no
+coverage at all — it spends diversity the pool already had on the one alignment
+ADR 0003 says must be fixed before the solve.
+
+#### 2.2.7 Coverage and fidelity, measured
+
+**Coverage.** The table in §2.1 was measured on the *unconverted* corpus and
+retrieval can only warp a dwelling the conversion could represent. Joined per
+room multiset — the unit retrieval gates in, and the unit ADR 0016 warns against
+averaging over — over the full 46,794-dwelling index:
+
+| band | briefs | blank, unconverted | **blank, converted** | median pool | **median pool, converted** |
+|---|---:|---:|---:|---:|---:|
+| 4–6 | 18,143 | 9.5 % | **9.7 %** | 92 | **86.6** |
+| 7–10 | 24,785 | 12.4 % | **12.8 %** | 66 | **58.7** |
+
+**The conversion's price is a pool-size effect, not a coverage effect**, and
+nobody had computed that. A 6–13 % thinning almost never empties a pool of 87.
+§4.4's warning that *"retrieval's pool shrinks most where it was already
+thinnest"* was written before ADR 0016 and is now **0.2 and 0.4 points of blank
+rate**. 80.6 % and 71.8 % of Briefs land on a multiset the fit sampled at least
+15 times; the rest carry their band's rate.
+`experiments/warp/coverage_restated.py`.
+
+**Fidelity, and why the budget could not have bought it.** An affine warp inside
+the shipped gate misses the Brief's per-room targets by a median **21 %**;
+**8.7 %/11.0 %** of admitted candidates breach `dim.max_area`, which is *hard*,
+and **54.9 %/65.9 %** carry a room below 0.70 × what was asked. The two obvious
+fixes were priced and both fail:
+
+| | 4–6 rooms | 7–10 rooms |
+|---|---:|---:|
+| coverage, three-term gate | 90.3 % | 87.2 % |
+| coverage if every room must land within ±30 % of target | **40.9 %** | **30.2 %** |
+| …within ±10 % | 6.8 % | 8.7 % |
+| ranking only: Briefs whose *best* candidate still misses by >30 % | **54.8 %** | **65.3 %** |
+
+Gating cannot buy it — the coverage is not there. Ranking cannot buy it — the
+pool does not contain a well-proportioned member, so no ordering finds one. Only
+the warp can, and it does:
+
+| worst-room area deviation | p50 | p90 | p99 |
+|---|---:|---:|---:|
+| affine warp, one candidate | 0.252 | 0.514 | 0.826 |
+| **fitted warp, one candidate** | 0.111 | 0.471 | 1.286 |
+| **fitted warp, best of m = 8** | **0.056** | **0.363** | 0.892 |
+
+**93.1 %** of Briefs with a pool are served — at least one of 8 candidates
+survives the warp. **17.8 %** of individual candidates are declined, and the
+ablation says exactly what declines them:
+
+| the warp holds | candidates declined |
+|---|---:|
+| ergonomic minima and `dim.aspect_ratio_hard` | **22.0 %** |
+| minima only | 16.9 % |
+| aspect only | 11.9 % |
+| neither | **0.0 %** |
+
+⚠️ **So every refusal is a real dimensional refusal, not a limit of the method** —
+unconstrained the warp always succeeds and lands the worst room within 4.3 %. A
+declined candidate is a target Envelope that cannot host that arrangement at the
+ergonomic floor, and per ADR 0005 the Brief falls to the next pool member, then
+to source B.
+
+⚠️ **Declines are correlated within a pool, so do not compound them.** They are
+driven by the *Envelope*, which every candidate for one Brief shares. Treating
+17.8 % as independent across 8 candidates predicts a 10⁻⁶ Brief-level loss; the
+measured loss is **6.9 %**. Quote the measured number.
+
+⚠️ **Two limits on the fidelity figures.** The pool here is drawn from the 2,317
+converted dwellings of the ADR 0016 sample, not the full index, so a pool of 87
+in production is a pool of 8 here — best-of-8 is what was measured and the full
+index can only do better. And the stated-versus-invented weighting was probed at
+a **30 % stated share**, which is a probe parameter and not a measurement of what
+Homeowners state.
 
 ### 2.3 Source B — the trained model
 
@@ -262,14 +561,27 @@ recovery applied and ids 5981–5985 filtered. **16,317** non-augmented plans.
 
 ### 4.4 Rectangularisation — settled, and it is a solve
 
-⚠️ **Superseded in its premise by ADR
-[0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md),
-not in its method.** Downstream now places **one or two** rectangles per Room
-(§1), so the fit below has a second rectangle available per room and the reject
-rule it produced is measured against a constraint that has moved. The conversion
-is still one CP-SAT fit per dwelling and still drops what it cannot represent;
-**what is re-owed is the 31 % price**, by *Re-measure the conversion at two
-rectangles per Room*. Everything else in this section stands.
+⚠️ **The 31 % price is paid, and this section's own figures are the stale ones.**
+ADR [0016](../adr/0016-the-conversion-names-its-own-ls.md) re-ran the fit at ADR
+[0014](../adr/0014-a-room-is-one-or-two-rectangles-and-the-proposal-decides.md)'s
+two rectangles per Room, paired on the dwelling key, zero dwellings lost:
+
+| | was | **is** |
+|---|---:|---:|
+| Swiss Dwellings dropped | 30.70 % | **9.74 %** |
+| ResPlan dropped | 40.10 % | **6.40 %** |
+| yield | — | **90.3 % / 93.6 %** |
+| 4-room against 10-room conversion | 83 % / 46 % | **94.8 % / 82.6 %** |
+| spurious axis-pairs, corpus-wide | 15.64 % | **12.62 %** (ADR 0017 §12.2) |
+
+⚠️ **And the tier ladder is two rungs, not four.** ADR 0016 consequence 5: A → B
+now buys 2.0 points against 8.4, and tier C sits *below* tier A because dropping
+the hard relations removes the pruning and the arm times out. **The tier
+conditioning field ADR 0008 gave the training set is binary, not four-valued**;
+§2.3's two-part slot needs no change, and retrieval's tier-A gate is unchanged.
+
+The conversion is still one CP-SAT fit per dwelling and still drops what it
+cannot represent. Everything else in this section stands.
 
 Every stage downstream places **one rectangle per room**, and about half of real
 rooms are not rectangles. Settled by *Rectangularising real rooms*:
@@ -301,13 +613,13 @@ destroyed, zero separation directions flipped or weakened. **What it costs:** 31
 of Swiss Dwellings and 40 % of ResPlan dropped, per-room IoU median 0.895 and
 0.679, per-room area error median −3.5 % and −6.3 %.
 
-**This invalidates §2.2's coverage table.** The 9.5 % and 12.4 % blank rates were
-measured on the unconverted corpus. Conversion removes 31 % of Swiss Dwellings and
-takes it disproportionately from the top of the band — 83 % of 4-room dwellings
-convert against 46 % of 10-room — so retrieval's pool shrinks most where it was
-already thinnest. *The retrieval index and warp procedure* must re-measure before
-any coverage figure here is quoted again. It is affordable at all because ADR 0005
-gives a blanked Brief somewhere to go.
+✅ **§2.2's coverage table is re-measured, and the fear was misplaced.** This
+section used to warn that *"retrieval's pool shrinks most where it was already
+thinnest"*. Joined per multiset over the full index, the conversion costs **0.2
+and 0.4 points of blank rate** — 9.5 → 9.7 % and 12.4 → 12.8 % — and takes the
+median pool from 92 to 86.6 and 66 to 58.7. A 6–13 % thinning almost never
+empties a pool of 87, so the price is a **pool-size effect, not a coverage
+effect**. §2.2.7.
 
 **The converted room is a centreline rectangle**, not a clear one: the watershed
 splits each wall at its axis, so a converted room's area includes half of every
@@ -346,18 +658,41 @@ manufactured confident-wrong relation, which §5.3 measures as fatal in company.
 Their parts *are* separable, so the part-level extraction keeps a real
 constraint where abstaining would have thrown one away.
 
-⚠️ **A defect this exposed, and it is live at k = 1 today.** Nothing in step 3
-filters on a positive cost at all, so a Proposal whose boxes **overlap** — which
-a trained model emits routinely, and which §5.2's own noise model produces — has
-separations asserted for pairs the Proposal never separated. This predates parts
-and is owed by *The retrieval index and warp procedure*.
+✅ **A defect this exposed, and it is now closed by rule.** Nothing in step 3
+filtered on a positive cost at all, so a Proposal whose boxes **overlap** — which
+a trained model emits routinely, and which §5.2's own noise model produces — had
+separations asserted for pairs the Proposal never separated, posted **hard**.
+§5.4 measures the cost of exactly that: 1 confident-wrong relation → **6 %**
+survivor, 2 → **0 %**.
+
+**The rule: assert only when the best separation cost is ≤ 0.** A positive best
+cost means no axis separates these two boxes — the Proposal is asserting
+*overlap*, which this contract cannot express, and the honest reading is that it
+asserted nothing.
 
 For each unordered pair (i, j) of parts:
 
 1. compute the four separation costs — left-of, right-of, above, below
 2. `direction = argmin`; `margin = second_best − best`
-3. `margin < τ` → the pair **abstains**: the solver leaves it free
-4. otherwise the pair is **asserted**
+3. **`best > 0` → the pair abstains**: the Proposal separated them on no axis
+4. `margin < τ` → the pair **abstains**: the solver leaves it free
+5. otherwise the pair is **asserted**
+
+Three notes on step 3, because *abstain* was not the only candidate rule:
+
+- **It never fires on legitimate geometry.** ADR 0014's per-part extraction is
+  what makes this safe: an L-shaped Room and the Room in its notch have a
+  positive best cost at *Room* level, and their **parts** are separable, so the
+  part-level best cost is ≤ 0. Extracting per part keeps the real constraint;
+  the filter then only ever removes assertions about boxes that genuinely
+  overlap.
+- **Retrieval is immune either way.** §2.2.2's warped tiling is disjoint by
+  construction, so every best cost is ≤ 0. This rule exists for source B, which
+  is the source that needs it.
+- **It is a spec rule here and a code change there.** `select_relations` lives in
+  `experiments/solver-toy/solver.py`, claimed by *The solver has only ever seen
+  guillotine layouts* and *What an ordered entry sequence costs the solver*.
+  Handed to whichever moves first; nothing in this ticket touched that file.
 
 An asserted relation is then scored against the ground-truth dwelling's
 rectangularised rooms:
@@ -607,12 +942,16 @@ surfaced to the Homeowner as a C4 Assumption.
   gates §6.1's terminal metric.
 - New: ***The retrieval index and warp procedure***, ***Rectangularising real
   rooms***, ***Validate the arrangement metric against the solver***.
-- ***The retrieval index and warp procedure*** and the trained model's first
-  eval — §5.4 validated the *instrument*; neither source has been scored on it.
-  Both must report **severity, count, reversals and abstain rate** per Proposal,
-  and a warped Proposal's severity is the natural fidelity axis the warp-budget
-  question was missing. **They now also report §6.1's three plan-quality terms**,
-  which is the first time either source can be scored on anything but feasibility.
+- ✅ ***The retrieval index and warp procedure*** is **closed**, and it refuted
+  the second half of this bullet. §5.4 validated the *instrument*; retrieval has
+  now been scored on it and **the score is identically zero** — §2.2.2's warp
+  cannot produce a confident-wrong relation, so *"a warped Proposal's severity is
+  the natural fidelity axis the warp-budget question was missing"*, which this
+  bullet used to say, is **false**. Severity is the fidelity axis for **source B**
+  and for nothing else on this page. Retrieval's axis is per-room area.
+  **The trained model's first eval still owes all four numbers** — severity,
+  count, reversals, abstain rate, per Proposal — plus §6.1's three plan-quality
+  terms, and it is still the case that neither source has been scored on those.
 - From ***The Proposal cannot express zoning***, to the holders of the files this
   ticket does not write. Four rules to `rules.json`, one flag to
   `room-constraints.json`, and one soft term to whoever next opens the objective —
@@ -625,11 +964,29 @@ surfaced to the Homeowner as a C4 Assumption.
   dwellings. Real Homeowner Briefs are not corpus samples. The cross-paired test
   (§2.1) is the honest version — a Brief whose envelope did not come paired with
   its programme — but it still draws both from the corpus.
-- **±10 % / ±15 % is a stated budget, not a fitted one.** Where warp fidelity
-  actually breaks is unmeasured.
+- **±10 % / ±15 % is still a stated budget, and it now matters less than it
+  looked.** Where warp fidelity breaks is measured (§2.2.7) and it is not on
+  either of those axes. What the two terms still do is keep the *pre-warp* pool
+  honest and bound how far the fit has to reach; neither has been fitted, and a
+  ticket that wants to move them should move them against §2.2.7's decline rate,
+  not against severity.
 - The envelope proxy is the **minimum-area rotated rectangle**. Median fill is
   **0.79** and p5 is **0.61**, so real dwellings are markedly non-rectangular —
-  which ADR 0003 caps at "bbox minus ≤2 notches". **How many real dwellings fit
-  inside that cap is unmeasured**, and it bounds retrieval from a direction this
-  spec has not tested.
-- No plan has been rendered or eyeballed, here or in *Acquire the datasets*.
+  which ADR 0003 caps at "bbox minus ≤2 notches". ✅ **How many fit inside that
+  cap is now measured**: 90.16 % of converted dwellings use both notches, 8.72 %
+  one, 1.12 % none, and ADR 0016's own conversion rate — 90.3 % of Swiss — is the
+  share that fits the cap at all. ⚠️ **The direction of the bound turned out to be
+  the opposite of the worry.** The cap does not stop real dwellings entering the
+  index; it stops a **rectangular Brief** leaving it, because a source with two
+  notches cannot serve an Envelope with none (§2.2.3).
+- **Fidelity is measured against the Brief, never against a Homeowner.** Every
+  per-room "target" here is a real dwelling's real room area standing in for what
+  a person would have asked for. That is the best proxy available and it is not
+  the thing.
+- ⚠️ **The best-of-8 figures are drawn from a 2,317-dwelling converted sample**,
+  not the full index — a pool of 87 in production is a pool of 8 here — so they
+  are a lower bound on what the shipped index can do.
+- No plan produced by a **warp** has been rendered or eyeballed. *Look at the
+  converted corpus* rendered the conversion; nothing has yet drawn what comes out
+  the far side of §2.2.2, and ADR 0017 is the standing reminder that a metric is
+  not a look.

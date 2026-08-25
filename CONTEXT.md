@@ -95,10 +95,30 @@ those whose room programme matches it and whose size and proportion are close
 enough to warp without inventing. Its size is the candidate count, so an empty
 pool is a Brief with no real precedent rather than an error.
 
-**Warp budget** — how far a real dwelling may be stretched before its arrangement
-stops being a real home's. A limit, not a preference: retrieval's entire claim is
-that a person once lived in this arrangement, and past some distortion that
-sentence is false. A dwelling outside the budget is not retrieved at all.
+**Warp budget** — how far a real dwelling may be stretched before it stops being
+worth retrieving. A limit, not a preference; a dwelling outside it is not
+retrieved at all.
+_Avoid_: "before its arrangement stops being a real home's" — that was the
+original reading and it is **false**. The [[Warp]] moves cut lines, and a
+monotone move preserves every [[Separation direction]] exactly, so no budget
+protects the arrangement and none needs to. What a budget bounds is *dimensional*
+plausibility, and the quantity that actually degrades is per-**Room** area.
+
+**Warp** — turning a retrieved dwelling into a Proposal for a different
+[[Envelope]]. Not a stretch: the retrieved tiling's **cut lines** are re-chosen
+by a solve, so the arrangement survives untouched while every [[Room]] is sized
+to the Brief's target area. What retrieval claims is therefore *a real home's
+arrangement, sized to your Brief*, never *a real home, stretched*.
+Its refusals are real: a target Envelope that cannot host that arrangement above
+the [[Ergonomic minimum]] is declined, and the next pool member is tried.
+
+**Relation provenance** — whether a [[Separation direction]] in a converted
+corpus dwelling was **asserted by the real dwelling** or **invented by the
+conversion**, because squaring a room resolved an overlap the truth abstained on.
+It is what a retrieved Proposal's per-pair confidence is made of, displacement
+being uninformative under a [[Warp]]. Roughly one axis-pair in eight is invented.
+_Avoid_: reading it as *bad* — an invented pick reads as what a person would
+draw. It is not evidence, and a hard constraint wants evidence.
 
 **Private room** — a Room you do not walk *through*: the sleeping rooms and the
 wet rooms together, and the class `circ.no_private_transit` is written over. It

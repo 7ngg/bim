@@ -3,11 +3,15 @@ id: 23
 title: The retrieval index and warp procedure
 parent: map
 labels: [wayfinder:grilling]
-status: open
+status: closed
 assignee: tng
 blocked_by: []
 writes:
   - docs/spec/proposer.md
+declared_on_resolution:
+  - docs/adr/0018-the-warp-is-a-solve-and-it-fits-the-brief.md
+  - experiments/warp/
+  - CONTEXT.md
 ---
 
 # The retrieval index and warp procedure
@@ -324,3 +328,134 @@ conversion leaves **median 1.19 m² of real dwelling floor unclaimed**, and 10.0
 of dwellings carry an *enclosed* void ≥ 0.5 m² — so a retrieved dwelling may
 already contain a hole before the warp touches it. Do not assume the pool is
 exactly tiled.
+
+---
+
+## Resolution (2026-08-25)
+
+**`docs/spec/proposer.md` §2.2, rewritten into seven subsections, plus ADR
+[0018](../../adr/0018-the-warp-is-a-solve-and-it-fits-the-brief.md). Harness:
+`experiments/warp/`.**
+
+### The finding that reframed the ticket
+
+**A warp cannot destroy an arrangement.** A converted dwelling is a rectangular
+tiling; a tiling *is* its cut lines; any strictly increasing per-axis map on those
+cut lines preserves the sign of every separation cost. So severity against the
+source is **identically 0, for every dwelling and every target** — a theorem, not
+a measurement. Verified anyway: **21,074 asserted relations over 993 warps** at
+τ = 4, affine and fitted, gated and ungated — **zero confident-wrong, zero
+reversals, zero severity**, every configuration.
+
+Item 5's own prediction — *"a coherent anisotropic stretch should produce no
+reversals at all, which if true is the strongest possible argument for a generous
+area budget"* — is true and stronger than stated: it is unfalsifiable by
+construction, and it is the strongest argument for **retrieval over source B**,
+which has no such guarantee.
+
+So the section above titled *"The admissibility gate is stated in the wrong
+units"* is right that the units are wrong and wrong about which units. It is
+neither per-corner noise nor severity. **It is per-room area** — and the gate
+never measured that, because it bounds the *total*.
+
+### What the gate leaves unguarded, measured
+
+An affine warp inside the shipped gate misses the Brief's per-room targets by a
+median **21 %**. **8.7 %/11.0 %** of admitted candidates breach `dim.max_area`,
+which is hard; **54.9 %/65.9 %** carry a room below 0.70 × what was asked; the
+median admitted candidate's worst room is **0.67 ×/0.61 ×** the request. Nothing
+downstream fixes it — the projection's objective is L1 corner distance to the
+Proposal, `dim.min_area` is an ergonomic floor and `dim.max_area` a 2.02–8.15 ×
+ceiling. **The Proposal is the only place a Brief's room sizes can enter the
+geometry.**
+
+Both obvious fixes were priced and both fail:
+
+| | 4–6 rooms | 7–10 rooms |
+|---|---:|---:|
+| coverage, three-term gate | 90.3 % | 87.2 % |
+| coverage with every room within ±30 % of target | **40.9 %** | **30.2 %** |
+| …within ±10 % | 6.8 % | 8.7 % |
+| ranking only: Briefs whose *best* candidate still misses by >30 % | **54.8 %** | **65.3 %** |
+
+### The decision
+
+**The warp is a CP-SAT solve over the source tiling's cut-line gaps, minimising
+the worst room's *relative* area deviation** — no new dependency, ~72 ms median,
+p90 534 ms, and **decidable**: 329 OPTIMAL / 1 FEASIBLE / 63 INFEASIBLE / **0
+UNKNOWN** over 393 warps. It holds the ergonomic minima, `dim.aspect_ratio_hard`
+and **ADR 0014's join** as hard constraints, so it cannot emit a Proposal the bar
+rejects on those. A stated `target_area` outranks an invented one, 8:1, because
+`brief.md` §6.1 already makes it sovereign.
+
+| worst-room area deviation | p50 | p90 | p99 |
+|---|---:|---:|---:|
+| affine warp, one candidate | 0.252 | 0.514 | 0.826 |
+| fitted warp, one candidate | 0.111 | 0.471 | 1.286 |
+| **fitted warp, best of m = 8** | **0.056** | **0.363** | 0.892 |
+
+**5.8 × better on the median Brief's worst room than the affine warp's
+best-of-whole-pool, at zero coverage cost.** Retrieval's claim moves from *a real
+home, stretched* to **a real home's arrangement, sized to your Brief**.
+
+### The six items
+
+1. **The index** — a hash map on the collapsed multiset (916 buckets over 46,794
+   dwellings); the other two gate terms are a scan of the bucket. Graph2Plan's
+   99 ms is the cost of a *similarity* and is **not a target**: an exact match is
+   microseconds. §2.2.1 fixes the record, including two fields the conversion does
+   not emit yet.
+2. **The warp** — §2.2.2, reproducible from the programme printed there. Integer
+   gaps mean no rounding pass, so no chance of breaking the theorem. The notch
+   question is answered in §2.2.3: **the retrieved dwelling supplies the notch
+   position**, because `brief.md` fixes the count and never the position, and the
+   notch is already in the cut-line frame.
+3. **Ranking** — gate, pre-rank on the affine proxy, warp the head, re-rank on the
+   real number, take `m`, never two variants of one source. **Diversity is a
+   post-hoc filter**, because as a ranking term it needs a weight nobody can fit.
+   `m` stays an ENGINE_CHOICE and is handed to *Fit the ENGINE_CHOICE acceptance
+   thresholds*; every figure is quoted at 8.
+4. **Per-room confidence** — **provenance, per pair, not displacement**.
+   Displacement is uninformative precisely because of the theorem. 12.62 % of
+   axis-pairs are conversion-invented (ADR 0017's corpus-wide figure, as this
+   ticket was told to use, not §11.4's paired 0.1358).
+5. **Where fidelity breaks** — above. The curve is in the coordinate the ticket
+   did not know it needed.
+6. **`entrance_side`** — the exposure ring is **not** matched, and that is the
+   finding; the conversion measured boundary contact, not window frontage. But the
+   **entrance is** matched, free, by choosing among the 8 orientation variants.
+
+### Corrections made to settled documents
+
+- **§1's confidence source was wrong** — "how far each room had to move under the
+  warp" is uninformative. Replaced, with the reason.
+- **§4.4 was stale in both places ADR 0016 named**: the yield is 90.3 %/93.6 %
+  and **the ladder is two rungs, A and D**, so the tier conditioning field is
+  **binary, not four-valued**.
+- **§4.4's coverage warning is retired.** Joined per multiset over the full index,
+  the conversion costs **0.2 and 0.4 points** of blank rate (9.5 → 9.7 %,
+  12.4 → 12.8 %) and takes the median pool 92 → 86.6 and 66 → 58.7. **A pool-size
+  effect, not a coverage effect** — nobody had computed it.
+- **§5.1's missing positive-cost filter is closed by rule**: assert only when the
+  best separation cost ≤ 0. Safe because ADR 0014's per-part extraction already
+  makes legitimate geometry non-positive; retrieval is immune either way. The code
+  is in `solver-toy/solver.py` and was **not** touched — handed over.
+
+### What this hands to others
+
+| item | to |
+|---|---|
+| **`shape` absent must not default to rectangular** — only 1.12 % of converted dwellings emit a notch-free tiling and 6.5 % leave under 2 % of bbox unoccupied, so a stated rectangle admits single digits of the index | `docs/spec/brief.md`'s holder |
+| the index's two new per-record fields: the **cut-line frame** with per-part index spans, and **per-pair relation provenance** | `experiments/rectangularise/fit_rects.py`'s holder |
+| `select_relations` must abstain on a positive best cost | `experiments/solver-toy/solver.py` — *The solver has only ever seen guillotine layouts*, *What an ordered entry sequence costs the solver* |
+| `m`, the candidate count — a cost dial as well as a latency dial | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
+| the Envelope becomes **per-candidate in its `invented` fields only**; the notch is an `invented_value` Assumption | `brief.md` and `homeowner-surface.md` holders |
+
+### What was not resolved, and is now fog
+
+**Whether a Homeowner should be shown that candidates differ in outline.** ADR
+0018 makes notch geometry per-candidate when `shape` is invented. That is honest —
+the position is genuinely undetermined — but nobody has decided how the
+Homeowner preview presents two plans with different outlines, or whether it
+should. Recorded on the map as fog, not ticketed: it needs the surface's holder,
+not this one.
