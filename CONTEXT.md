@@ -185,10 +185,21 @@ the interior must be tiled exactly, so surplus is compulsory and lands wherever
 the solver finds it cheapest.
 
 **Engine room count** — the number of Rooms in a `ResolvedBrief`, including the
-circulation `resolve` invents. The count the solver, retrieval and the supported
-band are all measured in, and the only one that binds anything. A Homeowner has
-never said it out loud: circulation is invented in 93.5% of real dwellings.
+[[Invented circulation]]. The count the solver, retrieval and the supported band
+are all measured in, and the only one that binds anything. A Homeowner has never
+said it out loud: circulation is invented in 93.5% of real dwellings.
 _Avoid_: "Brief-named rooms", which it is not — no Brief names a corridor.
+
+**Invented circulation** — the circulation Room `resolve` adds when the Brief names
+none. **Exactly one, and it is a `hall`.** One because the count has to be fixed
+before any geometry exists and a wrong guess is not recoverable, and a `hall`
+because AzDTN 2.7-2 cl. 5.2 lists `holl` among the [[Auxiliary space]]s a dwelling
+must have — so it is transcribed, not chosen. It is the type a Homeowner may name,
+which is how a dwelling gets a second circulation space: by the Brief saying so.
+Safe at one only because a [[Space]] may be two [[Part]]s, so the hall can be an L
+that reaches a wing.
+_Avoid_: "invented rooms" plural, and "the corridor" — `corridor` and
+`entrance_lobby` exist in the type set and nothing in v1 reaches them.
 
 **Otaq** — habitable rooms only: bedrooms and living rooms, never a kitchen,
 bathroom, corridor or store. The AzDTN 2.7-2 counting convention, how a flat is
@@ -442,12 +453,27 @@ different questions:** is this Plan good, is this sheet issuable, is this file
 honest.
 
 **Acceptance bar** — the set of predicates a Plan must satisfy to be shown. One
-**declaration**, two consumers: a hard filter on finished candidates, and the
-constraint set the solver projects onto. Not one implementation — the solver
-posts inequalities before geometry exists, the filter evaluates finished
+**declaration**, three consumers: a hard filter on finished candidates, the
+constraint set the solver projects onto, and the **parse-time** bounds computed
+before any Plan exists — see [[Pre-image bound]]. Not one implementation — the
+solver posts inequalities before geometry exists, the filter evaluates finished
 geometry, and rules about Openings are unpostable because Openings are placed
-after the solve. Each predicate therefore names its **enforcement site**, and
-only those enforced at both can be asserted to agree.
+after the solve. Each predicate therefore names its **enforcement site**, and only
+those enforced at both can be asserted to agree.
+
+**Pre-image bound** — a check on a **Brief** that is the arithmetic pre-image of a
+predicate on a Plan: the set of Briefs from which *every* reachable Plan fails that
+predicate. It is not a new rule and it has no severity of its own — it **inherits**
+the severity and the threshold of the predicate it is the pre-image of, because
+firing softer promises a Plan the validator will destroy and firing harder refuses
+Briefs the validator would have passed. ADR 0015.
+
+The implication has to run one way only: *every* Plan from this Brief fails, not
+*some might*. A check that only makes failure likely is a heuristic, and shipping
+one at `hard` refuses buildable Briefs.
+_Avoid_: calling one a "validation" or an "early check" — both hide that its
+severity is a read of another rule rather than a judgement. A bound with a
+threshold of its own is a sign it is not a pre-image.
 
 **Potential circulation** — reachability over the **contact graph**: which Rooms
 share enough wall for a door to be placed. What the solver constrains, because it

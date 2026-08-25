@@ -44,11 +44,11 @@ and that is the failure this table exists to catch.
 | Acceptance bar — 38 predicates (**39 once `dim.leg_join` lands**), enforcement sites, conformance test | partial | **19 of 38 thresholds are `ENGINE_CHOICE`** — *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which now also holds the **three area rules** *What a room's area is allowed to be* measured. Opening rules need *Opening placement rules*. ⚠️ **And the bar has no rule of the shape *this dwelling owes a room at all*** — every predicate is per-Room, per-Wall or per-Opening, so **a flat with a bath and no toilet passes all 38 and exports** — *A dwelling with no toilet passes every check*, which arrives with a **mandatory, first-hand source** (AzDTN cl. 5.2) and no home for the rule family it implies. ✅ **the 40 m² WC is answered**: `dim.max_area` hard at `both`, and **free in the solver** — H4's `a = w·h` already exists. ⚠️ **And five more rules are owed, from *Where a set-versus-set property lives***, specified ready to transcribe at `zoning.md` §5b — one hard (`zone.sleeping_group_count`, at most two sleeping groups, 97.5 % of real dwellings) and four soft or warn, of which **`zone.no_social_transit` is the one nobody had written**: `circ.no_private_transit` blocks routing through a bedroom and *nothing* blocks routing through the living room, which 18.2 % of real dwellings do. ⚠️ Every dimensional rule now has to declare **which part it binds** — ADR 0014 binds minima and aspect per part, area per Room — and one new soft rule, `dim.prefer_single_part`, is owed to `rules.json`'s holder — as is a **locale dimension on every Homeowner-facing message**, since §11 requires a plain-language message per rule, all 38 are English, and the surface is now Azerbaijani: a schema change, not a translation pass |
 | Standards table — region-invariant ergonomic floor + the `AZ` profile | settled | ✅ **all four owed items paid** — the mapping exists (`profiles.AZ.rooms.mapping`, 18 rows, 162 gates), the room names turned out to be **in AzDTN 2.7-2's own text in this repo** (14 of 18 `verified`), the three-into-one gap resolved by **keeping three** (the norm carries `hol` and `dəhliz`; `giriş holu` is ours and labelled), and the corpus medians are recorded with their tail warning — *Two room vocabularies in one file*. ✅ its thickness is measured-vindicated: 150 lands **4 mm from the corpus-optimal 146**. ⚠️ **The merged 7,58 m² hall/lobby/corridor median can default nothing** now the three stay apart — rung 2 is empty for all three. ⚠️ One resolution step — `(type, otaq_count) → target, width, name` — is **named in no spec**; handed to `brief.md`'s holder |
 | Drawing — graphics, chains, schedules, tags, sheet, Drawing check | partial | its US NCS / AIA defaults contradict an Azerbaijani drawing, **and ADR 0004's one centreline number is now dead** — both owed by *The annotation spec is US-shaped and the drawing is now Azerbaijani*, which now also holds a defect the audience split creates: **the room tag's fallback is a room number plus a `practitioner` schedule**, so on the Homeowner preview it points at a document that presentation filters out — reproduced at a 1,85 m bedroom. ⚠️ **a uniform partition draws two wall weights where 76.1% of real dwellings draw three** — *One wall weight where a real plan draws three*. ✅ the room tag and room schedule are **settled for a concave Space** (ADR 0014) and the Drawing check needed **no new predicate** — chains measure wall faces, not rooms |
-| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers. ⚠️ but §9.4's pre-check is "two bounds, two severities" and **both are lower** — a maximum on every Room makes a big-Envelope Brief unsatisfiable at 4 rooms, surfacing as **zero survivors with no explanation** — *What the engine says when the Envelope is bigger than the programme*, which now also holds a **fifth check needing no standards table at all**: nothing compares a Homeowner's own **stated room areas** against their own **stated total**, so 69,2 m² of rooms inside a stated 45 m² clears every hard error and dies after a full generate cycle |
+| **Brief and parsing contract** — the object a prompt becomes, and per C4 the real interface | settled | `docs/spec/brief.md`. ✅ its **band** now has numbers, and ✅ **§9.4's upper half is closed**: six bounds, one function, and **no severity chosen** — ADR 0015 makes a parse-time bound inherit the severity and threshold of the validator rule it is the pre-image of. The Envelope-bigger-than-programme case is a **hard refusal naming two edits**, and the stated-Brief contradiction is caught net-versus-net at the 5 % `area.invented_envelope_hard` already ships. ✅ `resolve` invents **exactly one `hall`**, sourced from AzDTN cl. 5.2. ⚠️ **Bound 6 rests on a point estimate** — only the partition footprint's mean and p50 exist, so its refusal and its warning coincide on one number — *The partition footprint has a mean and no spread*, **created because the obligation had no owner**. ⚠️ **Two of eighteen room types are now dead paths** the data still presents as live — `corridor` and `entrance_lobby` need `reachable_in_v1: false`, and this ticket could not write that file |
 | Area measurement convention — what a m² means everywhere it travels | settled | — |
-| **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not. ✅ its vertical hole is **closed** by ADR 0012 — §12 drops from four inputs to two — but ⚠️ **§5 and §12 contradict each other**: §5 extrudes `IfcSpace.Body` to *storey height* where §12 assigns `h_clear`, and a Space is floor-to-ceiling. ✅ **No longer unowned** — *What geometry an IfcSpace actually gets* takes it, and ADR 0014 adds to it: a Space is now **concave**, so whether Reference View accepts an `IfcArbitraryClosedProfileDef` as its swept profile is a live question ADR 0014 explicitly refuses to answer |
-| **Vertical dimensions** — the height the model has never had | settled | `docs/research/vertical-dimensions.md`, ADR 0012, gates 33 → **67**. **One datum, `h_clear`;** `h_storey` **deleted** — AzDTN 2.7-2 publishes none, and its only two consumers were empty. ⚠️ the ticket's premise was **half false**: two of the four inputs were already shipped and `verified`. ⚠️ **the `Fall barrier` trigger is refused, not chosen** — it turns on the drop below the window, and v1 has one Storey at elevation 0 with no site, so the model cannot evaluate it at all |
-| **Homeowner product surface** — the whole of C2's user | settled | `docs/spec/homeowner-surface.md`, prototype on branch `prototype/homeowner-surface`. **A living document in Azerbaijani**, `both` set **plus a fixture render**. ⚠️ **The surface language had never been decided by anyone** — `profiles.AZ.drawing.language`'s own note scoped itself to the builder — and deciding it owed an **Azerbaijani room-name table** — ✅ **now delivered and sourced** by *Two room vocabularies in one file*, so the prototype's placeholder names can be replaced and its README warning discharged — and a **locale dimension on all 38 rule messages**, still owed. ⚠️ It found two defects in settled documents: a **stated Brief can contradict itself and survive parse**, and **`Room.target_area` and `Space` area render identically** so the Brief reads as promising an area the plan does not deliver |
+| **IFC export** — the Destination's second named output | settled | `docs/spec/ifc-export.md`, ADR 0011. ⚠️ **Reference View, because Design Transfer View never became an official MVD and zero software is certified for it** — so C2's Revit round-trip is still priced at zero, and the section that was to price it was never written. ⚠️ ADR 0010's `IfcWallStandardCase` naming is **dead**; the layer-set reasoning it carries is not. ✅ **The whole Space question is closed** by *What geometry an IfcSpace actually gets*: §6 and §12 no longer contradict each other, RV **does** accept an `IfcArbitraryClosedProfileDef` (template quoted first-hand, ADR 0014's open question discharged), a Space is **one** extrusion concave or not, and the quantity set goes **4 → 10 written** with the gate **11 → 16**. ⚠️ **The `IfcIndexedPolyCurve` Revit risk turns out to be a wall risk** — `ifcopenshell` builds an arbitrary profile for a plain rectangular wall, so every wall already carries it and the concave Space added nothing. ⚠️ **`NetPerimeter` had been specified wrong** and nine of thirteen space quantities were in neither list; both fixed, and a **vertical convention set** now publishes ADR 0012's understatement inside the file. What is left on this row is the round-trip, which is fog, not a ticket |
+| **Vertical dimensions** — the height the model has never had | settled | `docs/research/vertical-dimensions.md`, ADR 0012, gates 33 → **67**. **One datum, `h_clear`;** `h_storey` **deleted** — AzDTN 2.7-2 publishes none, and its only two consumers were empty. ⚠️ the ticket's premise was **half false**: two of the four inputs were already shipped and `verified`. ⚠️ **the `Fall barrier` trigger is refused, not chosen** — it turns on the drop below the window, and v1 has one Storey at elevation 0 with no site, so the model cannot evaluate it at all. ✅ **its two IFC consequences are landed** by *What geometry an IfcSpace actually gets*, and one was bigger than the ADR declared: IFC4 defines `Qto…Height` from the **base slab**, so the declared understatement had to be **published in the file** rather than only in the ADR — `BimEngine_VerticalConvention` on `IfcBuilding` |
+| **Homeowner product surface** — the whole of C2's user | settled | `docs/spec/homeowner-surface.md`, prototype on branch `prototype/homeowner-surface`. **A living document in Azerbaijani**, `both` set **plus a fixture render**. ⚠️ **The surface language had never been decided by anyone** — `profiles.AZ.drawing.language`'s own note scoped itself to the builder — and deciding it owed an **Azerbaijani room-name table** — ✅ **now delivered and sourced** by *Two room vocabularies in one file*, so the prototype's placeholder names can be replaced and its README warning discharged — and a **locale dimension on all 38 rule messages**, still owed. ⚠️ It found two defects in settled documents, and ✅ **both are now owned**: the **stated Brief that contradicts itself and survives parse** is **closed** by *What the engine says when the Envelope is bigger than the programme*, and **`Room.target_area` and `Space` area render identically** — a request and a result in one typeface — goes to [A request and a result in one typeface](tickets/45-a-request-and-a-result-in-one-typeface.md), which arrives with the **Practitioner half already paid**: `NetPlannedArea` beside `NetFloorArea` in the IFC, two properties apart on one entity. The shape of an answer exists; the open question is whether a Homeowner should be shown a delta at all |
 | **Room-count promise** — the band v1 claims, and what it refuses | settled | ADR 0013, `experiments/room-count-envelope/`. **Gate 3–10 engine rooms, promise 1–4 otaq** — two numbers in two units, on purpose. ⚠️ **C13's "Brief-named" was false**: no Brief names a corridor, and 93.5 % of real dwellings have one. A Homeowner naming 10 rooms is out of band **99.8 %** of the time. ⚠️ The band's *edges* were also wrong — per-`n` coverage puts **n = 2 as the worst regime below 11**, worse than the n = 10 the old band included, and **n = 1 retrieves better than n = 4**. ✅ **No longer unowned**: all three of ADR 0013's handoffs are placed — the one-rectangle premise is settled by ADR 0014, §9.4's third and fourth bounds and the circulation-count rule sit on *What the engine says when the Envelope is bigger than the programme*, and the `habitable` flag on *Two room vocabularies in one file* — ✅ **resolved, and renamed**: `is_habitable` already existed, so the flag shipped as `counts_as_otaq`, sourced from AzDTN cl. 5.5 rather than chosen, and it **diverges from habitability on `kitchen_dining`**. What is left on this row is a **correction to the record**, not work |
 
 ## Notes
@@ -75,19 +75,20 @@ order** — the done-test decides order:
 
 | Artifact | Claimed by |
 |---|---|
-| `CONTEXT.md` | **no claimant** — 31 closed |
-| `data/standards/room-constraints.json` | 16, 32 — **31 closed.** It added `profiles.AZ.rooms.mapping`, `counts_as_otaq`, `brief_nameable` and `ergonomic.corpus_medians`; a new room type or profile cell must now come with a mapping row or `gate_check.py` fails |
-| `data/acceptance/rules.json` | 16, 20, 26, **42** — and whichever of them moves first inherits the **message locale** schema change, and now **two rules 31 handed over** (cl. 5.2's mandatory room composition, and `kitchen_dining`'s zone-not-room target) and **five 30 handed over**, written out in full at `docs/research/zoning.md` §5b |
+| `CONTEXT.md` | **no claimant** — 31 and 38 closed. 38 declared it on resolution: **Pre-image bound** and **Invented circulation** are new terms, **Acceptance bar** now reads *one declaration, three consumers* |
+| `data/standards/room-constraints.json` | 16, 32 — **31 closed.** **38 hands it `reachable_in_v1: false` on `corridor` and `entrance_lobby`**, which nothing in v1 now reaches. It added `profiles.AZ.rooms.mapping`, `counts_as_otaq`, `brief_nameable` and `ergonomic.corpus_medians`; a new room type or profile cell must now come with a mapping row or `gate_check.py` fails |
+| `data/acceptance/rules.json` | 16, 20, 26, **42** — and whichever of them moves first inherits the **message locale** schema change, which **38 has now merged with a second requirement**: `brief.md` §9.4 returns a *set of findings* rather than a verdict, each with a severity, a Brief field and an Azerbaijani message — one schema change, not two, and now **two rules 31 handed over** (cl. 5.2's mandatory room composition, and `kitchen_dining`'s zone-not-room target) and **five 30 handed over**, written out in full at `docs/research/zoning.md` §5b |
 | `data/standards/room-constraints.json` (second entry) | **30 hands it one flag**, `is_sleeping` — and it **may not be folded into `is_private`**, which is true on the wet types too |
 | `docs/spec/acceptance-bar.md` | 26, **42** — 42 is new and 28 is closed |
 | `docs/spec/proposer.md` | 23 — **sole claimant now**, 30 closed |
 | `docs/spec/annotation.md` | 32 — **sole claimant now**, 28 closed. ✅ **31 has handed it the eighteen Azerbaijani room names**, sourced and cited |
 | `docs/spec/openings.md` | 16 — **sole claimant now.** 39 closed without creating it: the catalogue-versus-instance line is in `CONTEXT.md`'s **Opening** and **Head datum** terms and in the profile data, so 16 inherits it |
-| `docs/spec/brief.md` | 38 — sole claimant, listed so the next ticket to want it can see, and **now holding a second parse-time check**: a Brief whose stated room areas exceed its stated total survives §9 today. **31 adds two more**: whether a nineteenth type (`taxça-mətbəx`) is owed, and where the profile-resolution step lives |
-| `docs/spec/homeowner-surface.md` | **new, no claimant.** Created by 13, which declared it on resolution rather than taking it quietly — nothing else was claimed at the time |
+| `docs/spec/brief.md` | **no claimant — 38 closed.** It rewrote §9.4 and added §3.1, so a ticket touching either is amending a settled shape rather than filling a gap. **31's two are still open**: whether a nineteenth type (`taxça-mətbəx`) is owed, and where the `(type, otaq_count) → target, width, name` resolution step lives |
+| `docs/spec/homeowner-surface.md` | **45 — sole claimant.** Created by 13, which declared it on resolution rather than taking it quietly; 45 is the first ticket to claim it, and it inherits the **message locale** schema change if it moves before `rules.json`'s holder |
 | `experiments/envelope-exposure/` | **new, no claimant.** Also 13's, and deliberately *not* `experiments/solver-toy/`, which 29 claims: the two probes import that directory and never edit it. Their findings are quoted on the Envelope row and on 26 |
 | `experiments/region-profile/gate_check.py` | **no claimant.** 31 declared it on resolution rather than taking it quietly — 162 vocabulary gates, the file now runs 229 |
-| `docs/spec/ifc-export.md` | 41 — sole claimant. New, and it takes over a row that had **no ticket at all** |
+| `docs/spec/ifc-export.md` | **no claimant — 41 closed.** It also declared `docs/adr/0012-…` and `docs/adr/0014-…` on resolution rather than taking them quietly: 0012's `§5` → `§6` slip and both its consequences marked landed, 0014's RV question marked cleared and its rectangle comparison recorded as false |
+| `experiments/thickness-fidelity/`, `docs/research/single-internal-thickness.md` | **44 — new, sole claimant.** Created by 38 rather than left as a handoff to *whoever next runs* the harness, which named no one. One number there is now load-bearing twice: a hard refusal in `brief.md` §9.4 bound 6, and the Envelope §5 rung 1 derives from a stated `target_area` |
 | `experiments/solver-toy/` | 29, **43** — 43 is new and **blocked on 29**, deliberately: 29 re-bases the ground truth every timing on this map was measured against, so pricing a new encoding first would measure the rig |
 | `experiments/rectangularise/`, `docs/research/rectangularisation.md` | 27 — **sole claimant now, 40 is closed.** The sequencing hold is lifted: the fit has been rewritten and settled, so there is a stable conversion to render. Render `out/swiss_fit_k2.json`, whose records carry **`parts`** and no `rects` |
 
@@ -755,6 +756,56 @@ default. `research` for `wayfinder:research` tickets. `prototype` for
   handed to the two tickets that own the conversion. ⚠️ The hard bound's honest
   limit: 97.5 % of real dwellings already pass, so **the four soft rules carry the
   work** and the hard one is insurance against a generator nobody has run.
+- [What geometry an IfcSpace actually gets](tickets/41-what-geometry-an-ifcspace-gets.md)
+  — **one extrusion over one arbitrary closed profile, `h_clear` tall; the space
+  quantity set goes from four written to ten; IFC check 11 → 16.**
+  `ifc-export.md` §6.1, §8.2, §8.2a, §8.2b, §8.4a, §12. RV's own concept template
+  is quoted first-hand and **permits `IfcArbitraryClosedProfileDef`**, so ADR
+  0014's open question is closed. ⚠️ **Two of the ticket's premises were false.**
+  The rectangles it weighed the L against **do not exist** — the entity census is
+  12 `IfcArbitraryClosedProfileDef` and **zero** `IfcRectangleProfileDef`, because
+  `ifcopenshell` builds an arbitrary profile for a plain rectangular wall — so an L
+  costs no new entity type, and the `IfcIndexedPolyCurve` Revit risk was **always a
+  wall question**, never a Space one. And `Qto_SpaceBaseQuantities` has **no
+  `GrossHeight` and no `NetHeight`**; the argument built on them is about
+  properties that do not exist. ⚠️ **The one-word height fix was not one word**:
+  IFC4 defines `Height` from the **base slab**, not the finished floor, so ADR
+  0012's declared understatement had to be *published in the file* —
+  `BimEngine_VerticalConvention` on `IfcBuilding`, which is the half of ADR 0012 no
+  reader of the IFC could previously find. ⚠️ **Nine of thirteen space quantities
+  were in neither the written set nor the omission register** — forgotten, the one
+  state that register exists to prevent — and `NetPerimeter` was **specified
+  wrong**: IFC4 subtracts openings from it, so the old number was `GrossPerimeter`
+  under the wrong name. ✅ **A debt from another ticket is half paid**:
+  `NetPlannedArea` now carries the Brief's programme beside the delivered area, so
+  the Practitioner sees the delta *The whole of C2's user* found invisible; the
+  Homeowner-facing half is still owed. ✅ Item 3 needed **no decision** — ticket 28
+  had already bound Room-pair derivation in `CONTEXT.md`; §11 gains a
+  cross-reference plus the failure `CONTEXT.md` misses, that part pairs **split** a
+  real wall segment as well as inventing a false one.
+
+- [What the engine says when the Envelope is bigger than the programme](tickets/38-what-the-engine-says-when-the-envelope-is-bigger-than-the-programme.md)
+  — **§9.4 is six bounds and one function, and not one severity was chosen.** ADR
+  0015: a parse-time bound that is the arithmetic **pre-image** of a validator rule
+  inherits that rule's severity *and* its threshold. Four of six are pre-images; the
+  other two are ADR 0013's scope gate, which has none and says so. The upper bound is
+  **hard** — two hard rules make the assignment illegal, so *warn and proceed* is a
+  false promise — and it **proposes nothing**, naming two edits instead, because a
+  60 m² living room is the 40 m² WC wearing a better name. ⚠️ **The ticket's premise
+  for merging the two checks was false**: `target_area` is `ümumi sahə` and excludes
+  partitions, so a stated Brief against itself is exact net-versus-net arithmetic
+  with **no partition term at all** — the term is correct only where a *dimension* is
+  stated, and that one term is what makes them two sentences. ✅ **ADR 0014's
+  circulation rule turns out to be sourced, not chosen**: `resolve` invents **exactly
+  one `hall`**, because AzDTN cl. 5.2 lists `holl` among the auxiliary spaces a
+  dwelling must have — so `corridor` and `entrance_lobby` are **unreachable in v1**
+  and the table's one unsourced Azerbaijani name is on no shipping path. ⚠️ **A third
+  case nobody had ticketed**: §5 discarded a stated `target_area` entirely — *"95 m²,
+  four rooms"* built a ~48 m² box and never mentioned the 95, so that case never
+  reached a solve to fail at. ⚠️ Bound 6 is the **one inexact number** in the section:
+  only the partition footprint's mean and p50 are published, so its refusal and its
+  warning coincide on one estimate — ticketed as *The partition footprint has a mean
+  and no spread*, because the handoff `brief.md` first wrote pointed at nobody.
 
 ## Not yet specified
 
@@ -774,7 +825,11 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   GIA, so an invented Envelope can no longer be sized by setting its inner area to
   `target_area` — the partition footprint, ~4–5%, is only known after the solve. How
   the Envelope is sized against that target is part of this patch and did not exist
-  before ADR 0010. **Sharpened again by *What a room's area is allowed to be*:** the
+  before ADR 0010. ✅ **Half of that is now answered and is no longer fog**: `brief.md` §5
+  rung 1 sizes a stated total as `interior = target_area × (1 + f)`, which also retires
+  `efficiency` on that path — the quantity it stood in for is measured. What stays fog is
+  the *aspect and diversity* half, and ⚠️ the constant `f` is a point estimate until *The
+  partition footprint has a mean and no spread* lands. **Sharpened again by *What a room's area is allowed to be*:** the
   per-type growth curve is now measured, so an invented Envelope no longer has to guess
   how a bigger box distributes — 40 m² more dwelling buys the living room **+7.99 m²**,
   circulation **+4.00**, and a bedroom **+0.08**. And the diversity asymmetry gets a
@@ -918,6 +973,16 @@ In scope, not yet sharp enough to ticket. Graduates as the frontier advances.
   to be, it is not "pick the other view". One concrete pre-build test is now named
   rather than fog: whether Revit's importer handles `IfcIndexedPolyCurve` identically
   to `IfcPolyline`, which *"could not be confirmed"* from primary sources.
+  **Sharpened again by *What geometry an IfcSpace actually gets*, and the test just
+  got harder to avoid:** the risk is a **wall** risk, not a Space one —
+  `add_wall_representation` builds an `IfcArbitraryClosedProfileDef` on an
+  `IfcIndexedPolyCurve` for a plain **rectangular** wall, so **every wall in the file
+  already carries it**, and the concave Space ADR 0014 introduced adds nothing. Nor
+  can it be dodged by preferring `IfcPolyline`: RV1.2's own
+  `Body SweptSolid PolyCurve Geometry` template **names `IfcIndexedPolyCurve` as the
+  `OuterCurve`**, so the entity is prescribed by the view, not chosen by us. If Revit
+  mishandles it, the answer is not a different curve — it is a different view, and
+  §11 already records that there is no other view to move to.
 - **The unverified solver literature** — MIP, rectangular-dual theory and `kiwisolver`,
   all `[UNVERIFIED]`. Cold while CP-SAT holds; sharpens only when C7's interactive
   re-solve is picked up.
