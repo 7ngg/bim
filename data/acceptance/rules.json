@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "id": "bim-engine/acceptance/rules",
   "generated": "2026-08-18",
-  "ticket": "docs/wayfinder/tickets/07-acceptance-validator-spec.md; total-area quantity and convention agreement by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010)",
+  "ticket": "docs/wayfinder/tickets/07-acceptance-validator-spec.md; total-area quantity and convention agreement by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010); opening placement, the contact threshold and the party-face corrections by docs/wayfinder/tickets/16-opening-placement-rules.md (ADR 0021)",
   "spec": "docs/spec/acceptance-bar.md",
   "constraints": "data/standards/room-constraints.json",
   "disclaimer": "Neufert-grade dimensional standards (C8). Design data, not a building code. No legal code-compliance claim is made or implied by any rule in this file. Rules citing a regulatory document cite it as a source of dimensional fact, not as a compliance target.",
@@ -239,13 +239,14 @@
     {
       "id": "circ.potential_reachability",
       "item": "1",
-      "statement": "Over the contact graph, every Room receives flow from the entry Room, where a contact edge exists iff the shared wall run is at least the structural opening width plus t_int.",
+      "statement": "Over the contact graph, every Room receives flow from the entry Room, where a contact edge exists iff the shared wall run is at least the structural opening width plus t_int plus 400 mm.",
       "severity": "hard",
       "site": "solver",
       "scope": "plan",
       "src": "engine_choice",
       "conf": "derived",
-      "note": "Solver-only by construction: it runs before any Opening exists. This is potential circulation, and it asserts only that a door COULD be placed. Formulation and contact threshold inherited from Solver formulation for layout projection and Canonical geometry model."
+      "note": "Solver-only by construction: it runs before any Opening exists. This is potential circulation, and it asserts only that a door COULD be placed. Formulation and contact threshold inherited from Solver formulation for layout projection and Canonical geometry model. AMENDED by Opening placement rules (ADR 0021 part 1): the threshold gains 400 mm. ADR 0001 consequence 3 is explicit that +t_int is only the centreline-to-clear correction, so the OLD threshold reserved exactly the structural opening and nothing else -- zero jamb, zero nib -- while open.fits_segment and open.leading_edge_nib hard-require 100 + w + 300 of CLEAR run on that same segment. A solve could pass this rule and be hard-rejected the moment a door was placed on the run it had just certified. The 400 is 100 jamb + 300 nib and is the same whichever end the door is pushed to. It also buys what docs/spec/openings.md 3.1 needs: under the old threshold a minimum-length contact admits exactly ONE door position, mid-wall, so the threshold was specifying the room an architect would redraw rather than merely permitting it. COST NOT MEASURED HERE: INFEASIBLE will rise; experiments/solver-toy/ belongs to What an ordered entry sequence costs the solver and the rate is handed there.",
+      "value": 400
     },
     {
       "id": "circ.realised_reachability",
@@ -317,12 +318,13 @@
     {
       "id": "entry.exists",
       "item": "extra",
-      "statement": "At least one Opening of kind entrance_door is hosted on an External WallSegment of the pair {room, EXTERIOR}.",
+      "statement": "At least one Opening of kind entrance_door is hosted on a WallSegment of the pair {room, EXTERIOR} whose Envelope edge carries entrance_side.",
       "severity": "hard",
       "site": "validator",
       "scope": "plan",
       "src": "engine_choice",
-      "conf": "engine_choice"
+      "conf": "engine_choice",
+      "note": "SHARPENED by Opening placement rules, from Building scope and envelope handling's handoff: the segment's edge must carry entrance_side. A flat's front door DOES pierce a party wall -- onto a common corridor -- which is why entrance_side is orthogonal to condition rather than a third value, and why this rule tests the flag and not the condition. docs/spec/openings.md 7 places the primary entrance on the invented hall's segment of such an edge."
     },
     {
       "id": "entry.single_primary",
@@ -339,14 +341,14 @@
     {
       "id": "open.fits_segment",
       "item": "3",
-      "statement": "Every Opening structural width plus twice the minimum jamb return does not exceed the length of the WallSegment hosting it.",
+      "statement": "Every Opening structural width plus twice the minimum jamb return does not exceed the CLEAR length of the WallSegment hosting it.",
       "severity": "hard",
       "site": "validator",
       "scope": "plan",
       "value": 100,
       "src": "engine_choice",
       "conf": "engine_choice",
-      "note": "The door-fits-its-wall half of C6 item 3, and also the rule that catches a window too wide for its exterior segment. value is the minimum jamb return per side. ENGINE_CHOICE: no surveyed source gives a minimum return."
+      "note": "The door-fits-its-wall half of C6 item 3, and also the rule that catches a window too wide for its exterior segment. value is the minimum jamb return per side. ENGINE_CHOICE: no surveyed source gives a minimum return. FACE DECLARED by Opening placement rules: CLEAR, not centreline. A WallSegment's length is a centreline length, so read literally this rule was 50 mm looser than it appears (t_int 150 against 2 x 100). Every dimension in this system declares clear or centreline and this one did not. Clear is the reading docs/spec/openings.md 3.2 assumes and the stricter of the two."
     },
     {
       "id": "open.swing_within_space",
@@ -384,7 +386,8 @@
       ],
       "src": "uk_adm1_2015",
       "ref": "M4(2) 2.22; also BS 9266 for all rooms",
-      "conf": "verified"
+      "conf": "verified",
+      "note": "JUSTIFICATION RE-BASED by ADR 0021, constant unchanged. AD M's nib exists so a wheelchair user can reach the handle, and this profile has already refused an AD M accessibility figure -- body_zone is 300 and not AD M's 750. Keeping one while refusing the other needs a reason that is not preference: the 300 mm ALONG THE WALL is ergonomic before it is accessible -- architrave, handle, elbow -- and is what any architect leaves. The 1200 mm depth into the room is the accessibility half and costs no wall run, so it is kept unchanged rather than defended. The constant belongs to the region-invariant ergonomic layer, where the rest of the hard floor already lives."
     },
     {
       "id": "open.wc_door_outward_pan_overlap",
@@ -413,13 +416,13 @@
     {
       "id": "win.habitable_has_window",
       "item": "4",
-      "statement": "Every Space whose Room has needs_window true hosts at least one window Opening on an External WallSegment of that Space.",
+      "statement": "Every Space whose Room has needs_window true hosts at least one window Opening on a WallSegment of that Space whose Envelope edge condition is exterior.",
       "severity": "hard",
       "site": "validator",
       "scope": "plan",
       "src": "engine_choice",
       "conf": "engine_choice",
-      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment.",
+      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment. CORRECTED by Opening placement rules, from the handoff Building scope and envelope handling left here: a PARTY WALL IS External (CONTEXT.md, Wall), so 'External WallSegment' admitted a wall shared with a neighbour and a mid-block flat's bedroom could satisfy its daylight on it. The test is the Envelope edge's CONDITION, not the Wall's class. A party edge hosts no window; docs/spec/openings.md 6.1 places none there. This rule now also carries the kitchen, whose needs_window moves to true -- AzDTN 2.7-2 cl. 9.12 is verified and mandatory for living rooms AND kitchens. win.habitable_touches_exterior is NOT re-keyed: kitchen stays is_habitable false, because daylight and habitability are different questions AzDTN answers differently, and the facade contact arrives through this rule instead. Exposure cost handed to H8 and the single-aspect flat.",
       "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/needs_window"
     },
     {
@@ -445,7 +448,7 @@
       "src": "az_azdtn_2_7_2",
       "ref": "cl. 9.12",
       "conf": "verified",
-      "note": "Re-sourced by ticket 25 off the dangling de_baybo key. THE PREMISE INVERTED. This rule was a warn because BayBO PERMITTED a windowless kitchen where ventilation is provided, so the table set needs_window false for kitchen. Azerbaijan does not permit it: AzDTN 2.7-2 cl. 9.12 REQUIRES natural light in living rooms and kitchens, force statutory, corroborated for houses by AzDTN 2.7-3 cl. 8.14. So in the only region v1 ships, a windowless kitchen is a breach, not an allowance -- and the disclosure wording must derive from that force field, per ticket 14. Held at warn rather than promoted to hard because C14 forbids a region changing which Plans are REJECTED. Flipping needs_window true for kitchen would be region-invariant and is the honest fix; it belongs to the invariant room table and is handed to *Ergonomic minima and the constraint table's missing half*."
+      "note": "Re-sourced by ticket 25 off the dangling de_baybo key. THE PREMISE INVERTED. This rule was a warn because BayBO PERMITTED a windowless kitchen where ventilation is provided, so the table set needs_window false for kitchen. Azerbaijan does not permit it: AzDTN 2.7-2 cl. 9.12 REQUIRES natural light in living rooms and kitchens, force statutory, corroborated for houses by AzDTN 2.7-3 cl. 8.14. So in the only region v1 ships, a windowless kitchen is a breach, not an allowance -- and the disclosure wording must derive from that force field, per ticket 14. Held at warn rather than promoted to hard because C14 forbids a region changing which Plans are REJECTED. Flipping needs_window true for kitchen would be region-invariant and is the honest fix; it belongs to the invariant room table and is handed to *Ergonomic minima and the constraint table's missing half*. CANNOT FIRE from Opening placement rules onward: ergonomic.rooms.kitchen.needs_window is now true, so win.habitable_has_window carries the kitchen hard and this warn is unreachable. Left in place rather than retired because retiring it moves the bar's 38-rule count and docs/spec/acceptance-bar.md is claimed elsewhere. Retire-or-keep handed to whichever ticket next holds that file."
     },
     {
       "id": "wet.plumbing_group_count",

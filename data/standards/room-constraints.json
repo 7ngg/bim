@@ -1445,70 +1445,145 @@
             "src": "gost_6629_88",
             "ref": "chert. 2; Pril. 1 chert. 4",
             "conf": "derived",
-            "note": "2100 x 700 opening. Size verified; ROOM MAPPING IS OURS -- gost_6629_88 names no rooms."
+            "note": "2100 x 700 opening. Size verified; ROOM MAPPING IS OURS -- gost_6629_88 names no rooms.",
+            "opening_w": 700,
+            "opening_h": 2100,
+            "block_w": 670,
+            "block_h": 2071,
+            "leaf_w": 600,
+            "leaf_h": 2000,
+            "kind": "door",
+            "glazed": false,
+            "placeable_in_v1": true
           },
           "door_kitchen": {
             "v": "DG 21-8",
             "src": "gost_6629_88",
             "ref": "as above",
             "conf": "derived",
-            "note": "2100 x 800."
+            "note": "2100 x 800.",
+            "opening_w": 800,
+            "opening_h": 2100,
+            "block_w": 770,
+            "block_h": 2071,
+            "leaf_w": 700,
+            "leaf_h": 2000,
+            "kind": "door",
+            "glazed": false,
+            "placeable_in_v1": true
           },
           "door_bedroom": {
             "v": "DG 21-9",
             "src": "gost_6629_88",
             "ref": "as above",
             "conf": "derived",
-            "note": "2100 x 900."
+            "note": "2100 x 900.",
+            "opening_w": 900,
+            "opening_h": 2100,
+            "block_w": 870,
+            "block_h": 2071,
+            "leaf_w": 800,
+            "leaf_h": 2000,
+            "kind": "door",
+            "glazed": false,
+            "placeable_in_v1": true
           },
           "door_living_glazed": {
             "v": "DO 21-9",
             "src": "gost_6629_88",
             "ref": "as above",
             "conf": "derived",
-            "note": "2100 x 900."
+            "note": "2100 x 900.",
+            "opening_w": 900,
+            "opening_h": 2100,
+            "block_w": 870,
+            "block_h": 2071,
+            "leaf_w": 800,
+            "leaf_h": 2000,
+            "kind": "door",
+            "glazed": true,
+            "placeable_in_v1": true
           },
           "door_flat_entrance": {
             "v": "DU 21-9",
             "src": "gost_6629_88",
             "ref": "cl. 1.1, 1.5",
             "conf": "verified",
-            "note": "Type U is clause-stated for apartment entrances."
+            "note": "Type U is clause-stated for apartment entrances.",
+            "opening_w": 900,
+            "opening_h": 2100,
+            "block_w": 870,
+            "block_h": 2071,
+            "leaf_w": 800,
+            "leaf_h": 2000,
+            "kind": "entrance_door",
+            "glazed": false,
+            "placeable_in_v1": true
           },
           "door_building_entrance": {
             "v": "DN 21-13",
             "src": "gost_24698_81",
             "ref": "Pril. 1 chert. 1",
             "conf": "derived",
-            "note": "2100 x 1300."
+            "note": "2100 x 1300.",
+            "opening_w": 1300,
+            "opening_h": 2100,
+            "block_w": 1270,
+            "block_h": 2071,
+            "leaf_w": 1200,
+            "leaf_h": 2000,
+            "kind": "entrance_door",
+            "glazed": false,
+            "placeable_in_v1": true
           },
           "window_living": {
             "v": "OR 15-15",
             "src": "gost_11214_86",
             "ref": "Pril. 1 chert. 1",
             "conf": "derived",
-            "note": "1500 x 1500."
+            "note": "1500 x 1500.",
+            "opening_w": 1500,
+            "opening_h": 1500,
+            "kind": "window",
+            "placeable_in_v1": true
           },
           "window_bedroom": {
             "v": "OR 15-12",
             "src": "gost_11214_86",
             "ref": "as above",
             "conf": "derived",
-            "note": "1500 x 1200."
+            "note": "1500 x 1200.",
+            "opening_w": 1200,
+            "opening_h": 1500,
+            "kind": "window",
+            "placeable_in_v1": true
           },
           "window_kitchen": {
             "v": "OS 12-9",
             "src": "gost_11214_86",
             "ref": "as above",
             "conf": "derived",
-            "note": "1200 x 900."
+            "note": "1200 x 900.",
+            "opening_w": 900,
+            "opening_h": 1200,
+            "kind": "window",
+            "placeable_in_v1": true
           },
           "balcony_door": {
             "v": "BS 22-7,5",
             "src": "gost_11214_86",
             "ref": "as above",
             "conf": "derived",
-            "note": "2200 x 750. Note the comma -- fractional decimetres appear in marks."
+            "note": "2200 x 750. Note the comma -- fractional decimetres appear in marks. UNPLACEABLE IN V1: v1 models no balcony, loggia, terrace or eyvan -- brief.md and acceptance-bar.md both say so and the area convention excludes them. Retained rather than deleted because it is a real GOST entry. See docs/spec/openings.md 2.5, which also records that head_datum_mm's ADR 0012 justification -- 'the balcony door's own catalogue head' -- is dead in v1 while the number 2200 is right.",
+            "opening_w": 750,
+            "opening_h": 2200,
+            "block_w": 720,
+            "block_h": 2171,
+            "leaf_w": 650,
+            "leaf_h": 2100,
+            "kind": "door",
+            "glazed": true,
+            "placeable_in_v1": false
           }
         },
         "sizes_that_do_not_exist": "gost_6629_88 heights are 21 and 24 dm ONLY; 21-series widths 7/8/9/10/12/13 dm. There is no 20 dm or 23 dm size -- 20-7 appears only inside a cl. 1.5 EXAMPLE STRING and in no size drawing. Do not ship it.",
@@ -1528,7 +1603,65 @@
           "conf": "verified",
           "note": "STATUTORY. Verbatim cl. 8.3: «Pilləkən, balkon, lociya, terras, dam və yıxılma təhlükəsi olan digər yerlərdə məhəccərlərin hündürlüyü 1,2 m-dən az olmamalıdır.» Register 'az olmamalıdır' = məcburi. Corroborated at cl. 8.10 (1,2 m məhəccər on trafficable flat roofs). WINDOWS ARE NOT NAMED: the clause reaches them only through «yıxılma təhlükəsi olan digər yerlər» -- other places where there is a risk of falling -- so the HEIGHT is verified and the TRIGGER is not. Fills annotation.md's window-schedule 'Fall barrier' column and finally supplies CONTEXT.md's Fall barrier term, which until now was defined with nothing behind it."
         },
-        "fall_barrier_when_required": "REFUSED, NOT CHOSEN, AND THE REASON IS THE MODEL'S SCOPE. cl. 8.3 fixes the guarding HEIGHT and reaches windows only through «yıxılma təhlükəsi olan digər yerlər» -- other places where there is a RISK OF FALLING. Whether a window is such a place depends on the DROP BELOW IT, which depends on which storey the dwelling sits on and what is outside. v1 has exactly one Storey at Elevation 0.0, IfcSite is out of scope, and the map rules out the site entirely -- so this engine cannot evaluate the trigger AT ALL. A ground-floor window needs no barrier; the same window on the eighth floor does; nothing in the model distinguishes them. So v1 publishes the height and refuses the trigger: annotation.md's 'Fall barrier' column reads '—' for every window, which that spec already provides for ('where the model holds one, and — where it does not'). Picking a sill threshold here would have been a SAFETY claim with no source and no way to evaluate it -- the exact C8 breach ticket 25 exists to prevent. This is a refusal in the same class as accessibility and as the ergonomic layer's height."
+        "fall_barrier_when_required": "REFUSED, NOT CHOSEN, AND THE REASON IS THE MODEL'S SCOPE. cl. 8.3 fixes the guarding HEIGHT and reaches windows only through «yıxılma təhlükəsi olan digər yerlər» -- other places where there is a RISK OF FALLING. Whether a window is such a place depends on the DROP BELOW IT, which depends on which storey the dwelling sits on and what is outside. v1 has exactly one Storey at Elevation 0.0, IfcSite is out of scope, and the map rules out the site entirely -- so this engine cannot evaluate the trigger AT ALL. A ground-floor window needs no barrier; the same window on the eighth floor does; nothing in the model distinguishes them. So v1 publishes the height and refuses the trigger: annotation.md's 'Fall barrier' column reads '—' for every window, which that spec already provides for ('where the model holds one, and — where it does not'). Picking a sill threshold here would have been a SAFETY claim with no source and no way to evaluate it -- the exact C8 breach ticket 25 exists to prevent. This is a refusal in the same class as accessibility and as the ergonomic layer's height.",
+        "dimension_derivation": {
+          "opening": "VERIFIED, read off the GOST mark. The mark reads HEIGHT-then-WIDTH: DG 21-8 is 2100 x 800.",
+          "block": "VERIFIED: block = opening - 30 wide, opening - 29 high. Every block height is ODD and must never be keyed off.",
+          "leaf": "DERIVED by the stated rule leaf = opening - 100. Applied to the five door openings it reproduces gost_6629_88 published leaf series exactly (700->600, 800->700, 900->800, 1300->1200), which is what promotes it from a guess to a derivation. Load-bearing beyond the schedule: open.swing_within_space builds the swing footprint from leaf_w, so a bathroom door sweeps a 600 square and not a 700 one.",
+          "clear": "NOT PUBLISHED IN V1, deliberately. It is the block less two frame sections and the frame section is a joinery detail this profile does not carry. No shipped rule consumes clear width; inventing one would be the invented-dimension tell CONTEXT.md warns about.",
+          "even_check": "All published opening dimensions are even, so ADR 0004 holds: structural 700/800/900/1300/1500/1200, block 670/770/870/1270, leaf 600/700/800/1200, leaf height 2000."
+        },
+        "door_for_room": {
+          "comment": "Chosen by the RECEIVING Room -- the more private of the pair, per docs/spec/openings.md 3.3. hall, corridor and entrance_lobby never appear: they are never the receiving Room.",
+          "conf": "engine_choice",
+          "note": "800 is the interior door, not 900. DG 21-8 is the ordinary interior door of a post-Soviet flat and DG 21-9 is what is drawn for a zal. Neufert room-doors-approx-800 lands on the same rung, which is the check that matters. Taking 900 everywhere costs 100 mm of reserved contact run on every internal door under circ.potential_reachability for nothing. storage takes 700 (a kladovaya door); utility takes 800 because a washing machine goes through it. The 700 mm bathroom door STANDS against accessibility conflict C4 -- see openings.md 2.4 and the body_zone note, which refuses AD M figures for the same reason.",
+          "map": {
+            "wc": "door_bathroom_wc",
+            "bathroom": "door_bathroom_wc",
+            "shower_room": "door_bathroom_wc",
+            "storage": "door_bathroom_wc",
+            "bedroom_principal": "door_kitchen",
+            "bedroom_double": "door_kitchen",
+            "bedroom_single": "door_kitchen",
+            "study": "door_kitchen",
+            "kitchen": "door_kitchen",
+            "utility": "door_kitchen",
+            "living": "door_living_glazed",
+            "dining": "door_living_glazed",
+            "living_dining": "door_living_glazed",
+            "kitchen_dining": "door_living_glazed",
+            "living_dining_kitchen": "door_living_glazed"
+          },
+          "entrance_by_dwelling_type": {
+            "flat": "door_flat_entrance",
+            "house": "door_building_entrance"
+          },
+          "door_bedroom_unused": "DG 21-9 has no receiving Room: living-room doors take the glazed DO 21-9 and every other interior door takes DG 21-8. Retained in the catalogue, unmapped."
+        },
+        "window_for_room": {
+          "comment": "One catalogue entry per Space, repeated. A facade with two different windows in one room is a tell.",
+          "map": {
+            "living": "window_living",
+            "dining": "window_living",
+            "living_dining": "window_living",
+            "living_dining_kitchen": "window_living",
+            "bedroom_principal": "window_bedroom",
+            "bedroom_double": "window_bedroom",
+            "bedroom_single": "window_bedroom",
+            "study": "window_bedroom",
+            "kitchen": "window_kitchen",
+            "kitchen_dining": "window_kitchen",
+            "utility": "window_kitchen"
+          }
+        },
+        "min_pier_mm": {
+          "v": 600,
+          "src": "engine_choice",
+          "ref": null,
+          "conf": "engine_choice",
+          "note": "Minimum wall between two structural window openings on one run. The only unfitted constant docs/spec/openings.md adds; handed to Fit the ENGINE_CHOICE acceptance thresholds to the corpora."
+        },
+        "placement_spec": "docs/spec/openings.md; ADR 0021. Position, hinge, swing, leaf-or-cased and window count all live there."
       },
       "drawing": {
         "language": {
@@ -1943,7 +2076,7 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": false,
-        "needs_window": false,
+        "needs_window": true,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2235,7 +2368,8 @@
         "is_private": false,
         "needs_window": false,
         "counts_as_otaq": false,
-        "brief_nameable": false
+        "brief_nameable": false,
+        "reachable_in_v1": false
       },
       "corridor": {
         "min_clear_short": {
@@ -2264,7 +2398,8 @@
         "is_private": false,
         "needs_window": false,
         "counts_as_otaq": false,
-        "brief_nameable": false
+        "brief_nameable": false,
+        "reachable_in_v1": false
       },
       "storage": {
         "min_clear_short": {
