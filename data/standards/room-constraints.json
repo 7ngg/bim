@@ -2094,7 +2094,7 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": false,
-        "needs_window": false,
+        "needs_window": true,
         "counts_as_otaq": false,
         "brief_nameable": true
       },

@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "id": "bim-engine/acceptance/rules",
   "generated": "2026-08-18",
-  "ticket": "docs/wayfinder/tickets/07-acceptance-validator-spec.md; total-area quantity and convention agreement by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010); opening placement, the contact threshold and the party-face corrections by docs/wayfinder/tickets/16-opening-placement-rules.md (ADR 0021)",
+  "ticket": "docs/wayfinder/tickets/07-acceptance-validator-spec.md; total-area quantity and convention agreement by docs/wayfinder/tickets/17-area-measurement-convention.md (ADR 0010); opening placement, the contact threshold and the party-face corrections by docs/wayfinder/tickets/16-opening-placement-rules.md (ADR 0021); ENGINE_CHOICE thresholds fitted, conf gains 'fitted', dim.max_area and dim.stated_target_implausible added, and dim.market_default_area made two-sided by docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md (ADR 0023)",
   "spec": "docs/spec/acceptance-bar.md",
   "constraints": "data/standards/room-constraints.json",
   "disclaimer": "Neufert-grade dimensional standards (C8). Design data, not a building code. No legal code-compliance claim is made or implied by any rule in this file. Rules citing a regulatory document cite it as a source of dimensional fact, not as a compliance target.",
@@ -22,9 +22,9 @@
       "site": "solver | validator | both",
       "scope": "plan | brief",
       "value": "the number, where the rule carries one",
-      "src": "key into the sources block of data/standards/room-constraints.json, or engine_choice, or pending",
+      "src": "key into the sources block of data/standards/room-constraints.json, or a corpus statistic where conf is fitted, or engine_choice, or pending",
       "ref": "clause within that source",
-      "conf": "verified | reported | derived | engine_choice | pending",
+      "conf": "verified | reported | derived | fitted | engine_choice | pending",
       "note": "required when conf is engine_choice, derived or pending, or when severity is deferred"
     },
     "severity_meanings": {
@@ -42,6 +42,14 @@
       "plan": "evaluated over a finished Plan's Spaces, Walls and Openings",
       "brief": "evaluated over the ResolvedBrief, at parse time and again when no candidate survives",
       "note": "A `programme` rule is brief-scope AND HAS NO PLAN-SIDE TWIN, which is deliberate. The Room set is frozen at `resolve`: brief.md §9.5 forbids auto-repair, §3 makes every Brief Room required, the warp maps a donor onto a fixed multiset, and model.no_unassigned_area forces every Room to become a Space. So a plan-side composition predicate could never fail on a Plan whose Brief passed -- and a rule that cannot fire is a lie about coverage, which is why win.habitable_touches_exterior was retired. ADR 0015 runs the other way, from a shipped Plan rule back to its parse-time pre-image; these four are the first rules with an image and no pre-image."
+    },
+    "conf_meanings": {
+      "verified": "read directly from the primary document named in src",
+      "reported": "a credible third party attributes this value to src; not read first-hand",
+      "derived": "computed from a verified value by a stated rule",
+      "fitted": "no source dictates this; its value is a named statistic of a named corpus, and src says which. Weaker than a document, stronger than a judgement. ADR 0023. Every fitted rule also carries corpus_cost: the share of real dwellings the value rejects, measured in docs/research/acceptance-thresholds.md",
+      "engine_choice": "no source dictates this AND nothing has measured it; the engine picks it, and note says why. ADR 0023 narrowed this from unsourced to unmeasured",
+      "pending": "the value is owed and the rule ships without it"
     }
   },
   "region_binding": {
@@ -209,9 +217,11 @@
         "hall",
         "storage"
       ],
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "No surveyed source states an aspect rule. Added because nothing in C6's seven items catches a room that meets its minimum area and its minimum width by being long: 2750 x 8250 is a compliant, unliveable bedroom, and it is the most likely way a passing Plan still reads as generated. corridor, hall and storage are exempt, being legitimately high-aspect."
+      "src": "swiss_dwellings_p99_5",
+      "conf": "fitted",
+      "note": "No surveyed source states an aspect rule. Added because nothing in C6's seven items catches a room that meets its minimum area and its minimum width by being long: 2750 x 8250 is a compliant, unliveable bedroom, and it is the most likely way a passing Plan still reads as generated. corridor, hall and storage are exempt, being legitimately high-aspect.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. UNMOVED, and it is the p99.5 to two decimal places: over 235,045 binding rooms in 42,985 real Swiss dwellings, clear-plane bbox aspect has p95 2.14, p99 2.71, p99.5 3.02, max 6.85. Rejects 2.85 % of real dwellings -- the same tolerance *What a room's area is allowed to be* chose independently at p99.5 (3.1 %). ResPlan agrees and is looser (1.05 %), so Swiss is the corpus this is read off. The exemptions are vindicated too: corridor sits at p90 3.30, above the cap it is exempt from. WARNING for the proposer, not for this rule: on the CONVERTED corpus the same threshold costs 10.62 %, because the fit's second rectangle -- the leg of an L -- exceeds 3.0 at 19.55 % against 2.45 % for single-part Rooms. That is elongation the conversion manufactures, not elongation real rooms have.",
+      "corpus_cost": 0.0285,
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "dim.aspect_ratio_soft",
@@ -226,20 +236,55 @@
         "hall",
         "storage"
       ],
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "Ranking term. Same exemptions as dim.aspect_ratio_hard."
+      "src": "swiss_dwellings_p95",
+      "conf": "fitted",
+      "note": "Ranking term. Same exemptions as dim.aspect_ratio_hard.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. UNMOVED. 2.2 is the p95 (2.14) of the same distribution.",
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "dim.market_default_area",
       "item": "2",
-      "statement": "Prefer Spaces at or above the market_default area for their Room type.",
+      "statement": "Prefer Spaces whose area is close to the target area for their Room type, penalised as soft_w[type] x |area - target_area|.",
       "severity": "soft",
       "site": "both",
       "scope": "plan",
       "src": "engine_choice",
       "conf": "engine_choice",
-      "note": "The soft half of the C10 split, and region-dependent. A Plan built to the hard floor is valid and unliveable; this is the term that stops the solver settling there."
+      "note": "The soft half of the C10 split, and region-dependent. A Plan built to the hard floor is valid and unliveable; this is the term that stops the solver settling there.  || MADE TWO-SIDED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, transcribing docs/research/room-area-bands.md 6.2 without re-deriving it. It was one-sided -- 'at or above market_default' -- so the objective actively REWARDED bloat while model.no_unassigned_area made the surplus compulsory. A maximum alone would have relocated the bloat to just under the cap. soft_w is measured, not chosen: it is 1/CV of each class's area dispersion, normalised, so a tight class resists growth and a loose one absorbs, and asking a Homeowner which room gets the leftover space is an architect's question put to someone C2 says cannot read a dimension string. Table at area_bands.classes.*.soft_w. conf stays engine_choice because the SHAPE of the penalty is a choice; its weights are fitted.",
+      "soft_w_source": "area_bands.classes.*.soft_w"
+    },
+    {
+      "id": "dim.max_area",
+      "item": "2",
+      "statement": "Every Space area is at most the upper band for its Room type: k[type] x Room.target_area where the Room has a target_area, and absolute_cap[type] where it has none.",
+      "severity": "hard",
+      "site": "both",
+      "scope": "plan",
+      "value": {
+        "$ref": "area_bands"
+      },
+      "src": "swiss_dwellings_p99_5",
+      "ref": "docs/research/room-area-bands.md section 6.1",
+      "conf": "fitted",
+      "corpus_cost": 0.0311,
+      "fitted_by": "docs/wayfinder/tickets/37-what-a-rooms-area-is-allowed-to-be.md",
+      "note": "NEW. Every area predicate in this file was a floor or a total, so a 40 m2 WC passed the bar and model.no_unassigned_area made the surplus compulsory. Measured and reasoned in full at docs/research/room-area-bands.md 6.1; transcribed here by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which holds this file, and NOT re-derived. A STATED TARGET IS SOVEREIGN: the absolute cap is a fallback, not a ceiling, because C4 makes the Brief the real interface and the defect this rule fixes is an area the ENGINE invented. k is not one constant (2.02 to 8.15) and a single global k would be the invented number this rule exists to avoid. The solver side is FREE: H4 already builds a = w*h via AddMultiplicationEquality for the minimum, and an upper bound on a product tightens propagation on w and h rather than weakening it. The percentile is not free either: p95 rejects 26.6 % of real dwellings, p99 6.0 %, p99.5 3.1 % -- and this corpus is the retrieval and training population, so a rejection here is coverage lost. p99.5 is also the percentile at which the 4-room case stops being inexpressible. Reproduced independently by this ticket over 42,985 dwellings at 3.11 % against room-area-bands' 3.1 %. PROVENANCE: every number is Swiss and the profile is AZ. A maximum is NOT region-free the way dim.min_area is -- the ergonomic floor is region-free because a body is a body, and a maximum is a market fact with no such defence."
+    },
+    {
+      "id": "dim.stated_target_implausible",
+      "item": "2",
+      "statement": "A stated Room target_area exceeds absolute_cap for its Room type.",
+      "severity": "warn",
+      "site": "validator",
+      "scope": "brief",
+      "value": {
+        "$ref": "area_bands.classes.*.absolute_cap"
+      },
+      "src": "swiss_dwellings_p99_5",
+      "ref": "docs/research/room-area-bands.md section 6.3",
+      "conf": "fitted",
+      "fitted_by": "docs/wayfinder/tickets/37-what-a-rooms-area-is-allowed-to-be.md",
+      "note": "NEW, and it is the counterweight to dim.max_area's sovereignty of a stated target. Surfaced against the Brief exactly as area.given_envelope_warn is: it keeps the Homeowner sovereign while catching an LLM parse that put a decimal in the wrong place. Transcribed from docs/research/room-area-bands.md 6.3 by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*."
     },
     {
       "id": "circ.potential_reachability",
@@ -301,12 +346,13 @@
       "site": "validator",
       "scope": "plan",
       "value": [
-        0.08,
-        0.18
+        0.09,
+        0.15
       ],
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "C6 item 7's sane fraction. NO surveyed source supplies one. Placeholder pending a fit against the corpora. Soft, so a wrong placeholder costs ranking quality and rejects nothing. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way."
+      "src": "swiss_dwellings_p25_p75",
+      "conf": "fitted",
+      "note": "C6 item 7's sane fraction. NO surveyed source supplies one. Placeholder pending a fit against the corpora. Soft, so a wrong placeholder costs ranking quality and rejects nothing. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. MOVED, [0.08, 0.18] -> [0.09, 0.15]. Real circulation share over 42,985 dwellings: p25 0.092, p50 0.122, p75 0.151, p90 0.188. The old band held 71.31 % of real dwellings and held them asymmetrically (16.55 % below, 12.14 % above) against a p50 of 0.122. A soft band exists to RANK, and a band holding 71 % of the population is inert on 71 % of it, so it is fitted to the interquartile range. By construction a quarter of real dwellings sit each side. Also measured: 2.66 % of real dwellings have NO circulation Space at all, and resolve invents one unconditionally, so the engine cannot emit them.",
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "circ.fraction_hard",
@@ -316,9 +362,11 @@
       "site": "validator",
       "scope": "plan",
       "value": 0.3,
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "An outer bound, not a quality bar. Set where it only ever catches Plans that are visibly broken, so it cannot become the 99-percent-rejection rule the ticket warns about. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way."
+      "src": "swiss_dwellings_p99_p99_5",
+      "conf": "fitted",
+      "note": "An outer bound, not a quality bar. Set where it only ever catches Plans that are visibly broken, so it cannot become the 99-percent-rejection rule the ticket warns about. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. UNMOVED. p99 is 0.284 and p99.5 is 0.322, so 0.30 sits inside the tail exactly where this note already claimed, and rejects 0.69 % of real dwellings. The claim is now a measurement.",
+      "corpus_cost": 0.0069,
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "entry.exists",
@@ -351,9 +399,11 @@
       "site": "validator",
       "scope": "plan",
       "value": 100,
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "The door-fits-its-wall half of C6 item 3, and also the rule that catches a window too wide for its exterior segment. value is the minimum jamb return per side. ENGINE_CHOICE: no surveyed source gives a minimum return. FACE DECLARED by Opening placement rules: CLEAR, not centreline. A WallSegment's length is a centreline length, so read literally this rule was 50 mm looser than it appears (t_int 150 against 2 x 100). Every dimension in this system declares clear or centreline and this one did not. Clear is the reading docs/spec/openings.md 3.2 assumes and the stricter of the two."
+      "src": "swiss_dwellings_half_slack_p1",
+      "conf": "fitted",
+      "note": "The door-fits-its-wall half of C6 item 3, and also the rule that catches a window too wide for its exterior segment. value is the minimum jamb return per side. ENGINE_CHOICE: no surveyed source gives a minimum return. FACE DECLARED by Opening placement rules: CLEAR, not centreline. A WallSegment's length is a centreline length, so read literally this rule was 50 mm looser than it appears (t_int 150 against 2 x 100). Every dimension in this system declares clear or centreline and this one did not. Clear is the reading docs/spec/openings.md 3.2 assumes and the stricter of the two.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. UNMOVED. The fitted quantity is the HALF-SLACK, (clear run - structural width) / 2, because the predicate is a segment-LENGTH test. Over 693,976 real opening incidences the half-slack on doors sitting in an actual pier (run >= 1.5 m) has p1 114 mm and p5 383 mm, so 100 mm is below the p1 of what real construction leaves, and costs 0.92 % of those doors. Unfiltered the cost is 7.56 %, but 75.1 % of those failures sit on runs under 1.5 m where the opening IS the whole wall -- a cased or full-width opening, which has no jamb by construction. || ONE CONSTANT, TWO DOCUMENTS, AND BOTH READINGS HOLD. This rule tests the run's LENGTH and says nothing about where on the run the Opening sits -- the return itself is fixed by docs/spec/openings.md 3.2, at the same 100 mm at the pushed-to end. The split is deliberate: Openings are placed after the solve, so a placement is not a postable predicate. The corpus vindicates the placement constant too: real door jamb returns have p25 58 mm and p50 128 mm, so 100 mm sits at roughly the p40 and an engine door is never tighter to its corner than a median real one. 41.72 % of real doors sit tighter than the engine would place them and all of them pass this rule, correctly. What DOES cost something is the composite w + 400 that openings.md 3.2 needs whichever end the door is pushed to: 12.32 % of real doors sit on a run shorter than that, and that number belongs to open.leading_edge_nib and the solver reservation, not to this threshold.",
+      "corpus_cost": 0.0092,
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "open.swing_within_space",
@@ -414,11 +464,13 @@
       "severity": "hard",
       "site": "both",
       "scope": "plan",
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment. CORRECTED by Opening placement rules, from the handoff Building scope and envelope handling left here: a PARTY WALL IS External (CONTEXT.md, Wall), so 'External WallSegment' admitted a wall shared with a neighbour and a mid-block flat's bedroom could satisfy its daylight on it. The test is the Envelope edge's CONDITION, not the Wall's class. A party edge hosts no window; docs/spec/openings.md 6.1 places none there. This rule now also carries the kitchen, whose needs_window moves to true -- AzDTN 2.7-2 cl. 9.12 is verified and mandatory for living rooms AND kitchens. win.habitable_touches_exterior is NOT re-keyed: kitchen stays is_habitable false, because daylight and habitability are different questions AzDTN answers differently, and the facade contact arrives through this rule instead. Exposure cost handed to H8 and the single-aspect flat. || SITE MOVES TO `both`, AND THE PART IS DECLARED, by *H8 and the single-aspect flat*. This rule inherits the solver posting that win.habitable_touches_exterior carried before it was retired, and inherits it STRONGER: the solver posted mere contact, and what it posts now is the frontage budget itself -- each needs_window Room holds a run of EXTERIOR-condition Envelope edge of at least its catalogue window's structural width plus twice the jamb return (`value`, 100 mm per side, the same constant open.fits_segment uses). Without that posting the solver is blind to daylight and every candidate that misses it dies at validation, which is yield thrown away on a constraint the solver can already express: ADR 0003 types the edge ring before the solve. || PER ADR 0014 SS9.1 THIS BINDS PER ROOM -- a Room reaches its window through ANY of its parts -- BUT the WINDOW-BEARING PART must itself meet that Room's min_clear_short. That is the ticket's option 2, and it costs nothing today at one rectangle per Room while closing the alcove ADR 0014 opens: a habitable room whose only daylight comes down a 900 mm leg is an alcove with a window, not a room with an aspect. open.fits_segment already forces such a leg to 1400 mm for a bedroom window; the Room's own minimum is the number an architect would hold, and it is already published.",
+      "src": "swiss_dwellings_topology",
+      "conf": "fitted",
+      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment. CORRECTED by Opening placement rules, from the handoff Building scope and envelope handling left here: a PARTY WALL IS External (CONTEXT.md, Wall), so 'External WallSegment' admitted a wall shared with a neighbour and a mid-block flat's bedroom could satisfy its daylight on it. The test is the Envelope edge's CONDITION, not the Wall's class. A party edge hosts no window; docs/spec/openings.md 6.1 places none there. This rule now also carries the kitchen, whose needs_window moves to true -- AzDTN 2.7-2 cl. 9.12 is verified and mandatory for living rooms AND kitchens. win.habitable_touches_exterior is NOT re-keyed: kitchen stays is_habitable false, because daylight and habitability are different questions AzDTN answers differently, and the facade contact arrives through this rule instead. Exposure cost handed to H8 and the single-aspect flat. || SITE MOVES TO `both`, AND THE PART IS DECLARED, by *H8 and the single-aspect flat*. This rule inherits the solver posting that win.habitable_touches_exterior carried before it was retired, and inherits it STRONGER: the solver posted mere contact, and what it posts now is the frontage budget itself -- each needs_window Room holds a run of EXTERIOR-condition Envelope edge of at least its catalogue window's structural width plus twice the jamb return (`value`, 100 mm per side, the same constant open.fits_segment uses). Without that posting the solver is blind to daylight and every candidate that misses it dies at validation, which is yield thrown away on a constraint the solver can already express: ADR 0003 types the edge ring before the solve. || PER ADR 0014 SS9.1 THIS BINDS PER ROOM -- a Room reaches its window through ANY of its parts -- BUT the WINDOW-BEARING PART must itself meet that Room's min_clear_short. That is the ticket's option 2, and it costs nothing today at one rectangle per Room while closing the alcove ADR 0014 opens: a habitable room whose only daylight comes down a 900 mm leg is an alcove with a window, not a room with an aspect. open.fits_segment already forces such a leg to 1400 mm for a bedroom window; the Room's own minimum is the number an architect would hold, and it is already published.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. The rule carries NO threshold to move -- it is topology -- so what is fitted here is its COST, reproduced independently of *H8 and the single-aspect flat*: 45.19 % of 42,985 real Swiss dwellings have at least one needs_window Room with no window incident on it, against H8's 43.3 %. It is the second-largest single contributor to the bar's rejection rate (15.97 points of the 84.41 % union) and it cannot be relaxed by moving a number. Measured with kitchen.needs_window TRUE, which is what room-constraints.json says again after this ticket repaired the silent revert recorded in docs/research/acceptance-thresholds.md section 10.",
       "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/needs_window",
-      "value": 100
+      "value": 100,
+      "corpus_cost": 0.4519,
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "win.area_ratio",
@@ -440,11 +492,13 @@
       "severity": "hard",
       "site": "both",
       "scope": "plan",
-      "value": 2,
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "Resolves a real disagreement between the two consumers. Solver formulation posts wet clustering as hard flow over the wet subset, which demands ONE group and so rejects a kitchen at the front with a bathroom at the back: a real home, not a defect. Scoring it purely soft lets a candidate through with five isolated stacks. A bound on the group COUNT stays postable as a hard constraint and matches the shape real dwellings take.",
-      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/is_wet"
+      "value": 3,
+      "src": "swiss_dwellings_p99_8",
+      "conf": "fitted",
+      "note": "Resolves a real disagreement between the two consumers. Solver formulation posts wet clustering as hard flow over the wet subset, which demands ONE group and so rejects a kitchen at the front with a bathroom at the back: a real home, not a defect. Scoring it purely soft lets a candidate through with five isolated stacks. A bound on the group COUNT stays postable as a hard constraint and matches the shape real dwellings take.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. MOVED, 2 -> 3, and the ticket predicted it in advance: *if the tail reaches 3, the hard bound is wrong.* Over 42,985 real dwellings the wet-group count is 1 at 39.05 %, 2 at 46.49 %, THREE AT 14.14 % and 4 at 0.20 %. So 'two is the shape real dwellings take' is true of the MODE and false of the tail, and the bound at 2 rejected one real home in seven. At 3 it costs 0.20 % and still refuses the five-isolated-stacks candidate that scoring this purely soft would admit. The measurement is conservative in the safe direction: contact at tau 0.30 m merges corner-touching groups, so the true count is at least what was measured. CONSEQUENCE: wet.shared_wall_length is now the only wet-adjacency rule with a gradient, and it scores zero on the 39.05 % whose wet rooms connect through a corridor rather than a wall.",
+      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/is_wet",
+      "corpus_cost": 0.002,
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "wet.shared_wall_length",
@@ -487,9 +541,11 @@
       "site": "validator",
       "scope": "plan",
       "value": 0.05,
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "Applies to houses. The engine chose the footprint, so drift is the engine's fault and is rejectable. QUANTITY CHANGED by ticket 17 / ADR 0010: was 'Plan GIA'. az_umumi_sahe sums room areas and does NOT count internal partitions; GIA does. On a 90 m2 dwelling that difference is 5.7 percent of Sum(Space area) at the shipped t_int of 150 -- WIDER than this gate, measured over 14,063 dwellings by ticket 33. The 4-5 percent first written here is verified for the corpus (4.8) and for the 120 mm ADR 0010 replaced (4.5), and was stale for 150. Under the old quantity the rule was near-vacuous, because an engine that sets the Envelope inner area to target passes by construction. Under this one it must control the partition footprint too, which is only known after the solve. The 5 percent is unchanged and remains UNFITTED -- it was never measured against the old quantity either, and it is now a harder gate. Re-fit when a real Proposer has run."
+      "src": "grid_residual_250mm",
+      "conf": "fitted",
+      "note": "Applies to houses. The engine chose the footprint, so drift is the engine's fault and is rejectable. QUANTITY CHANGED by ticket 17 / ADR 0010: was 'Plan GIA'. az_umumi_sahe sums room areas and does NOT count internal partitions; GIA does. On a 90 m2 dwelling that difference is 5.7 percent of Sum(Space area) at the shipped t_int of 150 -- WIDER than this gate, measured over 14,063 dwellings by ticket 33. The 4-5 percent first written here is verified for the corpus (4.8) and for the 120 mm ADR 0010 replaced (4.5), and was stale for 150. Under the old quantity the rule was near-vacuous, because an engine that sets the Envelope inner area to target passes by construction. Under this one it must control the partition footprint too, which is only known after the solve. The 5 percent is unchanged and remains UNFITTED -- it was never measured against the old quantity either, and it is now a harder gate. Re-fit when a real Proposer has run.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. UNMOVED, and decided against the 250 mm grid rather than against a solver spread, because no solver GIA spread exists on this map and the grid dominates anyway: model.no_unassigned_area is HARD, so Sum(Space) + wall bodies = the Envelope interior exactly and the solver has no packing freedom left to drift with. Re-expressing every real room with both dimensions rounded to 250 mm moves Sum(Space area) by p50 0.90 %, p95 2.64 %, p99 3.57 %. The grid alone crosses 5 % in 0.10 % of dwellings, so 5 % is 1.9x the p95 of the residual with room left for the solve.",
+      "corpus_cost": 0.001,
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "area.invented_envelope_soft",
@@ -498,10 +554,12 @@
       "severity": "soft",
       "site": "validator",
       "scope": "plan",
-      "value": 0.02,
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "Quantity changed with area.invented_envelope_hard. Ticket 17 / ADR 0010."
+      "value": 0.03,
+      "src": "grid_residual_250mm",
+      "conf": "fitted",
+      "note": "Quantity changed with area.invented_envelope_hard. Ticket 17 / ADR 0010.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. MOVED, 2 % -> 3 %. The 250 mm grid alone misses a 2 % target in 13.71 % of real dwellings. A soft preference the engine cannot meet for reasons unconnected to design is a constant term in the objective rather than a gradient. 3 % costs 2.85 %.",
+      "corpus_cost": 0.0285,
+      "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
     {
       "id": "area.given_envelope_warn",
@@ -581,7 +639,9 @@
     "comment": "The written-once-consumed-twice guarantee is bought here, not by shared code. The solver posts inequalities over centreline grid coordinates before geometry exists; the validator evaluates finished geometry in clear millimetres; rules about Openings are unpostable because Openings are placed after the solve. Two implementations are structural, so agreement is tested rather than assumed.",
     "asserted_over": "every rule with site = both",
     "test": "for a generated population of Plans spanning feasible and infeasible Briefs, the solver's satisfaction of each site=both rule and the validator's evaluation of it agree on every Plan",
-    "drift_is_a_test_failure": true
+    "drift_is_a_test_failure": true,
+    "subset_size": 15,
+    "subset_size_note": "MOVED 14 -> 15 by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which added dim.max_area at site both. That is intended, not incidental: docs/research/room-area-bands.md 6.1 specifies the rule as hard at both and shows the solver side is FREE -- H4 already builds a = w*h via AddMultiplicationEquality for the minimum, and an upper bound on a product tightens propagation rather than weakening it. *A dwelling with no toilet passes every check* said the subset 'stays at 14 and cannot grow here', which was a constraint on THAT ticket (its programme rules are scope brief and have no plan-side twin), not a bar on the subset ever growing. The count is stated in prose in docs/spec/acceptance-bar.md and is now stale there."
   },
   "retired": [
     {
@@ -605,5 +665,152 @@
     "c8_and_c14": "These are the FIRST hard rules on this map sourced to a region document, and neither C8 nor C14 is bent to allow it. C14 says a REGION PROFILE never changes which Plans are rejected -- these rules are not in a profile. They sit in the region-invariant rule set and are keyed on region-invariant Room TYPES. What AzDTN supplies is the FACT that a dwelling owes a kitchen, a washing room and a WC, and 94.01% / 92.67% / 94.81% of real SWISS dwellings agree with it -- which is the test that the fact is about homes and not about Azerbaijan. C8 is honoured in the other direction too: cl. 5.10 confines the combined sanitary unit to one-otaq state and municipal social stock, and this file DOES NOT ENFORCE THAT, because it is a compliance target rather than a dimensional or programmatic fact -- and 67.24% of real dwellings combine, so it does not describe practice either.",
     "no_auto_repair": "resolve does NOT invent a missing wc, kitchen or storage, and the asymmetry with the invented hall is deliberate. brief.md §9.5 forbids auto-repair; the hall is exempt because ADR 0013 requires the engine room count fixed before any geometry exists and no Homeowner ever states circulation. A Homeowner who omits a toilet has made a statement about the home, and inventing one silently spends a room out of C13's 3-10 gate -- a Brief at ten rooms would be refused BECAUSE WE ADDED ONE. The refusal names the field instead, per brief.md §9.4 bound 8.",
     "message_locale": "All four messages are Azerbaijani per homeowner-surface.md §2, so these rules arrive already owing the locale dimension the other 36 owe. They do not make that schema change; they enlarge it from 36 rules to 40."
-  }
+  },
+  "area_bands": {
+    "comment": "The upper half of the dimensional band, measured in docs/research/room-area-bands.md and transcribed here by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. target is the corpus p50, absolute_cap the p99.5, k the ratio the rule multiplies a STATED target by, and soft_w the normalised 1/CV that says which class absorbs slack.",
+    "src": "swiss_dwellings",
+    "conf": "fitted",
+    "provenance_warning": "Every number here is Swiss and the shipping profile is AZ. Third documented instance of C14's RegionProfile / CorpusProvenance mismatch, and the second that is a number rather than a layout.",
+    "classes": {
+      "room*": {
+        "target": 14.29,
+        "absolute_cap": 31.09,
+        "k": 2.18,
+        "soft_w": 0.88,
+        "cv": 0.26,
+        "label_src": "polygon"
+      },
+      "bathroom": {
+        "target": 4.1,
+        "absolute_cap": 9.15,
+        "k": 2.23,
+        "soft_w": 0.99,
+        "cv": 0.23,
+        "label_src": "fixture"
+      },
+      "wc": {
+        "target": 1.85,
+        "absolute_cap": 6.2,
+        "k": 3.36,
+        "soft_w": 1.0,
+        "cv": 0.23,
+        "label_src": "fixture"
+      },
+      "kitchen": {
+        "target": 8.04,
+        "absolute_cap": 20.59,
+        "k": 2.56,
+        "soft_w": 0.65,
+        "cv": 0.35,
+        "label_src": "polygon"
+      },
+      "living_dining": {
+        "target": 28.32,
+        "absolute_cap": 57.12,
+        "k": 2.02,
+        "soft_w": 0.82,
+        "cv": 0.28,
+        "label_src": "polygon"
+      },
+      "living_room": {
+        "target": 20.51,
+        "absolute_cap": 48.12,
+        "k": 2.35,
+        "soft_w": 0.8,
+        "cv": 0.29,
+        "label_src": "polygon"
+      },
+      "corridor": {
+        "target": 7.58,
+        "absolute_cap": 24.84,
+        "k": 3.28,
+        "soft_w": 0.4,
+        "cv": 0.58,
+        "label_src": "polygon"
+      },
+      "dining": {
+        "target": 9.79,
+        "absolute_cap": 35.91,
+        "k": 3.67,
+        "soft_w": 0.46,
+        "cv": 0.5,
+        "label_src": "polygon"
+      },
+      "storeroom": {
+        "target": 2.24,
+        "absolute_cap": 18.23,
+        "k": 8.15,
+        "soft_w": 0.22,
+        "cv": 1.04,
+        "label_src": "polygon"
+      }
+    },
+    "k_is_not_one_constant": "2.02 to 8.15, and the spread is not noise. The habitable rooms AZ actually sizes cluster at 2.0-2.6; the outliers are exactly the four types AZ ships as market_default None, plus dining and storeroom.",
+    "owed": "brief.md 9.4's f_hi/f_lo per-n table is a parse-time constant of the same kind and belongs beside this block rather than inline in prose. *The partition footprint has a mean and no spread* raised it; not taken here because it is brief.md's findings schema and moving it without its consumer would strand it."
+  },
+  "envelope_constants": {
+    "comment": "Handed to this file by *Building scope and envelope handling* via *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. These are NOT acceptance rules -- they are the constants brief.md section 5 rung 2 uses to INVENT an Envelope when the Homeowner states neither dimensions nor a total area. They live here because this is the file that holds fitted numbers and brief.md section 12 named this ticket as their owner.",
+    "efficiency": {
+      "v": 0.84,
+      "src": "swiss_dwellings_p50",
+      "conf": "fitted",
+      "note": "interior = Sum(Room.target_area) / efficiency. Fitted as Sum(named-room area) / interior over 42,985 dwellings -- NAMED, because no Brief names a corridor (C13) and the factor exists to absorb the circulation the engine invents plus the internal wall footprint. p5 0.750, p25 0.813, p50 0.8423, p75 0.872, p95 0.923. Shipped at ~0.85, which was 0.9 % high. NOT used on brief.md 5 rung 1, where a stated target_area is scaled by the measured partition footprint f instead."
+    },
+    "default_aspect": {
+      "v": 1.38,
+      "src": "swiss_dwellings_p50",
+      "conf": "fitted",
+      "note": "longer / shorter of the minimum rotated rectangle of the dwelling interior. p25 1.172, p50 1.376, p75 1.702, p95 2.362. Shipped at ~1.35, which was 1.9 % low."
+    },
+    "exposure_mix": {
+      "src": "swiss_dwellings",
+      "conf": "fitted",
+      "note": "DISCHARGED ELSEWHERE, recorded here so nobody measures it twice. *The exposure presets were fitted to a measurement of one room* measured the ring-shape vector: four-sided 63.3 %, three-sided 26.0 %, adjacent pair 4.6 %, opposite pair 3.8 %, single 2.2 %. The three flat presets name 10.6 % of the corpus between them."
+    },
+    "partition_footprint_cross_check": {
+      "v": 0.0417,
+      "src": "swiss_dwellings_p50",
+      "conf": "fitted",
+      "note": "NOT a replacement for brief.md 5 rung 1's f = 0.0575. This is the partition footprint measured GEOMETRICALLY from the corpus's own wall gaps (p50 4.00 % of interior, 4.17 % of Sum(Space area)); f is computed at the SHIPPED t_int of 150. The corpus's own p50 wall gap is 99 mm, and 99/150 = 0.66 against 4.17/5.75 = 0.725, so the two agree once the plane is named. f = 0.0575 is the right number for a plan built at 150 mm, which is what rung 1 sizes. Recorded as an independent check of *The partition footprint has a mean and no spread* from a different direction."
+    }
+  },
+  "rule_count": 42,
+  "rule_count_note": "36 -> 40 by *A dwelling with no toilet passes every check* (four programme rules), 40 -> 42 by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (dim.max_area, dim.stated_target_implausible). Two retired rules sit outside this count in `retired`. This field exists because the count was previously stated only in prose, in four places in acceptance-bar.md and once in brief.md, and every ticket that moved it had to move them all.",
+  "owed": {
+    "comment": "What this file still owes, written HERE rather than only on the map. *The partition footprint has a mean and no spread* exists because two numbers were handed to a file nobody held; a list that lives in the file cannot be lost that way. Added by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*.",
+    "items": [
+      {
+        "what": "five zoning rules, specified ready to transcribe",
+        "detail": "docs/research/zoning.md section 5b. One hard -- zone.sleeping_group_count, at most two sleeping groups, 97.5 % of real dwellings -- and four soft or warn, of which zone.no_social_transit is the one nobody had written: circ.no_private_transit blocks routing through a bedroom and NOTHING blocks routing through the living room, which 18.2 % of real dwellings do. Needs data/standards/room-constraints.json's is_sleeping flag, which *Where a set-versus-set property lives* also handed over and which may NOT be folded into is_private (true on the wet types too).",
+        "from": "docs/wayfinder/tickets/30-the-proposal-cannot-express-zoning.md",
+        "why_not_here": "A threshold fit and a zoning vocabulary are different decisions, and transcribing five rules would move the rule count a third time while acceptance-bar.md is already six statements behind this file."
+      },
+      {
+        "what": "dim.prefer_single_part, new soft rule",
+        "detail": "ADR 0014 binds minima and aspect per part and area per Room, and a solver left to choose takes a second rectangle on a fifth to a third of the Rooms it is offered against a truth needing none. This is the term that prefers one. It is also what stands between the engine and the elongation the conversion manufactures -- 19.55 % of two-part legs exceed dim.aspect_ratio_hard against 2.45 % of single-part Rooms (docs/research/acceptance-thresholds.md 2.3).",
+        "from": "ADR 0014"
+      },
+      {
+        "what": "a locale dimension on every Homeowner-facing message",
+        "detail": "Section 11 requires a plain-language message per rule; all 42 are English and the surface is Azerbaijani. A SCHEMA change, not a translation pass -- and it is ONE schema change with brief.md 9.4, which returns a set of findings each carrying a severity, a Brief field and an Azerbaijani message.",
+        "from": "docs/spec/homeowner-surface.md section 2; docs/spec/brief.md section 9.4"
+      },
+      {
+        "what": "brief.md 9.4's f_hi/f_lo per-n table belongs in data",
+        "detail": "An eight-row parse-time constant of the same kind as area_bands, currently inline prose. It moves with 9.4's findings schema, not before it.",
+        "from": "docs/wayfinder/tickets/44-the-partition-footprint-has-a-mean-and-no-spread.md"
+      },
+      {
+        "what": "wet.shared_wall_length has no gradient on two dwellings in five",
+        "detail": "With wet.plumbing_group_count at 3 (ADR 0023) this soft term is the only thing preferring two wet zones over three, and 39.05 % of real dwellings have wet rooms that connect through a corridor rather than a wall, so it scores zero on them. Distribution at docs/research/acceptance-thresholds.md 5.",
+        "from": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
+      }
+    ],
+    "stale_elsewhere": [
+      "docs/spec/acceptance-bar.md states the rule count in four places and the site=both conformance subset once. Both moved: 40 -> 42 and 14 -> 15.",
+      "Six rule statements were amended by *Opening placement rules* and diverge from the prose that publishes them; this ticket amended nine more and added two.",
+      "docs/spec/acceptance-bar.md section 6's table and section 9.1 both state open.fits_segment as a jamb-return rule. It is a segment-LENGTH rule and binds no return -- docs/research/acceptance-thresholds.md 6.3."
+    ]
+  },
+  "corpus_cost_note": "Every conf: fitted rule carries corpus_cost -- the share of real Swiss dwellings that rule alone rejects, over 42,985 in-band dwellings. The conjunction is NOT their sum and is worth knowing: the hard registry rejects 84.41 % as shipped and 82.31 % under the values in this file, with eleven of thirteen hard rules costing under a third of a point between them. Two rules carry all of it -- open.fits_segment and win.habitable_has_window -- and neither has a threshold that could be loosened to move it. Read open.fits_segment on real piers rather than on full-width openings and the union is 61.23 %. docs/research/acceptance-thresholds.md section 11."
 }
