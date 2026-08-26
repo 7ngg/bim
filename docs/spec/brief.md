@@ -550,7 +550,7 @@ soft tiling) expresses no preference about which.
 Worked: a **5.8 × 6.9 m WC** clears `dim.min_area` (at least 0.8 m²), clears
 `dim.aspect_ratio_hard` (1.19, at most 3.0), and cannot trip
 `dim.market_default_area` because `AZ` ships `wc.market_default: None`. **A 40 m²
-WC passes all 38 rules.**
+WC passes all 36 rules.**
 
 So the Brief contract states the band. The predicate, its anchor, its thresholds
 and its enforcement site are measured and recommended by *What a room's area is

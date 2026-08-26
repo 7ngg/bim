@@ -3,8 +3,8 @@ id: 26
 title: H8 and the single-aspect flat
 parent: map
 labels: [wayfinder:grilling]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: [19]
 writes:
   - data/acceptance/rules.json
@@ -236,3 +236,196 @@ which are party walls — ADR 0003 types them, the fit does not read the type. S
 that lost contact with a party edge lost no window. Whoever takes this must
 decide whether the number needs re-measuring against typed edges before H8 can
 lean on it.
+
+---
+
+## Resolution
+
+**H8 is not relaxed, not typed, not counted and not bounded — because the crisis
+it was opened for does not exist.** Both numbers that produced *"the single-aspect
+flat is arithmetically dead from 7 rooms"* were wrong, in the same direction, and
+correcting either one alone would have been enough. What the correction uncovered
+instead is a different rule failing against real dwellings at 43.3 %, and a
+measurement defect with a blast radius well outside this ticket.
+
+Written: `docs/spec/acceptance-bar.md` §3 and §7 (rewritten),
+`data/acceptance/rules.json` (38 → **36** rules). **Declared on resolution**
+rather than taken quietly, none having a claimant:
+`experiments/corpus-smoke/exposure_swiss_dwellings.py` (corrected),
+`docs/research/dataset-inventory.md` §1.5 (corrected),
+`experiments/region-profile/ergonomic_check.py` (one retired-rule gate removed;
+219 checks still pass, `gate_check.py`'s 229 still pass, `env_check.py`'s 28 still
+pass), `docs/spec/brief.md` (one stale rule count), and
+**`experiments/h8-frontage/` (new)** — the three probes every number below comes
+from, with a README recording what each one settles.
+
+### 1. The frontage table was built on placeholders, and the real minima moved it nine rooms
+
+`experiments/solver-toy/scenarios.py` says so in its own comment: *"Placeholders
+pending ticket 05 … the point here is the shape of the constraint, not the
+number."* Its bedroom is 2000 mm and its living room 2750; the shipped ergonomic
+layer is `bedroom_double` **1650** (realisable 1850, ADR 0007/0009) and `living`
+**1850**. Re-run against the shipped layer, with the kitchen's frontage included
+as `openings.md` §6.2 asked:
+
+| n | window-needing | need, placeholder | need, **shipped** | single-aspect has | verdict |
+|---:|---:|---:|---:|---:|---|
+| 6 | 4 | 8 500 | 6 650 | 9 000 | ok |
+| **7** | 5 | 10 500 | **8 500** | 9 500 | **ok, +1 000** |
+| 8 | 5 | 10 500 | 8 500 | 10 000 | ok |
+| 12 | 7 | 14 500 | 10 700 | 13 000 | ok |
+| 14 | 8 | 16 500 | 12 550 | 13 750 | ok |
+| **16** | 10 | 20 250 | 15 250 | 14 750 | first DEAD |
+
+The first arithmetically dead cell moves **7 → 16 rooms**, outside C13's 3–10
+engine band. This ticket predicted the opposite — *"the real minima move the
+threshold, but they cannot move it far … not 100 mm here or there"* — on the
+reasoning that the sum is dominated by habitable **count**. The reasoning is sound
+and the premise was wrong: the placeholders ran 20–48 % high per room, and across
+five rooms that is 2 000 mm, which is exactly the deficit being explained.
+
+### 2. `exposure_swiss_dwellings.py` never measured a dwelling
+
+A dwelling's `area` polygons are **disjoint** — the wall sits between them — so
+`unary_union(polys)` is always a `MultiPolygon`, and `max(geoms, key=area)`
+reduced each dwelling to its **largest single room**. Most of that room's
+perimeter faces other rooms *of the same dwelling*, which are in `occupied` and
+therefore scored as party. Same sample, same seed, wall gap bridged before the
+union:
+
+| | published | **corrected** |
+|---|---|---|
+| p5 / p25 | 0.16 / 0.23 | **0.33 / 0.51** |
+| **median** | **0.37** | **0.67** |
+| p75 / p95 | 0.47 / 0.59 | **0.78 / 0.89** |
+| ≥0.99 | 0 of 569 | 5 of 569 |
+| median area of the thing measured | **23.9 m²** | 75.3 m² |
+| median exterior run | 8.1 m | **27.5 m** |
+
+The 23.9 m² median is the tell — that is a large room, not a Swiss flat. The
+bridge distance is **not** load-bearing: p25/median/p75 are 0.51/0.67/0.78 at
+0.12 m and move by at most 0.01 anywhere in 0.10–0.30 m; only 0.06 m, below a
+wall's half thickness, fails to bridge and differs.
+
+The script and `dataset-inventory.md` §1.5 are corrected here because both are
+unclaimed and leaving a known-false measurement in the repo is not a thing to hand
+on. **The consequences are not corrected here** and are ticketed as *The exposure
+presets were fitted to a measurement of one room*: `flat_single_aspect` was fitted
+to a p25 of 0.23 against a real **0.51**, and `corpus_median` — `geometry.py`'s own
+*"the case a spec should quote as typical"* — to 0.37 against a real **0.67**,
+which is two full edges, a **dual-aspect** flat. Everything measured at either
+preset was measured at roughly half the real exposure, and the presets live in
+`experiments/solver-toy/`, which *What an ordered entry sequence costs the solver*
+holds.
+
+✅ One published finding **survives**: no real flat resembles the fully-exposed
+geometry the 6.25 s-at-24-rooms timing assumed — 0.9 % at ≥0.99.
+
+### 3. Two rules retired, because neither could fire
+
+`win.habitable_touches_exterior` keys on `is_habitable` and
+`win.habitable_has_window` keys on `needs_window`. **No row of the 18-type table
+carries the first without the second**, and `has_window` requires the window on a
+segment whose Envelope edge **condition** is `exterior` — so touching the exterior
+was strictly implied. Measured on 561 real dwellings it rejects 11.9 % against
+`has_window`'s 43.3 %, and its rejections are a subset.
+
+`win.kitchen_windowless` goes with it, on the handoff *Opening placement rules*
+§10 left for *"whichever next holds `acceptance-bar.md`"* — that is this ticket.
+Once `kitchen.needs_window` became `true` the warn was unreachable.
+
+Both are moved to a `retired` block in `rules.json` with their statements and the
+reasoning, not deleted. **36 rules, 37 with `dim.leg_join`; 28 hard, was 29.** The
+`both` subset holds at 14 — see §4.
+
+The invariant `touches_exterior` looked like it protected is a property of the
+**table**, not of a Plan, and `ergonomic_check.py` already asserts it directly
+(*"needs_window follows is_habitable"*). That gate is where it belongs: a rule can
+only be exercised by a Plan that violates it, and no Plan can violate this one.
+
+### 4. `win.habitable_has_window` takes the solver posting, and takes it stronger
+
+Site moves `validator` → **`both`**. The retired rule posted mere exterior contact;
+what the solver posts now is **the frontage budget itself** — each `needs_window`
+Room holds a run of `exterior`-condition edge of at least its catalogue window's
+structural width plus twice the 100 mm jamb return. 1 400 mm for a bedroom, 1 700
+for a living room, 1 100 for a kitchen.
+
+No new machinery: ADR 0003 types the edge ring before the solve and
+`open.fits_segment` already carries the jamb constant. Posting anything weaker
+generates candidates that cannot seat their windows, solves them, and throws them
+away at validation — yield spent on a constraint the solver could already express.
+
+### 5. The ADR 0014 alcove: option 2, and it is free today
+
+Of the three readings *Whether a Room may be more than one rectangle* handed here,
+**option 2**: the rule binds **per Room** for the requirement — a Room reaches its
+window through any part — and **per part** for the part that carries the window,
+which must meet that Room's own `min_clear_short`. At one rectangle per Room this
+costs nothing; it is taken now because the alcove is cheap to prevent and
+expensive to discover. `open.fits_segment` already forces a window-bearing leg to
+1 400 mm for a bedroom; the Room's own published minimum is the number an
+architect holds, and it invents no constant.
+
+### 6. What the corpus actually says, and it is the kitchen
+
+First per-room measurement of these rules against real dwellings — 561 dwellings,
+2 169 window-needing rooms, corrected envelopes:
+
+| | no window on own boundary | no exterior run |
+|---|---|---|
+| BEDROOM | **5.9 %** | 2.2 % |
+| ROOM | 6.9 % | 1.5 % |
+| LIVING_DINING | 9.0 % | 0.0 % |
+| LIVING_ROOM | 20.0 % | 3.8 % |
+| **KITCHEN** | **31.0 %** | 9.7 % |
+
+**`win.habitable_has_window` rejects 43.3 % of real Swiss dwellings** — 23.0 % on
+the kitchen **alone**, 20.3 % on a non-kitchen room. *What a room's area is allowed
+to be* refused a p95 cap at 26.6 % on the argument that *"the corpus is the
+retrieval and training population, so a rejection there is coverage lost"*. This is
+worse, and unlike a percentile it **carries no threshold to move**.
+
+The number is not an artefact. Attribution audit: **zero orphan windows** — every
+boundary window attributed to at least one room — and 1 031 of 3 179 attributed to
+more than one, which biases *toward* finding a window. The windowless kitchens are
+not niches: median **6.8 m²**, and **84.7 % adjoin a windowed habitable room** —
+borrowed daylight, the `taxca-metbex` arrangement AzDTN names and
+`profiles.AZ.windows.kitchen_niche_windowless` deliberately holds `false`.
+
+So the ticket's option 1 — *relax by type* — had an evidence base after all, and it
+pointed at a type nobody named. **It is still refused**: AzDTN 2.7-2 cl. 9.12 is
+`verified` and mandatory, corroborated at 2.7-3 cl. 8.14, and a Baku flat with a
+windowless kitchen is not sellable. The cost is corpus coverage, and it is ticketed
+as *A third of real kitchens have no window and the engine may not draw one* — a
+retrieval and conversion question, not a licence to weaken a statutory rule.
+
+### 7. What this ticket refused to fix from here
+
+⚠️ **The hard bar admits a 1.85 × 1.68 m "double bedroom".** `bedroom_double`'s
+`min_clear_short` is 1 650 (realisable 1 850) and its `min_area` 3.1 m², both
+fixture-derived: *bed 1350 × 1900 + body 300 to one side*. That is a **fits** floor,
+not a **habitable** floor, and it is why §1's arithmetic clears — H8 now passes on
+rooms an architect would not draw. AzDTN's own statutory floor for that room is
+**10 m²**, and 19.3 % of real Swiss rooms sit below AZ's 3 000 mm market habitable
+width. Handed to `data/standards/room-constraints.json`'s claimant, *The annotation
+spec is US-shaped and the drawing is now Azerbaijani*, and to the statutory-severity
+ticket below. Not fixed here: the fix is a room-table number, and this ticket holds
+neither that file nor a mandate to move a published minimum from a window rule.
+
+⚠️ **`win.area_ratio` is the only statutory minimum on the map posted `soft`.**
+AzDTN cl. 9.13's 1:8 is `verified` and mandatory. It stays soft because **C14 names
+it** — *"one soft window fraction"* — and amending a standing constraint through a
+window rule is the wrong door. Its statement *is* corrected: the run is now over
+`exterior`-condition faces only, closing the *Opening placement rules* §6.1 handoff
+that let a mid-block flat satisfy its glazing on a party wall.
+
+### 8. What it hands on
+
+| Handed | To |
+|---|---|
+| The exposure presets, and every number fitted or measured at one | *The exposure presets were fitted to a measurement of one room* (new) |
+| `win.area_ratio`'s severity, and AzDTN's statutory **area** floors shipped soft against a 3.1 m² ergonomic bedroom | *A statutory floor, posted soft, in the one region v1 ships* (new) |
+| 43.3 % corpus rejection, 23.0 points of it the kitchen alone | *A third of real kitchens have no window and the engine may not draw one* (new) |
+| The 1 850 mm realisable habitable width against AZ's 3 000 mm market default | *The annotation spec is US-shaped …*, which holds `room-constraints.json` |
+| `open.leading_edge_nib`'s `src`/`note` re-base (ADR 0021), still unclaimed on `rules.json` | *A dwelling with no toilet passes every check* or *Fit the ENGINE_CHOICE acceptance thresholds* |
