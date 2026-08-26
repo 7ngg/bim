@@ -284,10 +284,27 @@ Resolution order:
       A tail here would draw the Envelope 1,86 m² too big on a stated 95 m². One
       quantity, two consumers, two statistics —
       `docs/research/single-internal-thickness.md` §3.5.
-   2. otherwise `Σ Room.target_area / efficiency`.
+   2. otherwise `Σ Room.target_area / efficiency`, with
+      **`efficiency = 0.84`** and a **default aspect ratio of 1.38**.
 
-   `efficiency` and the default aspect ratio are `ENGINE_CHOICE` and owned by
-   *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*.
+   **Both are fitted, and both guesses were right.** *Fit the ENGINE_CHOICE
+   acceptance thresholds to the corpora* measured them over 42,985 real Swiss
+   dwellings: `efficiency` is Σ(named-room area) / interior — *named*, because
+   no Brief names a corridor (C13) and the factor exists to absorb the
+   circulation the engine invents plus the internal wall footprint — with p25
+   0.813, **p50 0.8423**, p75 0.872. The shipped ~0.85 was 0.9 % high. The
+   default aspect is the longer over the shorter side of the interior's minimum
+   rotated rectangle: p25 1.172, **p50 1.376**, p75 1.702; the shipped ~1.35 was
+   1.9 % low. Both now live in data at `data/acceptance/rules.json#/envelope_constants`,
+   carry `conf: fitted` (ADR 0023) and are no longer `ENGINE_CHOICE`.
+
+   ⚠️ **The spread is wide and the constant is a point prediction.** p5 is 0.750
+   and p95 0.923, so a single `efficiency` sizes the interior to within roughly
+   ±4 % at the quartiles and ±10 % at the tails. That is the same
+   one-quantity-two-statistics split rung 1 already makes for `f`: sizing a box
+   wants the centre. It is also why `area.invented_envelope_hard` is decided
+   against the 250 mm grid rather than against this spread — on the invented
+   path `model.no_unassigned_area` closes the drift by construction.
 
    **Rung 1 is new and it closes a hole.** Without it a Brief saying *"95 m²,
    four rooms"* sized its box from the room defaults — roughly 48 m² — and never
@@ -966,7 +983,7 @@ says so.
 | `dim.max_area`: anchor, thresholds, severity, enforcement site | *What a room's area is allowed to be*, then `rules.json`'s holder |
 | §11's worked example replaced by the computed pair | whoever next holds `acceptance-bar.md` |
 | corpus medians for silent profile types; bedroom-count to total-area distribution | *What a room's area is allowed to be* |
-| `efficiency` and default aspect ratio for a derived Envelope | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
+| ~~`efficiency` and default aspect ratio for a derived Envelope~~ — **discharged** by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which wrote both into §5 rung 2 rather than handing them on: **0.84** and **1.38**, corpus p50s, `conf: fitted` (ADR 0023), with the values in data at `rules.json#/envelope_constants`. Both shipped guesses were inside 2 % | — |
 | whether the band's parse-time notice is shown, and how | *Homeowner product surface* |
 | ~~whether a room count outside 4–10 is refused at parse time~~ — **discharged**: ADR 0013's gate and promise are §9.4 bounds 3 and 4 | — |
 | ~~**`f_hi` and `f_lo` for §9.4 bound 6**~~ — **discharged** by *The partition footprint has a mean and no spread*, which measured the spread and wrote the values into §9.4 directly rather than handing them on again. They came back as a **per-`n` table** rather than the two constants this row asked for, and `f_hi` as p99 rather than p95 | — |
@@ -976,7 +993,7 @@ says so.
 | **Which sentence leads when bound 8 and bounds 1/3/6 contradict** — adding the `wc` a refusal asks for raises Σ minima and the engine room count, so a nine-room Brief with no toilet is told to add a room and told it may not. The findings set surfaces both; nothing orders them | *Homeowner product surface* — holds `homeowner-surface.md` |
 | **A `taxça-mətbəx` type, and a Brief-nameable built-in wardrobe.** Two of cl. 5.2's five limbs are satisfied only by a type this list does not carry, which is why `prog.storage_exists` is partly unsatisfiable rather than merely expensive (`acceptance-bar.md` §13.6) | whoever next holds this file's §3 |
 | **§9.4 returns a set of findings, not a verdict** — each with a severity, a Brief field and a Homeowner-facing message. All six messages are Azerbaijani per `homeowner-surface.md` §2, so this is the same **locale dimension** already owed on the 38 rule messages and should land as one schema change, not two | whoever next holds `rules.json` |
-| `efficiency` is unused where a `target_area` is stated (§5 rung 1), because the partition footprint it stood in for is measured | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
+| ~~`efficiency` is unused where a `target_area` is stated (§5 rung 1), because the partition footprint it stood in for is measured~~ — **discharged, and rung 1 is confirmed rather than changed.** *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* measured the partition footprint a second time and by a different method — geometrically, from the corpus's own wall gaps — and got **4.17 %** of Σ Space area against rung 1's **5.75 %**. The two agree once the plane is named: the corpus's own p50 wall gap is **99 mm**, not the shipped 150, and 99/150 = 0.66 against 4.17/5.75 = 0.725. `f = 0.0575` is the right number for a plan built at 150 mm, which is what rung 1 sizes | — |
 | **Whether one two-part `hall` covers the 16.7 % of dwellings with two circulation spaces** (§3.1). ADR 0014 says an L reaches a wing; nobody has checked it against the conversion, and ADR 0013 shows the right k rising with the programme — k = 2 is 18.9 % at six named rooms and 26.0 % at nine | *Re-measure the conversion at two rectangles per Room*, which is already re-fitting at two |
 | **The stated-`shape` gate moves from notch count to notch *area share*** (§5.1). A material notch is ≥ 5 % of the bbox; the shipped count gate mis-labels the whole index, not merely `rectangular`, and the largest gain is the common case `L` at **6×**. This section fixes the quantity, not the code | whoever next holds `proposer.md` — §2.2.3 |
 | **Per-candidate derivation of `W × H` from `interior` and the donor's notch share** (§5.2, ADR 0020). The warp already takes `W, H` as inputs; what is owed is where the division happens and that the index record carries `s` | whoever next holds `proposer.md` — §2.2.1's record and §2.2.3 |

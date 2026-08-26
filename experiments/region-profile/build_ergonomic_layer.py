@@ -122,13 +122,24 @@ def programmes(u: int) -> dict[str, tuple[int, int, str]]:
 
 # (is_habitable, is_wet, is_private, needs_window). Definitions, not
 # measurements -- see flag_semantics. needs_window follows is_habitable except
-# for kitchen, where BayBO Art. 46(1) expressly permits a windowless kitchen with
-# effective ventilation and win.kitchen_windowless surfaces the fact instead.
+# for kitchen, which needs one WITHOUT being habitable: AzDTN 2.7-2 cl. 9.12 is
+# `verified` and mandatory for living rooms AND kitchens, so the shipping region
+# requires the window that BayBO Art. 46(1) permitted the absence of.
+#
+# THAT LINE WAS A REGRESSION AND THIS IS THE FIX. *Opening placement rules*
+# (ticket 16) moved kitchen.needs_window false -> true in the emitted JSON;
+# *A dwelling with no toilet passes every check* (ticket 42) re-ran this
+# generator, and because needs_window is in AUTHORED_ROOM the flag reverted
+# silently -- the exact drift 42's carry-forward fix was written to stop, which
+# it cannot stop for a field the generator itself authors. It is repaired HERE,
+# at the authoring site, so a re-run reproduces it. Three published numbers
+# depend on it: win.habitable_has_window's 43.3 % corpus cost, the retirement of
+# win.kitchen_windowless as unreachable, and the Envelope frontage budget.
 FLAGS = {
     "living":                (True,  False, False, True),
     "dining":                (True,  False, False, True),
     "living_dining":         (True,  False, False, True),
-    "kitchen":               (False, True,  False, False),
+    "kitchen":               (False, True,  False, True),
     "kitchen_dining":        (True,  True,  False, True),
     "living_dining_kitchen": (True,  True,  False, True),
     "bedroom_principal":     (True,  False, True,  True),
