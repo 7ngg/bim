@@ -79,15 +79,47 @@ class Rect:
 # fractional case is not decoration: a real flat's front elevation is commonly
 # part window wall and part shared, which is why the four whole-edge presets
 # cannot reach the corpus median on their own (see the fitted entry below).
+# Re-fitted by *The exposure presets were fitted to a measurement of one room*,
+# 2026-08-26, over 2,238 Swiss dwellings — `experiments/envelope-exposure/`,
+# `fit_ladder.py`, which prints this block. Three things changed at once.
+#
+# 1. The distribution they were fitted to measured ONE ROOM per dwelling.
+#    `dataset-inventory.md` §1.5 was corrected from a median exterior fraction of
+#    0.37 to 0.67. Every value below was tuned against the wrong column.
+# 2. They are fitted on EXTERIOR RUN PER ROOM, not on a fraction of perimeter.
+#    A fraction only transfers between dwellings whose perimeters match, and they
+#    do not: at eight rooms this Envelope has 36.0 m of perimeter around 75.0 m²
+#    where the real median dwelling has 47.6 m around 94.1 m². H8 reads run — a
+#    room needs a window's width of façade and cannot spend a percentage.
+# 3. A key is now a QUANTILE WITH A RING SHAPE, not a building form. Measured,
+#    real dwellings are 63.3 % four-sided and 26.0 % three-sided; the forms these
+#    keys name — one, adjacent pair, opposite pair — are 10.6 % between them, and
+#    there was no three-sided preset at all. The keys survive only because they
+#    are named in five documents and three experiment directories that ticket
+#    could not write. `flat_corner` and `terrace_mid` are now a MATCHED PAIR:
+#    same exposure, different ring, so the two isolate shape at fixed run.
+#
+# Anchored at n = 7 — the corpus median room count and the centre of C13's band.
+# ⚠️ Each preset DRIFTS across that band, because `envelope_for(n)` is more
+# compact than a real dwelling and gets more so with n (perimeter/area 0.390
+# against the corpus 0.572 at twelve rooms). `corpus_median` sits at the corpus
+# p85 at four rooms and p25 at twelve. Above nine rooms the corpus median is
+# unreachable at ANY preset, `detached` included. Both are structural and belong
+# to this directory's holder, not to the presets — see `envelope-exposure/README.md`.
 EXPOSURE_PRESETS = {
+    # 100 % exterior. Not a flat: the ceiling, and the house preset C5 needs.
+    # Corpus p93 for run per room at four rooms, p39 at twelve.
     "detached": {"W": 1.0, "E": 1.0, "S": 1.0, "N": 1.0},
-    "terrace_mid": {"W": 0.0, "E": 0.0, "S": 1.0, "N": 1.0},    # opposite pair
-    "flat_corner": {"W": 0.0, "E": 1.0, "S": 1.0, "N": 0.0},    # adjacent pair
-    "flat_single_aspect": {"W": 0.0, "E": 0.0, "S": 1.0, "N": 0.0},
-    # Fitted to the Swiss Dwellings median of 0.37 (dataset-inventory.md §1.5),
-    # which no whole-edge preset reaches: one full edge plus a part of the
-    # opposite one. This is the case a spec should quote as typical.
-    "corpus_median": {"W": 0.0, "E": 0.0, "S": 1.0, "N": 0.45},
+    # p5 of run per room (2.09 m). A genuine single-aspect flat is a tail case,
+    # so it is anchored at the tail rather than at a quartile.
+    "flat_single_aspect": {"W": 0.53, "E": 0.17, "S": 0.96, "N": 0.02},
+    # p25 (3.28 m), two aspects meeting at the SE corner.
+    "flat_corner": {"W": 0.32, "E": 1.0, "S": 1.0, "N": 0.1},
+    # p25 (3.28 m) also, two aspects facing each other. Pairs with `flat_corner`.
+    "terrace_mid": {"W": 0.18, "E": 0.06, "S": 1.0, "N": 1.0},
+    # p50 (4.19 m), four-sided — the shape 63.3 % of real dwellings have. The
+    # name is accurate for the first time; it previously ran at the corpus p3–p10.
+    "corpus_median": {"W": 0.99, "E": 0.77, "S": 1.0, "N": 0.29},
 }
 
 
@@ -205,9 +237,25 @@ class Envelope:
     def exterior_fraction(self) -> float:
         """Exterior share of the Envelope perimeter.
 
-        The same quantity `experiments/corpus-smoke/exposure_swiss_dwellings.py`
-        measured over Swiss Dwellings (p25 0.23, median 0.37, p75 0.47), so the
-        presets can be reported as fitted values rather than guesses.
+        ⚠️ **This double-counts, and no preset is fitted on it any more.**
+        `all_faces()` emits every bbox edge in full *and* all four faces of every
+        notch, so the stretch a corner notch removed is counted twice — once as
+        part of the bbox edge that no longer runs there, once as a phantom notch
+        face on the same line. At eight rooms the true perimeter is 144 grid
+        units and `all_faces()` counts 180: a denominator 25 % too large.
+        `experiments/envelope-exposure/true_fraction.py` computes it correctly
+        from the real boundary and is what the presets were fitted against.
+
+        The phantom faces reach `exterior_faces()` too, which the solver reads
+        for H8. That half is harmless — `contains` forbids a room inside a notch,
+        so no room can be flush with the removed stretch and claim its daylight.
+        Left unfixed here on purpose: this directory is claimed by *What an
+        ordered entry sequence costs the solver*, and the fix changes what the
+        solver is handed. Handed to that ticket.
+
+        The corpus figures this used to quote (p25 0.23, median 0.37, p75 0.47)
+        measured **one room per dwelling**, not the dwelling. Corrected values
+        are p25 0.55, median 0.68, p75 0.80 — `dataset-inventory.md` §1.5.
         """
         total = ext = 0
         for (k, c, lo, hi, e) in self.all_faces():
