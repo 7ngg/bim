@@ -403,32 +403,22 @@
       "note": "DEFERRED, not dropped. The predicate needs a pan, and fixtures are still fog on the map. Recorded with its source so that adopting it when fixtures land is a data change. A validator that silently omits a rule it cannot evaluate is indistinguishable from one that never knew about it."
     },
     {
-      "id": "win.habitable_touches_exterior",
+      "id": "win.habitable_has_window",
       "item": "4",
-      "statement": "Every Space whose Room has is_habitable true shares at least one WallSegment with the EXTERIOR.",
+      "statement": "Every Space whose Room has needs_window true hosts at least one window Opening on a WallSegment of that Space whose Envelope edge condition is exterior.",
       "severity": "hard",
       "site": "both",
       "scope": "plan",
       "src": "engine_choice",
       "conf": "engine_choice",
-      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/is_habitable"
-    },
-    {
-      "id": "win.habitable_has_window",
-      "item": "4",
-      "statement": "Every Space whose Room has needs_window true hosts at least one window Opening on a WallSegment of that Space whose Envelope edge condition is exterior.",
-      "severity": "hard",
-      "site": "validator",
-      "scope": "plan",
-      "src": "engine_choice",
-      "conf": "engine_choice",
-      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment. CORRECTED by Opening placement rules, from the handoff Building scope and envelope handling left here: a PARTY WALL IS External (CONTEXT.md, Wall), so 'External WallSegment' admitted a wall shared with a neighbour and a mid-block flat's bedroom could satisfy its daylight on it. The test is the Envelope edge's CONDITION, not the Wall's class. A party edge hosts no window; docs/spec/openings.md 6.1 places none there. This rule now also carries the kitchen, whose needs_window moves to true -- AzDTN 2.7-2 cl. 9.12 is verified and mandatory for living rooms AND kitchens. win.habitable_touches_exterior is NOT re-keyed: kitchen stays is_habitable false, because daylight and habitability are different questions AzDTN answers differently, and the facade contact arrives through this rule instead. Exposure cost handed to H8 and the single-aspect flat.",
-      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/needs_window"
+      "note": "TOPOLOGY, deliberately. The four regimes surveyed are not interconvertible: England imposes no daylight requirement at all, Germany measures the structural opening against net floor area, Japan's factor depends on distance to the site boundary and cannot be written as window_area >= k * floor_area, and the Metric Handbook needs reflectances a Plan does not carry. Topology is the part all four agree on. Physical fit is enforced by open.fits_segment. CORRECTED by Opening placement rules, from the handoff Building scope and envelope handling left here: a PARTY WALL IS External (CONTEXT.md, Wall), so 'External WallSegment' admitted a wall shared with a neighbour and a mid-block flat's bedroom could satisfy its daylight on it. The test is the Envelope edge's CONDITION, not the Wall's class. A party edge hosts no window; docs/spec/openings.md 6.1 places none there. This rule now also carries the kitchen, whose needs_window moves to true -- AzDTN 2.7-2 cl. 9.12 is verified and mandatory for living rooms AND kitchens. win.habitable_touches_exterior is NOT re-keyed: kitchen stays is_habitable false, because daylight and habitability are different questions AzDTN answers differently, and the facade contact arrives through this rule instead. Exposure cost handed to H8 and the single-aspect flat. || SITE MOVES TO `both`, AND THE PART IS DECLARED, by *H8 and the single-aspect flat*. This rule inherits the solver posting that win.habitable_touches_exterior carried before it was retired, and inherits it STRONGER: the solver posted mere contact, and what it posts now is the frontage budget itself -- each needs_window Room holds a run of EXTERIOR-condition Envelope edge of at least its catalogue window's structural width plus twice the jamb return (`value`, 100 mm per side, the same constant open.fits_segment uses). Without that posting the solver is blind to daylight and every candidate that misses it dies at validation, which is yield thrown away on a constraint the solver can already express: ADR 0003 types the edge ring before the solve. || PER ADR 0014 SS9.1 THIS BINDS PER ROOM -- a Room reaches its window through ANY of its parts -- BUT the WINDOW-BEARING PART must itself meet that Room's min_clear_short. That is the ticket's option 2, and it costs nothing today at one rectangle per Room while closing the alcove ADR 0014 opens: a habitable room whose only daylight comes down a 900 mm leg is an alcove with a window, not a room with an aspect. open.fits_segment already forces such a leg to 1400 mm for a bedroom window; the Room's own minimum is the number an architect would hold, and it is already published.",
+      "flag_source": "data/standards/room-constraints.json#/ergonomic/rooms/{room_type}/needs_window",
+      "value": 100
     },
     {
       "id": "win.area_ratio",
       "item": "4",
-      "statement": "Prefer a total window structural-opening area of at least the region profile's fraction of the Space net floor area.",
+      "statement": "Prefer a total window structural-opening area of at least the region profile's fraction of the Space net floor area, where the windows counted are those on WallSegments whose Envelope edge condition is exterior.",
       "severity": "soft",
       "site": "validator",
       "scope": "plan",
@@ -436,19 +426,7 @@
       "src": "az_azdtn_2_7_2",
       "ref": "cl. 9.13",
       "conf": "verified",
-      "note": "Re-sourced by ticket 25 off the dangling de_baybo key, which pointed at a deleted region. AzDTN 2.7-2 cl. 9.13 sets 1:8 as a LOWER bound for living rooms and kitchens, with NO upper cap -- read first-hand. The value is unchanged at 0.125, which two independent regulatory traditions now agree on. The 1:5.5 figure sometimes quoted alongside it is a MAXIMUM-glazing cap and belongs to SNiP 2.08.01-89*, repealed for AZ on 2021-11-30. The solver's soft objective target is the profile's 0.154, not this floor. Explicitly NOT hard: making it hard would encode one country's method as universal. 'Space net floor area' is the finished-face polygon, ADR 0010."
-    },
-    {
-      "id": "win.kitchen_windowless",
-      "item": "4",
-      "statement": "Warn when a kitchen Space has no window.",
-      "severity": "warn",
-      "site": "validator",
-      "scope": "plan",
-      "src": "az_azdtn_2_7_2",
-      "ref": "cl. 9.12",
-      "conf": "verified",
-      "note": "Re-sourced by ticket 25 off the dangling de_baybo key. THE PREMISE INVERTED. This rule was a warn because BayBO PERMITTED a windowless kitchen where ventilation is provided, so the table set needs_window false for kitchen. Azerbaijan does not permit it: AzDTN 2.7-2 cl. 9.12 REQUIRES natural light in living rooms and kitchens, force statutory, corroborated for houses by AzDTN 2.7-3 cl. 8.14. So in the only region v1 ships, a windowless kitchen is a breach, not an allowance -- and the disclosure wording must derive from that force field, per ticket 14. Held at warn rather than promoted to hard because C14 forbids a region changing which Plans are REJECTED. Flipping needs_window true for kitchen would be region-invariant and is the honest fix; it belongs to the invariant room table and is handed to *Ergonomic minima and the constraint table's missing half*. CANNOT FIRE from Opening placement rules onward: ergonomic.rooms.kitchen.needs_window is now true, so win.habitable_has_window carries the kitchen hard and this warn is unreachable. Left in place rather than retired because retiring it moves the bar's 38-rule count and docs/spec/acceptance-bar.md is claimed elsewhere. Retire-or-keep handed to whichever ticket next holds that file."
+      "note": "Re-sourced by ticket 25 off the dangling de_baybo key, which pointed at a deleted region. AzDTN 2.7-2 cl. 9.13 sets 1:8 as a LOWER bound for living rooms and kitchens, with NO upper cap -- read first-hand. The value is unchanged at 0.125, which two independent regulatory traditions now agree on. The 1:5.5 figure sometimes quoted alongside it is a MAXIMUM-glazing cap and belongs to SNiP 2.08.01-89*, repealed for AZ on 2021-11-30. The solver's soft objective target is the profile's 0.154, not this floor. Explicitly NOT hard: making it hard would encode one country's method as universal. 'Space net floor area' is the finished-face polygon, ADR 0010. || FACES DECLARED by *H8 and the single-aspect flat*, on the handoff *Opening placement rules* SS6.1 left: the run was computed over every boundary face, so a mid-block flat could satisfy its glazing ratio on a party wall. A party edge hosts no window (openings.md SS6.1), so only exterior-condition faces count. || SEVERITY HELD SOFT AND CHALLENGED. AzDTN 2.7-2 cl. 9.13 is `verified` and mandatory, which makes this the only statutory minimum on the map posted soft. It is held soft here because C14 names it -- 'one soft window fraction' -- and a window ticket is the wrong door to amend a standing constraint through. Ticketed as *A statutory floor, posted soft, in the one region v1 ships*."
     },
     {
       "id": "wet.plumbing_group_count",
@@ -551,5 +529,19 @@
     "asserted_over": "every rule with site = both",
     "test": "for a generated population of Plans spanning feasible and infeasible Briefs, the solver's satisfaction of each site=both rule and the validator's evaluation of it agree on every Plan",
     "drift_is_a_test_failure": true
-  }
+  },
+  "retired": [
+    {
+      "id": "win.habitable_touches_exterior",
+      "retired_by": "H8 and the single-aspect flat",
+      "was": "Every Space whose Room has is_habitable true shares at least one WallSegment with the EXTERIOR.",
+      "why": "RETIRED by *H8 and the single-aspect flat* (2026-08-26). It could not fire. Every room type with is_habitable true also carries needs_window true -- the 18-row table has no exception -- and win.habitable_has_window requires the window to sit on a segment whose Envelope edge condition is EXTERIOR. Hosting a window on an exterior segment implies sharing one, so this predicate was strictly implied by a rule already hard. Measured on 561 real Swiss dwellings it fails 11.9 percent against has_window's 43.3 percent, and every dwelling it rejects is a subset of the ones has_window rejects. The invariant it appeared to protect -- is_habitable implies needs_window -- was never carried by this rule; it is asserted directly by experiments/region-profile/ergonomic_check.py, which is where it belongs, because it is a property of the TABLE, not of a Plan. A rule that cannot fire is a lie about coverage: the conformance test can never exercise it."
+    },
+    {
+      "id": "win.kitchen_windowless",
+      "retired_by": "H8 and the single-aspect flat",
+      "was": "Warn when a kitchen Space has no window.",
+      "why": "RETIRED, on the handoff *Opening placement rules* left for whichever ticket next held docs/spec/acceptance-bar.md. Since ergonomic.rooms.kitchen.needs_window became true, win.habitable_has_window carries the kitchen HARD and this warn is unreachable. It was kept only because retiring it moves the rule count and that file was claimed elsewhere; this ticket holds it, so the count moves here. Its AzDTN cl. 9.12 sourcing is not lost -- it lives on profiles.AZ.windows.kitchen_windowless and in win.habitable_has_window's own note."
+    }
+  ]
 }

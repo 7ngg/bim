@@ -156,3 +156,44 @@ already pulling `annotation.md`. The preview must use the decimal comma and
 **must not group thousands** — `profiles.AZ.drawing.thousands_separator` is
 `null` because CLDR gives `.` as the `az` group separator, so a grouped `4.400`
 reads as a decimal.
+
+---
+
+## Handed here by *H8 and the single-aspect flat* (2026-08-26)
+
+**Your 1,85 m-wide bedroom is not a tag problem, and this ticket owns the file
+that decides it.** You hold `data/standards/room-constraints.json`.
+
+You reproduced *"a 1,85 m-wide bedroom in a real solved layout overflows its
+tag"* and read it as an annotation defect created by the audience split. It is
+also the **width the hard bar permits**, arrived at independently:
+`ergonomic.rooms.bedroom_double.min_clear_short` is **1 650 mm**, whose realisable
+value under ADR 0007/0009 at `t_int` 150 is exactly **1 850**. So the layout that
+broke your tag was not unlucky — it was the solver sitting on the published floor.
+
+The floor is derived as *double bed 1350 × 1900 + body zone 300 to one side*
+(AD M M4(2) 2.25). That is a **fits** floor, not a **habitable** floor, and three
+numbers now sit against it:
+
+- `profiles.AZ.rooms.clear_widths_mm.habitable_room.market_default` = **3 000 mm**.
+- AzDTN 2.7-2 cl. 5.7 fixes `bedroom_double` at **10.0 m²** statutory, against the
+  ergonomic `min_area` of **3.1 m²**.
+- **19.3 %** of real Swiss rooms have a facade run below 3 000 mm; only **3.1 %**
+  fall below 1 850. Measured on 2 169 window-needing rooms in 561 dwellings.
+
+This matters beyond the tag because the acceptance bar's frontage arithmetic now
+*clears* on these minima: *H8 and the single-aspect flat* found the single-aspect
+flat is feasible to 16 rooms rather than dead at 7, and part of the reason is that
+each habitable room is allowed to present 1 850 mm at the facade. **H8 passes on
+rooms an architect would not draw**, and the place to fix that is the room table,
+not a window rule — which is why it is handed to you rather than fixed there.
+
+The *severity* half — whether a statutory floor may reject at all, given C14 —
+is ticketed separately as *A statutory floor, posted soft, in the one region v1
+ships*. What is yours is the **region-invariant width**: whether 1 650 is the
+right published minimum for a room someone sleeps in, or whether it is the
+minimum for a room a bed fits in and the two were never the same number.
+
+⚠️ If it moves, `ergonomic_check.py` and `gate_check.py` both re-derive from it,
+and the erosion arithmetic means the *published* number and the *realisable* one
+move in steps of 250 mm.

@@ -210,7 +210,7 @@ Two documentation mismatches worth recording: `unit_usage` carries a fifth value
 RESIDENTIAL / COMMERCIAL / PUBLIC / JANITOR; and 77 distinct `entity_subtype`
 values exist across all entity types, which no published summary enumerates.
 
-### 1.5 Exposure — confirmed, and it is worse than the presets assumed
+### 1.5 Exposure — the ring is measurable, and the first measurement was wrong
 
 *Building scope and envelope handling* asked this ticket to confirm that Swiss
 Dwellings' building hierarchy can supply the real exterior/party exposure
@@ -222,22 +222,48 @@ Measuring per dwelling what fraction of its Envelope perimeter faces neither
 another apartment nor a communal area — 150 sampled floors, 569 dwellings,
 `experiments/corpus-smoke/exposure_swiss_dwellings.py`:
 
-| | exterior fraction of perimeter |
-|---|---|
-| p5 | 0.16 |
-| p25 | 0.23 |
-| **median** | **0.37** |
-| p75 | 0.47 |
-| p95 | 0.59 |
-| **≥0.99 — what every timing on this map assumed** | **0 of 569 (0.0%)** |
+⚠️ **THE FIRST VERSION OF THIS SECTION MEASURED ONE ROOM, NOT A DWELLING.**
+Corrected by *H8 and the single-aspect flat* (2026-08-26). A dwelling's `area`
+polygons are **disjoint** — the wall sits between them — so `unary_union` of them
+is always a `MultiPolygon`, and the script's `max(geoms, key=area)` reduced each
+dwelling to its **largest single room**. Most of that room's perimeter faces
+other rooms *of the same dwelling*, which are `occupied` and therefore scored as
+party. The published distribution was biased **low by about a factor of two**.
 
-Not one real flat in the sample resembles the fully-exposed geometry the
-6.25 s-at-24-rooms figure was measured against. The dwelling-type presets are
-well-chosen but should now be fitted rather than guessed: `flat_single_aspect`
-at a quarter sits near the measured **p25 of 0.23**, and `terrace_mid` at a half
-sits near the **p75 of 0.47**. Nine dwellings scored ~0.00 exterior — genuinely
-windowless units, which would fail acceptance rule H8 outright and are worth
-inspecting before they are treated as noise.
+| | published (largest room) | **corrected (whole dwelling)** |
+|---|---|---|
+| p5 | 0.16 | **0.33** |
+| p25 | 0.23 | **0.51** |
+| **median** | **0.37** | **0.67** |
+| p75 | 0.47 | **0.78** |
+| p95 | 0.59 | **0.89** |
+| ≥0.99 | 0 of 569 (0.0%) | 5 of 569 (0.9%) |
+| median area of the thing measured | 23.9 m² | **75.3 m²** |
+| median exterior **run** | 8.1 m | **27.5 m** |
+
+The 23.9 m² median is the tell: that is a large room, not a Swiss flat. The fix
+dilates each room by `BRIDGE_M`, unions, and erodes back, welding the dwelling
+into one polygon without moving its outer boundary. **`BRIDGE_M` is not
+load-bearing**: p25/median/p75 are 0.51/0.67/0.78 at 0.12 m and move by at most
+0.01 anywhere in 0.10–0.30 m. Only 0.06 m — below a wall's half thickness, so it
+fails to bridge — differs.
+
+**What the correction changes.** The finding that no real flat resembles the
+fully-exposed geometry the 6.25 s-at-24-rooms figure was measured against
+**survives**: 0.9% at ≥0.99, and the median flat still faces outside on two thirds
+of its perimeter rather than all of it. What does *not* survive is every number
+fitted to this distribution. `flat_single_aspect` at a quarter was fitted to a
+p25 of 0.23 and the real p25 is **0.51**; `corpus_median` — `geometry.py`'s own
+*"the case a spec should quote as typical"* — was fitted to 0.37 against a real
+**0.67**, which is two full edges, a **dual-aspect** flat. Every measurement taken
+at either preset was taken at roughly **half** the real exposure. That blast
+radius is not this section's to repair — it is ticketed as *The exposure presets
+were fitted to a measurement of one room*.
+
+The nine dwellings at ~0.00 exterior were an artefact of the same bug and do not
+survive the correction; *Solver timing variance sweep* had already found them to
+be annotation fragments by a second route, which is why that conclusion stands
+while this measurement did not.
 
 Appended to *Solver timing variance sweep*, which owns the sweep itself.
 

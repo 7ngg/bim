@@ -2,8 +2,11 @@
 
 Resolves [Acceptance validator spec](../wayfinder/tickets/07-acceptance-validator-spec.md).
 
-Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 38 rules,
-**39 once `dim.leg_join` lands** (§9.1). ⚠️ That row is specified here and is
+Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 36 rules,
+**37 once `dim.leg_join` lands** (§9.1). ⚠️ It was 38 until *H8 and the
+single-aspect flat* retired `win.habitable_touches_exterior` and
+`win.kitchen_windowless`, neither of which could fire; both are kept in that
+file's `retired` block rather than deleted (§7.1). ⚠️ That row is specified here and is
 **not written**: `rules.json` is claimed by three other tickets and authoring into
 it from a fourth is the parallel-write hazard the map warns about. Until its
 holder lands it, this document and that file disagree by exactly one rule — which
@@ -42,8 +45,10 @@ potential adjacency is unevaluable on a finished Plan without inverting it.
 
 **The shared artifact is a registry, not a function.** Each rule declares an
 **enforcement site** — `solver`, `validator`, or `both` — and drift is prevented
-by a **conformance test over the `both` subset**, which is 14 of the 38 rules —
-15 of 39 once `dim.leg_join` lands, since it is a `both` rule. The
+by a **conformance test over the `both` subset**, which is 14 of the 36 rules —
+15 of 37 once `dim.leg_join` lands, since it is a `both` rule. That subset held at
+14 across §7.1's retirement: `win.habitable_touches_exterior` left it and
+`win.habitable_has_window` joined it, which is the trade §7.2 describes. The
 test is: for a generated population of Plans spanning feasible and infeasible
 Briefs, the solver's satisfaction of each `both` rule and the validator's
 evaluation of it agree on every Plan. Disagreement is a test failure.
@@ -62,7 +67,7 @@ the number came from decides it.** `ergonomic_min` is hard, `market_default` is
 soft. That is the C10 split — model proposes, solver projects — expressed in the
 constraint table rather than restated in the validator.
 
-Rejecting on 29 of 38 rules — 30 of 39 with `dim.leg_join` — sounds aggressive;
+Rejecting on 28 of 36 rules — 29 of 37 with `dim.leg_join` — sounds aggressive;
 it is not, because every hard
 number is either a physical impossibility (a door that does not fit its wall, two
 Spaces overlapping) or the point at which the room cannot contain its function.
@@ -118,6 +123,12 @@ later is a configuration change, not a rewrite.
 > a warn only because C14 forbids a region changing the reject set; flipping the
 > table's `needs_window` for kitchen is the region-invariant fix and is owed by the
 > ticket named above. The three `conf: pending` rules are untouched.
+>
+> ✅ **Closed, and the warn is gone.** *Opening placement rules* flipped
+> `ergonomic.rooms.kitchen.needs_window` to `true` — the region-invariant fix this
+> block named — which made `win.kitchen_windowless` unreachable, and *H8 and the
+> single-aspect flat* retired it (§7.1). `win.area_ratio` keeps its 0.125 and its
+> `soft`, and §7.4 records why that severity is now challenged rather than settled.
 
 ## 4. Circulation — two graphs, not one
 
@@ -201,7 +212,7 @@ still fog. It is carried in the registry with its source and its number so that
 adopting it when fixtures land is a data change. A validator that silently omits
 a rule it cannot evaluate is indistinguishable from one that never knew about it.
 
-## 7. Windows — topology hard, ratio soft
+## 7. Windows — one hard rule, and it is the frontage budget
 
 The four regimes surveyed are **not interconvertible**: England imposes no
 daylight requirement at all; Germany measures the *structural opening* against
@@ -210,21 +221,132 @@ boundary and the zoning district, so no `window_area >= k · floor_area` can
 express it; the Metric Handbook needs glazing transmittance and surface
 reflectances a Plan does not carry.
 
-So the hard rule is the part all four agree on — **topology**:
+So the hard rule is the part all four agree on — **topology**. There used to be
+two of them, and **there is now one**:
 
-- `win.habitable_touches_exterior` — every habitable Space shares a segment with
-  the EXTERIOR.
-- `win.habitable_has_window` — every Space needing a window hosts one on an
-  External segment of that Space. Physical fit comes from `open.fits_segment`.
+- `win.habitable_has_window` — every Space needing a window hosts one on a
+  WallSegment of that Space whose Envelope edge **condition is `exterior`**.
+  Hard, site **`both`**.
 
-The numeric ratio is **soft and region-parameterised**, defaulting to 1/8 on the
-structural opening (BayBO Art. 45(2), read first-hand). Hard would encode one
-country's method as universal and be unsatisfiable for `JP` by construction.
+### 7.1 Two rules retired, and why a rule that cannot fire is not free
 
-`win.kitchen_windowless` is a **warn**. The table sets `needs_window: false` for
-`kitchen`, following BayBO Art. 46(1)'s allowance of a windowless kitchen *where
-effective ventilation is provided* — and we do not model ventilation. The
-permission is honoured; the fact is surfaced.
+`win.habitable_touches_exterior` keyed on `is_habitable`; `win.habitable_has_window`
+keys on `needs_window`. **No row of the 18-type table has the first without the
+second**, and hosting a window on an exterior segment implies sharing one, so the
+first was strictly implied by the second and could never fire alone. Measured
+against 561 real Swiss dwellings it rejects **11.9 %** where `has_window` rejects
+**43.3 %**, and its rejections are a subset.
+
+`win.kitchen_windowless` went the same way for the reason *Opening placement
+rules* §6.2 recorded and handed here: once `ergonomic.rooms.kitchen.needs_window`
+became `true`, the hard rule carries the kitchen and the warn is unreachable. It
+was left standing only because retiring it moves the rule count and this file was
+claimed elsewhere at the time. This ticket holds the file, so the count moves.
+
+Both are recorded in `rules.json`'s `retired` block with their statements, not
+deleted silently. **The bar is 36 predicates — 37 once `dim.leg_join` lands.**
+
+The invariant `touches_exterior` looked like it protected — *a habitable type
+always needs a window* — was never carried by it. It is a property of the **table**,
+not of a Plan, and `experiments/region-profile/ergonomic_check.py` asserts it
+directly. That is the right site: a rule can only be exercised by a Plan that
+violates it, and no Plan can violate this one.
+
+### 7.2 What the solver posts
+
+`win.habitable_has_window` inherits the retired rule's `both` site, and inherits
+it **stronger**. The old solver posting was mere contact with the exterior. What
+the solver posts now is the frontage budget itself: each `needs_window` Room holds
+a run of `exterior`-condition Envelope edge of at least its catalogue window's
+structural width plus **twice the 100 mm jamb return** — `window_bedroom` 1200 mm
+becomes 1400 mm of frontage, `window_living` 1500 becomes 1700, `window_kitchen`
+900 becomes 1100.
+
+This is not new machinery. ADR 0003 types the edge ring **before** the solve, and
+`open.fits_segment` already carries the jamb constant. Posting anything weaker
+throws away yield on a constraint the solver can already express: candidates that
+cannot seat their windows would be generated, solved and then rejected by the
+validator, which is exactly the waste C6's *generate many, reject most* is
+supposed to be paying for something in return.
+
+### 7.3 Which part it binds
+
+Per §9.1 every dimensional predicate must say which part of a two-part Room it
+binds, and this one has a **split** answer:
+
+- **Per Room** for the requirement itself — a Room reaches its window through
+  *any* of its parts.
+- **Per part** for the part that carries the window: it must meet that Room's own
+  `min_clear_short`.
+
+That is option 2 of the three *Whether a Room may be more than one rectangle*
+handed here, and it costs nothing today, at one rectangle per Room. It is taken
+now because the alcove it prevents is cheap to prevent and expensive to discover:
+a habitable Room whose only daylight comes down a 900 mm leg is an alcove with a
+window, not a room with an aspect. `open.fits_segment` already forces such a leg
+to 1400 mm for a bedroom window; requiring the Room's own published minimum is
+the number an architect would hold, and it needs no new constant.
+
+### 7.4 The ratio is soft, the run is over exterior faces, and the severity is challenged
+
+`win.area_ratio` stays **soft and region-parameterised**, defaulting to AzDTN
+2.7-2 cl. 9.13's 1:8 on the structural opening. Its statement gains one clause it
+should always have had: the windows counted are those on **`exterior`-condition**
+segments. Computed over every boundary face, a mid-block flat satisfied its
+glazing ratio on a wall shared with a neighbour. A party edge hosts no window
+(`openings.md` §6.1).
+
+⚠️ **Held soft, and flagged rather than settled.** cl. 9.13 is `verified` and
+mandatory, which makes this **the only statutory minimum on the map posted soft**.
+C14 names it — *"one soft window fraction"* — so amending it means amending a
+standing constraint, and a window rule is the wrong door to do that through. It is
+ticketed as *A statutory floor, posted soft, in the one region v1 ships*, which
+also holds AzDTN's statutory **area** floors (living 16 m², `bedroom_double` 10,
+kitchen 8), shipped soft by the same clause of C14 against an ergonomic hard floor
+of 3.1 m² for that bedroom.
+
+### 7.5 What H8 turned out to be
+
+The frontage crisis this section was expected to resolve — *"the single-aspect flat
+is arithmetically dead from 7 rooms"* — **does not exist**, and both halves of the
+number that produced it were wrong.
+
+The minima were placeholders. `experiments/solver-toy/scenarios.py` says so in its
+own comment; its bedroom was 2000 mm where the shipped ergonomic layer is 1650
+(realisable 1850), its living room 2750 against 1850. Re-run against the shipped
+layer, the first arithmetically dead cell moves from **7 rooms to 16** — outside
+C13's 3–10 engine band entirely.
+
+And the exposure was measured on one room. `exposure_swiss_dwellings.py` unioned a
+dwelling's disjoint room polygons, got a `MultiPolygon`, and took the largest part
+— so every published exposure figure described the largest **room** in the
+dwelling. Corrected: median exterior fraction **0.67**, not 0.37; p25 **0.51**, not
+0.23. `flat_single_aspect` was fitted to that p25 and is roughly half the real
+thing.
+
+So H8 is **not relaxed by type, not relaxed by count, and the room-count promise is
+not bounded on its account.** All three of those options existed to buy back
+frontage that was never missing.
+
+⚠️ **What the measurement did find is a different rule.** `win.habitable_has_window`
+as posted rejects **43.3 % of real Swiss dwellings**, and the kitchen is most of it:
+**31.0 % of real kitchens carry no window**, against 5.9 % of bedrooms. Those
+kitchens are not niches — median 6.8 m² — and **84.7 % of them sit adjacent to a
+windowed habitable room**, the borrowed-daylight arrangement AzDTN names
+`taxca-metbex` and `profiles.AZ.windows.kitchen_niche_windowless` holds `false`.
+The rule is right for Baku and cl. 9.12 is not negotiable; what it costs is
+**corpus coverage**, in the population the engine retrieves and trains on.
+
+Split by cause, over 561 dwellings: **23.0 % fail on the kitchen alone** and
+**20.3 % on a non-kitchen room**. So more than half the rejection is one clause,
+and it is the clause that is least negotiable. *What a room's area is allowed to
+be* set its cap at p99.5 rather than p95 on exactly this argument — *"the corpus is
+the retrieval and training population, so a rejection there is coverage lost"* — at
+26.6 %. This is 43.3 %, and it cannot be bought back by moving a threshold,
+because the rule carries no threshold to move.
+
+That is handed to the retrieval and conversion side, not paid for by weakening a
+statutory rule.
 
 ## 8. The two the seven items missed
 

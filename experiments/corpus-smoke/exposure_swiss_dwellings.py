@@ -6,6 +6,26 @@ map was measured at 100% exterior exposure. This measures what the exposure ring
 actually looks like in real flats: per dwelling, what fraction of the Envelope
 perimeter faces outside rather than a neighbour or a communal core.
 
+CORRECTED by *H8 and the single-aspect flat* (2026-08-26). The first version of
+this script never measured a dwelling. A dwelling's `area` polygons are DISJOINT
+-- the wall sits between them -- so `unary_union` of them is always a
+MultiPolygon, and taking `max(geoms, key=area)` reduced the dwelling to its
+LARGEST SINGLE ROOM. Most of that room's perimeter faces other rooms of the same
+dwelling, which are `occupied` and therefore scored as party, so the published
+distribution was biased LOW by roughly a factor of two:
+
+    published (largest room)   p5 0.16  p25 0.23  median 0.37  p75 0.47  p95 0.59
+    corrected (whole dwelling) p5 0.33  p25 0.51  median 0.67  p75 0.78  p95 0.89
+
+and the median "dwelling" was 23.9 m2 with 8.1 m of exterior run, against a
+corrected 75.3 m2 and 27.5 m. The three dwellings at ~0.00 exterior are an
+artefact of the same bug and do not survive the correction.
+
+The fix bridges the wall gap before unioning. BRIDGE_M is the only judgement it
+adds, and it is not load-bearing: p25/median/p75 are 0.51/0.67/0.78 at 0.12 m and
+move by at most 0.01 anywhere in 0.10-0.30 m. Only 0.06 m -- below a wall's half
+thickness, so it fails to bridge at all -- differs.
+
 Run: python experiments/corpus-smoke/exposure_swiss_dwellings.py [n_floors]
 """
 
@@ -29,6 +49,10 @@ NOT_A_ROOM = {"SHAFT", "VOID", "OUTDOOR_VOID", "LIGHTWELL", "ELEVATOR", "STAIRCA
 # occupied area is treated as party rather than exterior — one party wall plus
 # two finishes.
 PARTY_GAP_M = 0.45
+# Half an internal wall. Room polygons are drawn to finished faces and do not
+# touch, so they are dilated by this, unioned, and eroded back — which welds a
+# dwelling into one polygon without moving its outer boundary.
+BRIDGE_M = 0.12
 
 N_FLOORS = int(sys.argv[1]) if len(sys.argv) > 1 else 150
 
@@ -77,7 +101,9 @@ def main() -> None:
 
     fracs, rings = [], Counter()
     for (s, f, ap), polys in dwell.items():
-        env = unary_union(polys)
+        # Weld the rooms across their walls FIRST. Unioning them raw yields one
+        # part per room, and `max(..., key=area)` then measures a single room.
+        env = unary_union([p.buffer(BRIDGE_M) for p in polys]).buffer(-BRIDGE_M)
         if env.is_empty or env.geom_type not in ("Polygon", "MultiPolygon"):
             continue
         if env.geom_type == "MultiPolygon":

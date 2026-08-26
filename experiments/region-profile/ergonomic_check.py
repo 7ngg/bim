@@ -86,9 +86,14 @@ def main():
         check(resolve(std, ptr.split("#", 1)[1]) is not None,
               f"{rid} value_source resolves", ptr)
 
+    # win.habitable_touches_exterior was here until *H8 and the single-aspect
+    # flat* retired it: is_habitable implies needs_window on every row of the
+    # table, so hosting a window on an exterior segment implied sharing one and
+    # the rule could not fire. The invariant it looked like it protected is the
+    # `needs_window follows is_habitable` check above, which is a property of
+    # this table rather than of a Plan and is asserted directly.
     for rid, flag in (("circ.no_private_transit", "is_private"),
                       ("win.habitable_has_window", "needs_window"),
-                      ("win.habitable_touches_exterior", "is_habitable"),
                       ("wet.plumbing_group_count", "is_wet")):
         ptr = by_id[rid].get("flag_source", "")
         check(resolve(std, ptr.split("#", 1)[1]) is not None if "#" in ptr else False,
