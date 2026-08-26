@@ -295,39 +295,77 @@ to draw an arc.
 
 ## 6. Windows
 
-### 6.1 Which entry, and how many
+### 6.1 One window, sized from a series
 
-| Space's Room | Catalogue key | Mark | Structural opening |
-|---|---|---|---:|
-| `living`, `dining`, `living_dining`, `living_dining_kitchen` | `window_living` | OR 15-15 | 1500 × 1500 |
-| `bedroom_*`, `study` | `window_bedroom` | OR 15-12 | 1500 × 1200 |
-| `kitchen`, `kitchen_dining`, `utility` | `window_kitchen` | OS 12-9 | 1200 × 900 |
+> **Amended by *The annotation spec is US-shaped and the drawing is now
+> Azerbaijani* (ADR 0024).** This section used to fix three catalogue sizes and
+> vary the **count**. `win.area_ratio` has since moved from soft to **hard**
+> (*A statutory floor, posted soft, in the one region v1 ships*), and against
+> three fixed sizes a hard rule fails **21,20 %** of real dwellings against
+> **5,39 %** against a width series — three quarters of the cost a catalogue
+> artefact rather than a layout fact. The width now varies and the count does
+> not. `openings.md` is amended by a ticket that does not hold it, because
+> leaving it would ship two contradictory window rules.
 
-**Count is derived from the glazing ratio, not fixed at one.** One 1200 mm window
-centred on each exterior wall is the spreadsheet look the ticket warned about, and
-the way to avoid it is to let the room's own area decide:
+**Height is fixed by the Space's Room; width is selected from a series.**
 
-1. Take the Space's **longest** exterior run — Envelope edges only, and only those
-   whose `condition` is `exterior`. A **party edge hosts no window**, so the run
-   is computed over filtered faces and not over every boundary face. Today's
-   `win.area_ratio` does not filter, which lets a mid-block flat's bedroom satisfy
-   its daylight on a wall shared with a neighbour; §10 hands that fix on.
-2. Place one window of the Space's type.
-3. While the ratio is below the region profile's **soft target** (0.154) and
-   another window fits, add another of the same type. Minimum **pier** between
-   two structural openings is 600 mm; the jamb return of 100 mm applies at each
-   end of the run as it does for doors.
-4. A second exterior edge takes a window only when the first run is full and the
-   target is still missed.
+| Space's Room | Height | Sill |
+|---|---:|---:|
+| `living`, `dining`, `living_dining`, `living_dining_kitchen` | 1500 | 700 |
+| `bedroom_*`, `study` | 1500 | 700 |
+| `kitchen`, `kitchen_dining`, `utility` | 1200 | 1000 |
 
-Windows of one Space are all the same catalogue entry — a facade with two
-different windows in one room is a tell — and their centres **distribute evenly**
-along the run: for *n* windows, centres at `(2i−1)/2n` of the clear run,
-*i* = 1…*n*, rounded to even millimetres per ADR 0004.
+Heights are the ones the three retired catalogue entries already carried, so
+every sill is unmoved — `sill = head_datum_mm − H` (§6.3), and the kitchen window
+is still the short one that clears a 900 mm counter.
 
-Even distribution is doing two jobs. It produces the regular facade rhythm a real
-elevation has, and it keeps windows off corners without a separate corner rule,
-since the first centre is never nearer the end than half a bay.
+The width series is `profiles.AZ.openings.width_series_mm`: **600, 750, 900,
+1200, 1350, 1500, 1800, 2100** on the published GOST grid, then **2400, 2700,
+3000, 3300** as an engine extension of it. Every member is even, so ADR 0004
+holds across the whole series.
+
+**Selection.** One window per Space:
+
+1. Take the Space's **longest** exterior run — Envelope edges only, and only
+   those whose `condition` is `exterior`. A **party edge hosts no window**, so
+   the run is computed over filtered faces and not over every boundary face.
+2. Take the smallest series member reaching the region profile's **soft target**
+   (0.154) that also satisfies `open.fits_segment` on that run — `w + 2 × 100`
+   of jamb return within the clear run.
+3. If no member reaches the target on that run, take the smallest member
+   reaching the **hard floor** (`win.area_ratio`, 0.125) that still fits.
+4. If no member reaches the floor either, the Space **cannot be glazed to
+   cl. 9.13 on the run it has**. That is a hard failure of `win.area_ratio` and
+   is reported as one. It is never quietly downgraded to the widest member that
+   fits, which would ship an under-glazed room that the validator then rejects
+   for a reason the placement layer already knew.
+
+A single window centres on its clear run, rounded to even millimetres per
+ADR 0004 — which keeps it off the corners without a separate corner rule.
+
+**Why the count no longer varies.** Adding a window costs a **pier** that
+produces no glazing, so on a constrained run one wide opening strictly dominates
+two narrow ones — ticket 50 measured exactly this. The old algorithm's own
+worked example shows both failure modes it produced: a `living` of 18,0 m² on a
+4200 mm run got a second 1500 window to close a 0,029 gap and landed at ratio
+**0,250**, nearly twice the target; a `kitchen` of 9,0 m² landed at **0,120**,
+*below the floor*, and the example described it surviving on a soft penalty —
+which under the hard rule is now a **rejected Plan**. Under the series the same
+two rooms take one window each at 0,175 and 0,160.
+
+The one thing splitting does buy is reach past the top of a bounded catalogue,
+and the series extension removes that case: 3300 mm covers ticket 50's measured
+p90 requirement of 3,23 m for `living_dining`. **Ticket 50 wrote that splitting
+"buys nothing"; that is true when the wall run binds and false when the catalogue
+top binds, and the two cases had not been distinguished.**
+
+**What is given up, stated rather than glossed.** The old rule's even
+distribution produced a regular facade rhythm, and a real elevation has one.
+That argument is real and it is refused on measurement: the rhythm is bought
+with glazing the room did not ask for, or — on a tight run — with a rejection.
+`min_pier_mm` is now **250** and gates nothing in v1, because no shipped path
+places two windows on one run; it binds again the day a balcony-door composition
+is modelled.
 
 ### 6.2 The kitchen must have a window, and that is a change
 
@@ -465,12 +503,12 @@ type added later must arrive with a mapping row or `gate_check.py` fails.
 | **The INFEASIBLE cost of §8's threshold**, measured on the published rig. The arithmetic is exact; the rate is not | *What an ordered entry sequence costs the solver*, which holds `experiments/solver-toy/` |
 | **The exposure cost of §6.2** — one more Room competing for frontage, on the arithmetic that ticket already measures | *H8 and the single-aspect flat* |
 | **`win.kitchen_windowless` can no longer fire** (§6.2). Retire or keep as belt-and-braces; either way it moves the 38-rule count | *A dwelling with no toilet passes every check* or *Fit the ENGINE_CHOICE acceptance thresholds*, whichever next holds `acceptance-bar.md` |
-| **`win.area_ratio` counts party faces** (§6.1). The run must be computed over `exterior` edges only, and the rule statement says "Space net floor area" without saying which faces the *window* run is taken over | same |
-| **`win.area_ratio` is `soft` although AzDTN cl. 9.13 is a `verified` mandatory floor** — the only statutory minimum on the map posted soft. Not changed here: severity is the bar's, and C8 makes a defensible case either way | same |
+| ~~**`win.area_ratio` counts party faces**~~ — ✅ **discharged** by *H8 and the single-aspect flat*, which added the exterior-face clause to the rule statement, and re-stated in §6.1 step 1 |
+| ~~**`win.area_ratio` is `soft`**~~ — ✅ **discharged** by *A statutory floor, posted soft, in the one region v1 ships*: it is **hard**, rescoped to living rooms and kitchens, and its satisfiability is what rewrote §6.1 |
 | **`open.leading_edge_nib`'s justification moves** from AD M accessibility to the region-invariant ergonomic layer (ADR 0021). The constant does not move; its `src` and `note` should | same |
 | **ADR 0012's head-datum justification is dead** (§2.5). 2200 stands and its reason must stop being the balcony door's lintel | ADR 0012's holder |
-| **A glazed leaf draws a glazing line** where a solid one does not (§2.2); the door schedule's `Handing` and `Swing` columns are filled by §4.1 and §4.2 | *The annotation spec is US-shaped and the drawing is now Azerbaijani*, which holds `annotation.md` |
-| **The `min_pier_mm` 600 is `engine_choice`** (§6.1) and is the only unfitted constant this document adds | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
+| ~~**A glazed leaf draws a glazing line**~~ — ✅ **discharged** by ADR 0024. `annotation.md` §6 and §8 carry the schedule columns and the two-level mark scheme; the plan mark is a bare number for a door and `ОК<n>` for a window, and the GOST product designation moves to the schedule's `Type` column |
+| ~~**The `min_pier_mm` 600 is `engine_choice`**~~ — ✅ **fitted to 250** by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* and written by ADR 0024. It now gates nothing, because §6.1 places one window per Space; it binds again the day a balcony-door composition is modelled |
 
 ---
 
@@ -502,14 +540,31 @@ the hall and one into it, so the hall carries exactly one swing footprint, an
 1200 for each 800, 1100 for each 700 — against 900 / 800 / 700 under the old
 threshold.
 
-**Windows** (§6.1). `living` 18.0 m² on a 4200 mm exterior run: one OR 15-15 gives
-2.25 m², ratio 0.125 — at the AZ floor but below the 0.154 target, and a second
-needs 1500 + 600 + 1500 + 200 = 3800 ≤ 4200, so it fits. Two windows, ratio 0.250,
-centres at 1050 and 3150 of the clear run. `bedroom_double` 12.0 m² on 3000 mm:
-one OR 15-12 gives 1.80 m², ratio 0.150 — one window, centred. `kitchen` 9.0 m²:
-one OS 12-9 gives 1.08 m², ratio 0.120, below the floor and below the target, and
-a second does not fit on the run — the candidate carries a soft penalty on
-`win.area_ratio` and survives, which is the correct outcome for a real kitchen
-with one window. `bathroom` and `wc` are windowless, permitted at AzDTN cl. 9.14.
+**Windows** (§6.1). One per Space, width selected from the series at the fixed
+height for its Room, aiming at the 0.154 soft target and floored at the 0.125
+hard rule:
 
-`A-102` carries **seven door rows and four window rows.**
+| Space | Area | Run | H | 0.154 needs | Member | Ratio |
+|---|---:|---:|---:|---:|---:|---:|
+| `living` | 18.0 m² | 4200 | 1500 | 1848 | **2100** | 0.175 |
+| `bedroom_double` | 12.0 m² | 3000 | 1500 | 1232 | **1350** | 0.169 |
+| `bedroom_single` | 9.0 m² | 2400 | 1500 | 924 | **1200** | 0.200 |
+| `kitchen` | 9.0 m² | 2400 | 1200 | 1155 | **1200** | 0.160 |
+
+`bathroom` and `wc` are windowless, permitted at AzDTN cl. 9.14.
+
+**Two of these rows are why this section changed.** Under the retired
+fixed-size rule `living` took a *second* 1500 window to close a 0.029 gap and
+landed at **0.250** — nearly twice the target, because the increment was a whole
+window rather than a width. And `kitchen` landed at **0.120**, which this
+example described as carrying a soft penalty and surviving; `win.area_ratio` is
+now **hard**, so that same candidate is a rejected Plan. The series puts both
+just above target on one window each.
+
+⚠️ **This example also used to omit `bedroom_single`'s window entirely** — it
+counted four window rows as two for `living` plus one each for `bedroom_double`
+and `kitchen`, leaving a habitable Room with no window at all, which
+`win.habitable_has_window` rejects hard. Corrected above: four windows, one per
+habitable Space.
+
+Sheet 2 carries **seven door rows and four window rows.**

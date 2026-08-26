@@ -264,13 +264,34 @@ def main() -> None:
     # BayBO reading was not merely redundant but inverted. Nothing cites
     # de_baybo now, so the block is not added.
 
-    doc["tier_model"]["validator_binding"]["hard_reject_below"] = "ergonomic"
+    doc["tier_model"]["validator_binding"]["hard_reject_below"] = [
+        "ergonomic", "statutory_floor"]
     doc["tier_model"]["validator_binding"]["hard_reject_below_note"] = (
-        "Was null, then 'statutory_floor'. Ticket 7 found that binding unusable "
-        "and named the ergonomic minimum instead; ticket 19 authored the layer "
-        "and this now names it by the key it actually has. Region-invariant "
-        "because bodies are. data/acceptance/rules.json tier_binding must hold "
-        "the same string; a conformance test asserts it.")
+        "A LIST, NOT A SCALAR, and the change is ADR 0024's transcription of "
+        "*A statutory floor, posted soft, in the one region v1 ships*. Was "
+        "null, then 'statutory_floor', then the scalar 'ergonomic': ticket 7 "
+        "found the statutory binding unusable and named the ergonomic minimum "
+        "instead, ticket 19 authored the layer, and ticket 50 amended C14 so "
+        "that a Region profile may RAISE a hard floor and may never lower one. "
+        "Both tiers now reject hard, and the ORDER is the order they are "
+        "applied in: the ergonomic floor is region-invariant and binds "
+        "everywhere; the statutory floor binds only where the profile "
+        "publishes a non-null cell, and raising is monotone so it can only "
+        "ever tighten. data/acceptance/rules.json tier_binding must hold the "
+        "same LIST -- the conformance test in ergonomic_check.py compares "
+        "lists, not strings, and must not be relaxed back to a scalar.")
+    doc["tier_model"]["validator_binding"]["statutory_floor_binding"] = "hard"
+    doc["tier_model"]["validator_binding"]["statutory_floor_note"] = (
+        "'warn' -> 'hard' by *A statutory floor, posted soft, in the one "
+        "region v1 ships* (dim.statutory_min_area), transcribed here by ADR "
+        "0024 because this generator re-authors the field on every run and a "
+        "JSON-only edit reverts -- the trap that silently reverted "
+        "kitchen.needs_window and falsified three published numbers. Ticket 14 "
+        "had written 'a warn, never a gate, and only where non-null'; the "
+        "'only where non-null' half survives verbatim and the severity half "
+        "does not. AZ is still the first region to publish any cell at all, "
+        "and ten of nineteen keys are silent, for which the ergonomic minimum "
+        "remains the whole floor.")
 
     doc["ergonomic"] = {
         "comment": (

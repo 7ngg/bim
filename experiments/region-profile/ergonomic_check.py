@@ -101,26 +101,45 @@ def main():
 
     check(not [r for r in rules["rules"] if r.get("conf") == "pending"],
           "rules.json carries no pending rules")
-    # THIS CHECK IS EXPECTED TO FAIL until *The annotation spec is US-shaped and
-    # the drawing is now Azerbaijani* lands, and the failure is the point.
-    # *A statutory floor, posted soft, in the one region v1 ships* amended C14 --
-    # a profile may RAISE a hard floor, never lower one -- so the hard floor is
-    # max(ergonomic, statutory_floor) and this binding became a LIST in
-    # rules.json. room-constraints.json is claimed by that other ticket, so the
-    # matching edit was handed over rather than written, and this is the drift
-    # the check exists to catch. Do NOT "fix" it by relaxing the comparison.
-    # The edit is TWO lines and it must be made at the AUTHORING site:
-    #   build_ergonomic_layer.py  hard_reject_below -> ["ergonomic", "statutory_floor"]
-    #   room-constraints.json     statutory_floor_binding "warn" -> "hard"
-    # The generator re-authors this field on every run, which is the same trap
-    # that silently reverted kitchen.needs_window.
+    # THE HARD TIER IS A LIST IN BOTH FILES, AND THE COMPARISON IS EXACT.
+    # This check was left deliberately FAILING by *A statutory floor, posted
+    # soft, in the one region v1 ships*, which amended C14 -- a profile may
+    # RAISE a hard floor, never lower one -- so the hard floor is
+    # max(ergonomic, statutory_floor) and the binding became a LIST in
+    # rules.json while room-constraints.json still carried a scalar. *The
+    # annotation spec is US-shaped and the drawing is now Azerbaijani* landed
+    # the other half (ADR 0024) at the AUTHORING site, build_ergonomic_layer.py,
+    # because the generator re-authors this field on every run and a JSON-only
+    # edit reverts -- the trap that silently reverted kitchen.needs_window.
+    # Do NOT relax the comparison back to a scalar, and do NOT compare with
+    # set() or sorted(): the ORDER of the list is the order the tiers apply in.
     check(rules["tier_binding"]["hard_reject_below"]
           == std["tier_model"]["validator_binding"]["hard_reject_below"],
           "both files name the same hard tier",
           f'{rules["tier_binding"]["hard_reject_below"]!r} vs '
           f'{std["tier_model"]["validator_binding"]["hard_reject_below"]!r}'
-          " -- EXPECTED until ticket 32 lands the room-constraints.json half; see"
-          " docs/spec/acceptance-bar.md 3.1 and rules.json owed[1]")
+          " -- the edit belongs in build_ergonomic_layer.py, NOT in the JSON")
+
+    # The severity half of the same decision. rules.json carries no
+    # `statutory_floor_binding` key -- its equivalent statement is membership of
+    # the hard list -- so the two files are asserted to agree BY CONSTRUCTION
+    # rather than by comparing a field that exists on one side only. Inventing
+    # that field on the rules side to make the comparison symmetrical would add
+    # a second place for the severity to be stated, which is the shape of defect
+    # that produced this check.
+    _sfb = std["tier_model"]["validator_binding"].get("statutory_floor_binding")
+    check(_sfb == "hard",
+          "room-constraints.json binds statutory_floor hard",
+          f"{_sfb!r} -- ticket 50 moved this from 'warn'; authored in "
+          "build_ergonomic_layer.py")
+    check(("statutory_floor" in rules["tier_binding"]["hard_reject_below"])
+          == (_sfb == "hard"),
+          "the two files agree on whether statutory_floor rejects",
+          f'hard list {rules["tier_binding"]["hard_reject_below"]!r} vs '
+          f"statutory_floor_binding {_sfb!r}")
+    check("statutory_floor" not in rules["tier_binding"].get("unread_in_v1", []),
+          "statutory_floor is not simultaneously bound and unread",
+          f'unread_in_v1 = {rules["tier_binding"].get("unread_in_v1")!r}')
 
     # ---- sources with no machine-readable citation -----------------------
     # INFORMATIONAL, never a failure. This ticket owned exactly one orphan --

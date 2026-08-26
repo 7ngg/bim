@@ -425,6 +425,14 @@ differs by country, and a door of an invented width is the clearest tell that a
 plan was generated. A **cased opening** is an Opening with no leaf, which a model
 that only knows hinged doors cannot say.
 
+**A window is typed differently from a door, and the asymmetry is deliberate.** A
+door takes a whole catalogue entry chosen by its receiving Room. A window takes a
+**fixed height** from its Room and a **width selected from a series** to meet the
+Room's glazing requirement. The catalogue is discrete either way; what differs is
+that a door's size answers *what goes through it* and a window's answers *how
+much light the room owes*, and only the second is a function of the room's area.
+ADR 0024.
+
 _Avoid_: "which is how most homes join a kitchen to a living room". That is a
 Western prior and the one profile v1 ships refutes it twice — the `AZ` catalogue
 manufactures a **glazed living-room door**, and a gas hob is the Baku norm. In
@@ -552,9 +560,31 @@ a chain segment's identity is its pair of witnesses, and a witness is in turn
 named by the Rooms either side of it — Brief-anchored, so it dies honestly when
 the topology changes.
 
-**Type mark** — the label tying an Opening on the plan to its row in a schedule
-and its entry in the regional catalogue. The join between the drawing and the
-schedule, asserted total in both directions.
+**Plan mark** — the short sequential label that ties an Opening on the plan to
+its row in a schedule: windows `ОК1`, `ОК2`, …; doors a **bare number**, no
+prefix; both drawn in a Ø 5 mm circle. The join between the drawing and the
+schedule, asserted total in both directions — and the join key is **(kind,
+number)**, never the number alone, because doors and windows number in two
+separate spaces and a join on the number silently matches door 1 to window 1.
+
+**Product designation** — what the Opening *is*, as the manufacturing standard
+names it: `ДГ 21-8`, `ОР 15-13,5`. It encodes the opening size, **height then
+width** in decimetres, with a comma where a group is fractional. It lives in a
+schedule column and never on the plan. Distinct from the [[Plan mark]] because
+they answer different questions — where is it, and what do I buy — and this
+system carried one string doing both until ADR 0024.
+
+_Avoid_: printing a designation for a size the standard does not publish. A
+window width is now selected from a series whose upper members are the engine's
+own extension of the GOST grid, and above that boundary the schedule carries a
+plain dimension string. An invented designation is the same failure as an
+invented room abbreviation.
+
+**Sheet set mark** — the designation carried by the **set** of drawings, with
+sheets numbered sequentially inside it: `<job>-MH`, *Vərəq 1 / 2*. Not a
+per-sheet discipline code. The difference matters because the two conventions are
+not translations of each other — a US sheet number and an SPDS set mark carry the
+identifier at different levels, so `A-101` has no counterpart of the same shape.
 
 **Drawing check** — the predicates a Drawing must satisfy before a file is
 emitted. Distinct from the **Acceptance bar** in consumer and in timing: the bar
@@ -630,6 +660,20 @@ disagreement is a Brief error, and a silent agreement that was never checked is
 the failure this term exists to prevent. v1 ships `az_umumi_sahe`: the sum of
 Space areas, measured to finished faces at floor level, partitions **not**
 counted.
+
+**Living area** / **Useful area** — the two quantities an Azerbaijani residential
+plan annotates, as a **fraction**, living over useful. *Living area* is the sum
+of Space area over Rooms carrying the habitable flag — the geometry flag, not
+[[Otaq]], which is the narrower marketing count; *useful area* is the sum of all
+Space areas. One fraction per dwelling, never per room — per room it would divide
+a bedroom's area by itself.
+
+_Avoid_: treating **useful area** and the [[Area convention]]'s `ümumi sahə` as
+one quantity. They are **numerically identical in v1 and are not the same
+thing**: `ümumi sahə` counts balcony, loggia and eyvan at a coefficient and
+useful area does not, and v1 models none of the three. They diverge the day a
+balcony is modelled, and a reader who has assumed otherwise will be wrong on that
+day.
 
 **Partition footprint** — the plan area the internal walls of one dwelling
 occupy, always stated as a **share of Σ Space area** and never as a share of the

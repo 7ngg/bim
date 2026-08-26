@@ -72,11 +72,14 @@
     "default_tier": "market_default",
     "default_tier_rationale": "C2 says the Homeowner judges by 'would I live here'. A plan built to the statutory floor is legal and unliveable. Defaulting to the floor would make the engine reliably produce plans nobody wants.",
     "validator_binding": {
-      "hard_reject_below": "ergonomic",
-      "hard_reject_below_note": "Was null, then 'statutory_floor'. Ticket 7 found that binding unusable and named the ergonomic minimum instead; ticket 19 authored the layer and this now names it by the key it actually has. Region-invariant because bodies are. data/acceptance/rules.json tier_binding must hold the same string; a conformance test asserts it.",
+      "hard_reject_below": [
+        "ergonomic",
+        "statutory_floor"
+      ],
+      "hard_reject_below_note": "A LIST, NOT A SCALAR, and the change is ADR 0024's transcription of *A statutory floor, posted soft, in the one region v1 ships*. Was null, then 'statutory_floor', then the scalar 'ergonomic': ticket 7 found the statutory binding unusable and named the ergonomic minimum instead, ticket 19 authored the layer, and ticket 50 amended C14 so that a Region profile may RAISE a hard floor and may never lower one. Both tiers now reject hard, and the ORDER is the order they are applied in: the ergonomic floor is region-invariant and binds everywhere; the statutory floor binds only where the profile publishes a non-null cell, and raising is monotone so it can only ever tighten. data/acceptance/rules.json tier_binding must hold the same LIST -- the conformance test in ergonomic_check.py compares lists, not strings, and must not be relaxed back to a scalar.",
       "soft_objective_target": "market_default",
-      "statutory_floor_binding": "warn",
-      "statutory_floor_note": "Ticket 14: a warn, never a gate, and only where non-null. AZ is the first region where it is non-null at all -- SNiP-family norms prescribe minimum room areas where German law prescribes none. CRITICAL: the disclosure wording derives from the cited source's `force` field, not from the tier's name. Printing 'below statutory minimum' for a plan that breaks no law is exactly the legal claim C8 forbids; under the UK NDSS (force: planning_policy_optional) it would be wrong more often than right.",
+      "statutory_floor_binding": "hard",
+      "statutory_floor_note": "'warn' -> 'hard' by *A statutory floor, posted soft, in the one region v1 ships* (dim.statutory_min_area), transcribed here by ADR 0024 because this generator re-authors the field on every run and a JSON-only edit reverts -- the trap that silently reverted kitchen.needs_window and falsified three published numbers. Ticket 14 had written 'a warn, never a gate, and only where non-null'; the 'only where non-null' half survives verbatim and the severity half does not. AZ is still the first region to publish any cell at all, and ten of nineteen keys are silent, for which the ergonomic minimum remains the whole floor.",
       "accessible_binding": "unread"
     }
   },
@@ -1452,10 +1455,16 @@
         "comment": "The mark scheme is TWO-LEVEL and the annotation spec currently models one. A plan mark (windows OK<n>; doors a BARE NUMBER in a 5 mm circle, per the Azerbaijani edition) plus a product designation in the schedule. The spec's D1/W2 matches no published convention.",
         "even_opening_required": "Every OPENING dimension must be an even number of millimetres -- the same ADR 0004 rule as thickness, and it passes. Every BLOCK height is ODD (2071/2371 doors, 2085/2385 external, 2175/2375 balcony) and must NEVER be keyed off. Annotation cl. 4.4 and 4.5 already dimension to the structural opening, so the spec is on the right side of this.",
         "mark_scheme": {
-          "v": "windows: OK<n>; doors: bare sequential number in a 5 mm circle",
-          "src": "azs_21501_2010",
-          "ref": "Azerbaijani edition",
-          "conf": "verified"
+          "windows": "OK<n>",
+          "doors": "bare sequential number",
+          "marker": "circle, diameter 5 mm",
+          "src": [
+            "azs_21501_2010",
+            "gost_21501_2018"
+          ],
+          "ref": "azs_21501_2010 cl. 2.3.2(4); gost_21501_2018 cl. 5.4.2 fn, cl. 5.3.2 g)",
+          "conf": "derived",
+          "note": "CONF DOWNGRADED FROM verified BY ADR 0024, AND ONLY THE WINDOW HALF IS WEAK. The door mark and the 5 mm circle are verified in the AZERBAIJANI edition's own text (cl. 2.3.2(4), quoted in docs/research/az-region-profile/drawing.md). The window prefix OK is not: it is read off gost_21501_2018, an RF standard whose preface this repo verified AZ is NOT a voting party to (AM, BY, KG, RU, UZ only), and the AZ 2010 edition is SILENT on it. So the whole cell is derived. TAKEN ANYWAY, and the alternative was refused: inventing a Latin P<n> for 'pencere' would be an unpublished abbreviation, which is exactly what deleted annotation.md's degradation-ladder step 2. The prefix is CYRILLIC in the source and is emitted as the source writes it -- no hyphen, gost_21501_2018 prints OK1 and not OK-1. Doors and windows number in TWO SEPARATE SPACES, so the plan-to-schedule join key is (kind, n), never n."
         },
         "catalogue": {
           "door_bathroom_wc": {
@@ -1605,7 +1614,6 @@
           }
         },
         "sizes_that_do_not_exist": "gost_6629_88 heights are 21 and 24 dm ONLY; 21-series widths 7/8/9/10/12/13 dm. There is no 20 dm or 23 dm size -- 20-7 appears only inside a cl. 1.5 EXAMPLE STRING and in no size drawing. Do not ship it.",
-        "catalogue_may_be_dead": "OPEN QUESTION. gost_6629_88 is superseded and the live successors explicitly REFUSE to fix an opening grid -- gost_23166_99 cl. 4.9 makes it a project decision. If that holds, the opening catalogue is engine_choice bounded by the old series, not verified.",
         "head_datum_mm": {
           "v": 2200,
           "src": "engine_choice",
@@ -1657,29 +1665,62 @@
           "door_bedroom_unused": "DG 21-9 has no receiving Room: living-room doors take the glazed DO 21-9 and every other interior door takes DG 21-8. Retained in the catalogue, unmapped."
         },
         "window_for_room": {
-          "comment": "One catalogue entry per Space, repeated. A facade with two different windows in one room is a tell.",
-          "map": {
-            "living": "window_living",
-            "dining": "window_living",
-            "living_dining": "window_living",
-            "living_dining_kitchen": "window_living",
-            "bedroom_principal": "window_bedroom",
-            "bedroom_double": "window_bedroom",
-            "bedroom_single": "window_bedroom",
-            "study": "window_bedroom",
-            "kitchen": "window_kitchen",
-            "kitchen_dining": "window_kitchen",
-            "utility": "window_kitchen"
-          }
+          "comment": "A SELECTION, NOT A MAP -- ADR 0024, discharging rules.json owed[2]. Was erg_key -> catalogue_key, which picked one of three fixed sizes and could not satisfy a hard win.area_ratio. Now erg_key -> (height, width series): the height is fixed per room family and the engine takes the SMALLEST member of width_series_mm that satisfies the rule at that height. One entry per Space, repeated -- a facade with two different windows in one room is a tell.",
+          "conf": "engine_choice",
+          "selection_rule": "TARGET FIRST, FLOOR SECOND, FAILURE THIRD. (1) w = min{ s in width_series_mm : s * height_mm >= 0.154 * space_net_floor_area } subject to open.fits_segment on the Space's longest exterior run, i.e. s + 2 * 100 of jamb return within the CLEAR run. 0.154 is the profile's soft glazing target. (2) If no member reaches it on that run, the same selection at win.area_ratio.value (0.125), the HARD floor. (3) If no member reaches that either, the Space cannot be glazed to AzDTN cl. 9.13 on the run it has: that is a HARD failure of win.area_ratio and is reported as one. It is NEVER quietly downgraded to the widest member that fits, which would ship an under-glazed room the validator then rejects for a reason the placement layer already knew.  ||  AREA IS MEASURED ON THE STRUCTURAL OPENING, per that rule's own statement, not on the glazed light.  ||  A SPACE THAT NEEDS A WINDOW BUT IS NOT BOUND BY cl. 9.13 -- every bedroom and study, since win.area_ratio.binds_room_types is living-family and kitchen-family only -- runs the SAME procedure at the SAME two numbers. That is an engine_choice, not a compliance claim: the norm is silent on bedrooms and a habitable room still owes daylight under win.habitable_has_window, which fixes THAT a window exists and not how big it is. Using one number rather than a second invented one is why this is stated here instead of a separate bedroom table.  ||  PLACEMENT is docs/spec/openings.md 6.1: one window, centred on its clear run, rounded to even millimetres per ADR 0004.",
+          "height_by_family": {
+            "living": 1500,
+            "dining": 1500,
+            "living_dining": 1500,
+            "living_dining_kitchen": 1500,
+            "bedroom_principal": 1500,
+            "bedroom_double": 1500,
+            "bedroom_single": 1500,
+            "study": 1500,
+            "kitchen": 1200,
+            "kitchen_dining": 1200,
+            "utility": 1200
+          },
+          "height_note": "UNCHANGED FROM THE THREE-ENTRY CATALOGUE, which is the point: the two heights are the ones window_living / window_bedroom (1500) and window_kitchen (1200) already shipped, so every derived sill is unmoved at 700 / 700 / 1000 and the kitchen window is still the short one that clears a 900 mm counter. Nothing in this change touches sill_rule or head_datum_mm.",
+          "type_mark": "DERIVED, height-then-width in decimetres, per dimension_derivation.opening. 1500 x 2700 is 'OR 15-27'. Fractional decimetre groups take a COMMA (1350 -> '13,5'), which the standard itself prints (OS 15-13,5, BS 22-7,5) and which a parser casting dm to int loses. ABOVE width_series_mm.published_through THERE IS NO DESIGNATION TO PRINT: the schedule's Type cell carries the plain opening dimension string instead. Emitting 'OR 15-33' would invent a GOST designation for a size GOST does not publish, which is the same failure as an invented room abbreviation. docs/spec/annotation.md 6 and 8 carry the drawn half.",
+          "supersedes_map": "The three catalogue entries window_living / window_bedroom / window_kitchen are RETAINED in the catalogue -- they are real GOST entries and three members of the series reproduce them exactly -- but they are no longer selected by room type. Nothing maps to them now."
         },
         "min_pier_mm": {
-          "v": 600,
-          "src": "engine_choice",
-          "ref": null,
-          "conf": "engine_choice",
-          "note": "Minimum wall between two structural window openings on one run. The only unfitted constant docs/spec/openings.md adds; handed to Fit the ENGINE_CHOICE acceptance thresholds to the corpora."
+          "v": 250,
+          "src": "swiss_dwellings",
+          "ref": "docs/research/acceptance-thresholds.md",
+          "conf": "fitted",
+          "note": "600 -> 250, transcribed by ADR 0024 from *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which measured it and handed it over without writing it. Minimum wall between two structural window openings on one run. NOT LOAD-BEARING FOR THE GLAZING RULE: width_series_mm refuses the second window, so no shipped path places two windows on one run and this constant gates nothing in v1. Kept because it is measured, and because the moment a balcony-door composition is modelled -- one opening beside another, sharing a lintel -- it binds."
         },
-        "placement_spec": "docs/spec/openings.md; ADR 0021. Position, hinge, swing, leaf-or-cased and window count all live there."
+        "placement_spec": "docs/spec/openings.md; ADR 0021. Position, hinge, swing, leaf-or-cased and window count all live there.",
+        "selection_conf": {
+          "v": "engine_choice",
+          "src": "gost_23166_99",
+          "ref": "cl. 4.9",
+          "conf": "engine_choice",
+          "note": "THE LABEL IS SPLIT, AND ONLY THE OUTER HALF MOVED -- ADR 0024. Each catalogue entry's DIMENSIONS keep the conf they already carry: they were read first-hand off the GOST size drawings and that reading is still true. What was never verified is the SELECTION -- that this grid is the one an AZ project may use at all. gost_6629_88 is superseded and its live successor gost_23166_99 cl. 4.9 makes the opening grid a PROJECT DECISION, so no instrument fixes it and the engine is choosing. Stating it this way is what makes width_series_mm publishable: extending a grid nobody mandates is a project decision, whereas extending a 'verified' catalogue would be falsifying a citation."
+        },
+        "width_series_mm": {
+          "v": [
+            600,
+            750,
+            900,
+            1200,
+            1350,
+            1500,
+            1800,
+            2100,
+            2400,
+            2700,
+            3000,
+            3300
+          ],
+          "src": "gost_11214_86",
+          "ref": "cl. 1.1, 1.6; Pril. 1 chert. 1; extension per gost_23166_99 cl. 4.9",
+          "conf": "engine_choice",
+          "published_through": 2100,
+          "note": "A SERIES, NOT THREE FIXED ENTRIES -- ADR 0024, discharging the BLOCKING item *A statutory floor, posted soft, in the one region v1 ships* left in rules.json owed[0]. win.area_ratio is HARD at 0.125 of net floor area, and against the three-entry catalogue it fails 21,20 % of real dwellings against 5,39 % with a series -- three quarters of the cost was a CATALOGUE ARTEFACT, not a layout fact.  ||  THE SERIES CANNOT BE 'BOUNDED BY gost_11214_86' AS TICKET 50 DESCRIBED IT, AND THIS IS THE ONE PLACE THAT TICKET'S SHAPE HAD TO CHANGE. The published nominal widths run out at 21 dm. Ticket 50's own measured reach requirement is p90 2,47 m living, 3,23 m living_dining, 1,34 m kitchen -- so living_dining needs a member 1 130 mm ABOVE anything GOST prints. Members through 2100 sit on the published series; 2400/2700/3000/3300 are an EXTENSION on the same 3 dm module, and they are the reason the whole field is engine_choice rather than derived. published_through marks the boundary so no reader has to work out which half is which.  ||  WHY NOT RAISE THE HEIGHT INSTEAD. cl. 9.13 is an AREA ratio, so a taller window needs less width, and at H 1800 living_dining would need only 2 692 mm -- still outside the published series, so it does not even solve the problem. It also is not free: sill = head_datum_mm - H (sill_rule), so H 1800 puts the sill at 400 mm and re-opens the guarding question fall_barrier_when_required REFUSES to evaluate, v1 having one Storey at elevation 0 and no site. HEIGHT IS FIXED PER ROOM FAMILY AND WIDTH IS THE ONLY FREE DIMENSION.  ||  WHY NOT A SECOND WINDOW INSTEAD. Ticket 50 wrote that splitting into two openings 'buys nothing', and that is true only when the WALL RUN is the binding constraint: total glazing width is fixed and the pier is pure loss. When the CATALOGUE TOP is binding a second window is the only way past it, so the two cases differ and 50 did not distinguish them. Refused anyway: a Baku zal is glazed as one unit, real AZ construction is ungridded PVC that cl. 4.9 anticipates exactly, and one window per Space is what keeps window_for_room's own rule -- 'a facade with two different windows in one room is a tell' -- true by construction rather than by convention.  ||  EVERY MEMBER IS EVEN, so ADR 0004 holds on the extension as well as on the published half. THE TOP MEMBER IS NOT FREE ON THE FACADE: open.fits_segment adds 2 x 100 mm of jamb return, so a 3300 window needs 3 500 mm of CLEAR exterior run, which is H8 frontage the Space has to have."
+        }
       },
       "drawing": {
         "language": {
@@ -1704,15 +1745,17 @@
           "conf": "verified",
           "note": "NONE. CLDR gives '.' as the az group separator, so a grouped 4.400 would be misread as a decimal. Never group."
         },
-        "dimdsep_is_inert_as_specified": "annotation cl. 4 sets dimdec = 0, so there is no decimal for DIMDSEP to separate. The field must be plumbed to the strings WE format -- areas, levels, schedule cells -- or it silently never fires.",
+        "dimdsep_is_inert_as_specified": "annotation.md section 11 sets dimdec = 0, so there is no decimal for DIMDSEP to separate -- verified by rendering at DIMDEC 0 and DIMDEC 2 through ezdxf and reading the text back out of the anonymous block. RESOLVED BY ADR 0024: the field is plumbed to ONE FORMATTER through which every rendered number passes -- the room tag's area, the level mark, the schedule cells and the preview's metre dimensions -- and DIMDSEP is set as well because it is correct and matters downstream, but is never the only site. annotation.md section 1.1.",
         "room_tag_fallback": {
-          "decision": "room number + room schedule reference. NOT an abbreviation.",
+          "practitioner": "room number + room schedule reference",
+          "homeowner": "leader the whole tag out into a stacked list beside the plan",
           "src": [
-            "azs_21101_2010",
+            "azs_21501_2010",
             "iso_4157_2"
           ],
+          "ref": "azs_21501_2010 cl. 2.3.2(6); iso_4157_2 cl. 4.3.1-4.3.2",
           "conf": "verified",
-          "note": "Two unrelated standards families -- SPDS and ISO 4157-2 -- independently prescribe the SAME fallback, and annotation cl. 6 already ships that schedule with a Ref column and a totality assertion. This REPLACES ladder step 2 in annotation cl. 6 and deletes the spec's only step requiring invented data."
+          "note": "SPLIT BY AUDIENCE, ADR 0024. The practitioner value is unchanged and is sourced twice over: two standards families sharing no lineage prescribe the same fallback -- put the names in a schedule and carry NUMBERS on the plan -- and annotation.md section 6 already ships that schedule with a Ref column and a totality assertion. It REPLACES ladder step 2, which required a published room-name abbreviation set that exists in NO candidate language.  ||  WHY IT COULD NOT STAY ONE VALUE: annotation.md section 1 tags the room tag `both` and every schedule `practitioner`, so on the Homeowner's preview the tag degraded to a bare number pointing at a document that presentation FILTERS OUT. Reproduced at a 1,85 m-wide bedroom in a real solved layout, experiments/homeowner-surface/ on branch prototype/homeowner-surface. The fallback and its target sat on opposite sides of the audience split.  ||  The homeowner value reuses the ladder's OWN step 4 -- a MULTILEADER into a fixed-pitch stack -- so there is one leadering mechanism and not two, and draw.no_text_overlap's termination argument carries over. Three cheaper options refused: dropping the area and clear dims (section 7's own argument forbids it, and the small rooms are the ones whose area is contested), scaling below 1,8 mm paper (under the ISO 3098 legibility floor), and promoting a room schedule to `both` (a table in front of a user who cannot read a dimension string)."
         },
         "abbreviations_published": {
           "comment": "From azs_21101_2010 Elave D, which is a real, official, free, Azerbaijani-language abbreviation table -- just not for room names. Marked tovsiye olunan (recommended), so permitted, not mandated. Only the seven values the annotation spec actually consumes are carried; the selection is ours, per findings 7.6 item 2.",
@@ -1844,7 +1887,25 @@
           "src": "ezdxf_probe_local",
           "note": "MEASURED, not assumed. The Azerbaijani alphabet is UNREPRESENTABLE in DXF R2000: no legacy code page anywhere encodes the schwa character, not even Turkish cp1254, which carries every other Azerbaijani letter. R2007+ is clean. Russian is WORSE at R2000, not better -- cp1251 cannot encode the superscript two used by m2. This CONTRADICTS docs/research/bim-cad-export-stack.md, whose line that 'R2000+ is unicode-capable' is false in general. Nothing shipped is broken: annotation cl. 11 already writes R2010. The STATED FLOOR must rise."
         },
-        "sheet_mark_conflict": "UNRESOLVED, and handed on. azs_21101_2010 Elave A marks architectural working drawings MH (Memarliq helli) or MT, where annotation cl. 9/10 numbers sheets A-101 on the US NCS convention and cl. 11 layers them A-WALL on AIA. A drawing issued in Azerbaijani to an Azerbaijani builder with a US sheet number is internally inconsistent. Layer names are a machine-facing interchange convention and have their own justification; the SHEET NUMBER, which the builder reads, is the one worth reconsidering."
+        "what_belongs_in_this_block": "THE RULE, AND IT IS ADR 0024's WHOLE ANSWER TO 'how much of the drawing is region-parameterised'. A FIELD BELONGS HERE IFF A PERSON READS IT. A sheet mark is read on paper by a builder, so it is here; a layer name is read on import by AutoCAD, Revit or ArchiCAD, so it stays in docs/spec/annotation.md section 11 as US NCS / AIA and does NOT move. The ticket that created this block warned 'do not answer this by adding fields one at a time; that is how the US-shaped default got in' -- the answer is that the block already existed and what was missing was a TEST for membership, not a container. Under that test this block is COMPLETE rather than growing: sheet marks, level abbreviation, decimal separator, thousands separator, mark scheme, room-name vocabulary, tag fallback and the area annotation are human-facing and are all here; layers, lineweights, ISO 3098 text heights and the DXF version floor are machine-facing or physical and are all in the spec. Anyone adding a field applies the test rather than following a precedent.",
+        "sheet_marks": {
+          "set_mark": "MH",
+          "set_mark_alt": "MT",
+          "sheet_numbering": "sequential within the set",
+          "src": "azs_21101_2010",
+          "ref": "Elave A",
+          "conf": "verified",
+          "note": "RESOLVED BY ADR 0024; this field replaces sheet_mark_conflict, which said UNRESOLVED and handed it on. MH = Memarliq helli, MT = Memarliq-tikinti helleri, both for architectural working drawings, where annotation.md numbered sheets A-101 on US NCS. NOT A LETTER SWAP: SPDS carries the designation on the SET and numbers sheets 1..N within it, where NCS puts a discipline letter and a series number on each SHEET. So A-101 does not become MH-101; the set is <job>-MH and the sheets are Vereq 1 and Vereq 2. Title block DRAWING carries the set designation and SHEET carries 'Vereq n / N'.  ||  THE LAYER NAMES DELIBERATELY DO NOT FOLLOW: see what_belongs_in_this_block. A drawing issued in Azerbaijani to an Azerbaijani builder with a US sheet number is internally inconsistent; a DXF opened in Revit with a transliterated layer taxonomy is unusable. The two conclusions differ because the two readers differ."
+        },
+        "area_annotation": {
+          "v": "fraction: yasayis sahesi over faydali sahe",
+          "scope": "dwelling",
+          "src": "azs_21501_2010",
+          "ref": "cl. 2.3.2",
+          "conf": "verified",
+          "audience": "practitioner",
+          "note": "VERBATIM: «sahani kasr saklinda, suratda yasayis, maxracda isa faydali saha gostarilir» -- on a RESIDENTIAL plan the area is annotated as a fraction, numerator living area, denominator useful area. Read first-hand by the region-profile research, which flagged it for *Area measurement convention*; THAT TICKET CLOSED ON umumi saha AS A SINGLE NUMBER AND THE CLAUSE WAS RECORDED NOWHERE. Landed by ADR 0024 rather than handed on a third time, because both inputs already exist.  ||  DWELLING-LEVEL, NOT ROOM-LEVEL: per room the fraction would divide a bedroom's area by itself. v1 draws one dwelling, so the plan carries one fraction. yasayis sahesi = sum of Space area over Rooms with is_habitable; faydali sahe = sum of all Space areas, which is the room schedule's own total.  ||  WARNING, AND IT IS A SCOPE ACCIDENT: faydali sahe and umumi saha are NUMERICALLY IDENTICAL IN V1 AND ARE NOT THE SAME QUANTITY. umumi saha (az_area_rules_2012 cl. 3.8) counts balcony, loggia and eyvan at a coefficient; faydali sahe does not. v1 models none of the three, so they coincide. THEY DIVERGE THE DAY A BALCONY IS MODELLED.  ||  audience is practitioner: a Homeowner shown 27,72 / 43,59 reads a fraction, not two areas, and homeowner-surface.md section 3 already gives them per-room areas in plain language."
+        }
       },
       "area_convention": {
         "comment": "DECIDED by docs/wayfinder/tickets/17-area-measurement-convention.md. ADR 0010. This block was REPORT ONLY; it now ships.",
