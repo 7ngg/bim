@@ -16,7 +16,7 @@
     "description": "Every rule is an object. The registry is the canonical statement of the Acceptance bar; the prose spec is a reading of it, not a second source.",
     "keys": {
       "id": "stable identifier, referenced by the solver, the validator and the Homeowner message catalogue",
-      "item": "which of C6's seven items this realises; 'extra' for the two the seven do not cover; 'model' for geometry-model integrity",
+      "item": "which of C6's seven items this realises; 'extra' for the two the seven do not cover; 'model' for geometry-model integrity; 'programme' for a rule whose subject is the ResolvedBrief's multiset of Room types rather than any one entity",
       "statement": "the predicate in one sentence, stated over the canonical geometry model's vocabulary",
       "severity": "hard | soft | warn | deferred",
       "site": "solver | validator | both",
@@ -37,6 +37,11 @@
       "solver": "posted as a CP-SAT constraint over centreline grid coordinates, before any Opening exists",
       "validator": "evaluated on a finished Plan in clear integer millimetres over Spaces and Openings",
       "both": "posted and evaluated. Only these rules can be asserted to agree, and the conformance test asserts exactly this subset."
+    },
+    "scope_meanings": {
+      "plan": "evaluated over a finished Plan's Spaces, Walls and Openings",
+      "brief": "evaluated over the ResolvedBrief, at parse time and again when no candidate survives",
+      "note": "A `programme` rule is brief-scope AND HAS NO PLAN-SIDE TWIN, which is deliberate. The Room set is frozen at `resolve`: brief.md §9.5 forbids auto-repair, §3 makes every Brief Room required, the warp maps a donor onto a fixed multiset, and model.no_unassigned_area forces every Room to become a Space. So a plan-side composition predicate could never fail on a Plan whose Brief passed -- and a rule that cannot fire is a lie about coverage, which is why win.habitable_touches_exterior was retired. ADR 0015 runs the other way, from a shipped Plan rule back to its parse-time pre-image; these four are the first rules with an image and no pre-image."
     }
   },
   "region_binding": {
@@ -508,6 +513,54 @@
       "src": "engine_choice",
       "conf": "derived",
       "note": "Applies to flats. Total area is fixed by the given Envelope, so EVERY candidate drifts by the same amount, and rejecting on it would reject 100 percent of them for a fault none of them caused. The ticket names a rule that rejects 99 percent as a bug in the rule; this is the 100 percent case, and it is a Brief inconsistency the layout cannot fix. QUANTITY CHANGED by ticket 17 / ADR 0010, and the change BITES HERE: the sum of Space areas is NOT fixed by the Envelope -- it falls as the layout adds partitions -- so unlike GIA this quantity does vary between candidates of one Envelope. It stays a warn, because the variation is small against the Brief-versus-Envelope gap that dominates it, but the stated reason is now only mostly true and is recorded as such rather than smoothed."
+    },
+    {
+      "id": "prog.kitchen_exists",
+      "item": "programme",
+      "statement": "The ResolvedBrief contains at least one Room whose type is kitchen, kitchen_dining or living_dining_kitchen.",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "brief",
+      "src": "az_azdtn_2_7_2",
+      "ref": "cl. 5.2",
+      "conf": "verified",
+      "note": "AzDTN cl. 5.2 <<metbex (ve ya taxca-metbex)>>, register `nezerde tutulmalidir` = mecburi. REJECTS 5.99% OF REAL DWELLINGS. `taxca-metbex` has no Brief type -- room-constraints.json areas_m2.kitchen_niche.reachable_in_v1 records that narrowing -- and a niche is expressed as a `kitchen`, so this limb is satisfied by the niche case rather than blind to it. Corpus cost measured over 46,800 real Swiss dwellings with fixtures as ground truth -- Swiss Dwellings carries TOILET, BATHTUB, SHOWER, KITCHEN and BUILT_IN_FURNITURE features, so composition is observed and not inferred from room labels. Harness and figures on ticket 42. CH provenance against an AZ rule is C14's normal case."
+    },
+    {
+      "id": "prog.washing_exists",
+      "item": "programme",
+      "statement": "The ResolvedBrief contains at least one Room whose type is bathroom, shower_room or bathroom_combined.",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "brief",
+      "src": "az_azdtn_2_7_2",
+      "ref": "cl. 5.2",
+      "conf": "verified",
+      "note": "AzDTN cl. 5.2 <<vanna otagi (ve ya dus)>>, the FIRST of the clause's two sanitary axes. REJECTS 7.33% OF REAL DWELLINGS. bathroom_combined satisfies this limb and prog.wc_exists out of one room, which is what a combined unit is. Corpus cost measured over 46,800 real Swiss dwellings with fixtures as ground truth -- Swiss Dwellings carries TOILET, BATHTUB, SHOWER, KITCHEN and BUILT_IN_FURNITURE features, so composition is observed and not inferred from room labels. Harness and figures on ticket 42. CH provenance against an AZ rule is C14's normal case."
+    },
+    {
+      "id": "prog.wc_exists",
+      "item": "programme",
+      "statement": "The ResolvedBrief contains at least one Room whose type is wc, shower_room or bathroom_combined.",
+      "severity": "hard",
+      "site": "validator",
+      "scope": "brief",
+      "src": "az_azdtn_2_7_2",
+      "ref": "cl. 5.2",
+      "conf": "verified",
+      "note": "AzDTN cl. 5.2 <<tualet (ve ya birlesdirilmis sanitar qovsagi)>>, the SECOND axis, and the rule this ticket exists for: before it, a Brief naming a living room, a bedroom, a kitchen and a bathroom passed all 36 predicates and exported a valid IFC of a flat with no toilet. THE SATISFYING SET IS THE DECISION, AND IT COST A ROOM TYPE. `bathroom` is NOT in it: its ergonomic rectangle is bath plus body zone and holds no pan, and the note that once claimed a pan and basin was arithmetically impossible -- bath 1.19 + pan 0.35 + basin 0.27 = 1.81 m2 of fixture in a 1.70 m2 room -- so it is struck. `shower_room` IS in it, because its programme composes the tray AND the pan. `bathroom_combined` is a NINETEENTH ROOM TYPE, added by this rule because without it the rule is unshippable: over the eighteen it rejected 48.32% of real dwellings, and 43.13 of those points were dwellings that HAVE a toilet -- in a room with a bath -- that the vocabulary could not say had one. With the type the cost falls to 5.19%, which is dwellings with no toilet anywhere: the defect, not the vocabulary. Corpus cost measured over 46,800 real Swiss dwellings with fixtures as ground truth -- Swiss Dwellings carries TOILET, BATHTUB, SHOWER, KITCHEN and BUILT_IN_FURNITURE features, so composition is observed and not inferred from room labels. Harness and figures on ticket 42. CH provenance against an AZ rule is C14's normal case."
+    },
+    {
+      "id": "prog.storage_exists",
+      "item": "programme",
+      "statement": "The ResolvedBrief contains at least one Room whose type is storage.",
+      "severity": "warn",
+      "site": "validator",
+      "scope": "brief",
+      "src": "az_azdtn_2_7_2",
+      "ref": "cl. 5.2",
+      "conf": "verified",
+      "note": "AzDTN cl. 5.2 <<yignaq otagi (ve ya divar teserrufat skafi)>>, mandatory in the same register as the other three -- AND IT SHIPS SOFT, WHICH IS A DEPARTURE STATED RATHER THAN SMOOTHED. Hard, it rejects 73.35% of real dwellings, against the 43.3% this map already calls large on win.habitable_has_window, and it carries no threshold to move. Two facts stop that number being evidence the room does not matter, and they point opposite ways. The norm's own alternative `divar teserrufat skafi` is a BUILT-IN WARDROBE -- furniture v1 does not model -- so the limb is partly unsatisfiable rather than merely expensive: crediting BUILT_IN_FURNITURE features still only reaches 30.19%. And a Swiss flat's storage is typically a Keller OUTSIDE the dwelling, which a dwelling-scoped corpus cannot see, so 73.35% overstates the case against the room. A warn is reachable -- the Homeowner resolves it by naming a `storage` -- where a hard rule would refuse three real dwellings in four. Corpus cost measured over 46,800 real Swiss dwellings with fixtures as ground truth -- Swiss Dwellings carries TOILET, BATHTUB, SHOWER, KITCHEN and BUILT_IN_FURNITURE features, so composition is observed and not inferred from room labels. Harness and figures on ticket 42. CH provenance against an AZ rule is C14's normal case."
     }
   ],
   "homeowner_surface": {
@@ -543,5 +596,14 @@
       "was": "Warn when a kitchen Space has no window.",
       "why": "RETIRED, on the handoff *Opening placement rules* left for whichever ticket next held docs/spec/acceptance-bar.md. Since ergonomic.rooms.kitchen.needs_window became true, win.habitable_has_window carries the kitchen HARD and this warn is unreachable. It was kept only because retiring it moves the rule count and that file was claimed elsewhere; this ticket holds it, so the count moves here. Its AzDTN cl. 9.12 sourcing is not lost -- it lives on profiles.AZ.windows.kitchen_windowless and in win.habitable_has_window's own note."
     }
-  ]
+  ],
+  "programme_rules": {
+    "source": "AzDTN 2.7-2 cl. 5.2, register `nezerde tutulmalidir` = mecburi (mandatory). Verified, first-hand, in experiments/finish-layer/out/azdtn_2_7_2.txt.",
+    "clause": "<<Menzillerde yasayis otaqlari ve yardimci saheler: metbex (ve ya taxca-metbex), holl, vanna otagi (ve ya dus) ve tualet (ve ya birlesdirilmis sanitar qovsagi), yignaq otagi (ve ya divar teserrufat skafi) nezerde tutulmalidir.>>",
+    "why_five_limbs_are_not_one_rule": "The clause has five limbs and they do not carry one severity. Written as a single predicate it would take the severity of its weakest limb -- storage, which rejects 73.35% of real dwellings -- and the WC would inherit it. One rule per limb is what lets three be hard and one warn, each with its own corpus cost on the record.",
+    "holl_is_asserted_not_tested": "The `holl` limb has NO RULE, on purpose. brief.md §3.1: if the ResolvedBrief contains no `hall`, resolve invents one, so every ResolvedBrief has exactly one and the predicate is true by construction. Writing it anyway would add a rule that can never fire, which is what retired win.habitable_touches_exterior. Recorded here so the clause's coverage stays legible: five limbs, four rules, one invariant.",
+    "c8_and_c14": "These are the FIRST hard rules on this map sourced to a region document, and neither C8 nor C14 is bent to allow it. C14 says a REGION PROFILE never changes which Plans are rejected -- these rules are not in a profile. They sit in the region-invariant rule set and are keyed on region-invariant Room TYPES. What AzDTN supplies is the FACT that a dwelling owes a kitchen, a washing room and a WC, and 94.01% / 92.67% / 94.81% of real SWISS dwellings agree with it -- which is the test that the fact is about homes and not about Azerbaijan. C8 is honoured in the other direction too: cl. 5.10 confines the combined sanitary unit to one-otaq state and municipal social stock, and this file DOES NOT ENFORCE THAT, because it is a compliance target rather than a dimensional or programmatic fact -- and 67.24% of real dwellings combine, so it does not describe practice either.",
+    "no_auto_repair": "resolve does NOT invent a missing wc, kitchen or storage, and the asymmetry with the invented hall is deliberate. brief.md §9.5 forbids auto-repair; the hall is exempt because ADR 0013 requires the engine room count fixed before any geometry exists and no Homeowner ever states circulation. A Homeowner who omits a toilet has made a statement about the home, and inventing one silently spends a room out of C13's 3-10 gate -- a Brief at ten rooms would be refused BECAUSE WE ADDED ONE. The refusal names the field instead, per brief.md §9.4 bound 8.",
+    "message_locale": "All four messages are Azerbaijani per homeowner-surface.md §2, so these rules arrive already owing the locale dimension the other 36 owe. They do not make that schema change; they enlarge it from 36 rules to 40."
+  }
 }

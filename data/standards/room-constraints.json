@@ -936,8 +936,8 @@
             },
             "accessible": null,
             "reachable_in_v1": {
-              "v": false,
-              "note": "UNREACHABLE IN V1, AND DELIBERATELY. No ergonomic key can say the WC is inside the bathroom (see mapping.rooms.bathroom.bridge), and cl. 5.10 restricts the combined unit to «dövlət və bələdiyyə sosial təyinatlı və xüsusi təyinatlı mənzil fondunun birotaqlı mənzilləri» -- one-room flats of the state and municipal social and special-purpose housing stock. So even with a way to express it, v1 must not PREFER a configuration the norm permits only in a narrow class it cannot detect. The 3,8 m² cell stays as data. NOTE the restriction was not recorded when this profile was populated; it is recorded now."
+              "v": true,
+              "note": "REACHABLE SINCE *A dwelling with no toilet passes every check*, AND THIS CELL IS WHY IT IS CHEAP: 3,8 m2 was already sourced and sitting unused. Both reasons the false marker rested on are spent -- the `no ergonomic key can say the WC is inside` claim was false (shower_room composes the pan), and cl. 5.10 is a compliance restriction C8 forbids enforcing. The ergonomic floor is 1500 x 1700 = 2,5 m2, derived, and it sits below this cell as a floor must. Real bath+WC rooms run a median 4,25 m2 (n = 35,821), p25 3,71 -- so the 3,8 m2 soft target lands just under the corpus p25 and the hard floor rejects 6,17% of them."
             }
           },
           "wc": {
@@ -1192,7 +1192,8 @@
                 "v": "vanna otağı",
                 "src": "az_azdtn_2_7_2",
                 "ref": "cl. 5.2",
-                "conf": "verified"
+                "conf": "verified",
+                "note": "cl. 5.2's «vanna otagi». The room is the BATH, not the sanitary block: the ergonomic rectangle holds no pan and no basin. A dwelling whose only sanitary room is a `bathroom` fails prog.wc_exists."
               },
               "az_area": [
                 {
@@ -1201,7 +1202,7 @@
                 }
               ],
               "az_clear_width": "bathroom",
-              "bridge": "THE areas_m2 TABLE CONFLATES TWO AXES AND THE NORM DOES NOT. cl. 5.2 keeps them apart in one sentence: «vanna otağı (və ya duş) və tualet (və ya birləşdirilmiş sanitar qovşağı)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. The ergonomic layer keys on the FIRST axis only (bathroom = has a bath, shower_room = has a shower), and carries no way to say the WC is inside. So `bathroom_combined` is not reachable from any ergonomic key, and that is deliberate -- see its reachable_in_v1 marker and cl. 5.10."
+              "bridge": "cl. 5.2 KEEPS TWO AXES APART IN ONE SENTENCE: «vanna otagi (ve ya dus) ve tualet (ve ya birlesdirilmis sanitar qovsagi)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. This bridge used to say the ergonomic layer `keys on the FIRST axis only` and `carries no way to say the WC is inside`. THAT WAS FALSE WHEN WRITTEN: shower_room's own programme is max(tray 900, pan 700 + body 300) x (tray 900 + pan 500), so it composes the pan and IS a combined unit. Corrected by *A dwelling with no toilet passes every check*, which also made the bath-side combined unit expressible as a nineteenth type, `bathroom_combined`. The layer now keys BOTH axes: bathroom = bath alone, shower_room = shower + WC, bathroom_combined = bath + WC, wc = WC alone."
             },
             "shower_room": {
               "name_az": {
@@ -1213,7 +1214,7 @@
               },
               "az_area": null,
               "az_clear_width": "bathroom",
-              "bridge": "THE areas_m2 TABLE CONFLATES TWO AXES AND THE NORM DOES NOT. cl. 5.2 keeps them apart in one sentence: «vanna otağı (və ya duş) və tualet (və ya birləşdirilmiş sanitar qovşağı)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. The ergonomic layer keys on the FIRST axis only (bathroom = has a bath, shower_room = has a shower), and carries no way to say the WC is inside. So `bathroom_combined` is not reachable from any ergonomic key, and that is deliberate -- see its reachable_in_v1 marker and cl. 5.10."
+              "bridge": "cl. 5.2 KEEPS TWO AXES APART IN ONE SENTENCE: «vanna otagi (ve ya dus) ve tualet (ve ya birlesdirilmis sanitar qovsagi)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. This bridge used to say the ergonomic layer `keys on the FIRST axis only` and `carries no way to say the WC is inside`. THAT WAS FALSE WHEN WRITTEN: shower_room's own programme is max(tray 900, pan 700 + body 300) x (tray 900 + pan 500), so it composes the pan and IS a combined unit. Corrected by *A dwelling with no toilet passes every check*, which also made the bath-side combined unit expressible as a nineteenth type, `bathroom_combined`. The layer now keys BOTH axes: bathroom = bath alone, shower_room = shower + WC, bathroom_combined = bath + WC, wc = WC alone."
             },
             "wc": {
               "name_az": {
@@ -1229,7 +1230,7 @@
                 }
               ],
               "az_clear_width": "wc",
-              "bridge": "THE areas_m2 TABLE CONFLATES TWO AXES AND THE NORM DOES NOT. cl. 5.2 keeps them apart in one sentence: «vanna otağı (və ya duş) və tualet (və ya birləşdirilmiş sanitar qovşağı)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. The ergonomic layer keys on the FIRST axis only (bathroom = has a bath, shower_room = has a shower), and carries no way to say the WC is inside. So `bathroom_combined` is not reachable from any ergonomic key, and that is deliberate -- see its reachable_in_v1 marker and cl. 5.10."
+              "bridge": "cl. 5.2 KEEPS TWO AXES APART IN ONE SENTENCE: «vanna otagi (ve ya dus) ve tualet (ve ya birlesdirilmis sanitar qovsagi)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. This bridge used to say the ergonomic layer `keys on the FIRST axis only` and `carries no way to say the WC is inside`. THAT WAS FALSE WHEN WRITTEN: shower_room's own programme is max(tray 900, pan 700 + body 300) x (tray 900 + pan 500), so it composes the pan and IS a combined unit. Corrected by *A dwelling with no toilet passes every check*, which also made the bath-side combined unit expressible as a nineteenth type, `bathroom_combined`. The layer now keys BOTH axes: bathroom = bath alone, shower_room = shower + WC, bathroom_combined = bath + WC, wc = WC alone."
             },
             "utility": {
               "name_az": {
@@ -1345,6 +1346,23 @@
                 }
               ],
               "az_clear_width": "habitable_room"
+            },
+            "bathroom_combined": {
+              "name_az": {
+                "v": "birləşdirilmiş sanitar qovşağı",
+                "src": "az_azdtn_2_7_2",
+                "ref": "cl. 5.2",
+                "conf": "verified",
+                "note": "cl. 5.2's «tualet (ve ya birlesdirilmis sanitar qovsagi)» names it verbatim. cl. 5.10 CONFINES it to one-otaq state and municipal social and special-purpose stock -- recorded, and deliberately not enforced: C8 forbids reading a regulatory document as a compliance target, and 67.24% of 44,372 real dwellings put every toilet in a room with a bath or a shower, so the restriction does not describe practice either. The engine may draw one; it makes no compliance claim about it."
+              },
+              "az_area": [
+                {
+                  "when_otaq_count": null,
+                  "key": "bathroom_combined"
+                }
+              ],
+              "az_clear_width": "bathroom",
+              "bridge": "cl. 5.2 KEEPS TWO AXES APART IN ONE SENTENCE: «vanna otagi (ve ya dus) ve tualet (ve ya birlesdirilmis sanitar qovsagi)» -- bath-or-shower is one choice, wc-or-combined-unit is a second, independent one. This bridge used to say the ergonomic layer `keys on the FIRST axis only` and `carries no way to say the WC is inside`. THAT WAS FALSE WHEN WRITTEN: shower_room's own programme is max(tray 900, pan 700 + body 300) x (tray 900 + pan 500), so it composes the pan and IS a combined unit. Corrected by *A dwelling with no toilet passes every check*, which also made the bath-side combined unit expressible as a nineteenth type, `bathroom_combined`. The layer now keys BOTH axes: bathroom = bath alone, shower_room = shower + WC, bathroom_combined = bath + WC, wc = WC alone."
             }
           },
           "conformance": {
@@ -2076,7 +2094,7 @@
         "is_habitable": false,
         "is_wet": true,
         "is_private": false,
-        "needs_window": true,
+        "needs_window": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2202,14 +2220,14 @@
           "src": "derived",
           "ref": "ergonomic.fixtures_mm + ergonomic.body_zone",
           "conf": "derived",
-          "note": "bath 700 deep + body 300 alongside; bath 1700 long. Pan and basin occupy the same strip as the body zone, which is shared"
+          "note": "bath 700 deep + body 300 alongside; bath 1700 long. BATH ONLY -- this rectangle holds no pan and no basin, and the note that once said it did was arithmetically impossible: bath 1.19 + pan 0.35 + basin 0.27 = 1.81 m2 of fixture in a 1.70 m2 room. The WC lives in a `wc`, a `shower_room` or a `bathroom_combined`, which is what AzDTN cl. 5.2 assumes and what prog.wc_exists tests. Corrected by *A dwelling with no toilet passes every check*"
         },
         "min_clear_long": {
           "v": 1700,
           "src": "derived",
           "ref": "ergonomic.fixtures_mm + ergonomic.body_zone",
           "conf": "derived",
-          "note": "bath 700 deep + body 300 alongside; bath 1700 long. Pan and basin occupy the same strip as the body zone, which is shared"
+          "note": "bath 700 deep + body 300 alongside; bath 1700 long. BATH ONLY -- this rectangle holds no pan and no basin, and the note that once said it did was arithmetically impossible: bath 1.19 + pan 0.35 + basin 0.27 = 1.81 m2 of fixture in a 1.70 m2 room. The WC lives in a `wc`, a `shower_room` or a `bathroom_combined`, which is what AzDTN cl. 5.2 assumes and what prog.wc_exists tests. Corrected by *A dwelling with no toilet passes every check*"
         },
         "min_area": {
           "v": 1.7,
@@ -2225,20 +2243,53 @@
         "counts_as_otaq": false,
         "brief_nameable": true
       },
+      "bathroom_combined": {
+        "min_clear_short": {
+          "v": 1500,
+          "src": "derived",
+          "ref": "ergonomic.fixtures_mm + ergonomic.body_zone",
+          "conf": "derived",
+          "note": "birlesdirilmis sanitar qovsagi -- bath, pan and basin in one room. Bath 1700 long x 700 deep along one wall; pan 700 + basin 600 = 1300 <= 1700 along the opposite wall, the deeper of them 500; one shared body zone 300 in the aisle between, which is what a real 1500 mm bathroom does. 700 + 300 + 500 = 1500 across"
+        },
+        "min_clear_long": {
+          "v": 1700,
+          "src": "derived",
+          "ref": "ergonomic.fixtures_mm + ergonomic.body_zone",
+          "conf": "derived",
+          "note": "birlesdirilmis sanitar qovsagi -- bath, pan and basin in one room. Bath 1700 long x 700 deep along one wall; pan 700 + basin 600 = 1300 <= 1700 along the opposite wall, the deeper of them 500; one shared body zone 300 in the aisle between, which is what a real 1500 mm bathroom does. 700 + 300 + 500 = 1500 across"
+        },
+        "min_area": {
+          "v": 2.5,
+          "src": "derived",
+          "ref": "short x long, rounded down to 0.1 m2",
+          "conf": "derived",
+          "note": "1500 x 1700 mm"
+        },
+        "is_habitable": false,
+        "is_wet": true,
+        "is_private": true,
+        "needs_window": false,
+        "counts_as_otaq": false,
+        "brief_nameable": true,
+        "reachable_in_v1": {
+          "v": true,
+          "note": "REACHABLE, AND THE MARKER IS A REVERSAL. profiles.AZ.rooms.areas_m2.bathroom_combined carried reachable_in_v1: false on two reasons and both are spent. The first -- `no ergonomic key can say the WC is inside` -- was false when written: shower_room's own programme composes tray AND pan. The second was AzDTN cl. 5.10, which confines the combined unit to one-otaq state and municipal social stock; C8 forbids reading a regulatory document as a compliance target, and the corpus refutes it as a description of practice -- 67.24% of 44,372 real dwellings put every toilet in a room with a bath or a shower. Without this type a hard prog.wc_exists rejects 48.32% of real dwellings, 43.13 points of it dwellings that HAVE a toilet we cannot say they have."
+        }
+      },
       "shower_room": {
         "min_clear_short": {
           "v": 1000,
           "src": "derived",
           "ref": "ergonomic.fixtures_mm + ergonomic.body_zone",
           "conf": "derived",
-          "note": "tray 900 beside pan 500 = 1400 along the wall; across, the deeper of the 900 tray and pan 700 + body 300"
+          "note": "tray 900 beside pan 500 = 1400 along the wall; across, the deeper of the 900 tray and pan 700 + body 300. THIS PROGRAMME COMPOSES THE PAN, so a shower_room IS a combined sanitary unit and prog.wc_exists is satisfied by one"
         },
         "min_clear_long": {
           "v": 1400,
           "src": "derived",
           "ref": "ergonomic.fixtures_mm + ergonomic.body_zone",
           "conf": "derived",
-          "note": "tray 900 beside pan 500 = 1400 along the wall; across, the deeper of the 900 tray and pan 700 + body 300"
+          "note": "tray 900 beside pan 500 = 1400 along the wall; across, the deeper of the 900 tray and pan 700 + body 300. THIS PROGRAMME COMPOSES THE PAN, so a shower_room IS a combined sanitary unit and prog.wc_exists is satisfied by one"
         },
         "min_area": {
           "v": 1.4,

@@ -3,12 +3,18 @@ id: 42
 title: A dwelling with no toilet passes every check
 parent: map
 labels: [wayfinder:grilling]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
   - data/acceptance/rules.json
   - docs/spec/acceptance-bar.md
+declared_on_resolution:
+  - docs/spec/brief.md (§9.4 bound 8, §9.1, §3, §12 — no claimant)
+  - CONTEXT.md (Programme rule, Combined sanitary unit, Room type, Auxiliary space — no claimant)
+  - docs/adr/0022-a-dwelling-owes-rooms-and-the-brief-is-where-that-is-checked.md (new)
+  - data/standards/room-constraints.json (nineteenth type + three corrections; listed as 32's, unclaimed at the time)
+  - experiments/region-profile/build_ergonomic_layer.py (nineteenth programme; preserve-merge fix)
 ---
 
 # A dwelling with no toilet passes every check
@@ -138,3 +144,183 @@ choosing one.
 ⚠️ **Do not reach for `uncovered` in a fit record as the quantity to gate on.**
 It sums the correct case and the incorrect one together, which is exactly why
 nobody had noticed this. `void_census.py` splits them.
+
+---
+
+## Resolution (2026-08-26)
+
+**Four `programme` rules, one per limb of AzDTN cl. 5.2, binding the Brief and
+nothing else. Three hard, one warn. The WC limb cost a nineteenth Room type, and
+that was the decision.** ADR
+[0022](../../adr/0022-a-dwelling-owes-rooms-and-the-brief-is-where-that-is-checked.md);
+`acceptance-bar.md` §13; `brief.md` §9.4 bound 8.
+
+| limb | rule | severity | rejects real dwellings |
+|---|---|---|---:|
+| `mətbəx (və ya taxça-mətbəx)` | `prog.kitchen_exists` | **hard** | 5.99 % |
+| `holl` | — asserted by construction | — | — |
+| `vanna otağı (və ya duş)` | `prog.washing_exists` | **hard** | 7.33 % |
+| `tualet (və ya birləşdirilmiş sanitar qovşağı)` | `prog.wc_exists` | **hard** | 5.19 % |
+| `yığnaq otağı (və ya divar təsərrüfat şkafı)` | `prog.storage_exists` | **warn** | 73.35 % |
+
+The bar is **40 rules**, 41 once `dim.leg_join` lands. The `both` conformance
+subset **stays at 14** and cannot grow here.
+
+### The ticket's five questions
+
+**Brief, Plan or both — Brief only, and it is forced rather than chosen.** The
+Room set is frozen when `resolve` returns: §9.5 forbids auto-repair, §3 makes
+every Brief Room required, the warp maps a donor onto a fixed multiset, and
+`model.no_unassigned_area` turns every Room into a Space. A plan-side composition
+predicate could never fail on a Plan whose Brief passed, and §7.1 already retired
+a rule for exactly that. The ticket asked whether this wants "a third site the
+registry has no word for" — **it does not**. `scope: brief` already exists and
+three rules ship on it. These are the first rules with an **image and no
+pre-image**, which inverts ADR 0015 rather than extending it.
+
+**Hard or soft, per limb — and it does differ per limb, which is why it is four
+rules and not one.** A single predicate over the clause takes the severity of its
+weakest limb, and the WC would have inherited storage's 73.35 %.
+
+**Whether `resolve` should add the missing room — refused.** §9.5, and the hall's
+exemption does not transfer: ADR 0013 needs the room count fixed before geometry
+exists and no Homeowner states circulation. Inventing a WC also spends a room out
+of C13's 3–10 gate, so a Brief at ten rooms would be refused *because we added
+one*.
+
+**The disjunctions — ⚠️ this bullet's premise was half false, and the false half
+was the load-bearing one.** The ticket held that the combined unit is
+*inexpressible*, so a hard `wc` rule would reject a layout the norm permits. In
+fact **`shower_room` has composed a WC pan since the ergonomic layer was
+authored** — `max(tray 900, pan 700 + 300) × (tray 900 + pan 500)` — so a combined
+unit was already reachable, while `room-constraints.json`'s AZ bridge asserted the
+layer *"carries no way to say the WC is inside."* The `taxça-mətbəx` half of the
+bullet **is** true and is unchanged: no Brief type, expressed as a `kitchen`.
+
+**What C8 permits — it permits the hard rules and forbids the restriction.** C14
+binds *region profiles*; these are not in a profile, they sit in the
+region-invariant set and key on region-invariant Room types. AzDTN supplies the
+fact that a home owes a kitchen, a washing room and a WC, and 94.01 % / 92.67 % /
+94.81 % of real Swiss dwellings corroborate it — which is the test that the fact
+is about homes rather than about Azerbaijan. C8 then cuts the other way on
+**cl. 5.10**; see below.
+
+### What it cost: a nineteenth Room type
+
+Read against the eighteen types that existed, `prog.wc_exists` **rejects 48.32 %
+of real dwellings** — and only **5.19** of those points are dwellings with no
+toilet. The other **43.13** are dwellings that *have* a toilet, in a room that
+also has a bath, that the vocabulary could not say had one. Same shape as the
+43.3 % this map already calls large on `win.habitable_has_window`, and no
+threshold to move — but here the defect is **ours**.
+
+Three findings closed it, none of them a preference:
+
+- ⚠️ **`bathroom` does not contain a WC and the file said it did.**
+  `build_ergonomic_layer.py:77-80` computes `bath[0] + u × bath[1]` =
+  1000 × 1700 = 1.70 m², then asserted *"Pan and basin occupy the same strip as
+  the body zone, which is shared."* Fixtures alone: bath 1.19 + pan 0.35 + basin
+  0.27 = **1.81 m²**. Not tight — impossible. The sentence was a gloss on a sum
+  that never ran. **Struck.**
+- ⚠️ **`shower_room` is a combined sanitary unit** and two documents denied it.
+  Said out loud in the programme now.
+- ✅ **`bathroom_combined`, 1500 × 1700 = 2.5 m²** — bath 1700 × 700 along one
+  wall, pan 700 + basin 600 = 1300 ≤ 1700 opposite at 500 deep, one shared 300
+  body aisle, which is what a real 1500 mm bathroom does. It rejects **6.17 %** of
+  35,821 real bath+WC rooms, in family with the layer's ~5 % calibration target,
+  and the corpus's own short-side **p5 of 1477 mm** independently reproduces the
+  derived 1500. Its AZ soft target was already in the data, sourced and unused, at
+  **3,8 m²**; real such rooms run a median 4,25 m², p25 3,71.
+
+With the type the WC rule costs 5.19 %.
+
+### cl. 5.10 is recorded and deliberately not enforced
+
+`areas_m2.bathroom_combined.reachable_in_v1: false` rested on two reasons and both
+are spent. The first — *no ergonomic key can say the WC is inside* — was false
+when written. The second is **cl. 5.10**, which confines the combined unit to
+«dövlət və bələdiyyə sosial təyinatlı və xüsusi təyinatlı mənzil fondunun
+birotaqlı mənzilləri».
+
+**That is a compliance target and C8 forbids reading one.** cl. 5.2 states what
+rooms a home has — a fact about homes. cl. 5.10 states which flats may combine — a
+permission. And the corpus refutes it as a description of practice: of 44,372 real
+dwellings with a placed toilet, **67.24 % put every toilet in a room with a bath
+or a shower**; only 32.76 % have a separate WC room, at a median 1.84 m² which
+independently reproduces `corpus_label_split`'s 1.85 m². Declining to draw the
+majority configuration to honour a permission we make no claim to satisfy would
+have been the error. The marker is **reversed**, with the restriction recorded
+beside the type.
+
+### The second half — the premise was false
+
+⚠️ **The unassigned-floor handoff from *Look at the converted corpus* rests on a
+claim that is not true, and the map's Acceptance-bar row repeats it.**
+`model.no_unassigned_area` is **hard**, `site: both`, `scope: plan`: *"The union
+of all Space polygons and all Wall bodies equals the Envelope interior exactly."*
+Its own note says why: *"Posted soft in the solver for search speed and checked
+hard here… the place where a 29× faster search is prevented from shipping a
+hole."* So exact tiling is soft **in the solver** and hard **in the validator**,
+and an OPTIMAL candidate carrying a 1 m² unnamed hole **cannot be shown**. No rule
+is added and none is owed.
+
+What survives is smaller and is not the bar's: the 10.0 % figure measured the
+**conversion**, so a donor with an enclosed void enters the retrieval index, and
+the warp has no term for it — the solve must then absorb it into a bordering Room
+as area the Brief did not ask for. Raised as
+[A donor's enclosed void becomes area nobody asked for](53-a-donors-enclosed-void-becomes-area-nobody-asked-for.md).
+
+### A destructive generator, found by tripping it
+
+⚠️ **`build_ergonomic_layer.py` deleted three later tickets' work on every
+re-run, in silence.** It authors the arithmetic and the four definitional flags
+and nothing else, but ticket 31 added `counts_as_otaq`, `brief_nameable` and
+`counts_as_otaq_sourcing` by hand, *Brief schema and parsing contract* added
+`reachable_in_v1`, and *What a room's area is allowed to be* added
+`corpus_medians` — none reproducible from the generator. Re-running dropped all
+of it without a word, which is the exact drift the module docstring claims
+generation prevents. **This ticket tripped it**, restored from git, and fixed it:
+the generator now carries forward every key it does not author, and **fails loudly**
+if a room type has no `counts_as_otaq`/`brief_nameable` to carry or supply. Any
+ticket that has run this file since ticket 31 landed should check its own work
+survived.
+
+### Written
+
+| file | what |
+|---|---|
+| `data/acceptance/rules.json` | four `prog.*` rules, `item: programme`, `scope_meanings`, a `programme_rules` block. 36 → **40** |
+| `docs/spec/acceptance-bar.md` | new **§13** (six subsections); counts at four sites; three §12 handoffs |
+| `docs/spec/brief.md` | §9.4 **bound 8**; §9.4 preamble seven → eight; §9.1 fourth hard error; §3 eighteen → **nineteen** types; §12 discharged one row, added three |
+| `docs/adr/0022-…` | new |
+| `CONTEXT.md` | **Programme rule** and **Combined sanitary unit** are new terms; **Room type** moves to nineteen with an `_Avoid_` on growing the set for a preference; **Auxiliary space** gains what enforces it |
+| `data/standards/room-constraints.json` | `bathroom_combined` ergonomic row + AZ mapping row; `bathroom`'s false note struck; `shower_room`'s programme states the pan; three `bridge` notes corrected; `areas_m2.bathroom_combined.reachable_in_v1` **reversed** |
+| `experiments/region-profile/build_ergonomic_layer.py` | the nineteenth programme and its flags; **preserve-merge** and a loud failure |
+
+**Declared on resolution, not in `writes:`** — `brief.md`, `CONTEXT.md`,
+`docs/adr/`, `room-constraints.json` and `build_ergonomic_layer.py`. The first
+three had no claimant. `room-constraints.json` is listed as **32's** and 32 was
+unclaimed at the time; the edits are the nineteenth type and three factual
+corrections, and they touch none of the annotation material 32 will write. Handing
+the type to another file's holder was refused for the reason *The partition
+footprint has a mean and no spread* records: a second handoff recreates the defect.
+
+**Gates:** `gate_check.py` 229 → **238** (the mapping-totality test picked up the
+new row unprompted), `ergonomic_check.py` **230**, `env_check.py` **28**,
+`room-count-envelope/check.py` **16**. All pass.
+
+### Left open
+
+- **Bound 8 fights bounds 1, 3 and 6.** Adding the `wc` a refusal asks for raises
+  Σ minima, adds an engine room, and can push a Brief out of 3–10 — so a nine-room
+  Brief with no toilet is told to add a room *and* told it may not. The findings
+  set surfaces both; nothing orders them. `homeowner-surface.md`'s.
+- **Two limbs are partly unsatisfiable**: `taxça-mətbəx` has no Brief type,
+  `divar təsərrüfat şkafı` is furniture. `brief.md` §3's.
+- **`prog.storage_exists`'s 73.35 % is not clean evidence** — a Swiss flat's store
+  is typically a *Keller* outside the dwelling, invisible to a dwelling-scoped
+  corpus. It overstates the case against the room, which argues for `warn` from
+  the opposite direction to the rejection rate.
+- **`corpus_label_split` needs a third class** now `bathroom_combined` exists. The
+  fixture ground truth is already in the corpus.
+- **Four more messages owing the locale dimension** — 36 → 40, one schema change.
