@@ -25,9 +25,13 @@ gitignored; regenerate by running the scripts.
 | `coverage_thinning.py [k1] [k2]` | the pool thinning factor, for ticket 23 to redo `proposer.md` §2.2 with | seconds |
 | `render_sheet.py [--pick=] [--n=]` | **ticket 27**: draw a converted dwelling beside the real one — the eyeball check no metric stands in for | ~4 s/dwelling |
 | `void_census.py [n]` | ticket 27: how much floor no Room claims, and how many rooms the one dwelling frame shears | ~2 s/dwelling |
+| `envelope_family.py` | **ticket 47**: what the residual Envelope loss *is* — stepped or off-axis — and what a donor gate costs on the proxy against the thing itself | seconds |
 
 Order: `measure_*` before `analyse_swiss.py`, `fit_rects.py` before
-`analyse_fit.py`.
+`analyse_fit.py`. `envelope_family.py` reads `out/swiss_fit_k2.json` and the
+`out/swiss_dw.pkl` cache, so it costs seconds and never re-fits — **if you add a
+statistic about the Envelope's shape family or about donor fidelity, add it
+there rather than re-deriving it from the corpus.**
 
 ## Running the two arms (ticket 40)
 

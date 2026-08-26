@@ -17,7 +17,10 @@ ring of edges**, each carrying a boundary condition and an entrance flag.
 - ADR 0001's solve domain becomes `dilate(Envelope, t_int/2)`. `t_ext` does not
   appear.
 - The ring is rectilinear: a bounding box minus at most two notch rectangles,
-  which spans rect, L, U and T.
+  which spans rect, L, U and T. ✅ The cap is **evidenced** — two notches is the
+  knee of its own ladder, a higher cap converts *worse*, and widening the family
+  is refused at a measured ceiling of 4.17 % of the corpus. See the second
+  amendment at the foot of this ADR.
 - Each edge carries `condition` in `{exterior, party}` and a boolean
   `entrance_side`.
 - `exterior` may host windows. `party` is blind and shared. `entrance_side` marks
@@ -82,7 +85,12 @@ ring of edges**, each carrying a boundary condition and an entrance flag.
    `exterior` for houses, `party` for flats — and always surfaced as an Assumption,
    because a notch is a garden in one case and a neighbour in the other.
 7. **The entrance edge is fixed before the solve.** It is the source node of the
-   circulation flow, so it cannot be a post-solve choice.
+   circulation flow, so it cannot be a post-solve choice. ⚠️ **Read this as *per
+   candidate*, before that candidate's solve** — ADR 0020 gives each candidate
+   its own notch share and so its own ring edge *count*, and two candidates for
+   one Brief do not share a ring. The edge is identified by **side**, never by
+   ring index, which is what makes that safe. See the second amendment at the
+   foot of this ADR.
 8. **The area rule in the Acceptance bar re-keys** from dwelling type to per-field
    provenance, which corrects a case it got wrong: a stated house Envelope is not
    subject to a hard area-drift reject.
@@ -176,3 +184,106 @@ and claim its daylight. Corrected in
 `experiments/envelope-exposure/true_fraction.py`, which is what the new presets
 were fitted against; the fix in `geometry.py` is handed on with the two limits
 above, because it changes what the solver is given.
+
+## Amendment — the notch cap is evidenced, and the shape family stands (2026-08-26)
+
+*The two-notch cap is now evidenced, and more notches is not the fix* held this
+file to close the standing charge that the ≤ 2-notch cap was **"unevidenced in
+both directions"** — the map's *Non-orthogonal geometry* fog patch said so, and
+this ADR gave no evidence either way, which is what made the charge stick. It is
+retracted. The cap is **evidenced and vindicated**, the shape family is
+**deliberately not widened**, and the population the cap appeared to fail was
+never the cap's to serve.
+
+### The evidence
+
+Three measurements, none of them new to this amendment, all now cited here so a
+reader stops re-deriving them. `docs/research/rectangularisation.md` §6.4 and
+§13, ADR [0017](0017-three-of-the-conversions-fidelity-headlines-are-constraints-restated.md)
+failure mode 4, `experiments/rectangularise/`.
+
+1. **Two notches is the knee of its own ladder.** Median envelope loss over
+   2,317 converted dwellings at k = 0…4 is 0.1610 / 0.0503 / **0.0178** / 0.0114
+   / 0.0096. A third notch buys 0.6 percentage points and a fourth 0.2. Two
+   notches describe **61.8 %** of real dwellings exactly; a plain rectangle
+   misdescribes 16.5 % of envelope area at the median, so the L/U/T family is
+   doing real work and is not decoration.
+2. **A higher cap makes the conversion worse.** The k ≤ 2 ablation's *"up to 4
+   notches"* arm converts **88.0 %** against the shipped **93.2 %**, 25
+   INFEASIBLE against 13. A more articulated Envelope leaves the rectangles less
+   slack to satisfy the hard adjacency and area constraints inside it. Fidelity
+   of outline and feasibility of tiling trade against each other, and the cap
+   sits on the right side of that trade.
+3. **The dwellings the cap appears to fail are not failed by the budget.**
+   283 dwellings (10.92 %) lose > 0.10 of envelope area at k = 2. Sixteen of them
+   are **inside the cap already** and still lose > 0.10 — at `notches_all` = 1
+   the loss is identical at every k. A notch is one **rectangle**; a complement
+   component need not be one. Where it is L-shaped, stepped or chamfered, the
+   budget never bound.
+
+### The shape family is not widened, and this is the number that closes it
+
+The evidence questions the shape *family*, not the count, so the family was put
+on trial. §13.2–13.3 price the two ways to widen it:
+
+- **A general rectilinear ring with a vertex budget** rescues the rectilinear
+  half of the tail: **108 dwellings, 4.17 % of the corpus**, of which **46.3 %
+  are still above 0.10 loss even at four notches**. That 4.17 % is the entire
+  ceiling of the widening.
+- **Chamfered or angled edges** would be needed for the other half — **8.76 %**
+  of the corpus is more than 10 % off-axis in its own frame and holds **49.5 %**
+  of the tail — and they break axis alignment for the 250 mm grid,
+  `AddNoOverlap2D` and every dimension chain.
+
+**Refused, on measurement rather than on cost.** The rectilinear widening buys at
+most 4.17 % of the corpus, and it spends the property that makes this ring cheap
+everywhere else: the edges are **typed**. A notch is *"a garden in one case and a
+neighbour in the other"* — a nameable thing with a boundary condition, an
+Assumption surfaced to the Homeowner (consequence 6), a drawable and
+dimensionable edge, and an IFC entity (ADR 0011). An arbitrary rectilinear vertex
+has no such story, and inventing one costs `annotation.md`, `homeowner-surface.md`
+and `ifc-export.md` for a twenty-fifth of the corpus.
+
+**The cap stays at two. `rect`, `L`, `U`, `T` stays the family.**
+
+### What the tail actually is, and where it goes
+
+The tail is a **donor-quality** fact, not an Envelope fact — and that is the
+reframing this ticket contributes. There is no ground truth on the generation
+side to be unfaithful to: `brief.md` §5.1 takes `shape` out of the `ResolvedBrief`
+entirely, and ADR [0020](0020-one-brief-one-envelope-area-many-envelope-boxes.md)
+derives each candidate's box from its **donor's** recorded notch share. What v1
+draws is a legitimate real outline whatever the donor was. What a bad donor
+carries is a distorted **arrangement**, and retrieval's whole claim is that the
+arrangement is a real home's.
+
+§13.4 measures that envelope loss is a poor instrument for finding those donors:
+**42.2 %** of the loss tail converts faithfully anyway, **12.70 %** of everything
+outside the tail does not, and a worst-room IoU cut removes **10.09 %** of the
+*most faithful* envelope band — dwellings whose outline the Envelope describes
+exactly and whose rooms the fit still got wrong. The quantity to act on is
+**worst-room IoU**, which is in the same fit record, and the population it names
+(154 dwellings, **6.65 %** of the index) is two thirds invisible to either proxy.
+
+That is `proposer.md` §2.2's to implement and this ADR does not write it —
+see the ticket's resolution for the handoff. This ADR records only that **the
+Envelope's shape family is not the lever**, so nobody comes back to the cap for it.
+
+### §7 re-read: one ring per candidate
+
+Consequence 7 says *"the entrance edge is fixed before the solve."* Written
+before ADR 0020, it reads as **one ring for the job**, and that is now wrong: a
+per-candidate notch share changes the ring's **edge count**, so two candidates
+for one Brief do not share a ring. Held over twice by *A dwelling that states a
+shape gets a box nobody measured* and *The exposure presets were fitted to a
+measurement of one room*, both of which declined to write blind into a claimed
+file.
+
+**Consequence 7 must be read as: the entrance edge is fixed per candidate,
+before that candidate's solve.** What makes this safe already exists — the
+entrance edge is identified **by side**, never by ring index, so a changed edge
+count cannot move it — but the ADR never said so, and a reader who assumed index
+identity would have written a real bug. Consequence 7 is amended to say it.
+
+Nothing else in consequence 7 moves: the entrance edge is still the source node
+of the circulation flow and still cannot be a post-solve choice.

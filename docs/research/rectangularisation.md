@@ -1149,3 +1149,130 @@ have a room off frame by 10–20°, scoring cell agreement 0.705 with worst-room
 dwelling that is built on two angles*.
 
 Harness: `render_sheet.py`, `void_census.py`. Sheets at `out/sheets/SHEET.html`.
+
+---
+
+## 13. The Envelope loss tail is two populations, and neither is a notch budget
+
+Ticket 47 held ADR 0003's two-notch cap. §6.4 and ADR 0017 failure mode 4 had
+already vindicated the *number* — two notches is the knee of its own ladder and
+raising the cap makes the conversion worse — and had characterised what is left
+as outlines that *"are not bounding-box-minus-notches at any count"*. That
+sentence was a characterisation, not a measurement. `envelope_family.py` measures
+it, off the cached fit in seconds, and the characterisation is right for the
+wrong reason.
+
+### 13.1 The residual is a non-rectangular complement, not an un-budgeted notch
+
+283 of 2,592 fitted dwellings (**10.92 %**) lose more than 0.10 of envelope area
+at k = 2. Split them by how many notches their complement would need at all —
+`notches_all`, components ≥ 0.25 m², the same count §6.4 laddered:
+
+| tail class | n | median loss k = 2 | k = 3 | k = 4 | still > 0.05 at k = 4 |
+|---|---:|---:|---:|---:|---:|
+| already within the cap (`notches_all` ≤ 2) | 16 | 0.1303 | 0.1193 | 0.1193 | **100 %** |
+| would need 3–4 | 180 | 0.1313 | 0.1018 | 0.1014 | 86.7 % |
+| would need 5+ | 87 | 0.1562 | 0.1192 | 0.1106 | 91.9 % |
+
+**Sixteen dwellings are inside ADR 0003's cap already and still lose more than a
+tenth of their envelope**, and at `notches_all` = 1 the loss is *identical at
+every k* — 0.1025 at k = 1, 2, 3 and 4. A notch is one **rectangle**; a
+complement *component* need not be one. Where the component is L-shaped, stepped
+or chamfered, the budget is not what binds, and no value of k ever was.
+
+This is the mechanism §6.4's flat curve only showed the shape of.
+
+### 13.2 Half the tail is not rectilinear at all
+
+Share of the dwelling outline's length lying more than 2° off both axes, measured
+in the dwelling's own frame — the same frame the fit uses, so this is off-axis
+*after* `dwelling_frame` has done its best. Segments under 0.10 m are ignored as
+digitisation.
+
+| | n | median off-axis | share > 10 % off-axis |
+|---|---:|---:|---:|
+| tail (loss > 0.10) | 283 | **0.0939** | **49.5 %** |
+| rest | 2,309 | 0.0000 | 3.8 % |
+
+The corpus splits three ways, and envelope loss tracks the split almost perfectly:
+
+| outline class | n | share of corpus | median loss k = 2 | > 0.10 at k = 2 | share of the tail it holds |
+|---|---:|---:|---:|---:|---:|
+| rectilinear (≤ 2 % off-axis) | 2,102 | 81.10 % | 0.0131 | 5.1 % | 38.2 % |
+| mixed (2–10 %) | 263 | 10.15 % | 0.0376 | 13.3 % | 12.4 % |
+| off-axis (> 10 %) | 227 | 8.76 % | 0.1223 | **61.7 %** | **49.5 %** |
+
+**8.76 % of the corpus holds half the tail.** These are the chamfered, angled and
+curved outlines, and they are the same failure §9.1 found one level down at room
+scale — an angled wall becomes a staircase at 250 mm and no k fixes it.
+
+### 13.3 What a wider shape family could buy, priced
+
+Ticket 47's option 3 splits in two, and only one half is even coherent:
+
+- **A general rectilinear ring with a vertex budget** — not more notches, but
+  arbitrary rectilinear vertices — would express the *rectilinear* tail. That
+  population is **108 dwellings, 4.17 % of the corpus**: rectilinear outline,
+  loss > 0.10 at k = 2, and **46.3 % of them still above 0.10 at k = 4**. Their
+  `notches_all` is 3 or 4 in 71 % of cases, so they are ordinary L/T/U dwellings
+  whose complement happens not to decompose into two rectangles.
+- **Chamfered or angled edges** would be needed for the other half, and break
+  axis alignment for the 250 mm grid, `AddNoOverlap2D` and every dimension chain.
+
+**4.17 % is the whole ceiling of the rectilinear widening**, and it is bought at
+the cost of ADR 0003's typed edges. The decision is ADR 0003's amendment: refused.
+
+### 13.4 Envelope loss is a predictor, and it is a poor gate
+
+ADR 0017 calls envelope loss the best predictor of conversion quality measured.
+It is — and the predicted quantity, **worst-room IoU**, is in the same fit
+record, so there is no reason to act on the predictor. Over the 2,317 **converted**
+dwellings, which is what the retrieval index actually holds:
+
+| gate | keeps | median worst-room IoU kept | dropped |
+|---|---:|---:|---:|
+| envelope loss ≤ 0.20 | 98.06 % | 0.763 | 0.293 |
+| envelope loss ≤ 0.10 | 90.07 % | 0.779 | 0.452 |
+| envelope loss ≤ 0.06 | 77.43 % | 0.807 | 0.594 |
+| worst-room IoU ≥ 0.30 | 93.35 % | — | — |
+| worst-room IoU ≥ 0.50 | 82.82 % | — | — |
+
+**The proxy errs in both directions.** 42.2 % of the envelope-loss tail has a
+worst-room IoU at or above 0.50 — faithful conversions of unfaithful outlines —
+and 12.70 % of everything *outside* the tail is below 0.50. An IoU < 0.50 cut
+removes **10.09 %** of the most faithful envelope band (loss < 0.01): dwellings
+whose outline the Envelope describes exactly and whose rooms the fit still got
+wrong. No envelope-loss threshold can see them.
+
+The population that matters is its own:
+
+| | n | share of index |
+|---|---:|---:|
+| worst-room IoU < 0.30 | 154 | **6.65 %** |
+| — of those, envelope loss > 0.10 | 55 | 35.7 % |
+| — of those, outline > 10 % off-axis | 51 | 33.1 % |
+
+Two thirds of it is invisible to either proxy.
+
+And the better gate subsumes the off-axis finding rather than competing with it:
+off-axis dwellings carry a median worst-room IoU of **0.522** against the
+rectilinear 0.777, with 26.0 % below 0.30 against 4.5 %. §12.3's sheared
+dwellings — cell agreement 0.705, worst-room IoU 0.167, returning OPTIMAL — are
+in that 26.0 %.
+
+### 13.5 What this section does not establish
+
+- **Every number is Swiss.** ResPlan is fitted (`resplan_fit_k2.json`) but was
+  not measured here; §6.5 already shows it converts markedly worse, so the tail
+  shares are a lower bound for the ResPlan arm rather than a transfer.
+- **Off-axis is measured on the *outline*, not per room.** §12.3's 1.5 % counts a
+  room off frame by 10–20°; the 8.76 % here counts perimeter length off both
+  axes at the dwelling scale. They are different populations and the larger one
+  is handed to *The dwelling that is built on two angles*.
+- **The 0.30 threshold is fitted to a published cost, not derived.** 6.65 % of
+  the index is what it removes; the corpus's own worst-room IoU p10 is 0.369 and
+  p5 is 0.241. It is `conf: fitted` in ADR 0023's vocabulary, not `verified`.
+- **Nothing here re-prices the ablation.** The *"up to 4 notches"* arm's 88.0 %
+  against 93.2 % (§6.4, `out/ablate_k2.log`) is quoted, not re-run.
+
+Harness: `envelope_family.py`, log at `out/envelope_family.log`.
