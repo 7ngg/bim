@@ -2,8 +2,13 @@
 
 Resolves [Acceptance validator spec](../wayfinder/tickets/07-acceptance-validator-spec.md).
 
-Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 40 rules,
-**41 once `dim.leg_join` lands** (§9.1). ✅ It was 36 until *A dwelling with no
+Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 43 rules,
+**44 once `dim.leg_join` lands** (§9.1). ✅ It was 42 until *A statutory floor,
+posted soft, in the one region v1 ships* added `dim.statutory_min_area` (§3.1) —
+the first hard rule in this file that carries a **region**. ✅ It was 40 until
+*Fit the `ENGINE_CHOICE` acceptance thresholds to the corpora* added `dim.max_area`
+and `dim.stated_target_implausible`; the count in this file was stale at 40
+through both moves and is now current. ✅ It was 36 until *A dwelling with no
 toilet passes every check* added the four **programme** rules of §13 — the first
 rules in this file whose subject is the dwelling's programme rather than one
 Space, Wall or Opening. ⚠️ It was 38 before that, until *H8 and the
@@ -48,12 +53,17 @@ potential adjacency is unevaluable on a finished Plan without inverting it.
 
 **The shared artifact is a registry, not a function.** Each rule declares an
 **enforcement site** — `solver`, `validator`, or `both` — and drift is prevented
-by a **conformance test over the `both` subset**, which is 14 of the 40 rules —
-15 of 41 once `dim.leg_join` lands, since it is a `both` rule. §13's four
+by a **conformance test over the `both` subset**, which is 17 of the 43 rules —
+18 of 44 once `dim.leg_join` lands, since it is a `both` rule. §13's four
 programme rules do not join it and **cannot**: they are brief-scope with no
 plan-side twin, so there is no second implementation to agree with. That subset held at
 14 across §7.1's retirement: `win.habitable_touches_exterior` left it and
-`win.habitable_has_window` joined it, which is the trade §7.2 describes. The
+`win.habitable_has_window` joined it, which is the trade §7.2 describes; it then
+moved 14 → 15 at `dim.max_area`, and **15 → 17** at §3.1: `dim.statutory_min_area`
+is `both` because it is `dim.min_area`'s posting with a larger constant, and
+`win.area_ratio` moves `validator` → `both` because §7.4 turns it into a frontage
+budget the solver can post — one that **subsumes** `win.habitable_has_window`'s
+rather than duplicating it. The
 test is: for a generated population of Plans spanning feasible and infeasible
 Briefs, the solver's satisfaction of each `both` rule and the validator's
 evaluation of it agree on every Plan. Disagreement is a test failure.
@@ -68,18 +78,25 @@ is a real rule with a recorded source that v1 cannot evaluate.
 
 The ticket asked which failures reject and which are scored. For **dimensional**
 rules that question is answered by the data, not by a per-rule flag: **the tier
-the number came from decides it.** `ergonomic_min` is hard, `market_default` is
+the number came from decides it.** `ergonomic_min` is hard, `statutory_floor` is
+hard where a profile publishes one (§3.1), `market_default` is
 soft. That is the C10 split — model proposes, solver projects — expressed in the
 constraint table rather than restated in the validator.
 
-Rejecting on 31 of 40 rules — 32 of 41 with `dim.leg_join` — sounds aggressive;
+Rejecting on 34 of 43 rules — 35 of 44 with `dim.leg_join` — sounds aggressive;
 it is not, because every hard
 number is either a physical impossibility (a door that does not fit its wall, two
 Spaces overlapping) or the point at which the room cannot contain its function.
 The ticket's own test applies: *a rule that rejects 99% of candidates is a bug in
 the rule.* Two rules were deliberately loosened to satisfy it — see §5 and §7.
 
-## 3. Where the hard numbers come from — and why they carry no region
+## 3. Where the hard numbers come from — and why their *base* carries no region
+
+> ⚠️ **This section's title used to end "and why they carry no region", and that
+> is now false in one direction only.** *A statutory floor, posted soft, in the
+> one region v1 ships* amends C14: a Region profile may **raise** a hard floor and
+> may never lower one. Everything below still holds of the **base** — read it, then
+> read §3.1, which says exactly what changed and what did not.
 
 `room-constraints.json` binds `hard_reject_below: statutory_floor`. **That binding
 is unusable.** Findings §8: *"`statutory_floor` areas … are `null` for `DE`
@@ -95,15 +112,20 @@ This is not a workaround. It is the better rule, for three reasons:
    region prescribes nothing, "furniture fits" is a real bar; "no bar" is not.
 2. **It is region-invariant, because bodies are.** The constraint table already
    splits an ergonomic layer from a conventional one for exactly this reason.
-3. **It lets v1 ship without settling the region list.** Consequence, stated
-   plainly: **the entire hard rule set carries no region.** Adding a region can
-   change which Plans are *preferred*, never which are *rejected*. Region
-   parameterises soft objectives only — `dim.market_default_area`,
-   `win.area_ratio`, the thickness catalogue, the opening catalogue.
+3. ~~**It lets v1 ship without settling the region list.**~~ **Spent** — C12
+   settled the list at exactly one profile, `AZ`, with `UK` a never-selectable
+   test fixture. This reason was the only one of the three that argued the hard
+   set must carry **no** region rather than merely a **defensible** one, and it
+   was buying insurance against a case v1 does not have. §3.1.
 
-The validator therefore reads **two** of the table's four tiers.
-`statutory_floor` and `accessible` stay in the schema, unread; adopting either
-later is a configuration change, not a rewrite.
+Reasons 1 and 2 are untouched and are what keep the **base** of the hard set
+region-free: the predicates and their region-free floors are the same everywhere,
+and no profile may add a predicate, remove one, or weaken one.
+
+The validator therefore reads **three** of the table's four tiers —
+`ergonomic`, `market_default` and, since §3.1, `statutory_floor`. Only
+`accessible` stays in the schema unread; adopting it later is a configuration
+change, not a rewrite.
 
 > **The numbers do not exist yet.** `data/standards/room-constraints.json` is a
 > 9 KB stub ending in `PLACEHOLDER_NOTE: "DE and US sources, the ergonomic layer,
@@ -134,6 +156,110 @@ later is a configuration change, not a rewrite.
 > block named — which made `win.kitchen_windowless` unreachable, and *H8 and the
 > single-aspect flat* retired it (§7.1). `win.area_ratio` keeps its 0.125 and its
 > `soft`, and §7.4 records why that severity is now challenged rather than settled.
+
+### 3.1 A region may raise a floor, and `dim.statutory_min_area` is the first one
+
+**The rule this section is proudest of does nothing.** `dim.min_area` rejects
+**0.19 %** of 42,985 real Swiss dwellings and adds **0.00 %** to the hard union —
+the only rule in the registry that changes no outcome — while being the sole
+predicate between a Homeowner and the **1,85 × 1,68 m = 3,1 m²** double bedroom
+this section was written to forbid. `min_clear_short` 1650 is a *fits* floor —
+double bed 1350 plus a 300 body zone on one side — and AzDTN 2.7-2 cl. 5.7
+publishes the *habitable* one, `verified`, in the only region v1 ships.
+
+**C14 is amended, monotonically: a Region profile may raise a hard floor and may
+never lower one.** The hard area floor for a Room becomes
+`max(ergonomic minimum, region statutory floor)`. The guarantee the old wording
+protected survives exactly, because raising is monotone — an unsurveyed region
+still gets the **full** ergonomic bar and cannot lose a rule to a profile. What
+the old wording additionally bought is spent (reason 3 above).
+
+Ten of nineteen keys are silent in `AZ`, and silence is not an error: where a
+profile publishes no statutory floor, the ergonomic minimum is the whole floor.
+
+**The corpus number is not this rule's rejection rate, and the section says so
+before anyone quotes it.** Measured against the cached Swiss census: **54,51 %**
+of dwellings hold at least one Space below its AZ statutory floor, **+19,98
+points** marginal over the fitted/real-pier union — which would be half the
+surviving pool if it were a pool statistic. It is not, for two reasons:
+
+1. **The bar does not gate the retrieval index.** Admission is conversion
+   fidelity — `proposer.md` §2.2.1, plus worst-room IoU per *The two-notch cap is
+   now evidenced* — not the bar. A donor below the floor stays in the pool, so the
+   coverage argument that refused a p95 cap in `room-area-bands.md` §6.1 does
+   **not** transfer here.
+2. **`market_default` sits at or above `statutory_floor` in every reachable AZ
+   cell** — living 16/16, `bedroom_double` 12 > 10, `bedroom_single` 9 > 8,
+   kitchen 9 > 8, `kitchen_zone_in_diner` 6/6. A Plan that reaches its soft target
+   clears this rule *by construction*. The rule fires only where the solve failed
+   to reach it, which is the case it exists for.
+
+**Per limb**, so a later ticket amends a limb and not the rule (marginal over the
+fitted/real-pier union):
+
+| limb | AzDTN cl. 5.7 | Swiss p50 | share below | marginal |
+|---|---|---|---|---|
+| kitchen | 8,0 m² | **8,04 m²** | 49,57 % | **16,88 %** |
+| `room*` as `bedroom_double` | 10,0 m² | 14,29 m² | 5,44 % | 5,73 % |
+| living / `living_dining` | 15/16 m² | 26,59 m² | 4,33 % | 1,03 % |
+| `room*` as `bedroom_single` | 8,0 m² | — | 0,37 % | 0,30 % |
+| `kitchen_zone_in_diner` | 6,0 m² | 23,67 m² | 0 % | 0 % |
+
+⚠️ **The kitchen limb lands on the corpus median** and is 16,88 of the 19,98
+points. It is taken anyway, on §7.5's own precedent: `win.habitable_has_window`'s
+45,19 % was *"handed to the retrieval and conversion side, not paid for by
+weakening a statutory rule"*, and this is the same object.
+
+⚠️ **What is unmeasured, and the trigger to revisit.** The rule's true cost is on
+engine output and **no Proposer has been run**. ADR 0018's warp fidelity is a
+*proportion* result — `fit_warp.py:373-384` normalises absolute area away — so the
+warp has never been measured against a stated `target_area`, and that measurement
+is owed by `experiments/warp/`. If the first Proposer run shows the warp
+systematically undershooting per-room area, this rule collapses yield and
+`homeowner_surface.no_survivors` fires.
+
+**That asymmetry is the decision.** A hard rule that is too strict is
+**discovered**, at build time, and rolled back by one field. A soft rule that is
+too lax **ships**: a 6,6 m² kitchen goes to a Baku Homeowner as a survivor,
+unannotated, indistinguishable from a good one, because C6 shows survivors and
+nothing marks it defective. The second failure is the one C2's *"would I live
+here"* cannot catch.
+
+**Brief-side pre-image**, per ADR 0015. Σ hard minima rises: a one-otaq dwelling
+goes from **9,0 m²** (living 3,7 + kitchen 1,8 + `bathroom_combined` 2,5 + hall
+1,0) to **26,5**; two-otaq **37,5**, three **47,5**, four **57,5**, before the
+partition footprint. Those are ordinary Baku flat sizes and nothing leaves C13's
+3–10 band. The 9,0 m² one-otaq flat the old floor admitted **is** the defect,
+restated at parse time. `brief.md` §9.4 bounds 1 and 3 must read the raised floor.
+
+**C8 cuts both ways, and this is the direction it cuts here.** C8 forbids
+*claiming* code compliance; it does not forbid *being* compliant, and shipping a
+3,1 m² bedroom into a market whose law says 10 is the failure C8 exists to prevent
+from the other side. No Homeowner-facing message on this rule names a law: it is
+`hard`, so a failing Plan is discarded and never shown, and the only text a
+Homeowner sees is the Brief-side arithmetic above — *your Envelope cannot hold n
+otaq* — which is a statement about addition.
+
+⚠️ **Two shipped files disagreed, and both were wrong.**
+`room-constraints.json` bound `statutory_floor_binding: "warn"` (from *Which
+region profiles ship in v1*, with a `force`-derived disclosure note);
+`rules.json` listed `statutory_floor` under `unread_in_v1`. The tier was
+simultaneously bound as a warn and not read at all, and **neither statement had a
+rule behind it** — no rule of severity `warn` sourced from a region profile has
+ever existed in the registry. That absence is the finding: C14's *"a region
+profile never rejects a Plan"* had been implemented as *"a region profile never
+**appears** in the hard set"*, which is a stronger claim C14 never made. Both
+bindings are superseded.
+
+⚠️ **The one genuine schema change**, and it is owed rather than written:
+`hard_reject_below` was a **scalar** tier name and is now the **list**
+`["ergonomic", "statutory_floor"]`. `rules.json` carries the list;
+`room-constraints.json`'s `tier_model.validator_binding` still carries the scalar
+and its `statutory_floor_binding` still reads `warn`. The conformance test that
+asserts the two files carry the same string must assert the same **list**. That
+file is claimed by *The annotation spec is US-shaped and the drawing is now
+Azerbaijani*, so it is handed there rather than written from here — the
+parallel-write hazard the map's Notes exist to prevent.
 
 ## 4. Circulation — two graphs, not one
 
@@ -217,7 +343,7 @@ still fog. It is carried in the registry with its source and its number so that
 adopting it when fixtures land is a data change. A validator that silently omits
 a rule it cannot evaluate is indistinguishable from one that never knew about it.
 
-## 7. Windows — one hard rule, and it is the frontage budget
+## 7. Windows — two hard rules, and one of them is the frontage budget
 
 The four regimes surveyed are **not interconvertible**: England imposes no
 daylight requirement at all; Germany measures the *structural opening* against
@@ -293,23 +419,86 @@ window, not a room with an aspect. `open.fits_segment` already forces such a leg
 to 1400 mm for a bedroom window; requiring the Room's own published minimum is
 the number an architect would hold, and it needs no new constant.
 
-### 7.4 The ratio is soft, the run is over exterior faces, and the severity is challenged
+### 7.4 The ratio is hard, scoped to living rooms and kitchens, and the window is sized rather than picked
 
-`win.area_ratio` stays **soft and region-parameterised**, defaulting to AzDTN
+> ⚠️ **This subsection's title used to read "the ratio is soft … and the severity
+> is challenged".** *A statutory floor, posted soft, in the one region v1 ships*
+> settled it. Three changes, and the third is what makes the first safe.
+>
+> **1. Scope, and it is a precondition rather than a tidy-up.** The shipped
+> statement bound **every Space**. cl. 9.13 binds **living rooms and kitchens
+> only**, and `room-constraints.json` says so verbatim — *"a LOWER bound, applying
+> to living rooms and kitchens"*. Soft, the over-reach cost a wrong objective term
+> on bedrooms and wet rooms; **hard, it would have rejected a windowless WC for
+> its glazing ratio.** `binds_room_types` is the corrected set, and every cost
+> below is measured on it.
+>
+> **2. The measurement that changed the answer.** Against the shipped three-entry
+> catalogue — `window_living` 1500 × 1500 = 2,25 m², `window_kitchen` 900 × 1200 =
+> 1,08 m² — the rule demands **2+ windows on 72,7 % of living rooms, 93,6 % of
+> `living_dining` and 40,7 % of kitchens**, and the required exterior run p50 is
+> **3,80 m against an available window-run p50 of 3,84 m**: a rule sitting exactly
+> on the feasibility cliff. **33,68 %** of real dwellings could not fit it at
+> `min_pier` 600, **21,20 %** at 250. Size the *opening* to the room instead and
+> the same test costs **5,39 %** (living 6,95 %, `living_dining` 7,73 %, kitchen
+> 1,98 %). **Three quarters of the cost was a catalogue artefact, not a layout
+> fact** — rejecting on it would have been rejecting a room an architect keeps for
+> a window they would widen.
+>
+> **3. The window is selected, not mapped.** `window_for_room` stops being a fixed
+> `key → key` map and becomes the **smallest member of the profile's width series
+> for that room family which satisfies cl. 9.13**, at the family's catalogue
+> height, even per ADR 0004, and fitting the run the Space has. A **series**, not
+> a free derivation: the catalogue's own comment is *"a facade with two different
+> windows in one room is a tell"*, and free per-room widths would put six widths on
+> one elevation — the generated look `dim.aspect_ratio_hard` exists to avoid.
+> Splitting into two openings buys **nothing**: total glazing width is fixed and
+> the pier is pure loss, so this rule never asks for a second window.
+>
+> **`min_pier_mm` is therefore not load-bearing here.** At one opening per room
+> there is no pier between windows, so this decision does **not** rest on the
+> 600 → 250 move handed to *The annotation spec is US-shaped*. The 33,68/21,20
+> pair is kept only to show what the catalogue reading would have cost.
+>
+> ⚠️ **What is owed, and it is blocking.** The **width series values** are
+> `room-constraints.json`'s, and that file is claimed by *The annotation spec is
+> US-shaped and the drawing is now Azerbaijani* — same holder that already carries
+> `min_pier_mm` in the same `openings` block. Measured reach requirement, written
+> out so it is transcribed and not re-derived: **the series must reach p90 2,47 m
+> living, 3,23 m `living_dining`, 1,34 m kitchen.** A top member below those turns
+> the residual cost back up. `catalogue_may_be_dead` is the cover —
+> `gost_23166_99` cl. 4.9 makes the opening grid a **project decision**, so a
+> published series is `engine_choice` bounded by `gost_11214_86`, which is *more*
+> defensible than three fixed entries rather than less. The derived Type mark
+> rides with it — the GOST mark reads **height-then-width** — and is
+> `annotation.md`'s, same holder. Writing the rule `hard` now is writing the
+> **decision**: C1 means no validator exists to be inconsistent with, and the
+> series is owed before any build.
+>
+> ⚠️ **The residual 5,39 % is real and it is frontage** — the same object as
+> `win.habitable_has_window`'s cost, and it goes the same way as §7.5 sent that
+> one: to the retrieval and conversion side, not paid for by weakening a statutory
+> rule.
+
+`win.area_ratio` **was** soft and region-parameterised, defaulting to AzDTN
 2.7-2 cl. 9.13's 1:8 on the structural opening. Its statement gains one clause it
 should always have had: the windows counted are those on **`exterior`-condition**
 segments. Computed over every boundary face, a mid-block flat satisfied its
 glazing ratio on a wall shared with a neighbour. A party edge hosts no window
 (`openings.md` §6.1).
 
-⚠️ **Held soft, and flagged rather than settled.** cl. 9.13 is `verified` and
-mandatory, which makes this **the only statutory minimum on the map posted soft**.
-C14 names it — *"one soft window fraction"* — so amending it means amending a
-standing constraint, and a window rule is the wrong door to do that through. It is
-ticketed as *A statutory floor, posted soft, in the one region v1 ships*, which
-also holds AzDTN's statutory **area** floors (living 16 m², `bedroom_double` 10,
-kitchen 8), shipped soft by the same clause of C14 against an ergonomic hard floor
-of 3.1 m² for that bedroom.
+~~⚠️ **Held soft, and flagged rather than settled.**~~ **Resolved, and the box
+above is the resolution.** cl. 9.13 is `verified` and mandatory, which made this
+the only statutory minimum on the map posted soft. C14 named it — *"one soft
+window fraction"* — so amending it meant amending a standing constraint, which is
+what §3.1 does: a profile may raise a hard floor and may never lower one. The same
+ticket took AzDTN's statutory **area** floors (living 16 m², `bedroom_double` 10,
+kitchen 8) hard against an ergonomic floor of 3,1 m² for that bedroom. **The two
+halves were decided together and by the same argument, and only one of them
+needed a second decision to be safe** — the area floors are satisfiable by making
+a room bigger, which the Envelope permits, while the glazing floor is satisfiable
+only by frontage the Envelope may not have, which is why the window had to stop
+being picked from three fixed entries first.
 
 ### 7.5 What H8 turned out to be
 
@@ -568,7 +757,7 @@ language, leading with the Brief field to edit.
 | `open.wc_door_outward_pan_overlap` | `deferred` until fixtures leave the fog |
 | Where the entrance door actually goes | *Opening placement rules* |
 | `access_via` and `area_convention` on the Brief | *Brief schema and parsing contract* |
-| §13's four messages, in Azerbaijani — the **locale dimension**, now over 40 rules rather than 36 | whoever next holds `rules.json` |
+| §13's four messages, in Azerbaijani — the **locale dimension**, now over 43 rules rather than 36 | whoever next holds `rules.json` |
 | A **three-way** `corpus_label_split`, now `bathroom_combined` exists — the fixture ground truth is already in the corpus | whoever next holds `experiments/rectangularise/` |
 | Whether a **nineteenth-and-twentieth** type is owed: `taxça-mətbəx`, and a Brief-nameable built-in wardrobe (§13.6) | whoever next holds `brief.md` §3 |
 ---

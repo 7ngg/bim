@@ -197,3 +197,60 @@ minimum for a room a bed fits in and the two were never the same number.
 ⚠️ If it moves, `ergonomic_check.py` and `gate_check.py` both re-derive from it,
 and the erosion arithmetic means the *published* number and the *realisable* one
 move in steps of 250 mm.
+
+## Handed here by *A statutory floor, posted soft, in the one region v1 ships* (ticket 50)
+
+Three items, because this ticket is `data/standards/room-constraints.json`'s **sole
+claimant** and 50 would otherwise have written into a claimed file — the
+parallel-write hazard that created this ticket in the first place.
+
+**(a) BLOCKING — the window width series, per room family.** `win.area_ratio` is now
+**hard** (soft -> hard, rescoped to living rooms and kitchens per AzDTN cl. 9.13),
+and its satisfiability rests on `window_for_room` selecting the **smallest series
+member that meets 1:8** instead of picking one of three fixed catalogue entries.
+
+Measured, ready to transcribe rather than re-derive:
+
+| | against the 3-entry catalogue | against a width series |
+|---|---|---|
+| living rooms needing 2+ windows | 72,7 % | — |
+| `living_dining` needing 2+ | 93,6 % | — |
+| kitchens needing 2+ | 40,7 % | — |
+| dwellings the rule cannot fit | **21,20 %** (at `min_pier` 250; 33,68 % at 600) | **5,39 %** |
+
+**Three quarters of that cost is a catalogue artefact, not a layout fact.** The
+series must reach **p90 2,47 m living, 3,23 m `living_dining`, 1,34 m kitchen**; a
+top member below those turns the residual back up. Cover for publishing one is
+already in the file: `catalogue_may_be_dead` records that `gost_23166_99` cl. 4.9
+makes the opening grid a **project decision**, so a published series is
+`engine_choice` bounded by `gost_11214_86` and is *more* defensible than three fixed
+entries, not less. Splitting into two openings buys **nothing** — total glazing width
+is fixed and the pier is pure loss — so this never asks for a second window, and
+`min_pier_mm` is **not** load-bearing for it.
+
+**(b) The tier binding must follow `rules.json`'s, and `ergonomic_check.py` is
+FAILING RIGHT NOW because of it** -- 229 pass, 1 fail, deliberately left that way:
+`both files name the same hard tier -- ['ergonomic', 'statutory_floor'] vs
+'ergonomic'`. The check is doing its job; do not relax it.
+
+⚠️ **Make the edit at the AUTHORING site.** `build_ergonomic_layer.py:267` re-writes
+`hard_reject_below` on every run, so editing the JSON alone is reverted the next time
+anyone regenerates -- the same trap that silently reverted `kitchen.needs_window` and
+falsified three published numbers.
+
+`tier_model.validator_binding.hard_reject_below` scalar `"ergonomic"` -> list
+`["ergonomic", "statutory_floor"]`, and `statutory_floor_binding` `"warn"` ->
+`"hard"`. The two files contradicted each other — this one bound the tier as a warn,
+`rules.json` listed it unread — and **neither binding had a rule behind it**. The
+conformance test that asserts both files carry the same *string* must assert the same
+**list**. This is the one genuine schema change the decision costs.
+
+**(c) `window_for_room` becomes a selection, not a map** — `erg_key -> (height, width
+series)`, even per ADR 0004, fitting the run the Space has. A **series** and not a
+free derivation, deliberately: this file's own comment is *"a facade with two
+different windows in one room is a tell"*. The **derived Type mark** rides with it —
+the GOST mark reads **height-then-width**, so `OR 15-<w/100>` is mechanical — and
+that half is `annotation.md`'s, which this ticket also holds.
+
+All three are also written into `data/acceptance/rules.json`'s own `owed` block, so
+they survive if this note is missed.

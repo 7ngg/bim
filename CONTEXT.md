@@ -676,9 +676,13 @@ room are one number in a count and are not the same defect.
 
 **Ergonomic minimum** — the smallest clear rectangle a room's required fixtures
 and their [[Body zone]]s occupy. Region-invariant, because bodies are. It is the
-floor the Acceptance bar rejects below, standing in for a legal minimum: most
-regions prescribe none, and the regions that do disagree with each other by
-nearly a factor of two. Stated as a **shorter side and a longer side**, never as
+**base** of the floor the Acceptance bar rejects below, and where a
+[[Region profile]] publishes no [[Statutory floor]] it is the whole of it. It
+stands in for a legal minimum where none exists: most regions prescribe none, and
+the regions that do disagree with each other by nearly a factor of two.
+_Avoid_: "it is the floor the Acceptance bar rejects below", full stop — a
+[[Statutory floor]] may now raise it, and this term is only the base.
+Stated as a **shorter side and a longer side**, never as
 a width and a depth — a room has no canonical orientation, so binding the pair to
 axes would assert a direction no fixture implies. It is a **floor, not a target**:
 it sits far below what anyone builds, and the liveable number is the [[Region
@@ -705,16 +709,40 @@ sources state is an *accessibility* figure, because those are the ones regulator
 write down, and composing a private bathroom out of them yields a floor that
 rejects a third of real homes.
 
+**Statutory floor** — the smallest area a [[Region profile]]'s own law permits a
+room type, where that region's law says anything at all. Unlike an
+[[Ergonomic minimum]] it is **transcribed, never derived** — it is a number a
+regulator wrote down, and composing it would be inventing law. It is a *habitable*
+floor where the ergonomic minimum is a *fits* floor, which is the whole difference
+between them: 1650 mm of bedroom width is a bed plus room to walk past it, and
+10 m² is a bedroom.
+
+A profile publishes one only for the room types its law names — ten of nineteen
+are silent in `AZ` — and **silence is not an error**: where there is no statutory
+floor the ergonomic minimum stands alone. It always sits *below* the same
+profile's preferred area, so a Plan that reaches its target clears it by
+construction, and it binds only where the solve failed to.
+
+**A Region profile may raise a hard floor and may never lower one.** That is the
+one direction in which region reaches the reject set, and it is monotone by
+design: a region nobody has surveyed still gets the full ergonomic bar, and no
+profile can take a predicate away or weaken one.
+
 **Region profile** — the set of *conventional* values a Plan is built and drawn
 to: the thickness catalogue, the decimal separator, the room-name abbreviations,
-the opening catalogue keys, the preferred room areas and the window fraction.
+the opening catalogue keys, the preferred room areas, the window fraction, and
+the [[Statutory floor]]s its law publishes.
 Underneath it is really a **construction system plus a drawing convention**;
 country is only a proxy, and a poor one — Germany and Azerbaijan are both
 fired-brick masonry with incompatible modules, while the UK and the US are both
-frame-and-cavity. A profile can change which Plans are *preferred* and which
-strings are *printed*, never which are *rejected*, because every hard dimensional
-floor is an [[Ergonomic minimum]] and region-invariant. A Plan carries its profile
-for its whole life. v1 ships exactly one, `AZ`.
+frame-and-cavity. A profile changes which Plans are *preferred*, which strings are
+*printed*, and — in **one direction only** — which are *rejected*: it may raise a
+hard floor above the region-invariant [[Ergonomic minimum]] and may never lower
+one, add a predicate, or remove one.
+_Avoid_: "a profile can change which Plans are preferred and which strings are
+printed, **never** which are rejected" — true only while every hard dimensional
+floor was ergonomic, and a [[Statutory floor]] is now hard too.
+A Plan carries its profile for its whole life. v1 ships exactly one, `AZ`.
 
 **Corpus provenance** — which corpus a Proposal's arrangement came from, carried
 as the `(region, corpus, annotation_provenance)` conditioning tag. **Not the
@@ -742,7 +770,7 @@ surveyed housing has no module to copy.
   later refers by relation ("the wall between kitchen and hall"), so that the
   reference dies honestly when the topology changes instead of silently
   reattaching to the wrong thing.
-- **Region is a convention, not a standard of care.** The [[Region profile]] chooses what a Plan is drawn and built to; the [[Ergonomic minimum]] chooses what is rejected. Changing region never changes the second.
+- **Region is a convention, and in one direction a standard of care.** The [[Region profile]] chooses what a Plan is drawn and built to; the [[Ergonomic minimum]] is the region-free **base** of what is rejected, and a [[Statutory floor]] may raise it. Changing region can therefore change the reject set — **upward only**, on predicates that already bind. _Avoid_: "changing region never changes the second", which held only while every hard dimensional floor was ergonomic.
 - **Neufert-grade** describes dimensional standards — ergonomic and dimensional
   design data. It is not a building code, and no legal code-compliance claim is
   made anywhere in this system.

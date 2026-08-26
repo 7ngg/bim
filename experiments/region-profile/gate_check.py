@@ -174,15 +174,23 @@ def main():
     # The rule binds HARD linear minima. Find where they actually are.
     # rules.json's tier_binding supersedes room-constraints.json's, and says so.
     rules = json.loads((DATA.parents[1] / "acceptance/rules.json").read_text(encoding="utf-8"))
-    hard_tier = rules["tier_binding"]["hard_reject_below"]
+    # A LIST since *A statutory floor, posted soft, in the one region v1 ships*:
+    # the hard floor is max(ergonomic, statutory_floor) and a profile may raise
+    # it. Read as a scalar this crashes, which is how the amendment was noticed
+    # here. Every named tier is checked, because ADR 0007's congruence binds each
+    # hard number, not their maximum.
+    hard_tiers = rules["tier_binding"]["hard_reject_below"]
+    if isinstance(hard_tiers, str):
+        hard_tiers = [hard_tiers]
 
     hard_in_profile = []
     for room, cells in az["rooms"]["clear_widths_mm"].items():
         if room == "comment":
             continue
-        cell = cells.get(hard_tier)
-        if cell and cell.get("v") is not None:
-            hard_in_profile.append((room, cell["v"]))
+        for tier in hard_tiers:
+            cell = cells.get(tier)
+            if cell and cell.get("v") is not None:
+                hard_in_profile.append((f"{room}/{tier}", cell["v"]))
     for room, m in hard_in_profile:
         check((m + t_int) % GRID == 0, f"ADR 0007 hard linear minimum {room} = {m}")
 
@@ -235,14 +243,19 @@ def main():
 
     print("\n".join(notes))
     print()
-    print(f"hard tier is {hard_tier!r}")
+    print(f"hard tiers are {hard_tiers!r}")
     print(f"hard linear minima published by profile {PROFILE}: {len(hard_in_profile)}")
 
     # ---- where they really live ------------------------------------------
-    inv = doc.get(hard_tier)
+    # Only one member of hard_tiers is a top-level layer in this document; the
+    # rest are per-profile cells, counted above. ADR 0009 exempts this one from
+    # the congruence, which is why it is reported and not gated.
+    invariant_tier = next((t for t in hard_tiers if t in doc), None)
+    inv = doc.get(invariant_tier) if invariant_tier else None
     if not inv:
-        print(f"  (no {hard_tier!r} layer in the file yet)")
+        print(f"  (none of {hard_tiers!r} is a layer in the file yet)")
         return 1 if fails else 0
+    hard_tier = invariant_tier
 
     linear = []
     for room, cells in inv["rooms"].items():
