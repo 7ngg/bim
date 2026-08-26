@@ -4,7 +4,7 @@ title: The exposure presets were fitted to a measurement of one room
 parent: map
 labels: [wayfinder:task]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - experiments/solver-toy/geometry.py (EXPOSURE_PRESETS)
