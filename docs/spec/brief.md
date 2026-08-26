@@ -79,14 +79,21 @@ classes is an Assumption (§3).
 
 ## 3. Room vocabulary
 
-**The Brief speaks the ergonomic layer's key set, verbatim.** All eighteen:
+**The Brief speaks the ergonomic layer's key set, verbatim.** All nineteen:
 
 ```
 living  dining  living_dining  kitchen  kitchen_dining  living_dining_kitchen
 bedroom_principal  bedroom_double  bedroom_single  study
-bathroom  shower_room  wc  utility
+bathroom  bathroom_combined  shower_room  wc  utility
 hall  entrance_lobby  corridor  storage
 ```
+
+✅ **Eighteen until *A dwelling with no toilet passes every check*.**
+`bathroom_combined` — `birləşdirilmiş sanitar qovşağı`, bath and WC in one room —
+is not a convenience: §9.4 bound 8's WC rule is unshippable without it, because
+over eighteen types it rejected 48.32 % of real dwellings and 43.13 of those
+points were dwellings that **have** a toilet, in a room with a bath, that this
+list could not say had one. `acceptance-bar.md` §13.3 carries the derivation.
 
 There is no separate Homeowner enum. Reasons, in order:
 
@@ -166,7 +173,7 @@ shipping path now prints it.
 
 | layer | granularity | consumer |
 |---|---|---|
-| Brief / ergonomic | 18 types | hard floors, the Drawing, this spec |
+| Brief / ergonomic | **19** types | hard floors, the Drawing, this spec |
 | Region profile | `AZ`'s own keys | soft targets, `dim.market_default_area` |
 | Retrieval class | `PRIVATE` etc. | `proposer.md` §4.1, retrieval multiset only |
 
@@ -495,6 +502,7 @@ names the field whose edit resolves it.
 | `target_area_convention` absent | `area.convention_declared` |
 | `target_area_convention` differs from the region profile's | `area.convention_agrees` |
 | **zero rooms** | new — see below |
+| **no kitchen, no washing room, or no WC** | `prog.kitchen_exists`, `prog.washing_exists`, `prog.wc_exists` — §9.4 bound 8 |
 
 v1 does not convert between area conventions: the deductions that separate them
 are unrepresentable in a model with no balcony and no ceiling height, so a
@@ -566,14 +574,17 @@ the `wc` target `AZ` was silent on, so the 40 m² WC is capped at
 
 ### 9.4 The feasibility pre-check
 
-**Seven bounds, one function** — called at parse time and again when no candidate
+**Eight bounds, one function** — called at parse time and again when no candidate
 survives, so `acceptance-bar.md` §11's requirement that the two produce the same
 sentence holds by construction.
 
-**No severity in this section is chosen.** Four of the seven bounds are the
-parse-time **pre-image** of a rule that already ships in `rules.json`, and each
-inherits that rule's severity; the other three have no pre-image and say so. ADR
-0015 records the principle and why it is not a product judgement.
+**No severity in bounds 1–7 is chosen.** Four of them are the parse-time
+**pre-image** of a rule that already ships in `rules.json`, and each inherits that
+rule's severity; the other three have no pre-image and say so. ADR 0015 records
+the principle and why it is not a product judgement. ⚠️ **Bound 8 is the
+exception and it inverts the direction**: `acceptance-bar.md` §13's programme
+rules are brief-scope with no plan-side twin, so the bound *is* the rule and its
+severities are chosen against the corpus — ADR 0022.
 
 | | bound | pre-image of | severity |
 |---:|---|---|---|
@@ -584,6 +595,7 @@ inherits that rule's severity; the other three have no pre-image and say so. ADR
 | 5 | Σ `Room.target_area` more than 5 % from `target_area` | `area.invented_envelope_hard` / `area.given_envelope_warn` | **hard / warn** |
 | 6 | Σ upper band below the interior a **given** Envelope fixes | `dim.max_area` ∧ `model.no_unassigned_area`, both hard | **hard** |
 | 7 | `shape` **stated** | — no rule governs retrieval coverage | **warn** |
+| 8 | a mandatory room the programme does not contain | `prog.*_exists` — **the rule, not its pre-image** | **hard ×3 / warn ×1** |
 
 Every bound runs **after `resolve`**, so the `hall` §3.1 invents is inside every
 sum — the same reason this section carries no separate circulation allowance term.
@@ -796,6 +808,63 @@ it by disclaiming *"measurements, dimensions, or scale"* in its terms. We are
 making the claim they decline to make, which is C3, and this bound is part of the
 price.
 
+#### Bound 8 — the rooms a dwelling owes
+
+**The only bound that counts rooms rather than measuring them**, and the only one
+that is not a pre-image of anything: `acceptance-bar.md` §13's four `programme`
+rules are **brief-scope with no plan-side twin**, so this bound *is* the rule
+rather than its parse-time shadow. ADR 0015's principle is untouched — it maps a
+shipped Plan rule back to the bound that implies it, and there is no Plan rule
+here to map back from.
+
+The reason there is none is structural. The Room set is frozen the moment
+`resolve` returns: §9.5 forbids auto-repair, §3 makes every Brief Room required,
+`proposer.md` §2.2 warps a donor onto a fixed multiset, and
+`model.no_unassigned_area` turns every Room into a Space. A plan-side composition
+predicate could not fail on a Plan whose Brief passed, and a rule that cannot fire
+is a lie about coverage — `acceptance-bar.md` §7.1's reason for retiring
+`win.habitable_touches_exterior`, applied before writing rather than after.
+
+Evaluated over the `ResolvedBrief`'s multiset of Room types, from AzDTN 2.7-2
+cl. 5.2:
+
+| limb | satisfied by a Room of type | severity |
+|---|---|---|
+| kitchen | `kitchen`, `kitchen_dining`, `living_dining_kitchen` | **hard** |
+| hall | — *`resolve` guarantees it; §3.1* | — |
+| washing | `bathroom`, `shower_room`, `bathroom_combined` | **hard** |
+| WC | `wc`, `shower_room`, `bathroom_combined` | **hard** |
+| storage | `storage` | **warn** |
+
+**`bathroom` is not in the WC row**, and that is the whole finding: its ergonomic
+rectangle is a bath plus a body zone and holds no pan. So the commonest way to
+omit a toilet — name a bathroom and stop — is now refused, naming `rooms`:
+
+> a home needs a toilet; add a **tualet**, or make the bathroom a
+> **birləşdirilmiş sanitar qovşağı**
+
+The refusal offers the combined unit because that is what most real dwellings
+build, and because §3's type list now carries it — **nineteen types, not
+eighteen.** `bathroom_combined` was added by that rule: over eighteen it rejected
+48.32 % of real dwellings, 43.13 points of which had a toilet in a room with a
+bath and no way to say so. `acceptance-bar.md` §13.3 carries the derivation and
+§13.4 the reason cl. 5.10's restriction on combined units is recorded and not
+enforced.
+
+**Storage warns rather than refuses** because hard it rejects 73.35 % of real
+dwellings, and because the norm's own alternative — `divar təsərrüfat şkafı`, a
+built-in wardrobe — is furniture v1 does not model. §13.6.
+
+⚠️ **This is the first bound whose failure a Homeowner can resolve by adding a
+room rather than by changing a number**, which makes it the first that interacts
+with bounds 1, 3 and 6 in the wrong direction: adding the `wc` the refusal asks
+for raises Σ ergonomic minima, adds an engine room, and can push a Brief that was
+inside 3–10 out of it. The findings set is returned whole (§9.4 preamble) so both
+appear at once rather than one behind the other, but **the two together can have
+no resolution** — a nine-room Brief with no toilet is told to add a room and told
+it may not. Nothing yet says which sentence leads. Handed to
+`homeowner-surface.md`'s holder in §12.
+
 #### The worked example in `acceptance-bar.md` §11 is still not reproducible
 
 It reads *"Three bedrooms, a bathroom and a kitchen need at least 58 m²"*; the
@@ -903,7 +972,9 @@ says so.
 | ~~**`f_hi` and `f_lo` for §9.4 bound 6**~~ — **discharged** by *The partition footprint has a mean and no spread*, which measured the spread and wrote the values into §9.4 directly rather than handing them on again. They came back as a **per-`n` table** rather than the two constants this row asked for, and `f_hi` as p99 rather than p95 | — |
 | **`f_hi(n)`/`f_lo(n)` need somewhere to live in data.** §9.4 now carries an eight-row table inline. It is a parse-time constant of the same kind as `room-area-bands.md` §6.1's `k`, and it belongs beside it rather than in prose | whoever next holds `rules.json` — the table moves with §9.4's findings schema |
 | **`reachable_in_v1: false` on `corridor` and `entrance_lobby`** (§3.1). Nothing invents them and no Brief may name them, so two of eighteen types are dead paths that the file still presents as live — the same marker `kitchen_niche` and `wardrobe_1room_entry` already carry | whoever next holds `room-constraints.json` — *Opening placement rules*, *The annotation spec is US-shaped* |
-| **The composition rule enforcing AzDTN cl. 5.2's mandatory auxiliary set.** §3.1 guarantees the `holl` half *by construction* — every ResolvedBrief has exactly one `hall` — so that rule may assert it rather than test it. The kitchen, bath-or-shower, WC and storage halves are untouched | *A dwelling with no toilet passes every check* |
+| ~~**The composition rule enforcing AzDTN cl. 5.2's mandatory auxiliary set.**~~ — **discharged** by *A dwelling with no toilet passes every check*: four `programme` rules, §9.4 bound 8, `acceptance-bar.md` §13. The `holl` half is asserted and not tested, exactly as this row proposed; storage came back **warn** rather than hard, and the WC half cost a nineteenth Room type | — |
+| **Which sentence leads when bound 8 and bounds 1/3/6 contradict** — adding the `wc` a refusal asks for raises Σ minima and the engine room count, so a nine-room Brief with no toilet is told to add a room and told it may not. The findings set surfaces both; nothing orders them | *Homeowner product surface* — holds `homeowner-surface.md` |
+| **A `taxça-mətbəx` type, and a Brief-nameable built-in wardrobe.** Two of cl. 5.2's five limbs are satisfied only by a type this list does not carry, which is why `prog.storage_exists` is partly unsatisfiable rather than merely expensive (`acceptance-bar.md` §13.6) | whoever next holds this file's §3 |
 | **§9.4 returns a set of findings, not a verdict** — each with a severity, a Brief field and a Homeowner-facing message. All six messages are Azerbaijani per `homeowner-surface.md` §2, so this is the same **locale dimension** already owed on the 38 rule messages and should land as one schema change, not two | whoever next holds `rules.json` |
 | `efficiency` is unused where a `target_area` is stated (§5 rung 1), because the partition footprint it stood in for is measured | *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* |
 | **Whether one two-part `hall` covers the 16.7 % of dwellings with two circulation spaces** (§3.1). ADR 0014 says an L reaches a wing; nobody has checked it against the conversion, and ADR 0013 shows the right k rising with the programme — k = 2 is 18.9 % at six named rooms and 26.0 % at nine | *Re-measure the conversion at two rectangles per Room*, which is already re-fitting at two |

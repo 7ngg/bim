@@ -2,8 +2,11 @@
 
 Resolves [Acceptance validator spec](../wayfinder/tickets/07-acceptance-validator-spec.md).
 
-Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 36 rules,
-**37 once `dim.leg_join` lands** (§9.1). ⚠️ It was 38 until *H8 and the
+Canonical form: **[`data/acceptance/rules.json`](../../data/acceptance/rules.json)** — 40 rules,
+**41 once `dim.leg_join` lands** (§9.1). ✅ It was 36 until *A dwelling with no
+toilet passes every check* added the four **programme** rules of §13 — the first
+rules in this file whose subject is the dwelling's programme rather than one
+Space, Wall or Opening. ⚠️ It was 38 before that, until *H8 and the
 single-aspect flat* retired `win.habitable_touches_exterior` and
 `win.kitchen_windowless`, neither of which could fire; both are kept in that
 file's `retired` block rather than deleted (§7.1). ⚠️ That row is specified here and is
@@ -45,8 +48,10 @@ potential adjacency is unevaluable on a finished Plan without inverting it.
 
 **The shared artifact is a registry, not a function.** Each rule declares an
 **enforcement site** — `solver`, `validator`, or `both` — and drift is prevented
-by a **conformance test over the `both` subset**, which is 14 of the 36 rules —
-15 of 37 once `dim.leg_join` lands, since it is a `both` rule. That subset held at
+by a **conformance test over the `both` subset**, which is 14 of the 40 rules —
+15 of 41 once `dim.leg_join` lands, since it is a `both` rule. §13's four
+programme rules do not join it and **cannot**: they are brief-scope with no
+plan-side twin, so there is no second implementation to agree with. That subset held at
 14 across §7.1's retirement: `win.habitable_touches_exterior` left it and
 `win.habitable_has_window` joined it, which is the trade §7.2 describes. The
 test is: for a generated population of Plans spanning feasible and infeasible
@@ -67,7 +72,7 @@ the number came from decides it.** `ergonomic_min` is hard, `market_default` is
 soft. That is the C10 split — model proposes, solver projects — expressed in the
 constraint table rather than restated in the validator.
 
-Rejecting on 28 of 36 rules — 29 of 37 with `dim.leg_join` — sounds aggressive;
+Rejecting on 31 of 40 rules — 32 of 41 with `dim.leg_join` — sounds aggressive;
 it is not, because every hard
 number is either a physical impossibility (a door that does not fit its wall, two
 Spaces overlapping) or the point at which the room cannot contain its function.
@@ -244,7 +249,8 @@ was left standing only because retiring it moves the rule count and this file wa
 claimed elsewhere at the time. This ticket holds the file, so the count moves.
 
 Both are recorded in `rules.json`'s `retired` block with their statements, not
-deleted silently. **The bar is 36 predicates — 37 once `dim.leg_join` lands.**
+deleted silently. **The bar was 36 predicates at that point; §13 takes it to 40 —
+41 once `dim.leg_join` lands.**
 
 The invariant `touches_exterior` looked like it protected — *a habitable type
 always needs a window* — was never carried by it. It is a property of the **table**,
@@ -562,3 +568,170 @@ language, leading with the Brief field to edit.
 | `open.wc_door_outward_pan_overlap` | `deferred` until fixtures leave the fog |
 | Where the entrance door actually goes | *Opening placement rules* |
 | `access_via` and `area_convention` on the Brief | *Brief schema and parsing contract* |
+| §13's four messages, in Azerbaijani — the **locale dimension**, now over 40 rules rather than 36 | whoever next holds `rules.json` |
+| A **three-way** `corpus_label_split`, now `bathroom_combined` exists — the fixture ground truth is already in the corpus | whoever next holds `experiments/rectangularise/` |
+| Whether a **nineteenth-and-twentieth** type is owed: `taxça-mətbəx`, and a Brief-nameable built-in wardrobe (§13.6) | whoever next holds `brief.md` §3 |
+---
+
+## 13. What a dwelling owes — the four programme rules
+
+Every rule above this section is per-Space, per-Wall, per-Opening or
+per-Plan-geometry. Each is of the form *if a Room of type T exists, it is at
+least this big.* **Not one of them asks whether T exists at all**, so a Brief
+naming a living room, a bedroom, a kitchen and a bathroom resolved, solved,
+passed all 36 predicates and exported a valid IFC of a flat **with no toilet**.
+
+The source is first-hand and mandatory. AzDTN 2.7-2 **cl. 5.2**, in
+`experiments/finish-layer/out/azdtn_2_7_2.txt`:
+
+> «Mənzillərdə yaşayış otaqları və yardımçı sahələr: mətbəx (və ya taxça-mətbəx),
+> holl, vanna otağı (və ya duş) və tualet (və ya birləşdirilmiş sanitar qovşağı),
+> yığnaq otağı (və ya divar təsərrüfat şkafı) nəzərdə tutulmalıdır.»
+
+Register `nəzərdə tutulmalıdır` = **məcburi**, mandatory, per
+`room-constraints.json`'s own `source_force_vocabulary`. `CONTEXT.md` already
+carries the class this clause defines — [[Auxiliary space]] — and already says
+the norm *"requires the rooms to exist, not merely to be big enough if present."*
+Nothing enforced it.
+
+### 13.1 Five limbs, four rules, one invariant
+
+| limb | rule | severity | rejects |
+|---|---|---|---:|
+| `mətbəx (və ya taxça-mətbəx)` | `prog.kitchen_exists` | **hard** | 5.99 % |
+| `holl` | — *asserted by construction* | — | — |
+| `vanna otağı (və ya duş)` | `prog.washing_exists` | **hard** | 7.33 % |
+| `tualet (və ya birləşdirilmiş sanitar qovşağı)` | `prog.wc_exists` | **hard** | 5.19 % |
+| `yığnaq otağı (və ya divar təsərrüfat şkafı)` | `prog.storage_exists` | **warn** | 73.35 % |
+
+**One rule per limb, not one rule for the clause.** A single predicate would take
+the severity of its weakest limb — storage — and the WC would inherit it. The
+split is what lets three be hard and one warn, each carrying its own corpus cost
+on the record.
+
+**The `holl` limb gets no rule at all.** `brief.md` §3.1: if the `ResolvedBrief`
+contains no `hall`, `resolve` invents one, so every `ResolvedBrief` has exactly
+one and the predicate is true by construction. Writing it anyway would add a rule
+that can never fire — which is precisely what retired
+`win.habitable_touches_exterior` in §7.1. It is recorded rather than written, so
+the clause's coverage stays legible.
+
+**The percentages are measured, not asserted.** 46,800 real Swiss dwellings, with
+**fixtures as ground truth** rather than room labels: Swiss Dwellings carries
+`TOILET`, `BATHTUB`, `SHOWER`, `KITCHEN` and `BUILT_IN_FURNITURE` features, so
+each is placed inside the room polygon that contains it and composition is
+*observed*. CH provenance against an AZ rule is C14's normal case, and here it is
+also the test: a clause that 94 % of Swiss dwellings satisfy is describing homes,
+not Azerbaijan.
+
+### 13.2 They bind the Brief, and they have no plan-side twin
+
+Every programme rule is `scope: brief`, `site: validator`, evaluated at parse time
+as `brief.md` §9.4 **bound 8**.
+
+That is not a preference for the cheaper site. **The Room set is frozen at
+`resolve`** and nothing downstream can change it: §9.5 forbids auto-repair, §3
+makes every Brief Room required, the warp maps a donor onto a fixed multiset
+(`proposer.md` §2.2), and `model.no_unassigned_area` forces every Room to become a
+Space. So a plan-side composition predicate **could never fail on a Plan whose
+Brief passed**. §7.1's argument applies unchanged: a rule that cannot fire is a
+lie about coverage.
+
+These are therefore the **first rules on this map with an image and no
+pre-image**. ADR [0015](../adr/0015-a-parse-time-bound-inherits-the-severity-of-the-rule-it-is-the-pre-image-of.md)
+runs the other way — from a shipped Plan rule back to the parse-time bound that is
+its arithmetic pre-image, which inherits its severity. Here the parse-time check
+*is* the rule, and the severity is chosen against the corpus rather than
+inherited. The asymmetry is stated rather than smoothed.
+
+### 13.3 The WC rule cost a room type, and that is the decision
+
+Read literally against the eighteen Room types that existed when this ticket
+opened, `prog.wc_exists` **rejects 48.32 % of real dwellings** — and only
+**5.19** of those points are dwellings with no toilet. The other **43.13** are
+dwellings that *have* a toilet, in a room that also has a bath, which the
+vocabulary could not say had one. That is the same shape as the 43.3 % §7.5
+records against `win.habitable_has_window`, and like it there is no threshold to
+move — but unlike it, the defect is **ours**.
+
+Two corrections and one addition make the rule shippable, and all three are
+findings rather than choices:
+
+- **`bathroom` does not contain a WC, and the file said it did.**
+  `build_ergonomic_layer.py` computes it as `bath[0] + u × bath[1]` =
+  1000 × 1700 = 1.70 m², then asserted *"Pan and basin occupy the same strip as
+  the body zone, which is shared."* The fixtures alone are bath 1.19 + pan 0.35 +
+  basin 0.27 = **1.81 m²**. Not tight — impossible. The arithmetic never included
+  them; the sentence was a gloss on a sum that never ran. Struck.
+- **`shower_room` *is* a combined sanitary unit.** Its programme is
+  `max(tray 900, pan 700 + u) × (tray 900 + pan 500)` — it composes the pan. So
+  one of the eighteen types already put the WC inside the washing room, while
+  `room-constraints.json`'s AZ bridge asserted *"the ergonomic layer… carries no
+  way to say the WC is inside."* That sentence was false when written, and
+  `areas_m2.bathroom_combined.reachable_in_v1: false` rested on it.
+- **`bathroom_combined` is a nineteenth Room type**, 1500 × 1700 = **2.5 m²**:
+  bath 1700 × 700 along one wall, pan 700 + basin 600 = 1300 ≤ 1700 opposite at
+  500 deep, one shared 300 body aisle between — what a real 1500 mm bathroom does.
+  It rejects **6.17 %** of 35,821 real bath+WC rooms, in family with the layer's
+  ~5 % calibration target, and the corpus's own short-side **p5 of 1477 mm**
+  independently reproduces the derived 1500. Its AZ soft target was already in the
+  data, sourced and unused, at 3,8 m²; real such rooms run a median 4,25 m².
+
+With the type in place the WC rule costs **5.19 %**, which is the defect and not
+the vocabulary.
+
+### 13.4 The second reason `bathroom_combined` was blocked, and why it does not hold
+
+`reachable_in_v1: false` gave a second reason: **cl. 5.10** confines the combined
+unit to «dövlət və bələdiyyə sosial təyinatlı və xüsusi təyinatlı mənzil
+fondunun birotaqlı mənzilləri» — one-otaq flats of the state and municipal social
+and special-purpose housing stock — a class v1 cannot detect.
+
+**That is a compliance target, and C8 forbids reading one.** The banner at the top
+of this document is not decoration: *every regulatory document cited here is cited
+as a source of dimensional fact, never as a compliance target.* cl. 5.2 tells us
+**what rooms a home has**, which is a fact about homes and which the corpus
+corroborates at 94 %. cl. 5.10 tells us **which class of flat is permitted to
+combine**, which is a permission, and the corpus **refutes** it as a description
+of practice: of 44,372 real dwellings with a placed toilet, **67.24 % put every
+toilet in a room with a bath or a shower**. Only 32.76 % have a separate WC room.
+
+So v1 may draw a combined unit, makes no compliance claim about it, and the
+restriction is recorded in the data beside the type. Declining to draw the
+majority configuration in order to honour a permission we are not claiming to
+satisfy would have been the error.
+
+### 13.5 `resolve` does not invent the missing room
+
+C4 fills gaps from standards and `resolve` already invents circulation, so
+inventing a WC is the same move — and it is **refused**.
+
+`brief.md` §9.5: the system never deletes a Room, shrinks a programme or relaxes a
+veto to make a Brief fit. The hall is exempt for a reason that does not transfer:
+ADR 0013 requires the **engine room count fixed before any geometry exists**, and
+no Homeowner has ever stated circulation out loud — it is invented in 93.5 % of
+real dwellings. A Homeowner who omits a toilet has made a statement about the
+home. Inventing one silently also **spends a room out of C13's 3–10 gate**, so a
+Brief at ten rooms would be refused *because we added one*.
+
+The refusal names the field instead, and that is §9.4's contract: a set of
+findings, each with a severity, a Brief field and a message.
+
+### 13.6 What this section does not close
+
+- **Two limbs are satisfied by a type the Brief cannot name.**
+  `taxça-mətbəx` (kitchen-niche) is expressed as a `kitchen`, and
+  `divar təsərrüfat şkafı` (built-in wardrobe) is furniture v1 does not model. The
+  first is a recorded narrowing that under-targets; the second is why
+  `prog.storage_exists` is **partly unsatisfiable**, not merely expensive.
+- **`prog.storage_exists`'s 73.35 % is not clean evidence.** A Swiss flat's
+  storage is typically a *Keller* outside the dwelling, invisible to a
+  dwelling-scoped corpus. The number overstates the case against the room, which
+  is an argument for `warn` and against `hard` in both directions at once.
+- **The four messages are English and the surface is Azerbaijani.** These rules
+  arrive already owing the locale dimension the other 36 owe. They do not make
+  that schema change; they enlarge it from 36 to 40.
+- **`bathroom_combined` needs a corpus splitter.** `ergonomic.corpus_label_split`
+  divides the `BATHROOM` label two ways at 2.4 m². With a third class the split
+  should become three-way on the fixture ground truth that is already there —
+  which is retrieval and conversion data, not the bar.

@@ -76,13 +76,27 @@ def programmes(u: int) -> dict[str, tuple[int, int, str]]:
             f"desk 500 x 1050 (AD M Appendix D 'table and chair') + body {u}"),
         "bathroom": (
             F["bath"][0] + u, F["bath"][1],
-            f"bath 700 deep + body {u} alongside; bath 1700 long. Pan and basin "
-            f"occupy the same strip as the body zone, which is shared"),
+            f"bath 700 deep + body {u} alongside; bath 1700 long. BATH ONLY -- "
+            f"this rectangle holds no pan and no basin, and the note that once "
+            f"said it did was arithmetically impossible: bath 1.19 + pan 0.35 + "
+            f"basin 0.27 = 1.81 m2 of fixture in a 1.70 m2 room. The WC lives in "
+            f"a `wc`, a `shower_room` or a `bathroom_combined`, which is what "
+            f"AzDTN cl. 5.2 assumes and what prog.wc_exists tests. Corrected by "
+            f"*A dwelling with no toilet passes every check*"),
+        "bathroom_combined": (
+            F["bath"][0] + u + F["wc_pan"][0], F["bath"][1],
+            f"birlesdirilmis sanitar qovsagi -- bath, pan and basin in one room. "
+            f"Bath 1700 long x 700 deep along one wall; pan 700 + basin 600 = "
+            f"1300 <= 1700 along the opposite wall, the deeper of them 500; one "
+            f"shared body zone {u} in the aisle between, which is what a real "
+            f"1500 mm bathroom does. 700 + {u} + 500 = 1500 across"),
         "shower_room": (
             max(F["shower_tray"][0], F["wc_pan"][1] + u),
             F["shower_tray"][1] + F["wc_pan"][0],
             f"tray 900 beside pan 500 = 1400 along the wall; across, the deeper "
-            f"of the 900 tray and pan 700 + body {u}"),
+            f"of the 900 tray and pan 700 + body {u}. THIS PROGRAMME COMPOSES "
+            f"THE PAN, so a shower_room IS a combined sanitary unit and "
+            f"prog.wc_exists is satisfied by one"),
         "wc": (
             F["wc_pan"][0] + u, F["wc_pan"][1] + u,
             f"pan and cistern 500 x 700 + body {u} to one side and in front"),
@@ -122,6 +136,7 @@ FLAGS = {
     "bedroom_single":        (True,  False, True,  True),
     "study":                 (True,  False, True,  True),
     "bathroom":              (False, True,  True,  False),
+    "bathroom_combined":     (False, True,  True,  False),
     "shower_room":           (False, True,  True,  False),
     "wc":                    (False, True,  True,  False),
     "utility":               (False, True,  False, False),
@@ -129,6 +144,31 @@ FLAGS = {
     "entrance_lobby":        (False, False, False, False),
     "corridor":              (False, False, False, False),
     "storage":               (False, False, False, False),
+}
+
+# Fields a LATER ticket owns but a NEWLY ADDED room type has no prior row to
+# carry them from. One entry per type introduced after those fields existed.
+NEW_ROOM_FIELDS = {
+    "bathroom_combined": {
+        "counts_as_otaq": False,
+        "brief_nameable": True,
+        "reachable_in_v1": {
+            "v": True,
+            "note": ("REACHABLE, AND THE MARKER IS A REVERSAL. "
+                     "profiles.AZ.rooms.areas_m2.bathroom_combined carried "
+                     "reachable_in_v1: false on two reasons and both are spent. "
+                     "The first -- `no ergonomic key can say the WC is inside` "
+                     "-- was false when written: shower_room's own programme "
+                     "composes tray AND pan. The second was AzDTN cl. 5.10, "
+                     "which confines the combined unit to one-otaq state and "
+                     "municipal social stock; C8 forbids reading a regulatory "
+                     "document as a compliance target, and the corpus refutes "
+                     "it as a description of practice -- 67.24% of 44,372 real "
+                     "dwellings put every toilet in a room with a bath or a "
+                     "shower. Without this type a hard prog.wc_exists rejects "
+                     "48.32% of real dwellings, 43.13 points of it dwellings "
+                     "that HAVE a toilet we cannot say they have.")},
+    },
 }
 
 # Composite rooms hold two or three programmes disjointly. A (short, long) pair
@@ -180,6 +220,30 @@ def main() -> None:
 
     doc = json.loads(TARGET.read_text(encoding="utf-8"))
     doc.pop("PLACEHOLDER_NOTE", None)
+
+    # --- carry forward what LATER tickets added to a GENERATED block ---------
+    # This generator authors the arithmetic and the four definitional flags and
+    # NOTHING ELSE. Tickets after it hand-edited the block it emits -- ticket 31
+    # added `counts_as_otaq`, `brief_nameable` and `counts_as_otaq_sourcing`,
+    # *Brief schema and parsing contract* added `reachable_in_v1`, *What a
+    # room's area is allowed to be* added `corpus_medians` -- and none of it is
+    # reproducible from here. Until this ran, a re-run DELETED all of it in
+    # silence, which is the exact drift the module docstring claims generation
+    # prevents. Found by *A dwelling with no toilet passes every check*, which
+    # had to touch this file to add a nineteenth room type -- and found by
+    # tripping it.
+    prior = doc.get("ergonomic", {})
+    prior_rooms = prior.get("rooms", {})
+    AUTHORED_TOP = {"comment", "generated_by", "findings", "reading", "body_zone",
+                    "fixtures_mm", "rooms", "flags_note", "corpus_label_split",
+                    "validated_against_corpus"}
+    AUTHORED_ROOM = {"min_clear_short", "min_clear_long", "min_area",
+                     "packings_mm", "packings_note", "is_habitable", "is_wet",
+                     "is_private", "needs_window"}
+    carried_top = {k: v for k, v in prior.items() if k not in AUTHORED_TOP}
+    carried_room = {r: {k: v for k, v in row.items() if k not in AUTHORED_ROOM}
+                    for r, row in prior_rooms.items()}
+
 
     # NOTE: this generator used to add a `de_baybo` source block, to close a
     # key data/acceptance/rules.json cited and the sources block lacked. *The
@@ -255,6 +319,8 @@ def main() -> None:
                 "is_wet": FLAGS[k][1],
                 "is_private": FLAGS[k][2],
                 "needs_window": FLAGS[k][3],
+                **carried_room.get(k, {}),
+                **NEW_ROOM_FIELDS.get(k, {}),
             } for k, v in rooms.items()
         },
         "flags_note": (
@@ -326,6 +392,14 @@ def main() -> None:
             "weakest_cells_note": "Swiss Dwellings carries no label for these, so they are derived and UNFALSIFIED. study is the weakest number in the file: a one-desk programme with no corpus to check it against and no source that states a study minimum."
         }
     }
+
+    doc["ergonomic"].update(carried_top)
+
+    for r in rooms:
+        got = set(carried_room.get(r, {})) | set(NEW_ROOM_FIELDS.get(r, {}))
+        if not got >= {"counts_as_otaq", "brief_nameable"}:
+            raise SystemExit(f"{r}: no counts_as_otaq/brief_nameable to carry or supply")
+
 
     TARGET.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n",
                       encoding="utf-8")

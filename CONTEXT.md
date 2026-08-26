@@ -262,11 +262,19 @@ advertises a one-bedroom flat with a kitchen-diner as two otaq.
 _Avoid_: "habitable room count", "room count" unqualified, and using habitability
 as a proxy for either.
 
-**Room type** — the closed set of eighteen kinds a [[Room]] may be, and the only
+**Room type** — the closed set of nineteen kinds a [[Room]] may be, and the only
 room vocabulary anything load-bearing reads. The Brief speaks it verbatim, the
 hard dimensional floors are keyed by it, and it is region-invariant: the same
-eighteen types under every region profile, because they are derived from bodies
+nineteen types under every region profile, because they are derived from bodies
 and furniture rather than from any country's convention.
+
+The set grows only when a rule cannot be stated without the new type. It went
+from eighteen to nineteen exactly once, for `bathroom_combined`, because
+[[Programme rule]] `prog.wc_exists` rejected 48.32% of real dwellings over
+eighteen and 43.13 of those points were homes that **had** a toilet the
+vocabulary could not name.
+_Avoid_: adding a type to express a *preference*. A type is how a Room is
+measured, so a type nothing measures differently is a [[Room name]] or a label.
 
 Everything else that names a room is a **projection of it, never a peer**. A
 region profile keys its own soft targets differently and is reached through a
@@ -288,12 +296,40 @@ passing as sourced. A plausible room name in a language the reader speaks and th
 author does not is indistinguishable from a real one, which is why the
 distinction is carried in the data and not in someone's memory.
 
+**Programme rule** — a predicate whose subject is the dwelling's **whole
+programme** — the multiset of [[Room type]]s in a `ResolvedBrief` — rather than
+any one Space, Wall or Opening. Four of them, `prog.*_exists`, and they are the
+only rules in the [[Acceptance bar]] of that shape.
+
+They bind the **Brief and nothing else**, and there is no plan-side twin. The Room
+set is frozen when `resolve` returns — nothing auto-repairs, every Brief Room is
+required, the warp maps onto a fixed multiset, and no floor may go unassigned — so
+a plan-side composition predicate could never fail on a Plan whose Brief passed.
+_Avoid_: calling one a [[Pre-image bound]]. A pre-image bound is the parse-time
+shadow of a rule that also binds a Plan; a programme rule *is* the rule, and its
+severity is chosen against the corpus rather than inherited.
+
 **Auxiliary space** — `yardımçı sahələr`, AzDTN 2.7-2's class for the rooms a
 dwelling must have and that are not [[Otaq]]: kitchen or kitchen-niche, hall,
 bath or shower, WC or combined sanitary unit, storage, laundry. Naming the class
 matters because it is *mandatory* — the norm requires the rooms to exist, not
 merely to be big enough if present — and because it is the complement that makes
 the otaq count decidable.
+
+What enforces it is four [[Programme rule]]s, one per limb — not one rule for the
+clause, because the five limbs do not carry one severity. The `holl` limb has no
+rule: `resolve` invents a hall when the Brief names none, so it holds by
+construction.
+
+**Combined sanitary unit** — `birləşdirilmiş sanitar qovşağı`, one room holding
+both the washing fixture and the WC. Two [[Room type]]s are one: `shower_room`,
+which has composed a pan since the layer was authored, and `bathroom_combined`.
+A plain `bathroom` is **not** one — it is a bath and a body zone, and it holds no
+pan.
+_Avoid_: reading AzDTN cl. 5.10's restriction of the unit to one-otaq social
+housing as a constraint on what v1 draws. C8 forbids reading a regulatory
+document as a compliance target, and 67.24% of real dwellings combine, so the
+clause does not describe practice either.
 
 **Supported band** — what v1 claims, and what it refuses, and they are not the
 same edge. The **gate** is a hard refusal outside 3–10 [[Engine room count]],
