@@ -101,11 +101,26 @@ def main():
 
     check(not [r for r in rules["rules"] if r.get("conf") == "pending"],
           "rules.json carries no pending rules")
+    # THIS CHECK IS EXPECTED TO FAIL until *The annotation spec is US-shaped and
+    # the drawing is now Azerbaijani* lands, and the failure is the point.
+    # *A statutory floor, posted soft, in the one region v1 ships* amended C14 --
+    # a profile may RAISE a hard floor, never lower one -- so the hard floor is
+    # max(ergonomic, statutory_floor) and this binding became a LIST in
+    # rules.json. room-constraints.json is claimed by that other ticket, so the
+    # matching edit was handed over rather than written, and this is the drift
+    # the check exists to catch. Do NOT "fix" it by relaxing the comparison.
+    # The edit is TWO lines and it must be made at the AUTHORING site:
+    #   build_ergonomic_layer.py  hard_reject_below -> ["ergonomic", "statutory_floor"]
+    #   room-constraints.json     statutory_floor_binding "warn" -> "hard"
+    # The generator re-authors this field on every run, which is the same trap
+    # that silently reverted kitchen.needs_window.
     check(rules["tier_binding"]["hard_reject_below"]
           == std["tier_model"]["validator_binding"]["hard_reject_below"],
           "both files name the same hard tier",
           f'{rules["tier_binding"]["hard_reject_below"]!r} vs '
-          f'{std["tier_model"]["validator_binding"]["hard_reject_below"]!r}')
+          f'{std["tier_model"]["validator_binding"]["hard_reject_below"]!r}'
+          " -- EXPECTED until ticket 32 lands the room-constraints.json half; see"
+          " docs/spec/acceptance-bar.md 3.1 and rules.json owed[1]")
 
     # ---- sources with no machine-readable citation -----------------------
     # INFORMATIONAL, never a failure. This ticket owned exactly one orphan --
