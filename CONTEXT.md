@@ -821,13 +821,33 @@ between them: 1650 mm of bedroom width is a bed plus room to walk past it, and
 A profile publishes one only for the room types its law names — ten of nineteen
 are silent in `AZ` — and **silence is not an error**: where there is no statutory
 floor the ergonomic minimum stands alone. It always sits *below* the same
-profile's preferred area, so a Plan that reaches its target clears it by
-construction, and it binds only where the solve failed to.
+profile's preferred area, and it binds only where the solve failed to reach that
+target.
+_Avoid_: “a Plan that reaches its target clears it by construction” — **measured
+and false**. The premise holds and the conclusion does not, because a warp
+delivers a *proportion* of a target rather than the target: 25,5 % of warped
+candidates put some Room below its floor even when every stated target sits at or
+above the profile's preferred area. A statutory floor is a live constraint on
+engine output, not a formality the objective satisfies on its way past.
 
 **A Region profile may raise a hard floor and may never lower one.** That is the
 one direction in which region reaches the reject set, and it is monotone by
 design: a region nobody has surveyed still gets the full ergonomic bar, and no
 profile can take a predicate away or weaken one.
+
+**Hard area floor** — the area a Space is actually rejected below:
+`max(`[[Ergonomic minimum]]`, `[[Statutory floor]]`)` for its Room type, per Room
+and never per part. Named because the two halves are **one number with two
+sources and two costs**, and every consumer wants the composed number while every
+amendment touches exactly one half. The ergonomic half is derived, region-free
+and rejects 0,19 % of real dwellings; the statutory half is transcribed, carries a
+region, and is the entire measured cost of the pair. Both are `hard`, and a
+predicate states only its own half — the composition is this term, so that raising
+one limb of one region's law is a value edit and not a rule edit.
+_Avoid_: reading the composed floor as a single rule with a single severity, or
+quoting either half's corpus cost as the pair's. And do not reach for it as the
+number a room is *sized* to: it is a floor far below what anyone builds, and the
+liveable number is the [[Region profile]]'s preferred area.
 
 **Region profile** — the set of *conventional* values a Plan is built and drawn
 to: the thickness catalogue, the decimal separator, the room-name abbreviations,

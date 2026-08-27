@@ -583,9 +583,18 @@ market_default  ->  corpus median  ->  absent
 ```
 
 `tier_model.default_tier` is `market_default` and names this ticket:
-*"A plan built to the statutory floor is legal and unliveable."* `statutory_floor`
-is **read by nothing in v1** — C14 says a region profile never rejects a Plan, and
-every hard floor is the region-invariant ergonomic minimum.
+*"A plan built to the statutory floor is legal and unliveable."*
+
+⚠️ **This block used to end *"`statutory_floor` is read by nothing in v1 — C14
+says a region profile never rejects a Plan, and every hard floor is the
+region-invariant ergonomic minimum"*, and every clause of that is now dead.**
+*A statutory floor, posted soft, in the one region v1 ships* amended C14
+monotonically: the validator reads `statutory_floor`, the hard floor a Space is
+rejected below is the **[[Hard area floor]]**, `max(ergonomic, statutory)`, and
+`dim.statutory_min_area` is `hard` — re-confirmed at a measured price by *The
+statutory floor now has a price*. What survives is this **ladder**, which is about
+*defaulting a target*, not about rejecting a Plan: the tier a silent Room is sized
+to is still `market_default`, and a statutory floor is never a target.
 
 The second rung exists because a profile silent on a room type is the normal case,
 not an error: `AZ` ships `market_default: None` for `wc`, `hall`, `kitchen_niche`
@@ -636,17 +645,23 @@ the `wc` target `AZ` was silent on, so the 40 m² WC is capped at
 
 ### 9.4 The feasibility pre-check
 
-**Eight bounds, one function** — called at parse time and again when no candidate
+**Nine bounds, one function** — called at parse time and again when no candidate
 survives, so `acceptance-bar.md` §11's requirement that the two produce the same
-sentence holds by construction.
+sentence holds by construction. ⚠️ **It does not hold for every starvation**, and
+`acceptance-bar.md` §11.1 now names the exception: a Brief can pass all nine and
+still have no surviving candidate, in which case there is no parse-time sentence
+to agree with because there is no Brief defect.
 
 **No severity in bounds 1–7 is chosen.** Four of them are the parse-time
 **pre-image** of a rule that already ships in `rules.json`, and each inherits that
 rule's severity; the other three have no pre-image and say so. ADR 0015 records
-the principle and why it is not a product judgement. ⚠️ **Bound 8 is the
-exception and it inverts the direction**: `acceptance-bar.md` §13's programme
-rules are brief-scope with no plan-side twin, so the bound *is* the rule and its
-severities are chosen against the corpus — ADR 0022.
+the principle and why it is not a product judgement. ⚠️ **Two bounds are outside
+that reading, in opposite directions.** **Bound 8** inverts it —
+`acceptance-bar.md` §13's programme rules are brief-scope with no plan-side twin,
+so the bound *is* the rule and its severities are chosen against the corpus, ADR
+0022. **Bound 9** falls short of it — its rule is `hard` but the implication is
+one-directional, so ADR 0015 explicitly declines to transfer the severity and the
+bound argues its own.
 
 | | bound | pre-image of | severity |
 |---:|---|---|---|
@@ -658,6 +673,7 @@ severities are chosen against the corpus — ADR 0022.
 | 6 | Σ upper band below the interior a **given** Envelope fixes | `dim.max_area` ∧ `model.no_unassigned_area`, both hard | **hard** |
 | 7 | `shape` **stated** | — no rule governs retrieval coverage | **warn** |
 | 8 | a mandatory room the programme does not contain | `prog.*_exists` — **the rule, not its pre-image** | **hard ×3 / warn ×1** |
+| 9 | a **stated** `Room.target_area` below that Room's **hard area floor** | `dim.statutory_min_area` ∧ `dim.min_area` — ⚠️ **not a pre-image**, see below | **warn** |
 
 Every bound runs **after `resolve`**, so the `hall` §3.1 invents is inside every
 sum — the same reason this section carries no separate circulation allowance term.
@@ -927,13 +943,53 @@ no resolution** — a nine-room Brief with no toilet is told to add a room and t
 it may not. Nothing yet says which sentence leads. Handed to
 `homeowner-surface.md`'s holder in §12.
 
-#### The worked example in `acceptance-bar.md` §11 is still not reproducible
+#### Bound 9 — the room asked for below its own floor
 
-It reads *"Three bedrooms, a bathroom and a kitchen need at least 58 m²"*; the
-realisable ergonomic minima give about 18 m² and `AZ` `market_default` gives about
-48 m². The sentence must quote the computed pair — the market number as the
-recommendation, the ergonomic number as the hard line. Handed on in §12; this spec
-does not hold that file.
+**Bound 1 bounds the sum, and nothing bounded a Room.** A Homeowner asking for a
+6 m² kitchen in `AZ` — where the floor is 8,0 — passed parse time in silence and
+then lost every candidate at the validator, with a zero-survivor sentence that
+could only talk about the total. The bound closes that: for each Room with a
+*stated* target, compare it against that Room's **[[Hard area floor]]**,
+`max(ergonomic minimum, region statutory floor)`, and name the Room and the field.
+
+⚠️ **It is not a pre-image, and this is the first bound where ADR 0015 declines
+rather than decides.** The rule behind it is `hard`; the bound is `warn`, and the
+gap is the implication. ADR 0015 transfers a severity only when *every* reachable
+Plan fails, and here some do not: `model.no_unassigned_area` fixes Σ Space at the
+interior **exactly** and §9.3 targets are **two-sided bands**, so a kitchen stated
+at 6 m² can be delivered at 8 with another Room absorbing the loss — a real
+outcome, not a theoretical one, since `cross` per-Room deviation reaches **+3,30
+m² at p95**. Per ADR 0015 consequence 5, shipping that implication at `hard`
+refuses buildable Briefs; per consequence 2, a bound needing a fitted slack
+threshold of its own is the tell that it is not a pre-image. So the severity is
+**argued here rather than read**, which is exactly what ADR 0015 requires of a
+bound that is not a pre-image.
+
+**Why `warn` and not silence.** The stated-low Brief is the one case where the
+parse-time sentence and the zero-survivor sentence *can* agree, and agreeing early
+is worth more than agreeing late: the Homeowner gets the field to edit before the
+gallery comes back empty, rather than after.
+
+**Why not repair it.** Raising a stated 6 to an 8 is what §9.5 forbids and what
+§9.2's ladder cannot do — the ladder fills **absent** fields, and a stated one is
+not absent. The engine says the number is below what gets built here. The Room
+stays as asked.
+
+⚠️ **The message is arithmetic and never names a law.** C8 forbids claiming code
+compliance, and `rules.json` carries the same instruction on this rule verbatim.
+*"Kitchens here are built at 8 m² and up; your brief says 6"* is a statement about
+areas. *"AzDTN cl. 5.7 requires 8 m²"* is a compliance claim and is not available
+to any Homeowner-facing surface.
+
+#### The worked example in `acceptance-bar.md` §11
+
+✅ **Discharged.** It read *"three bedrooms, a bathroom and a kitchen need at least
+58 m²"* and was reproducible from nothing — realisable ergonomic minima give about
+18 m², `AZ` `market_default` about 48. `acceptance-bar.md` §11 now quotes the pair
+from §3.1's published per-otaq series (**26,5 / 37,5 / 47,5 / 57,5 m²**, before
+the partition footprint), which is measured rather than invented. The hard side of
+that pair is the hard area floor, not the ergonomic minimum, and it is the
+statutory half that dominates it.
 
 ### 9.5 Nothing is auto-repaired
 

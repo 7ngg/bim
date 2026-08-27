@@ -261,6 +261,90 @@ file is claimed by *The annotation spec is US-shaped and the drawing is now
 Azerbaijani*, so it is handed there rather than written from here — the
 parallel-write hazard the map's Notes exist to prevent.
 
+### 3.2 The trigger fired, and the rule does not move
+
+**ADR 0027** records the general form and its scope: *where a hard rule is the thing that
+distinguishes this engine from what the market ships, its cost is a debt owed by the stage
+that produced the failure — never a reason to weaken the rule.* It is scoped to this rule
+and to no other in the registry.
+
+§3.1 named its own revisit condition — *"if the first Proposer run shows the warp
+systematically undershooting per-room area, this rule collapses yield"* — and
+*The warp has never been measured against a stated target area* fired it inside a
+week. **The rule stays hard, at all five limbs.** The premise §3.1 argued from is
+**true and its conclusion is false**: `market_default` does sit at or above
+`statutory_floor` in every reachable AZ cell, and a Plan that *reaches* its soft
+target does clear the rule — but the warp does not reach the target, it reaches a
+**proportion** of it.
+
+**The corrected price**, same sample, same seed, after *The sizing rung
+under-delivers* removed two defects in the measuring rig's Envelope:
+
+| | as first measured | **corrected** |
+|---|---:|---:|
+| candidates losing a Room below its floor | 31,1 % | **25,5 %** |
+| Briefs with no clearing candidate, pool of 8 | 6,7 % | **3,6 %** |
+| kitchens delivered under 8,0 m² when asked for 9,0 | 21,8 % | **17,4 %** |
+| lower quartile margin of the kitchens that pass | +0,085 m² | **+0,518 m²** |
+
+⚠️ **3,6 % is an upper bound, not a shipped figure.** It is measured at
+**pool-of-8**, and `proposer.md` §2.2.7 is explicit that the fidelity sample is
+the 2,317 converted dwellings of the ADR 0016 sample — *"a pool of 87 in
+production is a pool of 8 here"* — against a production median pool of **86.6**
+at 4–6 rooms and **58.7** at 7–10. ⚠️ And do not reconstruct it by compounding
+the per-candidate 25,5 %: declines are **correlated within a pool**, because every
+candidate for one Brief is sized from one Envelope. *What best-of-pool is worth at
+production depth* measures the curve.
+
+**Four reasons, in the order they bind.**
+
+1. **The asymmetry was never conditional on the price.** §3.1 posted this rule on
+   *discovered versus shipped*, and discovery is what just happened. Weakening the
+   rule now spends the argument on the single event that vindicates it.
+2. **The price halved and it is an upper bound.** 3,6 %, not 6,7 %, against ADR
+   0018's 6,9 % for every dimensional decline combined.
+3. **The 17,4 % is the warp's, not the rule's.** No sizing constant reaches it —
+   `f = 0.0575` is vindicated and the level lands at **+0,4 %** — so what survives
+   is the warp's per-room *distribution*, which a perfect level leaves intact.
+   §7.5's precedent is this same object from the same side:
+   `win.habitable_has_window`'s 45,19 % was *"handed to the retrieval and
+   conversion side, not paid for by weakening a statutory rule."* A predicate is
+   the wrong instrument against a proposer defect.
+4. **The market settles it.** `competitive-landscape.md` §5.2: *code compliance is
+   claimed by six vendors and implemented by approximately zero* — user-authored
+   graph rules, LLM Q&A over a PDF that never touches the geometry, or a ToS
+   disclaimer. A curated, first-hand, geometrically-enforced statutory floor is the
+   one thing this engine has that the surveyed market does not. Trading it for
+   3,6 % of yield sells the differentiator to cover a debt the proposer owes.
+
+**All five limbs stay, and the kitchen is the one that had to be argued.** It is
+**16,88 of the 19,98** marginal corpus points and the limb the warp fails, so it
+is the only one worth dropping — and dropping it does not lower the kitchen floor,
+it **removes** it. The ergonomic `kitchen.min_area` is **1,8 m²** (900 × 2100 mm,
+a galley strip) against a statutory 8,0: a 3 m² kitchen would pass. The Swiss p50
+of **8,04** against a floor of 8,0 is not evidence the floor is too high. It is
+evidence the floor sits exactly where people build, which is what a *habitable*
+minimum is for.
+
+**What moved instead.** The rule now states **only its own half**. The composed
+number is a named term — **[[Hard area floor]]** in `CONTEXT.md`,
+`max(ergonomic minimum, statutory floor)`, per Room and never per part — because
+every consumer wants the composition and every amendment touches one half.
+Composing the `max` inside the rule statement made a limb amendment read as a rule
+amendment; it is a **value** edit. §11 and `brief.md` §9.4 read the term.
+
+**And the Brief gains a bound that is not a pre-image.** `brief.md` §9.4 **bound
+9**: a *stated* per-room target below its own hard area floor, at **`warn`**.
+⚠️ **ADR 0015 does not decide that severity, and this is the first bound where it
+cannot.** The implication fails in the direction ADR 0015 cares about:
+`model.no_unassigned_area` fixes Σ Space at the interior exactly and §9.3 targets
+are two-sided bands, so a kitchen stated at 6 m² **can** be delivered at 8 with
+another Room absorbing the loss. Per ADR 0015 consequence 5 a `hard` bound there
+is a heuristic refusing buildable Briefs; per consequence 2, a bound needing a
+fitted slack threshold of its own is the tell that it is not a pre-image. §9.5
+forbids the tidy fix as well — raising a stated 6 to an 8 in the defaulting ladder
+is auto-repair, and that ladder fills only **absent** fields.
+
 ## 4. Circulation — two graphs, not one
 
 C6 item 1 asked for a defined graph. There are two, and they answer different
@@ -735,16 +819,63 @@ states that a Plan failing the bar is not shown, and that invariant is the whole
 point of the bar; relaxing the hard set to fill a gallery makes it advisory, and a
 Homeowner cannot judge a plan annotated with three defects.
 
-The diagnosis is **arithmetic, not search**: the sum of hard minimum areas for the
-Brief's rooms, plus a circulation allowance, is a lower bound on a feasible
+The diagnosis is **arithmetic, not search**: the sum of the
+[[Hard area floor]] over the Brief's rooms is a lower bound on a feasible
 **Σ Space area** — which, since ADR 0010, is exactly what `target_area` means, so
-the two sides of the comparison need no conversion between them.
+the two sides need no conversion between them. Every bound runs after `resolve`,
+so the invented `hall` is inside the sum and there is no separate circulation
+allowance term.
 
-> *Three bedrooms, a bathroom and a kitchen need at least 58 m². Your brief says
-> 45 m².*
+⚠️ **The sentence quotes computed numbers and this spec does not hard-code one.**
+The example this section shipped — *"three bedrooms, a bathroom and a kitchen need
+at least 58 m²"* — was reproducible from nothing: realisable ergonomic minima give
+about 18 m² and `AZ` `market_default` about 48. Since §3.1 the hard side is
+dominated by the statutory half, and the series that **is** published is per otaq,
+before the partition footprint: **26,5 / 37,5 / 47,5 / 57,5 m²** for one to four
+otaq. Quote the **pair** — the market number as the recommendation, the hard area
+floor as the line:
+
+> *Dörd otaqlı mənzil ən azı 57,5 m² tələb edir. Sizin brifinizdə 45 m² yazılıb.*
+> — a four-otaq dwelling needs at least 57,5 m²; your brief says 45.
 
 Alongside it, the dominant hard failure across the rejected batch, in Homeowner
 language, leading with the Brief field to edit.
+
+### 11.1 The starved Brief that has no defect to name
+
+**A Brief can pass every bound and still be starved.** Ticket 55: every stated
+target at or above `market_default`, §9.4 silent, and **3,6 %** of such Briefs
+(pool-of-8, an upper bound — §3.2) have no candidate that clears
+`dim.statutory_min_area`, because the warp delivers a proportion of a target
+rather than the target.
+
+⚠️ **This section's same-sentence guarantee does not reach that case.** The
+guarantee is that the parse-time check and the zero-survivor diagnosis produce the
+same sentence. Here **there is no parse-time sentence**, because there is nothing
+wrong with the Brief. Naming it is the point: a guarantee with a silent hole is
+worse than a stated exception.
+
+**Three steps, in order, and the hard set is not one of them.**
+
+1. **Deepen the pool before declaring starvation.** No failing Plan is shown and
+   no predicate moves — this is spending more search, which this section has never
+   forbidden. It is also the step most likely to *be* the answer, since 3,6 % is a
+   pool-of-8 number against production pools 58.7–86.6 deep.
+2. **Fall through to source B**, per ADR 0005, which is already the declared
+   behaviour where retrieval cannot answer. ⚠️ **Source B's per-room absolute area
+   fidelity is unmeasured** — `proposer.md` §6.1's evaluation has four
+   plan-quality terms and delivered-versus-stated area is not among them. This is
+   where the Brief **goes**; it is not a step this spec may claim will succeed.
+3. **Only then, the no-survivor sentence — and it is a new kind.** Every other one
+   names a Brief defect and the field that edits it. This one names none, because
+   there is none. It reports the *engine's* limit and offers the two edits that
+   widen the search — raise `target_area`, or drop a Room — and it must not imply
+   the Homeowner asked for something wrong.
+
+**Not available:** relaxing the hard set to fill a gallery, and any sentence on
+this rule that names a law (C8). The rule is `hard`, so a failing Plan is
+discarded and never shown; everything the Homeowner reads here is arithmetic about
+areas.
 
 ## 12. Open, and deliberately so
 
@@ -760,6 +891,10 @@ language, leading with the Brief field to edit.
 | §13's four messages, in Azerbaijani — the **locale dimension**, now over 43 rules rather than 36 | whoever next holds `rules.json` |
 | A **three-way** `corpus_label_split`, now `bathroom_combined` exists — the fixture ground truth is already in the corpus | whoever next holds `experiments/rectangularise/` |
 | Whether a **nineteenth-and-twentieth** type is owed: `taxça-mətbəx`, and a Brief-nameable built-in wardrobe (§13.6) | whoever next holds `brief.md` §3 |
+| ~~§11's worked example is not reproducible~~ — **closed by §11**, which quotes §3.1's published per-otaq series instead of a number nobody could derive | — |
+| **What best-of-pool is worth at production depth** — 3,6 % is measured at pool-of-8 and the fidelity sample cannot hold a pool of 87. §3.2 | *What best-of-pool is worth at production pool depth* |
+| **Source B's per-room absolute area fidelity** — §11.1 step 2 routes the starved Brief there and `proposer.md` §6.1 has no term that measures it | whoever next holds `proposer.md` §6 |
+| The **`escalation` block's step 1** — how much deeper the pool goes, and who pays the solve time | the Runtime and process split row, once §3.2's curve lands |
 ---
 
 ## 13. What a dwelling owes — the four programme rules
