@@ -60,6 +60,18 @@ this system does not model niches."*
 Room at two rectangles and measured the cap — 52.9 % of real rooms are one
 rectangle, 77.8 % are at most two. The remaining 22.2 % is where this shows up.
 
+**Nothing on the market faces this, and that is a finding rather than a gap in
+the reading.** `floorplan-generation-stack.md`: *not one published model emits
+walls with thickness*, zero across ~20 generators 2020–2026, and RPLAN and LIFULL
+are already orthogonal, so the second rectangle never arrives and the hole never
+appears. `competitive-landscape.md`: eleven products, every one of which stops
+*"until schematic design"* or *"BIM schematic design (LOD 200+)"* and hands the
+model on for someone else to detail — Finch ships *generic walls needing manual
+swap*, Snaptrude tells its own users to export to Revit for documentation. **A
+plan that stops at schematic has no obligation to tile**, so no vendor has to say
+whose floor an unnamed pocket is. `model.no_unassigned_area` is the rule that
+puts this engine past them, and it is why the question cannot be punted.
+
 ## Decision
 
 **The enclosed void is charged to a Room and bounded in the warp, carried on the
