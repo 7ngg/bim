@@ -198,6 +198,7 @@ of the coverage table.
 | `notches_used`, and each notch's index span | the Envelope shape the candidate carries (§2.2.3) |
 | **per-pair relation provenance** — for every axis-pair, whether the *corpus* asserted that separation or the *conversion* invented it | §2.2.5; ADR 0016 measures the invented share at **12.62 %** of axis-pairs and only the conversion can tell them apart |
 | the entrance-adjacent Room, if the corpus identifies one | §2.2.6 |
+| **`frontage_reach`** — the minimum, over the dwelling's `needs_window` Rooms, of the boundary run that Room holds ÷ the frontage budget the solver posts for it | §4.5; below 1.0 the donor holds a Room that cannot seat its window on its own boundary |
 | `RegionProfile`/`CorpusProvenance` = `AZ`/`CH` | C14 |
 
 The last two are **new obligations on the conversion**, which today emits
@@ -318,8 +319,9 @@ The gate admits a median 58–87 dwellings after conversion (§2.2.7). C6 wants 
 candidates and not 87 near-identical ones.
 
 1. **Gate** — dict hit, then scan the bucket on total area and aspect. Free.
-2. **Pre-rank** — order the bucket by the affine warp's worst-room deviation,
-   which needs no solve. A proxy, and only for choosing whom to warp.
+2. **Pre-rank** — **partition on `frontage_reach ≥ 1.0`**, then order within each
+   part by the affine warp's worst-room deviation, which needs no solve. A proxy,
+   and only for choosing whom to warp.
 3. **Warp** the head of that order, then **re-rank on the real post-warp
    number**. A warp that declines (§2.2.2) drops out here.
 4. **Take `m`**, never two orientation variants of the same source dwelling
@@ -328,6 +330,12 @@ candidates and not 87 near-identical ones.
 **Diversity is a post-hoc filter, not a ranking term.** As a term it needs a
 weight against area fidelity that nobody can fit; as a filter it is a rule with
 no free parameter.
+
+**`frontage_reach` is a partition for the same reason** — a weight against area
+fidelity is unfittable, and a partition needs none: the cut sits at 1.0 because
+that is where the solver's own hard constraint sits. It demotes and never
+excludes; §4.5 records why a gate was refused, and 6.39 % of the index sits below
+the cut.
 
 **`m` is an ENGINE_CHOICE and this spec does not fix it.** It is a cost dial as
 well as a latency dial — each candidate is a warp plus a 15 s projection, and
@@ -626,6 +634,187 @@ splits each wall at its axis, so a converted room's area includes half of every
 wall around it. Per ADR 0001 the clear rectangle is that eroded by `t_int/2`, and
 anything comparing against a clear-dimension threshold must erode first.
 
+### 4.5 Glazing is not a property a donor hands over
+
+**The corpus is admitted unfiltered on glazing, for both sources.** No index
+filter, no training filter, no reweighting, and no niche exception. What replaces
+the filter is one index field and one ranking partition, on the property the warp
+actually inherits. *A third of real kitchens have no window and the engine may not
+draw one*; ADR
+[0025](../adr/0025-glazing-is-not-a-property-a-donor-hands-over.md).
+
+The ticket asked what the engine does about a population it learns from and may
+not reproduce. **The population was mis-identified.** A donor's windows are never
+inherited:
+
+- §1 emits **boxes** — *"no validity guarantee; no adjacency graph; no wall
+  geometry"* — and no openings.
+- `openings.md` §6.1 places **one window per Space**, on its longest
+  `exterior`-condition run, **after** the solve.
+- *H8 and the single-aspect flat* moved `win.habitable_has_window` to site
+  `both`, so the **solver** posts the frontage budget hard — 1 100 mm for a
+  kitchen, 1 400 for a bedroom, 1 700 for a living room.
+
+A donor's glazing is overwritten in every case. What a donor hands over is its
+**arrangement**, and through the arrangement one thing that binds: whether each
+`needs_window` Room can reach a wall at all.
+
+This **discharges an obligation already recorded here** rather than inventing an
+argument. `docs/research/acceptance-thresholds.md` §13 left this page exactly
+this, and named this ticket as one of its two recipients:
+*"Both are opening-layer rules, placed after the solve, so a candidate's prior of
+clearing the bar is set by a layer the Proposal does not carry."*
+
+#### The number that is a retrieval cost, and it is not the ticket's
+
+`experiments/corpus-smoke/`, over 46,565 dwellings — the whole converted-corpus
+room cache, against the 561 the rule had been measured on:
+
+| | dwellings |
+|---|---:|
+| hold a dark `needs_window` Room — the shipped rule's corpus cost | **38.55 %** |
+| …and hold that Room **on the boundary**, where this engine glazes it | 33.17 % |
+| **hold a `needs_window` Room that reaches no boundary at all** | **5.88 %** |
+| **…or reaches less than the frontage budget the solver posts** | **6.39 %** |
+
+**86.04 % of every dwelling the shipped rule rejects is reglazed for free.** Per
+room the kitchen is **28.90 %** dark and **3.54 %** landlocked, and **88.36 %** of
+the corpus's 12,717 windowless kitchens reach a wall. The population this section
+is about is **6.39 %**, six times smaller than the number the ticket was raised
+on, and its failure mode is **INFEASIBLE at the solve** — the frontage budget is a
+hard solver constraint — not rejection at the bar.
+
+⚠️ **Three published per-room figures move, and one of them was a warning coming
+true.** *H8 and the single-aspect flat* flagged its own `LIVING_ROOM` figure as
+*"measured on only 105 rooms and may be a labelling effect"*. It was:
+
+| | 561 dwellings | **46,565** |
+|---|---:|---:|
+| dwellings rejected | 43.3 % | **38.55 %** |
+| kitchen alone | 23.0 pts | **21.64 pts** |
+| `KITCHEN` rooms | 31.0 % | **28.90 %** |
+| **`LIVING_ROOM` rooms** | **20.0 %** | **10.09 %** |
+| `DINING` rooms | not reported | **19.54 %** (n = 1,315) |
+
+Restricting to h8's own population — floors carrying two or more dwellings —
+moves the headline to 38.77 %, so the gap is **sample size and not population**.
+
+⚠️ **`rules.json`'s `corpus_cost` 0.4519 is not contradicted and must not be
+overwritten.** It is the *raw* arm of `experiments/acceptance-thresholds/`, 42,985
+unconverted dwellings under a different envelope method, and its own leave-one-out
+says the rule adds **15.97 points** to the bar rather than 45. Three numbers, three
+questions; none of them is the retrieval cost, which is the row above.
+
+#### Why the filter is refused, and it is the overlap the ticket asked for
+
+Paired on ADR 0016's own 2,600-dwelling sample — the only dwellings whose
+conversion verdict is known, so there is no sampling gap to argue about. The
+conversion's refusal reproduces at **9.75 %** against ADR 0016's 9.74 %, which is
+the join's own check:
+
+| | window PASS | window FAIL | total |
+|---|---:|---:|---:|
+| conversion **converts** | 1,413 | 902 | 2,315 |
+| conversion **refuses** | 144 | 106 | 250 |
+
+**The two drops compound; they do not overlap.** Both refuse 4.13 % against
+3.83 % under independence — **lift 1.08×**. Joint drop **44.91 %**; survive both
+**55.09 %**; the window rule's marginal cost on dwellings the conversion keeps is
+**38.96 %**. ADR 0016 fought Swiss 30.70 % → 9.74 %, and a glazing filter would
+hand back four times what that bought — for a property the opening layer
+overwrites.
+
+✅ **No slope is restored.** ADR 0016's headline gain was flattening a conversion
+that preferred small dwellings. Window-fail runs **42.9 % at four rooms to 36.0 %
+at ten** — flat to *declining* — so nothing about this filter re-biases the index
+by size.
+
+#### What retrieval owes: a field and a rank, and deliberately not a gate
+
+**`frontage_reach`, a new index record field** (§2.2.1): the minimum, over a
+dwelling's `needs_window` Rooms, of the boundary run that Room holds divided by
+the frontage budget the solver posts for it. Dimensionless; below **1.0** the
+donor holds a Room that cannot seat its window on its own boundary.
+
+**A partition in the pre-rank, not a weighted term** (§2.2.4): candidates with
+`frontage_reach ≥ 1.0` are ordered ahead of those below it, and the existing
+worst-room-deviation order holds inside each part. §2.2.4 already refuses weighted
+terms — *"it needs a weight against area fidelity that nobody can fit"* — and this
+needs none: the threshold is 1.0 because that is where the solver's own hard
+constraint sits, so the rule introduces **no free parameter and no fitted
+constant**.
+
+⚠️ **It is a rank and not a gate, for three reasons, and the third is the one that
+decides it.** The residue is small (6.39 %); a gate would thin hardest exactly
+where ADR 0013 already calls the index tight — landlocked runs **0.73 % at three
+rooms to 10.91 % at ten and 12.83 % at twelve**; and, decisively, §2.2.6 records
+that **the conversion knows boundary contact and not exterior-versus-party**. So
+`frontage_reach` is **necessary and not sufficient**: a run measured on the donor
+may be party edge in the target Envelope and host no window. A hard gate on a
+necessary-not-sufficient proxy claims what it does not know. This is why it does
+**not** follow *The two-notch cap is now evidenced*'s worst-room-IoU precedent —
+that quantity is a pure donor-fidelity fact, and this one is a joint fact about
+the donor **and** the Brief's Envelope.
+
+#### Source B, and the warning the ticket carried is false as stated
+
+The ticket warned that *"a trained Proposer that learned windowless kitchens from
+31 % of its data will propose them everywhere"*. **§2.3's model has no window
+token.** It emits two box slots per Room with a presence token, so the only thing
+it can learn from a windowless kitchen is an **interior kitchen** — and that
+prior is **5.88 %**, not 31 %.
+
+**The training set is therefore not filtered either**, and for a reason beyond the
+arithmetic: a landlocked room is not a defect in the donor, it is a fact about
+real housing that the solver already refuses hard. Trading 5.88 % of a corpus ADR
+0013 calls thin, to suppress a case the projection rejects anyway, buys nothing.
+
+What is added instead is **a fourth plan-quality term in §6.1** — `frontage_reach`
+computed on a generated Plan by the same code that computes it on a corpus
+dwelling, so the model's rate is **measured against the corpus's own 5.88 %**
+rather than assumed. Evaluation, not a stop condition, exactly as the other three.
+
+**ResPlan needs no separate decision.** It is training-only (§4.3) and its schema
+carries a first-class `window` field, so the same measurement is available there —
+but nothing above depends on the donor's windows, so there is nothing to measure
+before admitting it.
+
+#### The `taxça-mətbəx` is refused again, and on a stronger ground
+
+`profiles.AZ.windows.kitchen_niche_windowless` holds **`false`**, and this section
+does not move it. **The exception is not refused for being small**: a
+borrowed-daylight exception would retain **91.47 %** of the index against 61.45 %
+under the rule as shipped — thirty points, the largest single lever this ticket
+priced. It is refused because **v1 has no producer and no consumer for it**. The
+engine glazes kitchens itself, so it never needs to emit one; and no Brief can ask
+for one — there is no `taxça-mətbəx` Room type, which ADR 0022 §4 already records
+as a partly unsatisfiable limb. A rule with neither is a rule that cannot fire,
+and *H8 and the single-aspect flat* retired two rules on exactly that test.
+
+⚠️ **And the evidence it rested on does not say what two documents read it as
+saying.** *H8 and the single-aspect flat* §6 and this ticket both glossed *"84.7 %
+adjoin a windowed habitable room"* as *"the `taxça-mətbəx` arrangement"* — an open
+kitchen zone of a windowed living space. **Adjacency is not openness.** cl. 5.7's
+niche is a **recess open to the room it sits in**; a separate kitchen with a
+**door** onto a windowed living room is a windowless kitchen, which cl. 9.12
+forbids outright. Swiss Dwellings ships the openings, so the two can be told apart
+in one direction — `experiments/corpus-smoke/kitchen_niche_test.py`, over the
+11,139 windowless kitchens that adjoin a lit room:
+
+| | kitchens | of adjoining |
+|---|---:|---:|
+| **DOOR polygon on the shared boundary — not a niche** | **5,227** | **46.93 %** |
+| no door polygon — undetermined, see below | 5,912 | 53.07 % |
+| *(of all 12,717 windowless kitchens: clear cl. 5.7's 5 m²)* | 9,277 | 72.95 % |
+| *(…and have no lit neighbour at all — nothing to borrow from)* | 1,578 | — |
+
+⚠️ **The test is one-sided and the remainder is not the other half.** A missing
+door polygon is not evidence of an open threshold: the corpus may not model one,
+or the two rooms may merely touch. So **nearly half of the population is
+positively not a niche and the rest is undetermined** — nothing here licenses
+reading any share of it *as* one. The 84.7 %/87.59 % figure is sound; the gloss on
+it is withdrawn.
+
 ---
 
 ## 5. The arrangement metric
@@ -867,7 +1056,7 @@ scoped so it never depends on this metric: coverage (§2.1) and the arrangement
 metric (§5) decide it. The beat-retrieval ablation waits for *Ergonomic minima*
 and *Fit the ENGINE_CHOICE acceptance thresholds*.
 
-#### Three plan-quality terms that are available now
+#### Four plan-quality terms that are available now
 
 Everything above measures whether a Proposal reaches a **valid** Plan.
 *Validate the arrangement metric against the solver* established that §5 predicts
@@ -888,10 +1077,17 @@ the corpus distribution, not a threshold.
    habitable non-sleeping Room. Real: **73.7 %**.
 3. **Social transit** — the fraction of sleeping Rooms reachable only through a
    social Space. Real: **11.1 %**.
+4. **`frontage_reach` below 1.0** — a `needs_window` Room holding less boundary
+   run than the frontage budget posted for it. Real: **5.88 %** of dwellings,
+   3.54 % of kitchens (§4.5). Added by *A third of real kitchens have no window
+   and the engine may not draw one*, and it qualifies on the same property: it is
+   the same field the index already carries, computed by the same code on either
+   side. It is the term that says whether a **trained** source has learned the
+   interior kitchen the corpus is full of.
 
 ⚠️ These are **evaluation** terms and are not stop conditions. §6.2 stays as it
 is: a source that zones well and reaches no valid Plan has not earned its place,
-and none of the three has been measured on a generated Plan by anyone, because no
+and none of the four has been measured on a generated Plan by anyone, because no
 Proposer has been run.
 
 ### 6.2 Stop conditions for training
@@ -957,6 +1153,29 @@ surfaced to the Homeowner as a C4 Assumption.
   `room-constraints.json`, and one soft term to whoever next opens the objective —
   all specified in `docs/research/zoning.md` §5, none written here, because
   `rules.json` has four claimants and this ticket has none of them.
+- ✅ From ***Fit the `ENGINE_CHOICE` acceptance thresholds to the corpora***, via
+  `acceptance-thresholds.md` §13 — *"a candidate's prior of clearing the bar is
+  set by a layer the Proposal does not carry"*. **Discharged** by §4.5, which
+  turns it into the reason the corpus is admitted unfiltered on glazing. The half
+  addressed to ***A donor's enclosed void becomes area nobody asked for*** is
+  untouched and still open.
+- From ***A third of real kitchens have no window and the engine may not draw
+  one***, to the holders of the files it does not write:
+  - **`experiments/rectangularise/fit_rects.py`** — `frontage_reach` is a new
+    per-record field (§2.2.1) and the fit already holds both inputs: the room
+    polygons and the assembled envelope. It is one intersection per
+    `needs_window` Room. `experiments/corpus-smoke/boundary_contact.py` computes
+    it today and is the reference. This joins the **cut-line frame** and
+    **per-pair relation provenance** that §2.2.1 already owes the same file.
+  - **`experiments/solver-toy/`** — nothing on this map has measured what
+    `select_relations`' positive-cost filter actually posts, and §4.5's choice of
+    a rank over a gate turns on it: a landlocked donor is only *provably*
+    infeasible if the separations that enclose the Room survive selection. Measure
+    it and the gate becomes arguable; leave it and the rank is the honest posting.
+  - **`docs/spec/acceptance-bar.md`** — `win.habitable_has_window` now has three
+    corpus costs answering three questions (§4.5). None is wrong; the file should
+    say which is which rather than let a reader take 0.4519 for the retrieval
+    cost.
 
 ## 8. Honest limits
 
@@ -990,3 +1209,13 @@ surfaced to the Homeowner as a C4 Assumption.
   converted corpus* rendered the conversion; nothing has yet drawn what comes out
   the far side of §2.2.2, and ADR 0017 is the standing reminder that a metric is
   not a look.
+- ⚠️ **`frontage_reach` is necessary and not sufficient, and it is quoted as a
+  lower bound throughout §4.5.** It measures boundary **contact** on the donor,
+  because §2.2.6 records that the conversion cannot tell `exterior` from `party`.
+  A Room holding 4 m of donor boundary may hold 4 m of *party* edge in the target
+  Envelope and take no window at all. So **6.39 % is the floor of the residue and
+  not its size**, and the quantity that would bound it — the joint distribution of
+  donor contact against target-Envelope exposure — needs the Brief's Envelope and
+  has never been measured. Nothing in §4.5 rests on the upper end: the rank
+  demotes, it does not exclude, so a proxy that under-counts costs ordering and
+  never coverage.
