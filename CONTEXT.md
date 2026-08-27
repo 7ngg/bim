@@ -424,8 +424,24 @@ from the Envelope, and **Partition**, which comes from two rooms meeting.
 A party wall is External — its **boundary condition** selects its thickness, which
 is why two classes are still enough. Load-bearing is *unknown*, not false — v1
 makes no structural claim, on a party wall least of all.
+_Avoid_: inferring `load_bearing` from a wall's thickness, length or position.
+Nothing in the pipeline carries it — the conversion cuts every wall at its
+centreline and hands over no thickness, and the trained source has no thickness
+token — so any value would be the engine's guess, and **a drawn wall weight is
+read by the person holding the sheet as a structural instruction**. ADR 0026.
 
 Its thickness is a **[[Layer set]]**, never a scalar.
+
+**Wall weight** — how many distinct cut-[[Wall]] thicknesses a sheet draws, read
+off the [[Layer set]] total. v1 draws **two**, envelope and internal, never three. Real *surveyed* dwellings show
+three in **76.1 %** of cases — envelope, internal bearing, partition — because
+they were engineered before they were measured; a concept plan for a dwelling
+that has not been engineered has two. The gap is real and is **reclassified, not
+closed**: the sheet says in a general note that load-bearing walls have not been
+identified, which turns a competence signal into a scope one. ADR 0026.
+_Avoid_: reading uniform `t_int` as the cause. The shipped 150 lands 4 mm from
+the corpus-optimal single value; **the value is not the problem, the uniformity
+is**, and the uniformity is downstream of having no structural model at all.
 
 **Layer set** — a Wall's build-up as an ordered list of `(material, thickness)`,
 innermost first. Its **total** is the only thickness the solver, the erosion and
