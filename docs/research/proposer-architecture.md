@@ -822,6 +822,75 @@ Stated so the next session can check rather than re-litigate:
    belongs to tickets 01/04 — **flagged here because this recommendation quietly
    depends on it.**
 
+### 7.5 Item 3's retrieval twin: target-area conditioning is not *delivered* either
+
+§7.4 item 3 records that nobody has shown a trained model actually learns per-room
+target areas. **The runner-up has the same hole and it is now measured.** ADR 0018's
+headline — best-of-8 worst-room deviation p50 **0.056** — is a *proportion* result:
+`fit_warp.py:373–384` scales the Brief's targets onto the donor's covered area
+before comparing, so it says the warp preserves the **shares** a donor allocates
+and says nothing about whether a Room asked for 12 m² gets 12 m².
+
+`experiments/warp/absolute_area.py`, 600 sampled Briefs over the 2 292 converted
+Swiss dwellings that join the room cache. Three changes from `fit_warp`: targets
+enter in absolute m² and are never renormalised; the box is sized the way ADR 0020
+writes it (`interior = target_area × 1.0575`, `box = interior/(1 − s)`); and the
+quantity measured is the **Space**, `erode(⋃ parts, t_int/2)` per ADR 0001, which
+is the plane `dim.min_area` and `dim.statutory_min_area` actually bind.
+
+| arm | plans | per-Room abs dev p05 / p50 (m²) | Σ Space vs `target_area`, mean | Rooms pushed under a floor | plans losing one |
+|---|---:|---:|---:|---:|---:|
+| `self` — candidate is the Brief's own dwelling | 521 | −2.67 / −0.07 | **−2.3 %** | 5.8 % | **14.8 %** |
+| `cross` — real gate-admitted retrieval | 499 | −5.17 / −0.13 | **−4.3 %** | 13.4 % | **30.7 %** |
+| `calib` — `cross`, box scaled so Σ Space = `target_area` | 501 | −3.89 / +0.02 | −0.2 % | 7.5 % | **18.8 %** |
+| `market` — every target raised onto `dim.market_default_area` | 508 | −4.41 / −0.10 | **−3.1 %** | 10.8 % | **31.1 %** |
+
+The last two columns count only Rooms whose **own stated target already clears the
+floor**, so a Swiss dwelling entitled to a 6 m² kitchen is not counted against the
+warp. That conditioning is necessary: `brief.md` §9.4 bound 1 is a bound on the
+**sum**, not a per-room test, so nothing upstream raises an individual Room onto
+its floor.
+
+**Four findings.**
+
+1. **The deviation is real and it is one-sided.** 57.7–59.0 % of Rooms come in
+   under target across every arm, and the *plan total* is systematically short —
+   `cross` delivers a mean **4.3 %** less floor than the Brief asked for, p05
+   **−16.6 %**. Direction is what matters here: ticket 50 priced
+   `dim.statutory_min_area` as hard partly because `dim.market_default_area` is
+   two-sided and pulls from both sides. It does not pull from both sides.
+2. **The level error and the distribution error are separable, and both bite.**
+   Σ Space ÷ `target_area` decomposes at p50 into three terms with three different
+   owners — the rung's inflation **1.0575**, what the box actually holds after `s`
+   (`cross` **1.0071**), and the erosion (**0.9124**) — whose product 0.9717 closes
+   against the measured −2.9 %. Calibrating the box until Σ Space = `target_area`
+   needs **+4.2 %** and takes plan-level statutory loss 30.7 % → **18.8 %**. So
+   roughly two fifths of the damage is one fixable constant and **three fifths
+   survives a perfect level.**
+3. **At the pool level it costs about as much again as every dimensional decline
+   put together.** Per-candidate shares are not what a Homeowner meets: C6
+   generates many and rejects most. Best-of-8, targets on `market_default`, 194
+   Briefs — **13, or 6,7 %, have no candidate that clears every floor**, against
+   ADR 0018's **6,9 %** Brief-level decline loss. ⚠️ **Do not compound the
+   per-candidate share to get here**: independence predicts 0,311⁸ ≈ **0,009 %**,
+   a factor of **780** out. ADR 0018 consequence 3 reproducing itself on a new
+   statistic, with the same cause — every candidate for one Brief is sized from
+   the same `interior`.
+4. **The kitchen is the limb with no headroom, as predicted.** AZ floors it at
+   8,0 m² against a Swiss p50 of 8,04. In `market` — where every kitchen was asked
+   for **9,0 m²** or more — **21.8 %** are delivered below 8,0, and the lower
+   quartile of those that pass clears the floor by **0,085 m²**. In `cross` the
+   lower quartile is already **−0,128 m²**, i.e. under it.
+
+**What this does not say.** It does not say retrieval-and-warp loses to the trained
+route: §7.4 item 3 leaves the trained route's own area conditioning unmeasured, so
+this moves one side of a comparison whose other side is still blank. And it does
+not decide `dim.statutory_min_area`'s severity, which is `rules.json`'s.
+
+⚠️ **Do not quote these past one decimal.** At `--time=3.0` CP-SAT is
+wall-clock-dependent: two runs of `self` at the identical seed and inputs returned
+5.96 % and 5.78 % on the same statistic.
+
 ---
 
 ## 8. What this commits the training runtime to
