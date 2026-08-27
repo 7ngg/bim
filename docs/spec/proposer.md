@@ -45,6 +45,23 @@ design and 0.33 for the k = 1 control. ADR 0014;
 dwelling's room; the trained model emits a fixed two-part slot per Room with a
 presence token, so the sequence length stays fixed and only the token varies.
 
+**The Proposal also carries its own holes, and each one names the Room it belongs
+to.** A retrieved tiling can enclose floor no part covers — 15.49 % of the index
+does — and the solver is required to close it (`model.no_unassigned_area`, hard).
+A second field, `voids: [(span, receiving_room)]`, says whose that floor is.
+Empty on source B and on 84.5 % of source A candidates. ADR
+[0028](../adr/0028-the-enclosed-void-is-charged-to-a-room-and-bounded.md); the
+mechanism is §2.2.8.
+
+This passes the test ADR 0014 set and fails the one that refused zoning above.
+**Only the Proposal knows it**: the receiving Room is not derivable from the
+boxes — largest shared edge agrees with the donor 28.4 % of the time and is
+ambiguous on 28.4 % of components, largest bordering Room 38.1 %. And the solver
+cannot infer it, because `solver-formulation.md`'s objective is L1 displacement of
+all four corners and H3 posts exact tiling soft at 100 000, so **every bordering
+Room's repair costs the same** and which one receives 0.3–2.8 m² is a tie broken
+by nothing the Brief said.
+
 **No type is barred from being two parts.** Which Rooms are Ls is inherited from
 the corpus distribution — already type-shaped and measured — rather than
 legislated by a whitelist we would have had to invent. A soft preference for the
@@ -199,12 +216,19 @@ of the coverage table.
 | **per-pair relation provenance** — for every axis-pair, whether the *corpus* asserted that separation or the *conversion* invented it | §2.2.5; ADR 0016 measures the invented share at **12.62 %** of axis-pairs and only the conversion can tell them apart |
 | the entrance-adjacent Room, if the corpus identifies one | §2.2.6 |
 | **`frontage_reach`** — the minimum, over the dwelling's `needs_window` Rooms, of the boundary run that Room holds ÷ the frontage budget the solver posts for it | §4.5; below 1.0 the donor holds a Room that cannot seat its window on its own boundary |
+| **`worst_room_iou`** — the minimum, over the dwelling's Rooms, of the fitted rectangles' IoU against the real room polygon | §2.2.4; the only donor-**fidelity** quantity in this record. `fit_rects.py` already emits per-room `iou`, so it is a `min` and no re-fit |
+| **`voids`** — the enclosed complement components of the parts frame, as index spans, each with the **donor Room that owned that floor** | §2.2.8; ADR 0028. Watershed ownership purity is p50 1.00 and ≥ 0.80 on 72.7 % of components |
 | `RegionProfile`/`CorpusProvenance` = `AZ`/`CH` | C14 |
 
-The last two are **new obligations on the conversion**, which today emits
-`rel: {same, spurious}` as counts rather than per pair. That is a change to
-`experiments/rectangularise/fit_rects.py`, handed to its holder — this ticket
-specifies the field, not the emitter.
+**Four of these are new obligations on the conversion**, which today emits
+`rel: {same, spurious}` as counts rather than per pair, and emits neither
+`frontage_reach` nor the void components. That is a change to
+`experiments/rectangularise/fit_rects.py`, handed to its holder — this spec
+specifies the fields, not the emitter. **Take them in one pass**: they are four
+statistics off the same records, and four passes is three wasted re-fits.
+
+⚠️ **`worst_room_iou` is a fidelity fact and `frontage_reach` is not, and they are
+gated differently on purpose** — §2.2.4.
 
 **Size.** 46,794 records at ~1 KB is under 50 MB resident: an in-process dict
 built at boot, not a service and not a database. It is rebuilt only when the
@@ -245,8 +269,9 @@ toolchain as the conversion (ADR 0008) and the projection, and **no new
 dependency**:
 
 ```
-minimise   (1000 · n) · worst  +  Σ_r  w_r · dev_r
+minimise   (1000 · n) · worst  +  Σ_r  w_r · dev_r  +  w_void · Σ_v  area_v
 subject to Σ gx = W,  Σ gy = H,  every gap ≥ 1               (grid units)
+           area_r = Σ (parts of r)  +  Σ (voids receiving into r)   § 2.2.8
            dev_r · target_r ≥ 1000 · |area_r − target_r|      (per-mille)
            worst = max_r dev_r
            every part's span ≥ its Room's realisable minimum, both axes
@@ -254,7 +279,7 @@ subject to Σ gx = W,  Σ gy = H,  every gap ≥ 1               (grid units)
            every two-part Room's shared edge ≥ ADR 0014's join
 ```
 
-Five things about that programme are decisions, not incidentals:
+Six things about that programme are decisions, not incidentals:
 
 1. **The objective is minimax on the *relative* deviation**, with the weighted
    sum as a tie-break. An absolute objective spends every gap on the living room,
@@ -277,6 +302,13 @@ Five things about that programme are decisions, not incidentals:
    INFEASIBLE, **0 UNKNOWN** over 393 warps at a 3 s cap. ADR 0008 asks the
    conversion to be *decidable rather than timed out*; this inherits that
    property rather than claiming it.
+6. **An enclosed void is a term in this programme and not a free region.** Its
+   area is bilinear in the same two gap vectors, it is added to its receiving
+   Room's `area_r`, and it carries a penalty of its own — ADR 0028, §2.2.8. Left
+   out, as it was, it is the objective's only unpriced region and the warp
+   **amplifies the donor's void 2.2×**. It costs one
+   `AddMultiplicationEquality` per component, p50 one component, on 15.5 % of
+   candidates, and it moves `INFEASIBLE` not at all.
 
 **Cost: median 72 ms, p90 534 ms.** Two orders of magnitude under the 15 s
 projection, so the warp is free at the granularity a job actually works in.
@@ -293,9 +325,38 @@ step 2, because a Homeowner who can place a notch can draw, and C2 says they
 cannot. Nothing had said where an invented notch goes.
 
 **The retrieved dwelling supplies it.** The notch is already in the cut-line
-frame — it is the part of the bbox no part covers — so it warps along with
-everything else, for free. Its position and proportion are then a **real
-dwelling's**, measured, rather than the invented constant the alternative needs.
+frame, so it warps along with everything else. Its position and proportion are
+then a **real dwelling's**, measured, rather than the invented constant the
+alternative needs.
+
+⚠️ **It is not free, and this sentence used to say it was.** *The sizing rung
+under-delivers by four per cent* found that *"the notch is the part of the bbox no
+part covers — so it warps along with everything else, **for free**"* is what makes
+ADR 0020's *"every candidate delivers `interior` of floor by construction"*
+**false**. The derivation `W × H = interior / (1 − s)` is sound only while the
+**realised** notch share equals the recorded `s` the box was derived from, and
+nothing was holding it: measured, `covered ÷ interior` is **0.9833** with the
+notch free and **0.9986** with it held — **1,5 % of `interior`**, worth **5,6
+points** of plan-level `dim.statutory_min_area` (30,5 % → 24,9 %).
+
+**So the notch share is held, and it is one constraint.** A bilinear equality on
+the gap variables the Room areas already use — realised uncovered area of the
+notch components `= s × W × H` — or equivalently the fixed point on the box that
+`experiments/warp/`'s `ring` arms reach. ⚠️ **Nobody has priced the constrained
+model**: those arms reach the invariant by *re-sizing the box*, not by
+constraining the solve, so its INFEASIBLE cost is unmeasured. That is the same
+caveat ADR 0028 records for the void term, and the two are one measurement.
+
+⚠️ **This is not ADR 0003 consequence 7.** That fixes the entrance *edge* by side
+and says nothing about the notch's dimensions. The two are compatible and neither
+implies the other, which is why nothing had caught it.
+
+⚠️ **The notch is not the only uncovered region, and the two are held in opposite
+directions.** `notch_share` splits them at the frame's border for exactly this
+reason: the boundary-touching complement is the **building** and is held at `s`;
+the enclosed complement is **our own fit residue** and is charged and bounded —
+§2.2.8, ADR 0028. Reading `uncovered` in a fit record as one quantity sums them,
+and is why neither was noticed.
 
 This makes the Envelope **per-candidate in its `invented` fields only**, and that
 is the price. Where `shape` is `stated`, the source's `notches_used` must equal
@@ -318,10 +379,11 @@ most Briefs. Handed to `brief.md`'s holder.
 The gate admits a median 58–87 dwellings after conversion (§2.2.7). C6 wants many
 candidates and not 87 near-identical ones.
 
-1. **Gate** — dict hit, then scan the bucket on total area and aspect. Free.
+1. **Gate** — dict hit, then scan the bucket on total area and aspect, then
+   **`worst_room_iou ≥ 0.30`, hard**. Free.
 2. **Pre-rank** — **partition on `frontage_reach ≥ 1.0`**, then order within each
-   part by the affine warp's worst-room deviation, which needs no solve. A proxy,
-   and only for choosing whom to warp.
+   part by **`worst_room_iou` descending**, then by the affine warp's worst-room
+   deviation, which needs no solve. A proxy, and only for choosing whom to warp.
 3. **Warp** the head of that order, then **re-rank on the real post-warp
    number**. A warp that declines (§2.2.2) drops out here.
 4. **Take `m`**, never two orientation variants of the same source dwelling
@@ -336,6 +398,27 @@ fidelity is unfittable, and a partition needs none: the cut sits at 1.0 because
 that is where the solver's own hard constraint sits. It demotes and never
 excludes; §4.5 records why a gate was refused, and 6.39 % of the index sits below
 the cut.
+
+**`worst_room_iou` is gated *and* ranked, and that asymmetry against
+`frontage_reach` is deliberate.** *The two-notch cap is now evidenced* measured
+donor fidelity and found this record had none: eleven fields, not one of them
+about whether the donor converted faithfully, and §2.2.4 pre-ranking on the
+*warp's* deviation — a fact about the fit to **this Brief**, not about the donor.
+Envelope loss is the wrong proxy: 42.2 % of its tail converts faithfully anyway,
+12.70 % outside it does not, and an IoU cut removes 10.09 % of the *most faithful*
+envelope band. The quantity is worst-room IoU, its bad population is **154
+dwellings, 6.65 % of the index**, and two thirds of that is invisible to either
+proxy.
+
+- **Hard at 0.30**, `conf: fitted` rather than `verified` — it is a corpus-fitted
+  cut, not a published one. Cost **6.65 %** of the index.
+- **Rank above the gate rather than gate at 0.50**, which would cost **17.2 %** of
+  an index C13 already calls thin.
+- Gated where `frontage_reach` is only partitioned, because **worst-room IoU is a
+  pure donor fact** — it compares the fit to the polygon it was fitted to and the
+  Brief is not involved — while `frontage_reach` is **joint with the Brief's
+  Envelope** and §2.2.6 records that the conversion cannot tell `exterior` from
+  `party`. A gate may not claim what it does not know; this one knows.
 
 **`m` is an ENGINE_CHOICE and this spec does not fix it.** It is a cost dial as
 well as a latency dial — each candidate is a warp plus a 15 s projection, and
@@ -463,6 +546,78 @@ in production is a pool of 8 here — best-of-8 is what was measured and the ful
 index can only do better. And the stated-versus-invented weighting was probed at
 a **30 % stated share**, which is a probe parameter and not a measurement of what
 Homeowners state.
+
+#### 2.2.8 The enclosed void, and whose floor it is
+
+ADR [0028](../adr/0028-the-enclosed-void-is-charged-to-a-room-and-bounded.md).
+**A converted tiling can enclose floor no part covers, and 15.49 % of the index
+does.** It is not the notch — that touches the frame's border and is the
+building's shape (§2.2.3). This is enclosed by Rooms on every side, and
+`model.no_unassigned_area` is hard, so the solve is *required* to close it.
+
+| | |
+|---|---|
+| index carrying any enclosed void | **15.49 %** — p50 **0.00 m²**, p90 0.25 |
+| ≥ 0.5 m² · ≥ 1 m² · max | 6.73 % · 3.15 % · 4.56 m² |
+| room-count gradient | 0.55 % at n = 4 → **15.79 %** at n = 10 |
+| of it that is a dropped duct, riser or shaft | **2.0 % of the area** — the rest is our own fit residue |
+
+⚠️ **Do not quote `void_census.py`'s 15.0 / 10.0 / 4.8 %.** Those measure
+uncovered floor against the *real dwelling*, on the first 400 records in file
+order, and the room-count gradient makes a file-order sample over-state by about
+half. The engine never sees the real dwelling; the quantity above is the enclosed
+complement of the **parts** frame. `experiments/void/`.
+
+**It is the visible residue of ADR 0014's cap.** A Room is at most two
+rectangles — 52.9 % of real rooms are one, 77.8 % at most two — and the void is
+where the other 22.2 % shows up. It cannot become the Room's *third* part, and it
+cannot become a second part either: `acceptance-bar.md` §9.1's leg floor is
+900 mm clear on both axes, realisable 1 100, so a legal leg is ≥ 1.5625 m² and
+only **16 of 389** components clear it. *Below 900 mm it is not a leg of a room,
+it is a niche, and this system does not model niches.*
+
+**So it is not gated, and the donor is not at fault.** A gate costs **11.74 %** of
+the index after conversion-side absorption and **15.49 %** without, worst where
+the index is thinnest — 16.2 % at eight rooms, 20.5 % at nine. §2.2.4 accepted a
+6.65 % thinning and refused a 17.2 % one; this reaches the refused figure in the
+band ADR 0013 already calls tight. And refusing a dwelling for a hole *our* cap
+put there charges the corpus twice for a decision taken on solver cost.
+
+**What is fixed is the warp, and it was one unpriced region.** The objective in
+§2.2.2 minimised worst-room deviation and the weighted sum and nothing else, so
+the void — the one region of the frame carrying no target — was where slack went
+for free, and the warp **amplified the donor's void 2.2×**: p50 0.50 → 0.81 m²,
+p90 1.31 → 3.19, growing in 62 % of cases.
+
+| arm | realised void p50 / p90 / max | worst-room dev p50 / p90 | INFEASIBLE |
+|---|---|---|---|
+| free — what shipped | 0.688 / 3.500 / 13.125 | 0.0652 / 0.2849 | 9/90 |
+| weighted only | 0.375 / 1.500 / 10.625 | 0.0686 / 0.2979 | 9/90 |
+| charged only | 0.688 / 3.000 / 10.000 | 0.0999 / 0.3554 | 9/90 |
+| **charged and weighted** | **0.375 / 1.500 / 8.125** | 0.0959 / 0.3293 | **9/90** |
+
+⚠️ **The deviation column is not a regression and reading it as one is the trap.**
+`free` measures a Room's parts and ignores the floor it is about to be handed;
+`charged` measures the same warp against what the Room will actually hold. The
+gap — p50 **0.0652 → 0.0959** — is the size of the understatement in every warp
+fidelity figure quoted on a voided candidate.
+
+**The receiving Room is the donor's own, recorded, and it is not derivable.** The
+watershed knows whose floor it was — purity p50 **1.00**, ≥ 0.80 on 72.7 % of
+components — and no rule computed from the boxes recovers it: largest shared edge
+**28.4 %** and ambiguous on 28.4 % of components, largest bordering Room 38.1 %,
+the part that can geometrically absorb it **24.1 %**. Where the record is missing
+or impure, the fallback is the largest bordering Room, which does least relative
+harm.
+
+**Conversion-side absorption is available and deliberately not taken.** Growing a
+bordering part closes 42.3 % of the void area and returns the floor to the wrong
+Room three times in four, which corrupts the arrangement the index exists to
+preserve. Now that the void is charged, it buys nothing worth a transform on the
+donor record — ADR 0017 is the standing reminder about transforms whose fidelity
+nobody looks at.
+
+---
 
 ### 2.3 Source B — the trained model
 
@@ -1156,9 +1311,37 @@ surfaced to the Homeowner as a C4 Assumption.
 - ✅ From ***Fit the `ENGINE_CHOICE` acceptance thresholds to the corpora***, via
   `acceptance-thresholds.md` §13 — *"a candidate's prior of clearing the bar is
   set by a layer the Proposal does not carry"*. **Discharged** by §4.5, which
-  turns it into the reason the corpus is admitted unfiltered on glazing. The half
-  addressed to ***A donor's enclosed void becomes area nobody asked for*** is
-  untouched and still open.
+  turns it into the reason the corpus is admitted unfiltered on glazing. ✅ **The
+  half addressed to *A donor's enclosed void becomes area nobody asked for* is
+  discharged too** — §2.2.8 and ADR 0028. The Proposal *does* now carry part of
+  the layer that sets a candidate's prior of clearing the bar: an enclosed void
+  and the Room it belongs to, which is what stopped an arbitrary 1.5 m² landing on
+  a small Room and breaching `dim.max_area`.
+- From ***A donor's enclosed void becomes area nobody asked for***, to the holders
+  of the files it does not write:
+  - **`experiments/rectangularise/fit_rects.py`** — a **fourth** owed per-record
+    field, the enclosed void components as frame spans each with its **donor
+    owner**. Both inputs are in hand: `notch_share` in
+    `warp/absolute_area.py` already splits enclosed from boundary-touching, and
+    `watershed` already labels every cell with the Room that owns it.
+    `experiments/void/provenance.py` is the reference. **Take it with the other
+    three** — cut-line frame, per-pair relation provenance, `frontage_reach` —
+    they are four statistics off one pass.
+  - **`experiments/warp/`** — `fit_warp.warp_model` gains the void variables, and
+    every fidelity figure quoted on a voided candidate is superseded by the
+    charged measurement (§2.2.8). ⚠️ **`absolute_area.py` has no output for
+    realised unassigned area at all**, which is why this had to be measured from
+    outside the rig; add it on `acceptance-thresholds/`'s rule. **Ticket 57 holds
+    that directory** and is re-running best-of-*m*.
+  - **`docs/research/solver-formulation.md`** — H3 closes the hole and the
+    objective is L1 corner displacement, so the Proposal's `voids` field is the
+    thing that turns an arbitrary repair into a directed one. Nothing in that file
+    knows the field exists.
+  - ⚠️ **The constrained notch and the charged void are one unmeasured cost.**
+    §2.2.3's `s`-holding equality and §2.2.8's void term both constrain the warp
+    solve, and `experiments/warp/`'s `ring` arms reach the notch invariant by
+    re-sizing the box instead. The INFEASIBLE rate of the genuinely constrained
+    model has never been measured, and it should be measured **once, for both**.
 - From ***A third of real kitchens have no window and the engine may not draw
   one***, to the holders of the files it does not write:
   - **`experiments/rectangularise/fit_rects.py`** — `frontage_reach` is a new
@@ -1208,7 +1391,20 @@ surfaced to the Homeowner as a C4 Assumption.
 - No plan produced by a **warp** has been rendered or eyeballed. *Look at the
   converted corpus* rendered the conversion; nothing has yet drawn what comes out
   the far side of §2.2.2, and ADR 0017 is the standing reminder that a metric is
-  not a look.
+  not a look. ⚠️ **§2.2.8's void was measured and not looked at either** —
+  `render_sheet.py` exists and no voided candidate has been drawn after its warp.
+- **v1 models no vertical service void.** There is no shaft, riser or duct object,
+  no Room type for one, and an enclosed pocket could not be a Room in any case —
+  `circ.potential_reachability` refuses it. **2.0 % of §2.2.8's void area really
+  is a dropped `SHAFT`/`VOID`/`TECHNICAL_AREA`**, and it is charged to a bordering
+  Room like the other 98 %. That is wrong, it is about 0.3 m² on one dwelling in
+  fifty, and it is stated here rather than hidden inside the residue figure.
+- ⚠️ **Source B has the same problem in a form nobody can measure.** Its boxes need
+  not tile, so its slack is diffuse rather than in identified components: it emits
+  an empty `voids` list not because it has none but because it cannot name them,
+  and H3 closes its holes by the same L1 tie §2.2.8 removed for source A. The
+  Proposer source B row owns that, alongside its unmeasured per-room absolute area
+  fidelity.
 - ⚠️ **`frontage_reach` is necessary and not sufficient, and it is quoted as a
   lower bound throughout §4.5.** It measures boundary **contact** on the donor,
   because §2.2.6 records that the conversion cannot tell `exterior` from `party`.

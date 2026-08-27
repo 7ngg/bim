@@ -80,3 +80,33 @@ Whether it does is the question.
 *The statutory floor now has a price, and it is not the one it was posted at*
 (2026-08-28), which took the decision without it and recorded the caveat on
 `rules.json` as `dim.statutory_min_area.engine_cost.caveat`.
+
+## Added by *A donor's enclosed void becomes area nobody asked for* (2026-08-28)
+
+Two obligations land on `experiments/warp/`, which this ticket holds. Neither
+changes what 57 has to settle; both are cheap and both are in the way of doing it
+honestly.
+
+1. **`absolute_area.py` has no output for realised unassigned area at all.** That
+   is why ADR 0028's measurements had to be made from outside the rig, in
+   `experiments/void/`. Σ Space and per-room deviation are reported; the hole
+   between the parts is not. Add it on `acceptance-thresholds/`'s standing rule —
+   *if you add a statistic, add its inputs to the record* — before the best-of-*m*
+   sweep, so the curve is re-readable against it later.
+
+2. **`fit_warp.warp_model` owes two constraints and their INFEASIBLE cost is ONE
+   unmeasured number.** ADR 0020's amendment holds the **notch** share at the `s`
+   the box was derived from, and ADR 0028 charges the **enclosed void** to its
+   receiving Room and weights it. Both constrain the same warp solve. ⚠️ The
+   `ring` / `ringmarket` / `ringpool` arms reach the notch invariant by *re-sizing
+   the box*, not by constraining the solve, so **no arm on this map has ever run
+   the genuinely constrained model**. Measure it once, for both — not twice.
+
+⚠️ **One caution for the best-of-*m* curve itself.** ADR 0028 measured that the
+shipped warp objective under-states a receiving Room's deviation on voided
+candidates — p50 **0.0652** measured on its parts against **0.0959** measured on
+what it will hold after the solver closes the hole. **15.49 %** of the index is
+voided, and the population is room-count-skewed (0.55 % at four rooms, 15.79 % at
+ten), so a deep pool at 7–10 rooms draws proportionally more of it than a shallow
+one. If the curve is fitted on the free objective it is fitted on a number that is
+optimistic in exactly the regime the extrapolation cares about.
