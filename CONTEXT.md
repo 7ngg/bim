@@ -65,6 +65,30 @@ U/T-shaped. Read materially, half of them are L.
 _Avoid_: treating a notch as small. It is a median **12.55 %** of the bounding box
 and runs to 23 % at p90 — the reason a pool agrees on floor area rather than on a
 box.
+_Avoid_: reading a notch and an [[Enclosed void]] as one quantity. Both are floor
+no Room covers, and `uncovered` in a fit record **sums them** — which is why
+neither was noticed. A notch touches the bounding box's border and is the
+building; a void does not and is our own fit residue. They are held in **opposite
+directions**: the notch is pinned at the share the box was derived from, the void
+is charged to a Room and pushed down.
+
+**Enclosed void** — floor inside a converted dwelling that no Room's rectangles
+cover and that touches no edge of the frame. **15.49 %** of the retrieval index
+carries one; p50 0.00 m², p90 0.25, max 4.56.
+
+It is **our residue, not the building's**: only 2.0 % of it is a dropped duct or
+riser, and the rest is what ADR 0014's two-rectangle cap could not cover — 22.2 %
+of real rooms need three. It cannot become a Room's second part, because a leg is
+900 mm clear on both axes and 96 % of voids are smaller: below that it is a niche,
+and this system does not model niches.
+
+A void has a **known owner** — the real dwelling says whose floor it was, at p50
+purity 1.00 — and that owner is **not derivable** from the boxes, which is why the
+[[Proposal]] carries it. ADR 0028.
+_Avoid_: calling it unassigned floor and stopping there. It is unassigned in the
+donor and it is **charged to a Room** in the warp, because the solver is required
+to close it and every bordering Room's repair costs the same — so "the objective
+decides" means nothing decides.
 
 **Boundary condition** — what lies on the far side of one Envelope edge, as far as
 this dwelling is concerned. **Exterior**, which may hold a window, or **party**,
@@ -112,6 +136,16 @@ arithmetic still has to be given the right region to apply it to.
 
 **Proposal** — what the learned model emits. Not a plan: a suggestion of topology
 and proportion, used as the solver's objective. It is never the output.
+
+It carries what **only it can know**: which Rooms are two rectangles (ADR 0014),
+and which Room an [[Enclosed void]] belongs to (ADR 0028). That is the whole
+membership test — a property enters the contract when the solver cannot derive it
+from the `ResolvedBrief` and cannot infer it from the boxes. Zoning fails that
+test and is refused; a Room's L-ness and a void's owner pass it.
+_Avoid_: "the solver can work it out from the boxes" without checking. The
+objective is L1 corner displacement, so for a void **every bordering Room's repair
+costs the same** — the cheapest-looking derivable rule agrees with the truth
+28.4 % of the time and is ambiguous on another 28.4 %.
 
 **Proposer** — the component that emits the Proposal. Named separately from the
 Proposal because it is replaceable: what it is built from is a separate question
