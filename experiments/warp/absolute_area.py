@@ -43,6 +43,11 @@ Three arms:
   `calib`  -- `cross` with the box scaled so that Sum(Space) = target_area exactly.
               Separates the *level* error (the rung's arithmetic) from the
               *distribution* error (the warp's own).
+  `market` -- `cross` with every target raised onto `dim.market_default_area`.
+  `ring`   -- `cross` with the Envelope's edge ring held fixed before the solve,
+              which is what ADR 0003 consequence 7 says the engine does and what
+              this rig does not get for free. `ringmarket` is the same over
+              `market`'s targets, `ringpool` the same over `pool`'s. Ticket 56.
 
     python experiments/warp/absolute_area.py [n] [--time=3.0] [--arms=self,cross,calib]
 
@@ -102,6 +107,13 @@ HABITABLE = ("PRIVATE", "LIVING_ROOM", "LIVING_DINING")  # ADR 0013: otaq
 MARKET = {"KITCHEN": 9.0, "KITCHEN_DINING": 6.0, "PRIVATE": 12.0,
           "LIVING_ROOM": 16.0, "LIVING_DINING": 16.0, "BATHROOM": 3.2}
 
+# Ticket 56 adds `ring` and `ringmarket`. `market` raises every target onto
+# `dim.market_default_area`; `ring` holds the Envelope's ring fixed before the
+# solve, which is what ADR 0003 consequence 7 says the engine does.
+ARM_NAMES = ("self", "cross", "calib", "market", "ring", "ringmarket")
+MARKET_ARMS = ("market", "ringmarket")
+RING_ARMS = ("ring", "ringmarket")
+
 
 def floors_for(types, lenient=False):
     """max(ergonomic, statutory) per room. The ergonomic layer never binds on the
@@ -156,28 +168,69 @@ def notch_share(parts):
     return sum(sorted(touching, reverse=True)[:2]) / bbox, enclosed / bbox
 
 
-def space_m2(rects):
+def outside_of(plan_rects):
+    """Everything on the far side of the Envelope: the exterior, and the notch,
+    which is an Envelope edge and not a partition.
+
+    Ticket 56. The tiled region here is the Envelope box minus its notch --
+    ADR 0020's `box = interior/(1 - s)` -- and ADR 0001 tiles the **solve domain**,
+    the Envelope dilated outward by `t_int/2`. The two differ by a 75 mm ring
+    around the whole dwelling. Dilating a 250 mm cell frame by 75 mm is below its
+    own quantisation, so the construction is honoured on the measurement plane
+    instead (see `space_m2`), and this is the region that plane needs.
+
+    Enclosed voids are deliberately NOT included. A void is bounded by wall on
+    every side, so its edges cost erosion exactly as an interior edge does; the
+    notch and the exterior do not, because the erosion there lands on the external
+    wall's inner face. `notch_share` already draws that same line, which is why
+    it separates boundary-touching complement components from enclosed ones."""
+    omega = unary_union([shp_box(*r) for pl in plan_rects for r in pl])
+    x0, y0, x1, y1 = omega.bounds
+    bb = shp_box(x0 - 1000, y0 - 1000, x1 + 1000, y1 + 1000)
+    comp = bb.difference(omega)
+    parts = list(getattr(comp, "geoms", [comp]))
+    return unary_union([g for g in parts if g.intersects(bb.boundary)])
+
+
+def space_m2(rects, outside):
     """ADR 0001 consequence: the Space is `erode(U parts, t_int/2)`, which is
     strictly larger than the union of the parts' own erosions -- the band across a
     two-part Room's join comes back. Done on the union, with shapely, so a
-    two-part Room is not quietly under-measured."""
+    two-part Room is not quietly under-measured.
+
+    **Only interior edges erode.** ADR 0001's tiling edge on the domain boundary
+    sits at exterior-inner-face + `t_int/2`, so eroding lands it precisely on the
+    face and costs no floor -- *"one rule, no special case for perimeter rooms"*
+    is a statement about the rule, not about the arithmetic. Eroding a room's
+    outer edge as well charges every dwelling a 75 mm ring it does not lose:
+    3.7 % of interior at p50 here, which is larger than the whole level error
+    ticket 54 attributed to `brief.md` §5 rung 1.
+
+    Modelled by eroding the room's parts UNION the region outside the Envelope,
+    then trimming back: a boundary edge is interior to that union and survives,
+    an edge shared with another Room does not. Exactly equal to ADR 0001's
+    construction for area, with no grid quantisation."""
     u = unary_union([shp_box(*r) for r in rects])
-    e = u.buffer(-ERODE_MM, join_style=2)
-    return max(0.0, e.area) / 1e6
+    e = unary_union([u, outside]).buffer(-ERODE_MM, join_style=2)
+    return max(0.0, e.intersection(u).area) / 1e6
 
 
-def part_targets_cells(space_targets, seed_rects):
+def part_targets_cells(space_targets, seed_rects, outside):
     """The objective runs on centreline parts; the Brief states Space areas. Add
-    back each Room's own erosion overhead, read off its shape at the affine seed:
-    a centreline w x h delivers (w - 150)(h - 150), so the overhead is
-    150 * (w + h) - 22500 per part. An estimate -- the shape moves under the warp
+    back each Room's own erosion overhead, read off its shape at the affine seed.
+
+    Ticket 56: the overhead is measured with the same rule the result is measured
+    with, rather than charged as `150 * (w + h) - 22500` on all four sides of every
+    part. A perimeter Room loses nothing at the Envelope, so the flat charge
+    over-stated its overhead and steered the objective to over-size exactly the
+    rooms that sit on the boundary. An estimate -- the shape moves under the warp
     -- and it only steers the objective. Every number reported below is measured
     with `space_m2` on the solved geometry, so whatever this misses shows up as
     deviation rather than hiding in it."""
     out = []
     for a, rects in zip(space_targets, seed_rects):
-        over = sum(T_INT_MM * ((r[2] - r[0]) + (r[3] - r[1])) - T_INT_MM ** 2
-                   for r in rects)
+        gross = sum((r[2] - r[0]) * (r[3] - r[1]) for r in rects)
+        over = gross - space_m2(rects, outside) * 1e6
         out.append(max(1, round((a * 1e6 + over) / GRID_MM ** 2)))
     return out
 
@@ -239,8 +292,22 @@ def pct(xs, p):
     return s[min(len(s) - 1, int(p * len(s)))]
 
 
-def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key=""):
-    """One warp. Returns per-room delivered Space area in m2, or a status."""
+def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key="",
+            hold_ring=False):
+    """One warp. Returns per-room delivered Space area in m2, or a status.
+
+    `hold_ring` (ticket 56) makes the rig agree with the engine about what is
+    fixed before the solve. ADR 0003 consequence 7, as amended, fixes the
+    Envelope's edge ring **per candidate, before that candidate's solve**, so the
+    notch is a given and `covered` is identically `interior`. This rig cannot pin
+    the ring where it belongs -- the notch is implicit in the uncovered cells of
+    `warp_model`, which lives in `fit_warp.py` and carries ADR 0018's published
+    numbers -- so it recovers the same invariant by fixed point on the box.
+
+    It is not `calibrate`. `calibrate` scales until Sum(Space) hits `target_area`,
+    which buys the rooms margin the engine does not give them and is the
+    renormalisation defect ticket 54 refused one level up. This enforces a
+    constraint the engine actually has, and leaves the erosion where it falls."""
     parts, types = cand["parts"], [COLLAPSE.get(t, t) for t in cand["types"]]
     xs, ys, spans = coord_frame(parts)
     if len(xs) < 2 or len(ys) < 2:
@@ -250,16 +317,19 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key=""):
         return {"status": "NOTCH"}
 
     target_area = sum(targets_m2)
+    want_interior = target_area * (1.0 + F_PARTITION)
     scale, got = 1.0, None
-    for _ in range(6 if calibrate else 1):
-        interior = target_area * (1.0 + F_PARTITION) * scale
+    for _ in range(6 if (calibrate or hold_ring) else 1):
+        interior = want_interior * scale
         box_m2 = interior / (1.0 - s)
         Hm = (box_m2 * 1e6 / aspect) ** 0.5
         W = max(4, round(aspect * Hm / GRID_MM))
         H = max(4, round(Hm / GRID_MM))
 
         seed = (uniform(xs, W), uniform(ys, H))
-        tgt_cells = part_targets_cells(targets_m2, rects_mm(spans, *seed))
+        seed_rects = rects_mm(spans, *seed)
+        tgt_cells = part_targets_cells(targets_m2, seed_rects,
+                                       outside_of(seed_rects))
         jx, jy = joins(spans)
         rng = random.Random(SEED ^ (hash(key) & 0xFFFF))
         weights = [W_STATED if rng.random() < STATED_SHARE else W_INVENTED
@@ -271,7 +341,8 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key=""):
             return {"status": name}
         gx, gy, _opt = res
         solved = rects_mm(spans, gx, gy)
-        got = [space_m2(r) for r in solved]
+        outside = outside_of(solved)
+        got = [space_m2(r, outside) for r in solved]
         # The level, decomposed. Sum(Space)/target_area is a product of three
         # terms and each has a different owner:
         #   1.0575                 the rung's inflation      (brief.md 5 rung 1)
@@ -283,6 +354,17 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key=""):
                       for pl in solved for r in pl) / 1e6
         cov_over_int = covered / interior
         space_over_cov = sum(got) / covered if covered else 0.0
+        if hold_ring:
+            # the Envelope is fixed before the solve, so covered IS `interior`.
+            # Report the term against the interior the Brief asked for, not
+            # against the scaled box the fixed point is walking.
+            cov_over_int = covered / want_interior
+            if covered <= 0:
+                return {"status": "EMPTY"}
+            if abs(covered - want_interior) / want_interior < 0.002:
+                break
+            scale *= want_interior / covered
+            continue
         if not calibrate:
             break
         tot = sum(got)
@@ -409,7 +491,7 @@ def summarise(rows, lenient=False):
     }
 
 
-def run_pool(sample, by_ms, by_n, rng, tlim, k):
+def run_pool(sample, by_ms, by_n, rng, tlim, k, hold_ring=False):
     """Best-of-pool, which is what C6 actually does: generate many, reject most,
     show survivors. A Brief is SERVED if at least one of its `k` candidates puts
     every Room at or above its floor.
@@ -437,7 +519,7 @@ def run_pool(sample, by_ms, by_n, rng, tlim, k):
                 continue
             targets = [max(a, MARKET.get(t, 0.0)) for a, t in zip(targets, ct)]
             r = run_one(cand, brief["aspect"], targets, tlim,
-                        key=brief["k"] + cand["k"])
+                        key=brief["k"] + cand["k"], hold_ring=hold_ring)
             if r["status"] != "OK":
                 continue
             tried += 1
@@ -501,7 +583,7 @@ def main():
     sample = rng.sample(cands, min(n_arg, len(cands)))
 
     out, status = {}, defaultdict(Counter)
-    for arm in [a for a in arms if a in ("self", "cross", "calib", "market")]:
+    for arm in [a for a in arms if a in ARM_NAMES]:
         rows, misses = [], 0
         for brief in sample:
             if arm == "self":
@@ -517,7 +599,7 @@ def main():
                 if targets is None:
                     misses += 1
                     continue
-                if arm == "market":
+                if arm in MARKET_ARMS:
                     # every target raised onto dim.market_default_area's line,
                     # which is what the soft objective pulls toward. This is the
                     # argument under test stated literally: if a Plan that reaches
@@ -526,7 +608,8 @@ def main():
                     targets = [max(a, MARKET.get(t, 0.0))
                                for a, t in zip(targets, ct)]
             r = run_one(cand, brief["aspect"], targets, tlim,
-                        calibrate=(arm == "calib"), key=brief["k"] + cand["k"])
+                        calibrate=(arm == "calib"), key=brief["k"] + cand["k"],
+                        hold_ring=(arm in RING_ARMS))
             status[arm][r["status"]] += 1
             if r["status"] == "OK":
                 rows.append(r)
@@ -543,6 +626,9 @@ def main():
 
     if "pool" in arms:
         out["pool"] = run_pool(sample, by_ms, by_n, rng, tlim, pool_k)
+    if "ringpool" in arms:
+        out["ringpool"] = run_pool(sample, by_ms, by_n, rng, tlim, pool_k,
+                                   hold_ring=True)
 
     out["_meta"] = {"n_requested": n_arg, "time_limit_s": tlim, "seed": SEED,
                     "t_int_mm": T_INT_MM, "f_partition": F_PARTITION,

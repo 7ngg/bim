@@ -185,3 +185,47 @@ this expected.
    ability to hit *relative* room targets. It is not evidence that a candidate
    delivers a Homeowner's stated total, and until `fit_warp.py` is re-run against
    an absolute `target_area` nothing on this map is.
+
+---
+
+## Amendment: `interior` is the Envelope, and the ring has to be held
+
+Added by *The sizing rung under-delivers by four per cent, and `f` is not where to
+fix it* (ticket 56), which found both gaps live in a shipped measurement rig.
+
+**This ADR writes `box = interior / (1 − s)` and never says which plane
+`interior` is on, nor what the solver then tiles.** Two readings are available
+from the text — the Envelope's interior, or ADR 0001's solve domain — and they
+differ by `t_int/2 × perimeter`, **3,7 % of a 90 m² dwelling**, the same order as
+the whole level discrepancy ticket 54 measured.
+
+**It is the Envelope's own area, at the finished inner face, and that was never a
+choice.** `CONTEXT.md` defines the Envelope as *the interior clear region* and the
+solve domain as *"not the Envelope, and not the interior"*; `f` and `s` are both
+measured on the finished-face plane; and a `ResolvedBrief` that meant the solve
+domain would be applying `s` — a share of the **Envelope's** bounding box — to the
+wrong rectangle. The solve domain is **derived** from the box by ADR 0001, one
+`t_int` larger on each axis, and it is a third quantity rather than either of the
+first two. `brief.md` §5.3 carries the three-plane table.
+
+**And this ADR's own guarantee has a precondition it does not state — which the
+shipping design then violates.** *"Every candidate delivers `interior` of floor by
+construction"* holds only if the **realised** notch share equals the recorded `s`
+the box was derived from. `proposer.md` §2.2.3 says the opposite in as many
+words: the notch *"is the part of the bbox no part covers — so it warps along
+with everything else, for free"*. A warp free to move the cut lines bounding the
+notch will spend spare cells there, because the notch is the one region of the
+frame carrying no target. Measured on `absolute_area.py`, `covered ÷ interior` is
+**0.9833** with the notch free and **0.9986** with the share held, so the
+guarantee is worth **1,5 % of `interior`** and is not self-evident.
+
+This is not ADR 0003 consequence 7, which fixes the **entrance edge** — by side,
+never by ring index — and says nothing about the notch's dimensions. The two
+sentences are compatible and neither implies the other. **The constraint is owed
+by `proposer.md` §2.2**, whose *"for free"* is what has to move; nothing in this
+ADR changes.
+
+**What this costs: nothing.** `f` is unchanged at 0.0575 and is vindicated — with
+the plane corrected and the ring held, Σ Space lands **+0,4 %** of the
+`target_area` the Brief asked for. The derivation is unchanged, and `rules.json`
+sees no change, which is the second time this ADR has ended there.
