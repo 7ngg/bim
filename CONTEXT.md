@@ -141,6 +141,31 @@ being uninformative under a [[Warp]]. Roughly one axis-pair in eight is invented
 _Avoid_: reading it as *bad* — an invented pick reads as what a person would
 draw. It is not evidence, and a hard constraint wants evidence.
 
+**Frontage budget** — the run of `exterior`-condition [[Envelope]] edge one
+[[Space]] must hold before its window can be seated: the window's structural
+width plus twice the jamb return. Posted **hard by the solver**, not left to the
+[[Opening]] layer to discover, because a candidate that cannot seat its window is
+cheaper to refuse than to solve and throw away.
+
+**Frontage reach** — the same quantity read off a **corpus** dwelling, as a
+ratio: the tightest, over a dwelling's window-needing [[Room]]s, of the boundary
+run that Room holds to the [[Frontage budget]] posted for it. Below 1.0 the
+dwelling holds a Room that cannot seat its window on its own boundary. It is the
+*only* daylight property a [[Retrieval pool]] member hands over — a donor's own
+windows are overwritten, because the [[Opening]] layer draws them after the
+solve.
+_Avoid_: treating it as sufficient. It measures **boundary contact**, and the
+conversion cannot tell an exterior edge from a party one, so a Room with reach
+may still take no window in the target [[Envelope]]. It ranks; it does not gate.
+
+**Borrowed daylight** — a room lit through another room rather than through its
+own window. In `AZ` the only sanctioned form is the `taxça-mətbəx`, a kitchen
+**niche**: a recess open to the room it sits in, which cl. 5.7 floors at 5 m².
+_Avoid_: reading **adjacency** as borrowed daylight. A separate kitchen with a
+*door* onto a windowed living room is not a niche — it is a windowless kitchen,
+which cl. 9.12 forbids outright. A geometric adjacency test cannot tell the two
+apart, and two documents on this map have already read one for the other.
+
 **Private room** — a Room you do not walk *through*: the sleeping rooms and the
 wet rooms together, and the class `circ.no_private_transit` is written over. It
 is the `is_private` flag in `room-constraints.json`, true on `bathroom`,
