@@ -4,7 +4,7 @@ title: A third of real kitchens have no window and the engine may not draw one
 parent: map
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - docs/spec/proposer.md
