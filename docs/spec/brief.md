@@ -274,9 +274,13 @@ Resolution order:
       candidate delivers, and the bounding box is derived per candidate in §5.2.
       `target_area` is `ümumi sahə` and does **not** count partitions (ADR 0010),
       so the interior it implies is larger by the partition footprint —
-      **`f = 0.0575`**, the p50 of Σ Space area at the shipped `t_int` of 150 over
-      13,967 dwellings. `efficiency` is not used on this path, because the
-      quantity it stood in for is measured.
+      **`f = 0.0575`**, the p50 partition footprint at the shipped `t_int` of 150
+      over 13,967 dwellings, **as a share of Σ Space area**, which is the only
+      denominator that makes `interior = target_area × (1 + f)` the right
+      arithmetic. Against the *interior* the same footprint is 5.44 %, and a
+      reader who takes one share for the other sizes the box wrong by half a point
+      — `docs/research/single-internal-thickness.md` §3.5. `efficiency` is not
+      used on this path, because the quantity it stood in for is measured.
 
       **This is the p50, and §9.4 bound 6's `f_hi`/`f_lo` are tails of the same
       distribution — deliberately, not inconsistently.** Sizing a box is a point
@@ -397,6 +401,47 @@ It binds Σ Space area against `target_area`; with the floor now invariant acros
 the pool, the only quantity left that can move Σ Space area is the **partition
 footprint** — which is exactly what ADR 0010 rewrote the rule to catch and what
 `f` only predicts.
+
+### 5.3 Three planes, and the solver tiles the third
+
+*The sizing rung under-delivers by four per cent, and `f` is not where to fix it*.
+ADR 0020 fixes the box and ADR 0001 fixes the frame, and **until that ticket
+nothing joined them**. A reader who takes `W × H` for the region the solver tiles
+loses a `t_int/2` ring of floor around the whole dwelling — **3,7 % of `interior`
+at p50** on the shipped `t_int` — which is larger than the whole level error the
+ticket was raised to explain.
+
+| quantity | plane | fixed by |
+|---|---|---|
+| `interior` | finished inner face | the Brief, once, for the whole pool — §5 rung 1 |
+| `W × H` | finished inner face | the candidate's own `s` — §5.2 |
+| solve domain | inner face **+ `t_int/2`** | ADR 0001, derived from the box |
+
+So the frame a candidate's warp solves in is `dilate(Envelope, t_int/2)`, whose
+bounding box is `(W + t_int) × (H + t_int)`; the tiling covers it exactly, and
+`Space = erode(⋃ parts, t_int/2)` returns floor bounded by the finished faces with
+**no special case for perimeter rooms** — a boundary tiling edge erodes back onto
+the external wall's inner face and costs nothing. Eroding a perimeter Room at the
+Envelope instead charges every dwelling for a wall that is not there.
+
+`interior` is the **Envelope's own area**, and that was never a choice between two
+readings: `CONTEXT.md` defines the Envelope as the interior clear region, defines
+the solve domain as *"not the Envelope, and not the interior"*, and `f` and `s`
+are both measured on the finished-face plane. A `ResolvedBrief` that meant the
+solve domain would also be applying `s` — a share of the Envelope's bounding box —
+to the wrong rectangle.
+
+**This is source-independent.** The domain is a property of the Envelope, not of
+how the boxes inside it were proposed, so both ADR 0005 sources inherit it
+identically and neither carries a correction the other does not.
+
+**`f` is not adjusted, and the ticket that suspected it was measuring something
+else.** With the plane corrected and the candidate's notch share held to the one
+its box was derived from, Σ Space lands **+0,4 %** of `target_area` — `f = 0.0575`
+stands as measured, and there is no sizing correction owed on this path or any
+other. Holding the share is `proposer.md` §2.2's, not this file's: §5.2's
+derivation is only sound while the **realised** notch share equals the recorded
+`s`, and letting it float costs **1,5 % of `interior`**.
 
 ---
 

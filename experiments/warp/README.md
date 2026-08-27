@@ -129,3 +129,76 @@ runs of the `self` arm at the identical seed, n and inputs returned 102 and 99
 conditional failures out of 1 712 — 5.96 % against 5.78 %. The seed fixes the
 *sample*, not the *solution*: at `--time=3.0` the search is timing-dependent.
 Quote these to one decimal and treat sub-half-point differences as noise.
+
+## What ticket 56 changed, and why every number above moved
+
+**The rig was eroding a wall that is not there.** ADR 0001 tiles the **solve
+domain** — the Envelope dilated outward by `t_int/2` — so a tiling edge on the
+domain boundary erodes back onto the external wall's inner face and costs no
+floor. `absolute_area.py` tiled the **Envelope box** (ADR 0020's
+`box = interior/(1 - s)`) and eroded every Room on all four sides, charging each
+dwelling a 75 mm ring around its whole perimeter: **3,7 % of `interior` at p50**,
+which is larger than the level error ticket 54 attributed to `brief.md` §5 rung 1.
+
+Dilating a 250 mm cell frame by 75 mm is below its own quantisation, so the
+construction is honoured on the measurement plane instead. `space_m2` erodes the
+Room's parts **union the region outside the Envelope**, so a boundary edge is
+interior to that union and survives while a shared edge does not — exactly equal
+to ADR 0001 for area, with no quantisation. `outside_of` draws that region and
+deliberately **excludes enclosed voids**: a void is bounded by wall on every side,
+so its edges cost erosion exactly as an interior edge does. `notch_share` already
+draws the same line, which is why it separates boundary-touching complement
+components from enclosed ones.
+
+**`part_targets_cells` had the same defect one level up, and it was
+compensating.** It charged every part `150 * (w + h) - 22500` on all four sides,
+so a perimeter Room was asked for more centreline area than it needed and
+delivered more Space than the level implied. Both sites now measure with the same
+rule, which is why the fix moves the **level** a long way and the **yield**
+hardly at all.
+
+**The warp resizes the notch, and ADR 0020's guarantee assumes it does not.**
+*"Every candidate delivers `interior` of floor by construction"* holds only if the
+**realised** notch share equals the recorded `s` the box was derived from, and
+`proposer.md` §2.2.3 says the opposite in as many words — the notch *"warps along
+with everything else, for free"*. It is the one region of the frame carrying no
+target, so it is a free sink: correcting the target overhead released cells and
+the warp put them there, taking `cov_over_int` to 0.9833.
+
+**`ring` / `ringmarket` / `ringpool` hold the share and are the arms to read.**
+They enforce it by fixed point on the box rather than by pinning the cut lines,
+because pinning means editing `warp_model`, which lives in `fit_warp.py` and
+carries ADR 0018's published numbers. This is a **finding about the shipping
+design**, not only about this rig: the constraint is owed by `proposer.md` §2.2.
+
+`ring` is **not** `calib`. `calib` scales until Σ Space hits `target_area`, which
+hands the rooms margin the engine does not give them; `ring` enforces a constraint
+the engine actually has and leaves the erosion where it falls. Reading `calib` as
+"what a correct Envelope delivers" over-states the gain — that mistake is what put
+2/5 of a hard rule's cost on one constant in `brief.md`.
+
+### Same sample, `n=600`, `--time=3.0`, seed 20260819
+
+| arm | `cov/int` | `space/cov` | Σ Space ÷ `target_area` mean | p50 | conditional rooms under floor | plans losing one |
+|---|---:|---:|---:|---:|---:|---:|
+| `self` before | 1.0215 | 0.9143 | −2,30 % | −1,18 % | 5,8 % | 14,8 % |
+| `self` after | 0.9908 | 0.9504 | −0,75 % | −0,27 % | 4,9 % | 13,1 % |
+| `cross` before | 1.0071 | 0.9124 | −4,27 % | −2,91 % | 13,4 % | **30,7 %** |
+| `cross` after | 0.9833 | 0.9490 | −2,19 % | −1,03 % | 12,7 % | 30,5 % |
+| **`ring`** | **0.9986** | 0.9504 | **+0,36 %** | **+0,40 %** | **10,1 %** | **24,9 %** |
+| `calib` before | — | — | −0,16 % | −0,17 % | 7,5 % | 18,8 % |
+| `calib` after | — | — | −0,05 % | −0,02 % | 8,2 % | 22,0 % |
+| `market` before | 1.0108 | 0.9141 | −3,11 % | −2,12 % | 10,8 % | 31,1 % |
+| `market` after | 0.9882 | 0.9503 | −1,22 % | −0,60 % | 10,3 % | 29,9 % |
+
+The pre-56 rows are **committed**, at
+`series/absolute_area_pre56_rows.json.gz` (263 KB, five arms keyed by name), on
+ticket 44's rule: the paired comparison above is re-derivable in seconds rather
+than by a re-run, and every arm's `summarise()` can be recomputed off it. The
+pre-fix script itself is one `git show HEAD~:experiments/warp/absolute_area.py`
+away and is not kept here.
+
+**Read the `ring` row and no other as what the engine delivers.** `interior =
+target_area × (1 + f)` with `f = 0.0575` lands Σ Space at **+0,4 %** of the floor
+the Brief asked for. There is no sizing correction owed anywhere, and the 4,2 %
+calibration ticket 54 computed was measuring the two rig defects above.

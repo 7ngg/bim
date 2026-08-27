@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:grilling]
 status: open
 assignee:
-blocked_by: [56]
+blocked_by: []
 writes:
   - data/acceptance/rules.json
   - docs/spec/acceptance-bar.md
@@ -26,15 +26,33 @@ premise is true; the conclusion is false, because the warp does not reach the so
 target — it reaches a *proportion* of it. On Briefs whose every target sits at or
 above `market_default`:
 
-| | |
-|---|---:|
-| candidates losing a Room below its floor | **31,1 %** |
-| Briefs with no clearing candidate in a pool of 8 | **6,7 %** |
-| kitchens delivered below 8,0 m² when asked for 9,0 | **21,8 %** |
-| lower quartile margin of the kitchens that pass | **+0,085 m²** |
+⚠️ **Every number this ticket was opened with is superseded. Use the right-hand
+column.** *The sizing rung under-delivers by four per cent* found two defects in
+the rig's Envelope — it eroded a 75 mm ring that ADR 0001 does not lose, and it
+let the warp resize the notch, which ADR 0020's guarantee assumes it cannot — and
+neither was `f`. Same sample, same seed, both fixed:
+
+| | as opened | **corrected** |
+|---|---:|---:|
+| candidates losing a Room below its floor | 31,1 % | **25,5 %** |
+| Briefs with no clearing candidate in a pool of 8 | 6,7 % | **3,6 %** |
+| kitchens delivered below 8,0 m² when asked for 9,0 | 21,8 % | **17,4 %** |
+| lower quartile margin of the kitchens that pass | +0,085 m² | **+0,518 m²** |
 
 For scale, ADR 0018 measured **6,9 %** Brief-level loss from *every* dimensional
-decline combined. This one predicate costs about as much again.
+decline combined. This one predicate costs about **half** that again — not about
+as much again, which is what this ticket was opened believing.
+
+⚠️ **Do not take the halving as the whole change.** The kitchen's lower quartile
+now clears by 518 litres rather than 85, so *"passing by luck"* no longer
+describes it. But **17,4 % of kitchens asked for 9,0 m² are still delivered under
+8,0**, and no sizing constant reaches that: it is the warp's own per-room
+distribution, which survives a perfect level intact.
+
+⚠️ **And do not reach for 18,8 %.** That was `calib`, which scales the box until
+Σ Space hits `target_area` and so hands the rooms margin the Brief does not
+entitle them to. A correctly-sized Envelope over-delivers by **0,4 %**, not by the
+2,2 % of slack `calib` was buying.
 
 Ticket 50 accepted this risk explicitly and named the trigger:
 
@@ -44,13 +62,14 @@ Ticket 50 accepted this risk explicitly and named the trigger:
 
 **The trigger has fired, early and on purpose.** What it does not do is make the
 decision: 50's asymmetry argument is still standing and still good, and a rule
-that costs 6,7 % of Briefs may well be worth it. That is the question.
+that costs 3,6 % of Briefs may well be worth it. That is the question.
 
 ## Settle
 
 - **Does it stay hard?** The asymmetry that justified hard is unchanged. What has
-  changed is that the cost is no longer hypothetical. Weigh them.
-- **If it stays hard, what does a starved Brief see?** 6,7 % of Briefs get nothing
+  changed is that the cost is no longer hypothetical — and it is **3,6 %**, not
+  6,7 %. Weigh them.
+- **If it stays hard, what does a starved Brief see?** 3,6 % of Briefs get nothing
   from source A. `acceptance-bar.md` §11 requires the parse-time and no-candidate
   sentences to agree, and there is no bound whose edit resolves this one — the
   Brief was compliant. This may be source B's answer (ADR 0005) rather than a
@@ -67,9 +86,12 @@ that costs 6,7 % of Briefs may well be worth it. That is the question.
 
 ## What this ticket does NOT decide
 
-- **The sizing rung**, which is [56](56-the-sizing-rung-under-delivers-on-the-warp-path.md)
-  and blocks this one: about two fifths of the 30,7 % is one constant, and judging
-  a severity against a number that is about to move is judging the wrong number.
+- **The sizing rung**, which was [56](56-the-sizing-rung-under-delivers-on-the-warp-path.md)
+  and no longer blocks this one. ✅ **Closed, and the premise it blocked on was
+  wrong in the useful direction**: not *"two fifths of the 30,7 % is one
+  constant"* — **none** of it was, `f = 0.0575` stands untouched, and what moved
+  was two defects in how the Envelope had been measured. The number to judge is
+  the corrected one above.
 - **Whether retrieval-and-warp survives as source A.** That is the Proposer row's,
   and `proposer-architecture.md` §7.5 explicitly declines to draw it.
 

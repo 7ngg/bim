@@ -100,6 +100,16 @@ interior edges shared between two rooms, boundary edges shared with the exterior
 wall — which makes one erosion rule recover the real rooms with no special case
 for perimeter rooms.
 
+**Derived from the [[Envelope]], per candidate, never equal to it.** Since the
+Envelope's bounding box is per-candidate the domain is too, and the two are
+different rectangles: `t_int` apart on each axis.
+_Avoid_: tiling the Envelope's own box and then eroding every Room at its
+boundary. That charges the dwelling for an external wall that is not there —
+**3,7 % of the interior at p50** on the shipped `t_int` — and it reads as a
+sizing error in `brief.md` §5 rung 1, which is where it was nearly fixed.
+"No special case for perimeter rooms" is a statement about the **rule**; the
+arithmetic still has to be given the right region to apply it to.
+
 **Proposal** — what the learned model emits. Not a plan: a suggestion of topology
 and proportion, used as the solver's objective. It is never the output.
 
@@ -712,6 +722,12 @@ a measured distribution rather than a value.
 _Avoid_: "wall ratio", "efficiency", "net-to-gross" — all three are quoted
 against gross area elsewhere in the industry, which is the wrong denominator
 here, and `efficiency` is separately a live `ENGINE_CHOICE` field.
+_Avoid_ also: reading **any** shortfall in delivered Σ Space as a partition
+footprint. It is the last term in the chain and the easiest to blame, and the two
+quantities in front of it — which region the tiling covers ([[Solve domain]]) and
+whether the Envelope's ring was held fixed while it was solved — are both larger
+and neither is a wall. *The sizing rung under-delivers by four per cent* was
+raised to widen `f` and closed without touching it.
 
 **Centreline dimension** — the same distance measured between wall *axes*. Larger
 than the clear dimension by half a wall on each side. What the solver works in.
