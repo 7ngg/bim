@@ -65,16 +65,29 @@ U/T-shaped. Read materially, half of them are L.
 _Avoid_: treating a notch as small. It is a median **12.55 %** of the bounding box
 and runs to 23 % at p90 — the reason a pool agrees on floor area rather than on a
 box.
-_Avoid_: reading a notch and an [[Enclosed void]] as one quantity. Both are floor
-no Room covers, and `uncovered` in a fit record **sums them** — which is why
-neither was noticed. A notch touches the bounding box's border and is the
-building; a void does not and is our own fit residue. They are held in **opposite
-directions**: the notch is pinned at the share the box was derived from, the void
-is charged to a Room and pushed down.
+_Avoid_: reading a notch and a [[Void]] as one quantity. Both are floor no Room
+covers, and `uncovered` in a fit record **sums them** — which is why neither was
+noticed. They are held in **opposite directions**: the notch is pinned at the
+share the box was derived from, the void is charged to a Room and pushed down.
+_Avoid_: **splitting them at the frame's border.** That was the shipped test and
+it is wrong on a quarter of the index. The Envelope is the bounding box minus
+**at most two** notch rectangles, so a third boundary-touching component is
+inside the ring — **27.2 %** of donors carry one, p50 1.25 m², 89.7 % perfectly
+rectangular, seated at a corner or edge distinct from the first two. The line is
+the **notch spans**, not the border. ADR 0020's second amendment.
+_Avoid_: reading `s` off the parts complement. It runs **+0.0191** mean above
+the Envelope's own share — more than two points high on 38.2 % of donors, about
+**1.9 m² of invented notch** on a 90 m² dwelling, in a ring edge that is typed,
+drawn, dimensioned and exported.
 
-**Enclosed void** — floor inside a converted dwelling that no Room's rectangles
-cover and that touches no edge of the frame. **15.49 %** of the retrieval index
-carries one; p50 0.00 m², p90 0.25, max 4.56.
+**Void** — floor **inside the Envelope** that no Room covers: every complement
+component of a candidate's frame other than the [[Notch]] spans. **p50 2.47 %**
+of the Envelope, mean 2.93 %; about 40 % of the index carries at least one.
+_Avoid_: the old name *enclosed void* and the enclosure test behind it. Touching
+the bounding box border does not put floor outside the building — the Envelope
+spent its two notches elsewhere. The **enclosed** slice alone is 15.49 % of the
+index, p50 0.00 m², p90 0.25, max 4.56, and that is the population every
+published measurement of ownership purity and warp amplification was made on.
 
 It is **our residue, not the building's**: only 2.0 % of it is a dropped duct or
 riser, and the rest is what ADR 0014's two-rectangle cap could not cover — 22.2 %
@@ -138,7 +151,7 @@ arithmetic still has to be given the right region to apply it to.
 and proportion, used as the solver's objective. It is never the output.
 
 It carries what **only it can know**: which Rooms are two rectangles (ADR 0014),
-and which Room an [[Enclosed void]] belongs to (ADR 0028). That is the whole
+and which Room a [[Void]] belongs to (ADR 0028). That is the whole
 membership test — a property enters the contract when the solver cannot derive it
 from the `ResolvedBrief` and cannot infer it from the boxes. Zoning fails that
 test and is refused; a Room's L-ness and a void's owner pass it.

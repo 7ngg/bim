@@ -186,3 +186,78 @@ looks at.
 - **Let the solver choose.** It cannot — the repair is an L1 tie (§3 above).
 - **Weight without charging.** Bounds the void and leaves the fidelity number
   understating the receiving Room by ~50 % on voided candidates.
+
+---
+
+## Amendment: the void is bounded by the **Envelope**, not by the parts
+
+Added by *The notch is two components and a quarter of donors have more*
+(ticket 61). `docs/adr/0028-…` was unclaimed; this amendment is declared on that
+ticket's resolution rather than taken quietly, because it widens the object the
+whole ADR is about.
+
+**The enclosure test was a proxy, and it fails at the frame border.** This ADR
+identifies the void as *the enclosed complement components of the parts frame* —
+components touching nothing. `notch_share` draws the complementary line: the
+boundary-touching components are *the building*. Ticket 61 measured that the
+second half is false. The Envelope is `bbox` minus **at most two** inscribed
+notch rectangles (`fit_rects.envelope_approx(domain, max_notches=2)`,
+`notches_used` never exceeds 2), while **37.6 %** of donors have three or more
+complement components of at least 0.25 m². Every component past the second is
+inside the ring, and *touching the bounding box border* says nothing about
+whether it is inside the building — it says only that the fit's residue happened
+to reach an edge.
+
+Measured on the same 2,317 converted donors: **27.2 %** carry a third
+boundary-touching component; p50 **1.25 m²**, p90 4.12, max 9.0; **89.7 %**
+perfectly rectangular, **99.7 %** seated at a corner or edge distinct from the
+first two, 46.4 % one 250 mm cell thin. That is not the shape of a building's
+outline — it is the shape of this ADR's own §2 residue, and it has the same
+cause: 98 % of the void is the k ≤ 2 fit's leftovers, and so is this.
+
+**The decision: a void is floor inside the Envelope that no Room covers.**
+Enclosure is dropped as the test. Concretely, over a candidate's frame, the void
+components are every complement component **other than the `notches_used`
+notch spans** — enclosed ones as before, plus the boundary-touching ones the
+notch spans do not account for.
+
+Nothing else in this ADR changes. Each component is still charged to its
+receiving Room's area sum and weighted against growth (§2), still carried on the
+Proposal as `voids: [(span, receiving_room)]` (§3), still owned by the donor's
+own watershed record with the largest-bordering-Room fallback (§4), and **no
+donor is refused for having one** (§1) — the argument there is that the void is
+our residue rather than the donor's defect, and a component the notch cap
+declined to model is that argument's strongest case, not its weakest.
+
+### What it costs
+
+**The population roughly doubles and the mechanism does not change.** Donors
+carrying at least one void go from **15.49 %** to about **40 %**; p50 is still
+one component. Cost is still one `AddMultiplicationEquality` per component, the
+same call the Room areas already use, and *What best-of-pool is worth at
+production pool depth* priced that arm at **zero** — INFEASIBLE unchanged,
+0 candidates lost against `free`, void p90 0.375 → 0.250.
+
+**Total uncovered floor inside the Envelope is p50 2.47 % of it, mean 2.93 %** —
+where this ADR previously charged only the enclosed slice, p50 0.00 / p90
+0.25 m². The rest of it was being paid for by an over-sized box, and ADR 0020's
+second amendment removes that compensation, which is why the two must land
+together: re-basing `s` without widening the void takes Σ Space from **+0,4 %**
+of `target_area` to about **−1,9 %**.
+
+### What is owed
+
+**`fit_rects.py`'s `voids` field widens rather than gains a sibling** — the same
+field, computed against the notch spans instead of against enclosure. It is
+already on the frozen five-field pass; this changes what that pass computes, not
+how many passes there are. **The notch spans themselves are the sixth field** on
+the same pass, per ADR 0020's second amendment, and the two are one computation:
+`env_at` already returns the notch rectangles and discards them, and once they
+are recorded the void is *defined* as the rest.
+
+⚠️ **Ownership purity is measured on the enclosed population only.** §4's p50
+1.00, and ≥ 0.80 on 72.7 % of components, was measured on enclosed components.
+The widened population is dominated by corner- and edge-seated rectangles that
+border fewer Rooms, so the fallback should fire *less* rather than more — but
+that is a direction, not a measurement, and the pass that emits the field is
+where to check it.

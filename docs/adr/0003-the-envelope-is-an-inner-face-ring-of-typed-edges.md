@@ -287,3 +287,44 @@ identity would have written a real bug. Consequence 7 is amended to say it.
 
 Nothing else in consequence 7 moves: the entrance edge is still the source node
 of the circulation flow and still cannot be a post-solve choice.
+
+---
+
+## Note: what the cap costs downstream, which the cap's own evidence never priced
+
+Added by *The notch is two components and a quarter of donors have more*
+(ticket 61). **The cap does not move and this is not a challenge to it** —
+`docs/adr/0003-…` was unclaimed and this is a price, not a decision.
+
+*The two-notch cap is now evidenced* priced the cap two ways: as index thinning
+(**6.65 %** at `worst_room_iou` < 0.30) and as a refused shape-family widening
+(a vertex budget rescues **4.17 %** of the corpus, 46.3 % of which still fails at
+four notches, and half the tail is chamfered or curved). Both stand.
+
+**Neither is the price a Room pays.** `envelope_approx` caps at two by cutting
+the two largest complement components and leaving the rest **inside** the ring —
+deliberately, and the docstring says why: an inscribed rectangle under-cuts, and
+*"under-cutting leaves a little non-dwelling inside the Envelope, which shows up
+as envelope loss and costs a room nothing."* Measured over the 2,317 converted
+donors, it is not always a little and it does not cost nothing:
+
+| | |
+|---|---|
+| donors whose complement needs 3+ components of ≥ 0.25 m² (`notches_needed`) | **37.6 %** |
+| `notches_used` | 2 on **90.16 %**, and never more |
+| `envelope_loss` — non-dwelling left inside the Envelope | p50 **1.78 %** of the domain, p90 **9.92 %**, mean **3.72 %** |
+
+That floor is inside a ring the solver must tile exactly
+(`model.no_unassigned_area`, hard), so a Room receives it. *It costs a room
+nothing* was true of the **conversion**, whose fit is scored against the real
+dwelling, and false of the **engine**, which hands the floor to whichever Room
+the objective finds cheapest. ADR 0020's second amendment and ADR 0028's
+amendment are where that is now accounted for: the notch is the `notches_used`
+spans, and everything else uncovered inside the ring is a void, charged to a
+named Room.
+
+**Nothing in the cap's own reasoning weakens.** Two is still the knee (median
+envelope loss 0.161 / 0.050 / **0.018** / 0.011 / 0.010 at k = 0…4), a higher
+cap still converts *worse*, and the widening is still refused on measurement.
+What changes is that the loss the cap accepts now has a name and an owner
+downstream instead of disappearing into a Room nobody chose.

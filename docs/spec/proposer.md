@@ -259,12 +259,12 @@ pool, and do not expect a Brief-level one to move when you stop doing so.
 | `parts[]` — one or two rectangles per Room, integer grid units | ADR 0014; the thing that is warped |
 | `types[]` in the collapsed vocabulary | the gate's first term |
 | the **cut-line frame**: the sorted distinct x and y coordinates, and each part's index span into them | §2.2.2 warps this, not the rectangles |
-| `notches_used`, and each notch's index span | the Envelope shape the candidate carries (§2.2.3) |
+| `notches_used`, and **each notch's index span** | the Envelope shape the candidate carries (§2.2.3) — and, since ADR 0020's second amendment, the cells `s` is read off and the line that defines a void. ⚠️ **The spans have never been emitted.** `envelope_approx`'s `env_at` computes the notch rectangles and discards them; this is the **sixth** field owed on the frozen pass, and it is one statistic off the same records |
 | **per-pair relation provenance** — for every axis-pair, whether the *corpus* asserted that separation or the *conversion* invented it | §2.2.5; ADR 0016 measures the invented share at **12.62 %** of axis-pairs and only the conversion can tell them apart |
 | the entrance-adjacent Room, if the corpus identifies one | §2.2.6 |
 | **`frontage_reach`** — the minimum, over the dwelling's `needs_window` Rooms, of the boundary run that Room holds ÷ the frontage budget the solver posts for it | §4.5; below 1.0 the donor holds a Room that cannot seat its window on its own boundary |
 | **`worst_room_iou`** — the minimum, over the dwelling's Rooms, of the fitted rectangles' IoU against the real room polygon | §2.2.4; the only donor-**fidelity** quantity in this record. `fit_rects.py` already emits per-room `iou`, so it is a `min` and no re-fit |
-| **`voids`** — the enclosed complement components of the parts frame, as index spans, each with the **donor Room that owned that floor** | §2.2.8; ADR 0028. Watershed ownership purity is p50 1.00 and ≥ 0.80 on 72.7 % of components |
+| **`voids`** — the complement components of the parts frame **other than the notch spans**, as index spans, each with the **donor Room that owned that floor** | §2.2.8; ADR 0028 and its amendment. ⚠️ **Widened from *enclosed* to *inside the Envelope*** by ticket 61 — the enclosure test misses the 27.2 % of donors carrying a third boundary-touching component. Watershed ownership purity is p50 1.00 and ≥ 0.80 on 72.7 % of components, **measured on the enclosed population only** |
 | **`frame_residual`** — the area-weighted mean deviation of the donor's Rooms from its dwelling axis, in degrees | §4.4; ADR 0031. A dwelling built on two angles is sheared onto one by the conversion, and this records how far. Published on every record regardless of value, and **carrying no threshold inside it** |
 | `RegionProfile`/`CorpusProvenance` = `AZ`/`CH` | C14 |
 
@@ -365,7 +365,7 @@ Six things about that programme are decisions, not incidentals:
    INFEASIBLE, **0 UNKNOWN** over 393 warps at a 3 s cap. ADR 0008 asks the
    conversion to be *decidable rather than timed out*; this inherits that
    property rather than claiming it.
-6. **An enclosed void is a term in this programme and not a free region.** Its
+6. **A void is a term in this programme and not a free region.** Its
    area is bilinear in the same two gap vectors, it is added to its receiving
    Room's `area_r`, and it carries a penalty of its own — ADR 0028, §2.2.8. Left
    out, as it was, it is the objective's only unpriced region and the warp
@@ -415,11 +415,29 @@ and says nothing about the notch's dimensions. The two are compatible and neithe
 implies the other, which is why nothing had caught it.
 
 ⚠️ **The notch is not the only uncovered region, and the two are held in opposite
-directions.** `notch_share` splits them at the frame's border for exactly this
-reason: the boundary-touching complement is the **building** and is held at `s`;
-the enclosed complement is **our own fit residue** and is charged and bounded —
-§2.2.8, ADR 0028. Reading `uncovered` in a fit record as one quantity sums them,
-and is why neither was noticed.
+directions.** The notch is held at `s`; everything else uncovered inside the ring
+is **our own fit residue** and is charged and bounded — §2.2.8, ADR 0028. Reading
+`uncovered` in a fit record as one quantity sums them, and is why neither was
+noticed.
+
+⚠️ **The line between them is the notch spans, and it used to be drawn at the
+frame's border.** This section said *"the boundary-touching complement is the
+**building** and is held at `s`; the enclosed complement is our own fit
+residue"*, and both halves of that split were wrong on a quarter of the index.
+**The Envelope is the bounding box minus at most two notch rectangles** —
+`envelope_approx(domain, max_notches=2)`, and `notches_used` is 2 on 90.16 % of
+donors and never more — while **37.6 %** of donors have three or more complement
+components of ≥ 0.25 m². Everything past the second is *inside the ring*, so it
+is residue that happens to reach an edge, not building. And the two largest are
+contaminated the same way, by the `envelope_loss` and residue adjoining them:
+measured against the Envelope's own share, `s` runs **+0.0153** at p50,
+**+0.0191** mean, more than two points high on **38.2 %** of donors, which is
+about **1.9 m² of invented notch** on a 90 m² dwelling — in a ring edge that is
+typed, drawn, dimensioned and exported. **`s` is now the `notches_used` spans'
+share of the box and nothing else** (ADR 0020, second amendment), and every
+other uncovered component is §2.2.8's void (ADR 0028, amendment). Widening `s`
+to cover them instead was measured and refused: it moves `s` a further half
+point *away* from the Envelope's share.
 
 This makes the Envelope **per-candidate in its `invented` fields only**, and that
 is the price. Where `shape` is `stated`, the source's `notches_used` must equal
@@ -677,13 +695,34 @@ be.
 And the stated-versus-invented weighting was probed at a **30 % stated share**,
 which is a probe parameter and not a measurement of what Homeowners state.
 
-#### 2.2.8 The enclosed void, and whose floor it is
+#### 2.2.8 The void, and whose floor it is
 
-ADR [0028](../adr/0028-the-enclosed-void-is-charged-to-a-room-and-bounded.md).
-**A converted tiling can enclose floor no part covers, and 15.49 % of the index
-does.** It is not the notch — that touches the frame's border and is the
-building's shape (§2.2.3). This is enclosed by Rooms on every side, and
-`model.no_unassigned_area` is hard, so the solve is *required* to close it.
+ADR [0028](../adr/0028-the-enclosed-void-is-charged-to-a-room-and-bounded.md)
+and its amendment. **A void is floor inside the Envelope that no Room covers**:
+over a candidate's frame, every complement component *other than the
+`notches_used` notch spans*. It is not the notch — the notch is the ring's own
+geometry, at most two rectangles, held at `s` (§2.2.3). Everything else is inside
+the ring, and `model.no_unassigned_area` is hard, so the solve is *required* to
+close it.
+
+⚠️ **The test used to be enclosure and it was a proxy that fails at the frame
+border.** A component touching the bounding box border is not thereby outside the
+building — the Envelope spent its two notches elsewhere. **27.2 %** of donors
+carry a third boundary-touching component: p50 **1.25 m²**, p90 4.12, max 9.0,
+**89.7 % perfectly rectangular**, **99.7 %** seated at a corner or edge distinct
+from the first two. Same object, same cause as the enclosed population — the
+k ≤ 2 fit's residue. Total uncovered floor inside the Envelope is **p50 2.47 %**
+of it, mean **2.93 %**, against the enclosed slice's p50 0.00 / p90 0.25 m²
+tabulated below. Donors carrying at least one void go **15.49 % → about 40 %**;
+p50 is still one component, and the cost is still one
+`AddMultiplicationEquality` each, the arm ticket 57 priced at **zero**.
+
+⚠️ **This lands with ADR 0020's second amendment or not at all.** The shipped
+over-sized `s` has been paying for the uncovered floor: Σ Space is **+0,4 %** of
+`target_area` today, and re-basing `s` without widening the void takes it to
+about **−1,9 %**.
+
+The table below is the **enclosed** population, which is the measured one:
 
 | | |
 |---|---|
@@ -1583,9 +1622,14 @@ surfaced to the Homeowner as a C4 Assumption.
 - From ***A donor's enclosed void becomes area nobody asked for***, to the holders
   of the files it does not write:
   - **`experiments/rectangularise/fit_rects.py`** — a **fourth** owed per-record
-    field, the enclosed void components as frame spans each with its **donor
-    owner**. Both inputs are in hand: `notch_share` in
-    `warp/absolute_area.py` already splits enclosed from boundary-touching, and
+    field, the void components as frame spans each with its **donor
+    owner**. ⚠️ **Ticket 61 changed what this field holds and added a sixth
+    beside it**: a void is now every complement component *other than the
+    `notches_used` notch spans*, and those spans are themselves the sixth owed
+    field (ADR 0020's second amendment). The two are one computation — `env_at`
+    already returns the notch rectangles and throws them away, and the void is
+    defined as the rest. `notch_share` in `warp/absolute_area.py` splits
+    enclosed from boundary-touching, which is **no longer the line**;
     `watershed` already labels every cell with the Room that owns it.
     `experiments/void/provenance.py` is the reference. **Take it with the other
     three** — cut-line frame, per-pair relation provenance, `frontage_reach` —
