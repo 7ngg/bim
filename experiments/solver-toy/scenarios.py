@@ -38,6 +38,7 @@ from geometry import (
     l_shape,
     touches_exterior,
     u_shape,
+    u_shape_true,
 )
 
 # ---------------------------------------------------------------------------
@@ -555,6 +556,17 @@ PUBLISHED_ENVELOPES = {
 # Fitted from the three published Envelopes: 75.0 / 118.0 / 232.8 m2 of interior
 # over 8 / 12 / 24 rooms is 9.38 / 9.83 / 9.70 m2 per room, and all three bboxes
 # sit at an aspect of 1.25-1.30.
+#
+# ⚠️ This is a fit to the fixtures, not to any dwelling. Measured against 2,238
+# Swiss dwellings it is **15 % below the corpus median** of 11.34 m2 per room
+# over 4-12 rooms, and 29 found the harness's own placeholder table needs 11.58
+# at 7 and 8 rooms in either cut structure -- so the published fixture is below
+# what it can always type. It is kept at 9.65 rather than corrected in place:
+# moving it would move every timing in Parts I-III under four closed decisions.
+# The honest per-count figures live in the `corpus` fixture below, where area
+# per room runs 10.06 (n = 4) to 11.77 (n = 8) because a real dwelling's area
+# per room is not a constant. ADR 0029, *The toy Envelope is more compact than a
+# real dwelling*.
 AREA_PER_ROOM_M2 = 9.65
 BBOX_ASPECT = 1.28
 
@@ -563,14 +575,98 @@ BBOX_ASPECT = 1.28
 USE_PUBLISHED_ENVELOPES = True
 
 
-def envelope_for(n_rooms: int, exposure: str = "detached") -> Envelope:
+# ---------------------------------------------------------------------------
+# The corpus fixture -- `envelope_fit.py`'s output, pasted.
+#
+# (W, H, corner_w, corner_h, mid_w, mid_depth) in 250 mm grid units. The corner
+# notch removes floor at zero perimeter cost; the mid-edge notch buys perimeter
+# at `2 * mid_depth` and removes little. Splitting ADR 0003's two-notch budget
+# **by job** is what lets one rectilinear ring hit all three corpus targets --
+# area, perimeter and bbox occupancy -- to within 0,7 % at every count.
+#
+# `mid_depth` rises 4 -> 12 grid units across the band, which is the corpus's own
+# rising articulation: a real boundary runs 7,5 % longer than its bounding box at
+# four rooms and 11,8 % at eleven. The published fixture sits at **exactly 0 %**
+# at every count, because every notch it cuts is a corner notch.
+#
+# **The band is 5-11 rooms, and both ends are refused for stated reasons.**
+#
+# n = 4 is **refused, not missing**. `ground_truth` gives every part of the
+# Envelope at least one room, so every part must be able to hold one -- and a
+# 40,4 m2 dwelling cannot carry an articulated ring *and* a 2,75 m `living`
+# column at the same time. Serving it would mean either a part no room fits or
+# one room per part, which is an assignment rather than a dissection. The
+# published fixture only serves n = 4 because its single corner notch leaves two
+# parts and buys no perimeter -- which is the defect, not a capability.
+#
+# n = 12 is refused because that corpus cell holds **17** dwellings and its
+# boundary runs 34,6 % longer than its own bbox against 11,8 % at eleven. It is
+# the noise cell, and it is the row *The toy Envelope is more compact than a real
+# dwelling* led its headline table with. n = 3 has 38 dwellings but `composition`
+# needs six rooms before it can satisfy COMPOSITION, so no Brief exists there.
+CORPUS_ENVELOPES = {
+    5:  (42, 26, 18, 11,  6,  0),
+    6:  (44, 30, 11, 16, 11,  5),
+    7:  (47, 34, 12, 21, 13,  5),
+    8:  (52, 36, 18, 16, 11,  7),
+    9:  (51, 39, 13, 20, 13,  9),
+    10: (50, 44, 16, 21, 11, 11),
+    11: (54, 43, 17, 16, 12, 12),
+}
+
+# Which fixture `envelope_for` serves when it is not told. `published` is every
+# number in Parts I-III, ADR 0014 and ADR 0019; `corpus` is the arm fitted to
+# real dwellings. The default stays `published` on purpose -- a closed decision
+# does not move because a later ticket added a better fixture beside it.
+FIXTURE = "published"
+
+
+def corpus_envelope(n_rooms: int, exposure: str = "detached") -> Envelope:
+    """The corpus-fitted Envelope for `n_rooms`. See `CORPUS_ENVELOPES`."""
+    if n_rooms not in CORPUS_ENVELOPES:
+        raise ValueError(
+            f"no corpus Envelope for {n_rooms} rooms: the series has fewer than "
+            f"25 dwellings at that count, so there is no median to fit")
+    W, H, cw, ch, mw, md = CORPUS_ENVELOPES[n_rooms]
+    notches: List[Rect] = []
+    parts: List[Rect] = []
+    right = W - cw if (cw and ch) else W
+    if mw and md:
+        off = (right - mw) // 2
+        notches.append(Rect(off, 0, off + mw, md))
+        parts += [Rect(0, 0, off, H),
+                  Rect(off, md, off + mw, H),
+                  Rect(off + mw, 0, right, H)]
+    else:
+        parts.append(Rect(0, 0, right, H))
+    if cw and ch:
+        notches.append(Rect(W - cw, H - ch, W, H))
+        parts.append(Rect(right, 0, W, H - ch))
+    shape = "U" if (mw and md) else "L"
+    if (mw and md) and (cw and ch):
+        shape = "L+U"
+    name = f"{shape} {W*GRID_MM/1000}x{H*GRID_MM/1000} m, corpus n={n_rooms}"
+    return Envelope(name, W, H, tuple(notches), tuple(parts), exposure)
+
+
+def envelope_for(n_rooms: int, exposure: str = "detached",
+                 fixture: Optional[str] = None) -> Envelope:
     """An Envelope sized for `n_rooms`, under a dwelling-type exposure preset.
 
-    8, 12 and 24 return the published Envelopes unchanged. Every other count is
-    generated by the same recipe: interior area scaled at a fixed area per room,
-    a bbox at the published aspect, and one notch below 10 rooms or two above,
-    cut to the published notch share of the bbox.
+    `fixture` selects which family. `published` (the default, and every number in
+    Parts I-III) returns the three published Envelopes unchanged at 8, 12 and 24
+    and generates every other count by one recipe: interior area scaled at a
+    fixed area per room, a bbox at the published aspect, and one corner notch
+    below 10 rooms or two above. `corpus` returns `CORPUS_ENVELOPES` instead --
+    fitted per count against real dwellings on area, perimeter and bbox
+    occupancy, and articulated with the mid-edge notch the published family
+    cannot cut.
     """
+    fixture = fixture or FIXTURE
+    if fixture == "corpus":
+        return corpus_envelope(n_rooms, exposure)
+    if fixture != "published":
+        raise ValueError(f"unknown fixture {fixture!r}")
     if USE_PUBLISHED_ENVELOPES and n_rooms in PUBLISHED_ENVELOPES:
         name, Wm, Hm, spec = PUBLISHED_ENVELOPES[n_rooms]
         kind, nw, nh, gap = spec
