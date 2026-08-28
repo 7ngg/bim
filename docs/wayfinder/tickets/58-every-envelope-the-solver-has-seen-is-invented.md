@@ -3,8 +3,8 @@ id: 58
 title: Every Envelope the solver has seen is invented
 parent: map
 labels: [wayfinder:task]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
   - experiments/rectangularise/
@@ -111,3 +111,125 @@ Take it when the frontier is quiet, as *The plan has no vertical dimension* and
 *The toy Envelope is more compact than a real dwelling* (2026-08-28), ADR 0029,
 which took the parametric route deliberately and recorded this as the option not
 taken.
+
+## Resolution
+
+**The arm is built and run. The solver is not what fails on a real boundary —
+three things upstream of it are, and each is now isolated with a number.**
+ADR 0030; `docs/research/solver-formulation.md` Part V;
+`docs/research/rectangularisation.md` §14.
+
+### The ticket's four items
+
+**Item 2 — where the boundary comes from — was not a decision.** It is
+`keep_largest_component(watershed(geoms)) >= 0`, the 250 mm cell mask
+`envelope_approx` already measures ADR 0003's notch loss against. No new
+convention, and every figure below is comparable with `notches_all` and
+`envelope_loss_by_k` in the same fit record rather than merely similar to it.
+
+**Item 1 — is a real boundary representable — is answered harder than the ticket
+expected, and it reshaped the rest.** The quantity is the *exact* minimum
+rectangle partition (Lipski/Ohtsuki, verified against eight hand-checkable
+shapes; on two of them the hand expectation was the wrong one):
+
+| | `Envelope.parts` | min rectangles | reflex vertices |
+|---|---:|---:|---:|
+| published fixture | 2 | **2** | 1–2 |
+| corpus fixture (ADR 0029), n ≥ 6 | 4 | **4** | 3 |
+| **real dwelling** | — | **6** median, 12 at p90, 44 max | **6** median, 15 at p90 |
+
+**12,4 %** of the converted index is three rectangles or fewer. The ticket's
+framing — *rectangularise onto the cap, or carry the true outline* — turned out
+to be the wrong fork: both were run, as rungs of a ladder, and the informative
+comparison was the one nobody had asked for (`corpus` → `cap`).
+
+**Item 3 — what the arm measures.** `fixture_delta.py`'s design with a third arm,
+as the ticket specified, but as a **ladder** so the two ways a real dwelling
+differs from `CORPUS_ENVELOPES` are separated:
+
+| arm | slots | reached the solver | survivors | valid but for tiling | INFEASIBLE | `no_brief` | wall p50 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `corpus` | 120 | 106 | **106** (88,3 %) | 0 | 0 | 14 | 0,19 s |
+| `cap` | 120 | 50 | 48 (40,0 %) | 2 | 0 | **70** | 3,30 s |
+| `real` | 120 | 57 | **2** (1,7 %) | **53** | 2 | 63 | **10,11 s** |
+
+Exact McNemar: 62–4, 46–0, 104–0, all **p = 0,0000**.
+
+**Item 4 — does exposure stay a preset. Yes, and the reason is measured rather
+than assumed.** A third of a real boundary lies off its own bounding box, which
+looked fatal for a four-vector over bbox edges. The notch branch of `_faces_of`
+recovers it: `exterior_fraction` is **0,766** on a real outline against **0,786**
+on its cap approximation. `EXPOSURE_PRESETS` is not retired.
+
+### What actually refuses, in order
+
+1. **`ground_truth` cannot dissect a per-dwelling Envelope.** Not a shape
+   finding: the `cap` arm *is* ADR 0003's object, and it loses **70 of 120**
+   slots where `corpus` loses 14. **Per-dwelling sampling alone, at a fixed shape
+   family, costs more than half the survivors** — and every fixture on this map
+   is a per-count median, which is dissectible in a way its own population is not.
+2. **`assign_kinds` cannot type a real dwelling**, and `real_typing.py` settles
+   which constraint it is without a solver: **not size** (2,0 % of real Rooms fit
+   no toy type), **not edge typing** (above), but the **programme** —
+   `COMPOSITION` demands a median 5 habitable Rooms against a median 4 cells that
+   are both exterior-facing and habitable-sized. Short in 23,3 % of dwellings at
+   `detached`, **50,0 %** at `corpus_median`. ⚠️ This is the **toy's**
+   `composition` and `STANDARDS`, not `room-constraints.json`.
+3. **Exact tiling.** Of the 57 solved slots, 55 are valid on every hard
+   predicate other than tiling; **2 tile exactly and survive, and 53 fail on
+   unassigned floor alone** —
+   median **17 cells = 1,06 m²**, p90 60, max 92. The witness fails the same way
+   (57 invalid, **50 tiling-only**), which is the tell that it is the conversion's
+   residue and not the solver's error.
+
+### The pre-registered rule fired, and it was the wrong rule
+
+Written before the run: *paired McNemar at p < 0,01 with the real arm losing
+survivors reopens the 15 s budget.* It fires at 104–0. **The conclusion does not
+follow**: the rule assumed the arms differ only in the solve, and 63 of 120 real
+slots never reach it while 55 of the 57 that do come back valid. Recorded rather
+than reinterpreted — that is what pre-registration is for.
+
+**The budget is not refuted and is closer to binding than it looked.** No
+survivor waited more than 1,68 s to become valid; wall p50 goes
+0,19 → 3,30 → **10,11 s** and p90 reaches the cap on both real-sampled arms.
+
+### Two things found that were not looked for
+
+- **The six-room hole belongs to `envelope_for(6)`, not to six rooms.** ADR 0029
+  left n = 6 as the one uncovered cell in C13's band. On `cap`, **4 of 14** slots
+  survive there against `corpus`'s **0 of 14**.
+- **A converted dwelling is not a witness for its own boundary.** Its recorded
+  rectangles are fitted to the cap Envelope, a superset, so against the true
+  outline they fail H1 *and* H3 — seven of the first eight slots. It reads as a
+  coordinate bug and is not one. `real_envelope.refit_to_true_mask` substitutes
+  the domain at `fit_rects`' call boundary; **`fit_rects.py` is not edited**. The
+  re-fit is materially harder: **11 of 71** in-band dwellings (15,5 %) cannot be
+  re-fitted to their own boundary at the same 10 s budget.
+
+### What this does NOT establish
+
+- **That 15 s or τ = 4 is wrong.** Zero real slots failed for time, two went
+  INFEASIBLE.
+- **That a real boundary is infeasible for the solver.** The opposite: 55 of 57.
+- **A clean shape effect.** `cap` → `real` moves boundary *and* ground-truth
+  source together; the re-fit was forced.
+- **Anything about the shipped room table**, or about ResPlan, or outside
+  5–11 rooms, one seed, 60 dwellings.
+- **That widening ADR 0003 would help.** Not priced. §13.3 refused it on separate
+  evidence.
+
+### Artifacts
+
+- `experiments/rectangularise/real_boundary.py` — exact minimum partition and the
+  two `_leaf_ok` heuristics; series `series/real_boundary.json.gz`.
+- `experiments/rectangularise/real_envelope.py` — the `cap` and `real` Envelopes
+  and the true-mask re-fit; series `series/real_envelopes.json.gz`.
+- `experiments/solver-toy/real_typing.py` — which constraint refuses a Brief, no
+  solver, one second.
+- `experiments/solver-toy/real_arm.py` — the ladder; `results/REAL_ARM.jsonl`.
+- `docs/research/rectangularisation.md` §14, `docs/research/solver-formulation.md`
+  Part V, ADR 0030, and `CONTEXT.md` (declared on resolution — it had no
+  claimant): **Real boundary** is a new term, **Representable** gains its Envelope
+  half, and **Witness** gains an `_Avoid_` because the drawing sense and the
+  solver-harness sense share no referent and both ship.

@@ -43,6 +43,8 @@ the stable part.
 | `scenarios.py` | Seeded Briefs, Envelopes and Proposals for 8, 12 and 24 rooms. Two Envelope **fixtures** — see below. |
 | `envelope_fit.py` | Fits the corpus Envelope family, per room count, against 2,238 real dwellings. Seconds; reads the committed series. |
 | `fixture_delta.py` | What moving between the two fixtures costs the solver: paired `(n, exposure, seed)`, shipped config. `results/FIXTURE.jsonl`. ~15 min at 5 seeds. |
+| `real_arm.py` | **Ticket 58**: the three-arm ladder `corpus` / `cap` / `real`, paired on `(dwelling, exposure, seed)`. Reads `../rectangularise/series/real_envelopes.json.gz`. `results/REAL_ARM.jsonl`. |
+| `real_typing.py` | **Ticket 58**: which constraint refuses a real dwelling a Brief — size, edge typing or the programme. Pure arithmetic, no solver, one second. |
 | `solver.py` | The CP-SAT projection model. `LayoutProjector` / `SolveConfig` / `project()`. |
 | `validate.py` | Independent checker. **Shares no code with the solver** beyond raw geometry — deliberately, so the two can disagree. |
 | `smoke.py`, `probe1..5.py` | The runs behind the findings doc. |

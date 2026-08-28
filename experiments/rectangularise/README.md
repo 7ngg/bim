@@ -26,12 +26,32 @@ gitignored; regenerate by running the scripts.
 | `render_sheet.py [--pick=] [--n=]` | **ticket 27**: draw a converted dwelling beside the real one — the eyeball check no metric stands in for | ~4 s/dwelling |
 | `void_census.py [n]` | ticket 27: how much floor no Room claims, and how many rooms the one dwelling frame shears | ~2 s/dwelling |
 | `envelope_family.py` | **ticket 47**: what the residual Envelope loss *is* — stepped or off-axis — and what a donor gate costs on the proxy against the thing itself | seconds |
+| `real_boundary.py [n]` | **ticket 58**: how many rectangles a real outline needs, exactly, and whether the parts could hold rooms | ~0.4 s/dwelling |
+| `real_envelope.py [n]` | **ticket 58**: emits the `cap` and `real` Envelopes plus a truth re-fitted to the true mask, for `solver-toy/real_arm.py` | ~2 s/dwelling |
 
 Order: `measure_*` before `analyse_swiss.py`, `fit_rects.py` before
 `analyse_fit.py`. `envelope_family.py` reads `out/swiss_fit_k2.json` and the
 `out/swiss_dw.pkl` cache, so it costs seconds and never re-fits — **if you add a
 statistic about the Envelope's shape family or about donor fidelity, add it
 there rather than re-deriving it from the corpus.**
+
+## Two things that will bite whoever runs the ticket-58 pair
+
+**A converted dwelling is not a witness for its own boundary, and the failure
+reads as a coordinate bug.** `swiss_fit_k2.json`'s rectangles are fitted to the
+**cap** Envelope, a superset of the true outline, so against the true outline
+they fail H1 (a Room poking into ground the dwelling never occupied) *and* H3
+(cells no rectangle reaches) — seven of the first eight slots. `real_envelope.
+refit_to_true_mask` re-runs the conversion with the domain set to the true mask
+by substituting `envelope_approx` **at the call boundary**; `fit_rects.py` is
+deliberately not edited, because four closed decisions rest on it and this needed
+a different domain, not a different conversion. If you need another domain, copy
+that pattern rather than adding a flag.
+
+**The true-mask re-fit is much slower than the cap fit and returns INFEASIBLE
+where the shipped one decides.** Budget ~2 s/dwelling against the cap fit's 0.8,
+and expect refusals: that is a fact about the domain and it is reported rather
+than retried.
 
 ## Running the two arms (ticket 40)
 

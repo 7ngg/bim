@@ -272,6 +272,32 @@ bounding box minus at most two notches. The property that decides whether a corp
 or dropped. Stated as representability rather than as a similarity threshold
 because the question is what v1 *can say*, and a percentile cannot answer that.
 
+**It has two halves and only the Room half was ever measured.** The Envelope half
+now is: a real dwelling's interior needs a minimum of **six rectangles** at the
+median (p90 twelve), where the [[Notch]] family yields between one and four, and
+**12,4 %** of the converted index comes in at three or fewer. Representability is
+therefore mostly an *outline* property, not a room-shape one.
+_Avoid_: reading a corpus-**fitted** Envelope as a real boundary. ADR 0029's
+family matches the corpus on area, perimeter and bounding-box occupancy — three
+moments — and a dwelling that agrees on all three can still need six rectangles
+where the fixture needs three. Matching moments is not matching a [[Real
+boundary]].
+
+**Real boundary** — a converted dwelling's own outline on the 250 mm solve grid:
+`keep_largest_component(watershed(rooms)) >= 0`, the cell mask the conversion
+already measures its notch loss against. Distinguished from the [[Envelope]]
+because the two are not the same object and the map has only ever solved on the
+second.
+_Avoid_: treating it as a drop-in fixture. Nothing in the harness can *pose* a
+Brief on one — the ground-truth generator gives every Envelope part a room and
+**96 %** of real dwellings have a part no room fits, so the blocker sits upstream
+of the solver rather than in it.
+_Avoid_: using a converted dwelling's recorded rectangles as its own boundary's
+ground truth. They are fitted to the bounding-box-minus-two-notches
+approximation, which is a **superset** of the real boundary, so against the real
+one they both leave the Envelope and leave floor unassigned. A re-fit on the true
+mask is a different, and materially harder, solve.
+
 **Plan** — the canonical geometry: walls with thickness, openings hosted on walls,
 and spaces. The single representation every layer reads or writes. Annotation is
 **not** part of it — see **Drawing**.
@@ -644,6 +670,12 @@ centreline, with one declared exception at the footprint overall. Named because
 a chain segment's identity is its pair of witnesses, and a witness is in turn
 named by the Rooms either side of it — Brief-anchored, so it dies honestly when
 the topology changes.
+_Avoid_: reading this term in a solver document. `experiments/solver-toy/` and
+`docs/research/solver-formulation.md` use "witness" for something else entirely —
+a **known-feasible ground truth**, the exact tiling that makes a failure to solve
+a fact about the projection problem rather than about an impossible Brief. The
+two senses share no referent. The drawing sense is this glossary's; the solver
+sense is local to the harness and is always qualified there.
 
 **Plan mark** — the short sequential label that ties an Opening on the plan to
 its row in a schedule: windows `ОК1`, `ОК2`, …; doors a **bare number**, no
