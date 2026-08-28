@@ -5,7 +5,7 @@ parent: map
 labels: [wayfinder:task]
 status: open
 assignee:
-blocked_by: [59]
+blocked_by: []
 writes:
   - experiments/warp/
   - docs/adr/0031-a-two-angle-dwelling-is-kept-and-labelled.md
@@ -62,3 +62,32 @@ unclaimed and the four probes 57 left there (`pool_depth.py`, `best_of_m.py`,
 `best_of_m_fit.py`, `constrained_warp.py`) are the harness this would extend;
 `frame_residual` is published on every record per ADR 0031, so the split costs no
 re-fit.
+
+## Unblocked by *Can a starved candidate be refused before the solve*
+
+**The constant you were waiting on exists, and it lands inside the window that
+starts drawing off-frame donors.** §11.1 step 1 is now
+`POOL_DEPTH_ON_STARVATION = 16`, past 57's knee — and a 4–8° donor sits at the
+**10,6th percentile**, rank ≈ 9 of a 58–87 bucket. `m = 8` stopped one short; 16
+does not. So the branch condition this ticket was raised on is **satisfied**: the
+pool is deepened past the rank where sheared donors enter, on the Briefs that
+reach the step.
+
+⚠️ **It only fires on the starved path.** 16 is the depth on *starvation*, not the
+standing pool, so the population that draws a sheared donor is the ~3 % of Briefs
+that get there — which bounds what this ticket can be worth and should be said in
+its own answer rather than discovered at the end of it.
+
+Three things 59 leaves you that change how to run this:
+
+1. **`experiments/warp/` is shared with 63 and not with 59** — `project_join.py`
+   is finished and imports `solver-toy/` and `room-rectangles/` read-only. If you
+   want a **Plan-level** cost for a sheared donor rather than a warp-level one,
+   `project_join.one()` is the whole join in one call.
+2. ⚠️ **A per-candidate warp figure is no longer the end of the story.** 82,0 % of
+   candidates that look starved on the warped rectangles are served once the
+   projection sizes them. Whatever a sheared donor costs the *warp*, price it at
+   the Plan before concluding it costs the product anything.
+3. ⚠️ **The conversion is still frozen until `fit_rects.py`'s five-field pass
+   runs**, and `frame_residual` — the quantity this ticket turns on — is one of
+   the five. Nothing in 59 moved that.

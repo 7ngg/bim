@@ -747,6 +747,111 @@ preserve. Now that the void is charged, it buys nothing worth a transform on the
 donor record — ADR 0017 is the standing reminder about transforms whose fidelity
 nobody looks at.
 
+#### 2.2.9 What the projection does to a warped candidate
+
+**Until this section, no warped Proposal had ever reached the projection solve.**
+`fit_warp.py` imports `experiments/solver-toy/` for §5.1's relation extractor and
+nothing else, and `solver-toy`'s own Envelopes are fixtures or real dwellings.
+Every per-room area figure on this page — §2.2.7's decline rates, ADR 0028's void
+arithmetic, `acceptance-bar.md` §3.2's 25,5 % and 3,6 % — is measured on the
+**warped rectangles**, one stage before the object the rules bind on.
+`experiments/warp/project_join.py` closes the join: one warped candidate becomes
+one `Brief` plus one `Proposal`, `project()` runs at 15 s and τ = 4, and the same
+function measures the delivered Space on both sides.
+
+**291 candidates, 273 reaching the solve, 61 Briefs, `ringmarket` semantics.**
+
+| | |
+|---|---:|
+| starved on the warped rectangles | **18,3 %** |
+| of those, **served** by the projection | **82,0 %** — 41 of 50, [71,4–92,6] |
+| Proposal-clear and then refused | 2,2 % — 5 of 223 |
+| INFEASIBLE overall · 4–6 rooms · 7–10 rooms | 5,1 % · 2,0 % · **8,8 %** |
+| every INFEASIBLE re-solved with the statutory limb dropped | **14 of 14 feasible** |
+| Σ Space, Plan against Proposal | p50 **0,0000**, p10 −0,0113, p90 +0,0007 |
+
+**The solve does not create floor, it moves it — and that is the whole mechanism.**
+§2.2.2 minimises worst-room *relative* deviation and prices every Room
+symmetrically; the projection posts the floors **hard** and minimises corner
+displacement, so it will shrink a Room comfortably above its floor to feed the one
+below. The median starved candidate has exactly **one** Room under its floor.
+`acceptance-bar.md` §3.2 already argued from this shape when it set bound 9 to
+`warn` — *"a kitchen stated at 6 m² can be delivered at 8 with another Room
+absorbing the loss"* — and this is that sentence measured.
+
+⚠️ **So a per-candidate starvation figure taken off this page is not a statement
+about what a Homeowner gets.** It is the input to a solve that fixes four fifths
+of it. Quote §2.2.7's decline rates as *warp* fidelity, which is what they are,
+and never as plan yield.
+
+**A Proposal-level *screen* is refused, on three independent grounds.** A screen
+is a filter between the warp and the solve; posting the floor as a **constraint
+inside the warp** is a different object, it is not refused here, and
+`acceptance-bar.md` §11.1 says so.
+
+1. **It is unsound at 82 %.** Refusing what the warp starves throws away four
+   candidates in five that the projection would have served, off a pool whose
+   median depth under §2.2.1's gate is **9** at 4–6 rooms and **5** at 7–10.
+2. **Its only sound form never fires.** A screen may refuse only what the
+   projection provably cannot serve, and the sole cheap relaxation is arithmetic:
+   Σ hard floors against the candidate's own derived box. Measured, that ratio is
+   p50 **0,566**, p90 0,688, **max 0,736** over 273 candidates — 0 firings, and it
+   cannot fire, because `box = target_area × (1 + f) / (1 − s)` and every target
+   sits at or above its floor under `dim.market_default_area`.
+3. **It would sit on the wrong side of the expensive step.** The projection costs
+   **less than the warp that feeds it** — wall p50 **0,145 s** against a warp p50
+   of 0,674 (means 1,05 and 1,12; p90 0,98 and 2,71; 4,4 % of solves reach the
+   15 s cap). A gate between the two skips the cheaper half.
+
+**Why the solve is that cheap, stated so nobody quotes it against a different
+object.** A warped candidate arrives as an exact tiling of its own Envelope with
+τ = 4 relations fixed from it, so the projection is a **repair**, not a search.
+⚠️ It is therefore **not comparable** with `solver-formulation.md` Part V's
+10,11 s, which is a real dwelling's own boundary with a generated ground truth, or
+with ADR 0029's fixture timings, which run at `t_int` 100 where this runs at 150.
+
+**What the join cannot see, and one thing it found instead.**
+
+⚠️ **The two rigs measure area on different planes, and the gap is the whole of
+the false-pass column.** `solver.py` binds H4 on `(250w − t)(250h − t)`, eroding
+all four sides; ADR 0001 does not erode at the Envelope boundary. The gap is p50
+**3,92 %** of a Room's area (p90 7,24), **27 of 1 786 Rooms** cross a floor
+between the planes, and **19 candidates are starved on the solver's plane alone**
+— a superset of the 5 false passes. This is ticket 56's 75 mm ring, re-found
+inside the solver where the 250 mm grid makes it unremovable, and it means the
+projection is strictly stricter than the bar. `acceptance-bar.md` §11.1 carries it.
+
+⚠️ **The arm runs on one-rectangle donors, 46,4 % of the converted index.**
+`solver-toy/solver.py` gives a Room one rectangle where ADR 0014 gives it one or
+two, and the restriction skews small — 59,3 % of donors at n = 6 against 31,4 % at
+n = 9 — which is why the starvation base rate here is 18,3 % against
+`ringmarket`'s **25,5 %** on the unrestricted set. The k ≤ 2 arm runs through
+`room-rectangles/solver_parts.py`, whose Design A binds the Room's `min_area` on
+the **primary part** where ADR 0014 binds it per Room; it is strictly stricter, so
+it can confirm a false refusal and cannot rule one out.
+
+⚠️ **H8, H9 and H10 are posted soft in the arm and their cost is not measured
+here.** The toy's H9 wants one plumbing cluster where `wet.plumbing_group_count`
+has been 3 since ADR 0023; its H10 routes around a `PRIVATE` set containing the
+wet types; its H8 binds off an exposure preset a warped candidate does not carry,
+because the ring is ADR 0003 §7's and `frontage_reach` is not on the Proposal.
+Leaving them hard would have measured the toy — 58's finding from the other side.
+What they would have cost is recorded without a solve: of 273 warped candidates,
+only **54** satisfy the toy's full hard set, failing H9 129 times, H10 104 and H8
+75. **None of those three counts is `room-constraints.json`'s cost** and none may
+be quoted as one.
+
+⚠️ **The void is carried as an Envelope obstacle, not as ADR 0028's charged
+span**, because the toy `Proposal` has no `voids` field. That is what makes the
+candidate its own witness and it makes the arm optimistic about H3 and nothing
+else; §2.2.8 holds the void's real cost.
+
+**What is owed.** The **Plan-level twin of §7.6's best-of-*m* curve**. §11.1 now
+declares starvation on the Plan, and the one number it has for that — 3,28 % →
+**1,64 %** at Brief level — rests on 61 Briefs and 2 starved cases. The curve, the
+floor π and the 7–10 band all need re-measuring at the Plan, and `project_join.py`
+plus `best_of_m.py` are the two halves of it.
+
 ---
 
 ### 2.3 Source B — the trained model
@@ -1454,6 +1559,13 @@ surfaced to the Homeowner as a C4 Assumption.
   **The trained model's first eval still owes all four numbers** — severity,
   count, reversals, abstain rate, per Proposal — plus §6.1's three plan-quality
   terms, and it is still the case that neither source has been scored on those.
+- ✅ ***Can a starved candidate be refused before the solve*** is **closed** and it
+  refused the thing it was raised to specify. No Proposal-level screen: unsound at
+  82 %, its only sound form never fires, and it would sit after the expensive step
+  — the projection costs **less** than the warp that feeds it. What it hands on is
+  a **measurement**, not a decision: the Plan-level twin of §7.6's best-of-*m*
+  curve, since `acceptance-bar.md` §11.1 now declares starvation on the Plan and
+  has one under-powered number for it.
 - From ***The Proposal cannot express zoning***, to the holders of the files this
   ticket does not write. Four rules to `rules.json`, one flag to
   `room-constraints.json`, and one soft term to whoever next opens the objective —
@@ -1539,6 +1651,19 @@ surfaced to the Homeowner as a C4 Assumption.
 - ⚠️ **The best-of-8 figures are drawn from a 2,317-dwelling converted sample**,
   not the full index — a pool of 87 in production is a pool of 8 here — so they
   are a lower bound on what the shipped index can do.
+- ✅ **A warped Proposal has now been through the projection solve** — §2.2.9,
+  291 candidates. ⚠️ **Read every per-room area figure on this page as a *warp*
+  result and never as plan yield**: 82,0 % of the candidates that look starved on
+  the warped rectangles are served once the solve sizes them, because it posts
+  the floors hard and moves floor between Rooms at Σ Space unchanged. ⚠️ And the
+  arm is **one-rectangle donors only** (46,4 % of the index, skewed small), which
+  is why its own base rate is 18,3 % against `ringmarket`'s 25,5 %.
+- ⚠️ **The projection reads a perimeter Room 3,9 % smaller than the bar does.**
+  `solver.py` erodes all four sides; ADR 0001 does not erode at the Envelope
+  boundary. On a 250 mm grid the 75 mm ring is unrepresentable, so this is
+  structural: the solve is strictly stricter than `dim.statutory_min_area`, and
+  1,51 % of warped Rooms fall in the gap. Ticket 56's ring, where it cannot be
+  removed.
 - No plan produced by a **warp** has been rendered or eyeballed. *Look at the
   converted corpus* rendered the conversion; nothing has yet drawn what comes out
   the far side of §2.2.2, and ADR 0017 is the standing reminder that a metric is
