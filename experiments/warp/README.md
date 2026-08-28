@@ -301,3 +301,74 @@ cheap encoding — `W*H − Σ part areas − void`, linear and free — therefo
 strictly larger region than ADR 0020 names. Constrain the cells `s` is read off
 instead: it costs one product per notch cell (p50 6) and it is the difference
 between drift that tracks the tolerance and drift that stalls at 0.04.
+
+## What ticket 59 added: the warp reaches the projection solve
+
+`project_join.py` is the first thing on this map to put a **warped Proposal
+through `project()`**. Until it, `fit_warp.py` imported `experiments/solver-toy/`
+for `rank_relations` / `select_relations` and nothing else, and every starvation
+figure this directory publishes — 54's 30,7 %, 56's 25,5 %, 57's best-of-*m*
+curve, 60's 4,4 % — was measured on the warped rectangles, before any projection.
+
+| script | what it does | runtime |
+|---|---|---|
+| `project_join.py [n]` | one warped candidate → one solver-toy `Brief` + `Proposal` → `project()` at the shipped config. `--parts=1` uses `solver-toy/solver.py`, `--parts=2` uses `room-rectangles/solver_parts.py`'s Design A. `--report` re-summarises a finished run from its rows; `--planes` adds the two-plane diagnostic; `--selftest` asserts `warp_geom == absolute_area.run_one` | ~2 candidates/min |
+
+It imports `solver-toy/` and `room-rectangles/` **read-only** and writes to
+neither — the arrangement `envelope-exposure/`, `h8-frontage/` and `fit_warp.py`
+itself already use.
+
+**Five things that will bite whoever runs this next.**
+
+⚠️ **`prop_starved × plan_starved` is not the confusion matrix, and building it
+that way silently returns zeros.** `dim.statutory_min_area` is `site: both`, so
+the projection **posts** the floor: a Plan that comes back has already met it and
+Plan-level starvation cannot appear as an under-floor Room. It appears as
+INFEASIBLE. `summarise()` asserts this the only way that means anything — it
+reports `served_but_starved`, which is **0** on every run so far. If that number
+is ever non-zero the floor is not reaching the model and nothing else in the file
+is worth reading.
+
+⚠️ **A refusal must be attributed, never assumed.** `infeasibility_core` only
+covers the SOFTABLE families, so it cannot say the floor refused a candidate.
+`one()` re-solves each INFEASIBLE with the statutory limb dropped and the
+ergonomic floor kept — `fit_warp.py --no-min`'s shape one level up. 14 of 14
+came back feasible; if that ratio ever falls, the arm is measuring H1/H2/H5/H7 or
+the fixed relations and the false-pass rate is not the floor's.
+
+⚠️ **The two rigs measure area on different planes and the gap is 3,9 % per
+Room.** `absolute_area.space_m2` is ADR 0001's — a Room's Envelope-boundary edge
+costs no floor, because the tiling edge there already sits at
+exterior-inner-face + `t_int/2`. `solver.py`'s `amm = (250w − t)(250h − t)`
+erodes all four sides of every Room, and it cannot do otherwise: ADR 0001 tiles
+the box **dilated** by `t_int/2` and 75 mm is below the 250 mm grid's own
+quantisation (`brief.md` §5.3 — the solve domain is a THIRD quantity). Ticket 56
+removed exactly this defect from *this* directory and measured it at 3,7 % of
+`interior` at p50; `--planes` re-finds it at p50 **0,0392** per Room inside
+`solver.py`, where it cannot be removed. Read every false pass against it.
+
+⚠️ **The toy's H8 / H9 / H10 are posted SOFT here, on purpose, and a run that
+leaves them hard measures the toy.** H9 demands one plumbing cluster where
+`wet.plumbing_group_count` has been 3 since ADR 0023; H10 routes around a
+`PRIVATE` set that includes the wet types where `circ.no_private_transit` is
+about sleeping rooms; H8 binds off an exposure preset a warped candidate does not
+carry. What they would have cost is on the record anyway and for free, in
+`witness_fails` — whether the warped candidate itself satisfies each is computed
+with no solve at all. This is 58's finding from the other side: the toy's
+placeholders may not be quoted as `room-constraints.json`'s cost.
+
+⚠️ **`--parts=1` is 46,4 % of the converted index and it is not a random half.**
+`solver-toy/solver.py` gives a Room one rectangle; ADR 0014 gives it one or two.
+The k = 1 restriction skews small — 59,3 % of donors at n = 6 against 31,4 % at
+n = 9 — and it lowers the Proposal-level starvation base rate from `ringmarket`'s
+**25,5 %** to **18,3 %**, so the two are not interchangeable. `--parts=2` covers
+the rest through `solver_parts.py`, which binds the Room's `min_area` on the
+**primary part** where ADR 0014 binds it per Room: strictly stricter, so a false
+refusal it finds is real and a false refusal it misses may be hidden.
+
+**The join's rows are committed**, `series/project_join_rows_k1.json.gz` (291
+candidates) and `series/project_join_rows_k2.json.gz` (34, the k ≤ 2 arm), on 44's
+standing rule: `out/` is gitignored, a re-run is hours, and every number in
+`proposer.md` §2.2.9 is derivable from these. `--report --suffix=…` re-summarises
+them in seconds and `--planes` re-derives the two-plane diagnostic; copy a series
+file into `out/` first, since that is where `--report` reads.
