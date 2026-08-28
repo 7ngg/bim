@@ -1276,3 +1276,174 @@ in that 26.0 %.
   against 93.2 % (§6.4, `out/ablate_k2.log`) is quoted, not re-run.
 
 Harness: `envelope_family.py`, log at `out/envelope_family.log`.
+
+## 14. A real outline is not an Envelope, and the gap is structural
+
+Ticket 58. ADR 0003 fixes v1's Envelope as a rectilinear ring — a bounding box
+minus at most two notch rectangles — and ADR 0029 fitted a second toy family to
+real dwellings on **area, perimeter and bounding-box occupancy**. Three moments
+matched is not a boundary matched, and nothing on this map had ever asked what a
+real outline costs *as a shape*. §13 answered the neighbouring question — what
+the loss tail is made of — and left this one.
+
+The quantity here is the **minimum number of rectangles that partition a real
+dwelling's interior**, computed exactly rather than greedily: reflex vertices
+minus the maximum set of pairwise non-crossing chords minus holes, plus one
+(Lipski/Ohtsuki), with the chord independence taken as |H| + |V| − maximum
+bipartite matching. Verified against eight hand-checkable shapes before it was
+quoted — and on two of them the *hand* expectation was the wrong one, which is
+the reason to write the check down: a T is two rectangles, not three, and so is
+a bbox with two opposite corner notches. The boundary is not re-derived: it is
+`keep_largest_component(watershed(geoms)) >= 0`, the same 250 mm cell mask
+`envelope_approx` measures §6.4's notch loss against, so every figure below is
+comparable with `notches_all` and `envelope_loss_by_k` in the same record.
+
+400 dwellings in fit order; **364 converted** (OPTIMAL or FEASIBLE), which is the
+population that becomes a donor. **Every rate below is on the converted index**
+unless a row says otherwise — that is the set a Proposal is ever drawn from. The
+whole-400 figures move nothing by more than two points and the direction is
+always the same, so nothing here turns on the choice.
+
+### 14.1 The headline
+
+> **A real dwelling's interior needs a median of 6 rectangles. ADR 0003's family
+> produces between 1 and 4 parts. 12,4 % of the index comes in at 3 or fewer.**
+
+| min rectangles | p25 | median | p75 | p90 | max |
+|---|---:|---:|---:|---:|---:|
+| all 400 | 4 | **6** | 9 | 12 | 44 |
+| converted index (364) | 4 | **6** | 9 | 12 | 44 |
+
+| cumulative share of the index | ≤ 1 | ≤ 2 | ≤ 3 | ≤ 4 | ≤ 6 | ≤ 8 | ≤ 12 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| | 1,4 % | 4,7 % | **12,4 %** | 26,9 % | 55,2 % | 72,5 % | 91,5 % |
+
+Both shipped fixtures measure on the same scale, which is what makes the gap
+readable rather than merely large:
+
+| fixture | n | `Envelope.parts` | min rectangles | reflex vertices |
+|---|---:|---:|---:|---:|
+| published | 8 / 12 / 24 | 2 | **2** | 1–2 |
+| corpus (ADR 0029) | 5 | 2 | **2** | 1 |
+| corpus (ADR 0029) | 6–11 | 4 | **4** | 3 |
+| **real dwelling** | 3–12 | — | **6** median, 12 at p90, 44 max | **6** median, 15 at p90 |
+
+ADR 0029's fixture is a real improvement on this axis too — 4 against the
+published 2 — and it is still at the corpus's **p25**. The three moments it was
+fitted on do not carry the fourth.
+
+The count rises monotonically with the notch count §6.4 laddered and with the
+envelope loss §13 anatomised, which is the cross-check that it is measuring the
+same thing from a different direction:
+
+| `notches_all` | 0 | 1 | 2 | 3 | 4 | 5 |
+|---|---:|---:|---:|---:|---:|---:|
+| n (index) | 5 | 28 | 95 | 114 | 75 | 31 |
+| median min rectangles | 1 | 3 | 5 | 6 | 8 | 9 |
+| median envelope loss at k = 2 (all 400) | 0,0000 | 0,0010 | 0,0066 | 0,0197 | 0,0380 | 0,0388 |
+
+The envelope-loss tail (> 0,10, n = 29 in the index) needs a median of **14**.
+
+### 14.2 Two gates the toy harness cannot pass on a real outline
+
+`Envelope.parts` is a disjoint rectangular decomposition of the interior, and
+`scenarios.ground_truth` gives **every part at least one room** before
+dissecting it. Two consequences follow directly from §14.1 and neither is about
+the solver.
+
+**39,3 % of the index needs more rectangles than it has rooms**, so
+`ground_truth` refuses them before any dissection is attempted. It eases only
+slowly with size — the constraint is articulation, and articulation grows too:
+
+| engine rooms | 3–5 | 6–7 | 8–9 | 10–12 |
+|---|---:|---:|---:|---:|
+| n | 90 | 147 | 117 | 10 |
+| median min rectangles | 5 | 6 | 7 | 8 |
+| share with min rectangles ≤ rooms | 54,4 % | 61,2 % | 63,3 % | 80,0 % |
+
+The 10–12 cell holds ten dwellings and is quotable as a direction, not a rate.
+
+**And the parts cannot hold rooms.** Two partition heuristics that fail in
+opposite directions — greedy largest-inscribed-rectangle, which takes the fattest
+piece first and leaves the residue thin, and the full-height slab partition
+`envelope_fit.build` itself emits — agree, and both matched the theoretical
+minimum count at the median:
+
+| | every part clears `_leaf_ok` (1,0 m / 3,0 m² / aspect 4) | median share of parts failing it |
+|---|---:|---:|
+| greedy | 3,3 % | 66,7 % |
+| slab | 3,9 % | 71,4 % |
+
+Held to the floor a habitable room actually needs — `envelope_fit.MIN_COL`, the
+2,75 m `living` column — **1,4 % of the index** has every part wide enough.
+
+Neither heuristic proves a room-sized partition impossible; a minimum partition
+is free to emit slivers and these two are not exhaustive. What they establish
+jointly is that no obvious partition finds one, which is the fact the harness
+needs, because the harness has no search for a good one either.
+
+### 14.3 The outline is stepped, not holed, and it does not pinch
+
+| | index (364) | all 400 |
+|---|---|---|
+| reflex vertices, median / p90 | 6 / 15 | 7 / 15 |
+| dwellings with an enclosed hole | **2,2 %** | 2,0 % |
+| dwellings whose boundary touches itself | 0,0 % | 0,0 % |
+
+The 2,2 % sits beside ADR 0028's finding from the opposite side — ticket 53
+measured **2,0 %** of enclosed-void *area* lying inside a dropped `SHAFT` /
+`VOID` / `TECHNICAL_AREA`, and this counts the *dwellings* whose outline
+topologically encloses one. The agreement is a coincidence of two small numbers
+and must not be quoted as one figure confirming the other; what it does say is
+that the articulation §14.1 measures is **stepped perimeter**, not perforation,
+so a shape family with more notches was never the missing piece. §13.1 reached
+the same conclusion from the loss side.
+
+### 14.4 A converted dwelling is not a witness for its own boundary
+
+This is the trap ticket 58 hit, and it is worth recording because it reads like
+a coordinate bug and is not one. `swiss_fit_k2.json`'s rectangles are fitted to
+the **cap** Envelope — bbox minus at most two notches — which is a *superset* of
+the true outline. Handed to the validator against the true outline they fail two
+hard predicates at once: **H1**, a Room poking into ground the dwelling never
+occupied, and **H3**, cells no rectangle reaches. Seven of the first eight real
+slots were invalid that way.
+
+`real_envelope.refit_to_true_mask` re-runs the shipped conversion with the domain
+set to the true mask instead. `fit_rects.py` is **not edited** — the substitution
+is at the call boundary, because that file is the conversion four closed
+decisions rest on and this needed a different domain, not a different conversion.
+The result is inside the boundary by construction; the residue is ADR 0028's
+enclosed void, and it is why the resulting witness is coverage-soft rather than
+exact.
+
+**The re-fit is materially harder than the cap fit**, and this is the first
+measurement of it: over 71 in-band converted dwellings, **11 (15,5 %) could not
+be re-fitted to their own boundary** at the same 10 s budget — 9 INFEASIBLE and 2
+UNKNOWN — where the cap fit had decided every one of them. Runtime roughly
+doubles, 0,8 s/dwelling to ~2. That is a fact about the domain, not about the
+solver.
+
+The witness that survives covers a median **93,8 %** of the true interior (p10
+84,3 %, p90 97,8 %) and spills outside it **not at all** at every decile, which
+is the guarantee the re-fit buys and the recorded fit cannot give. **68,3 %** of
+dwellings reach a witness that both covers ≥ 90 % and spills ≤ 5 %.
+
+### 14.5 What this section does not establish
+
+- **That the shipped Envelope is wrong.** ADR 0003's object is a *design*
+  choice with its own evidence (§6.4, ADR 0003's second amendment). §14 measures
+  the distance between it and a real outline; it does not price widening it, and
+  §13.3 already refused the widening on separate evidence.
+- **That no room-sized partition exists.** Two heuristics failed to find one.
+  Neither is a proof, and no exhaustive search was run.
+- **Anything outside 5–11 engine rooms.** The re-fit and the solver arm are both
+  scoped to the band ADR 0029's corpus fixture serves.
+- **Anything about ResPlan.** Swiss only, as §13.5.
+- **That the minimum partition is the right partition.** It is the floor on part
+  count. A partition that *also* satisfies `_leaf_ok` everywhere may need more
+  rectangles than the minimum, which would make §14.2 worse, never better.
+
+Harness: `real_boundary.py` (representability, series at
+`series/real_boundary.json.gz`) and `real_envelope.py` (the two Envelopes and
+the re-fit, series at `series/real_envelopes.json.gz`); logs in `out/`.

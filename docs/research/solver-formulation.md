@@ -2034,3 +2034,173 @@ returned OPTIMAL with 55 interior cells unassigned at every seed and both
 exposures, and reported the two fixtures tied at **p = 1,00** where the correct
 rig separates them at **p = 0,0005**. It was one argument at one call site.
 Part II.1 warns about it; `sweep_ng.execute` threads `t_int` through.
+
+# Part V — the real boundary (ticket 58)
+
+Part IV replaced an invented Envelope with a *fitted* one and found the fixture
+had been handicapping the solver. It could not say whether a fitted Envelope
+behaves like a **real** one, and it recorded that as the option not taken. This
+is that arm. It is the one place this map departs from every product it is
+measured against: HouseGAN++, HouseDiffusion, Graph2Plan and WallPlan all
+condition on a boundary drawn from their dataset, and none fits a parametric
+envelope generator.
+
+It is a **ladder**, because a real dwelling differs from `CORPUS_ENVELOPES` in
+two ways at once:
+
+| arm | Envelope | ground truth | the step isolates |
+|---|---|---|---|
+| `corpus` | `CORPUS_ENVELOPES[n]` | generated | — the control |
+| `cap` | `envelope_approx(mask, 2)` per dwelling | generated | **sampling** — same shape family, one Envelope per real dwelling |
+| `real` | the true 250 mm cell mask | the dwelling's own Rooms, **re-fitted to that mask** | **shape and arrangement** |
+
+60 dwellings × 2 exposures × 1 seed × 3 arms = **360 solves**, shipped config
+verbatim (`mm_affine`, eroded minima, τ = 4, σ = 0,5 m, 15 s, 4 workers,
+`t_int` 100), paired on `(dwelling, exposure, seed)`.
+
+> ### Headline: **the solver is not what fails on a real boundary. Three things upstream of it are.**
+>
+> Of the 57 real slots that reached the solver at all, **55 returned a candidate
+> valid on every hard predicate other than exact tiling** and only **2** went
+> INFEASIBLE. Of those 55, **2 tiled exactly and survived; 53 failed on left-over
+> floor alone** — a median **1,06 m²**, ADR 0028's enclosed void at plan scale.
+>
+> The arms diverge before the solve: `no_brief` is **14 / 70 / 63** across the
+> ladder. A per-dwelling Envelope inside ADR 0003's own family already loses
+> **70 of 120** slots in `ground_truth`.
+>
+> Real boundaries do cost the solver time — wall p50 **0,19 → 3,30 → 10,11 s** —
+> but time is not what costs them survivors.
+
+## V.1 The tables
+
+| arm | slots | reached the solver | survivors | valid but for tiling | INFEASIBLE | `no_brief` |
+|---|---:|---:|---:|---:|---:|---:|
+| `corpus` | 120 | 106 | **106** (88,3 %) | 0 | 0 | 14 |
+| `cap` | 120 | 50 | 48 (40,0 %) | 2 | 0 | **70** |
+| `real` | 120 | 57 | **2** (1,7 %) | **53** | 2 | 63 |
+
+Paired, exact two-sided McNemar on the discordant slots, ADR 0019's test:
+
+| pair (A vs B) | both | only A | only B | neither | p |
+|---|---:|---:|---:|---:|---:|
+| `corpus` vs `cap` | 44 | 62 | 4 | 10 | **0,0000** |
+| `cap` vs `real` | 2 | 46 | 0 | 72 | **0,0000** |
+| `corpus` vs `real` | 2 | 104 | 0 | 14 | **0,0000** |
+
+Time. Among survivors, time-to-VALID never leaves the region Part II published —
+p90 **0,47 / 0,97 / 0,24 s**. Wall clock is the axis that moves:
+
+| arm | wall p50 | wall p90 | wall max |
+|---|---:|---:|---:|
+| `corpus` | 0,19 s | 5,61 s | 15,02 s |
+| `cap` | 3,30 s | 15,02 s | 15,03 s |
+| `real` | **10,11 s** | 15,02 s | 15,03 s |
+
+## V.2 The pre-registered rule fired, and it was the wrong rule
+
+Before the run, the decision rule was written down: *paired over matched slots,
+exact McNemar at p < 0,01 with the real arm losing survivors reopens the 15 s
+budget; no discordance in the losing direction, or p ≥ 0,01, discharges it.*
+
+**It fires.** `corpus` vs `real` is 104–0 at p = 0,0000.
+
+**And the conclusion it licenses does not follow.** The rule assumed the arms
+differ only in the *solve*, so that a survivor gap would be a fact about the
+projection problem. They do not: 63 of 120 real slots never reach the solver, and
+of the 57 that do, 55 come back with a valid arrangement. A rule written against
+one mechanism was fired by three others.
+
+This is recorded rather than quietly reinterpreted. Pre-registration is worth
+keeping precisely because it makes this visible; what it cannot do is anticipate
+a failure mode nobody had measured.
+
+## V.3 What actually refuses, in order
+
+**One — `ground_truth` cannot dissect a per-dwelling Envelope**, and this is the
+largest single effect on the ladder. It is not about real *shape*: the `cap` arm
+is bbox-minus-at-most-two-notches, ADR 0003's own object, and it loses **70 of
+120** slots where `corpus` loses 14. `ground_truth` gives every Envelope part at
+least one room, and a per-dwelling notch is free to leave a part that no room
+fits — where the per-count *median* fixture, fitted with `MIN_COL` and
+`MIN_TOOTH_M2` as constraints, never is.
+
+**Sampling alone, at a fixed shape family, costs more than half the survivors.**
+That is the number in this Part with the widest reach, because every fixture on
+this map is a per-count median.
+
+**Two — `assign_kinds` cannot type a real dwelling.** `real_typing.py` settles
+which of the three candidates it is, arithmetically, with no solver:
+
+| candidate | measured | verdict |
+|---|---|---|
+| Room size | **2,0 %** of real Rooms fit no toy type at `clear_t` 100 | not it |
+| Edge typing | a third of a real boundary lies off its own bbox, but the notch branch recovers it — `exterior_fraction` 0,766 real against 0,786 cap | not it |
+| **Programme** | `COMPOSITION` demands a median **5** habitable Rooms; a real dwelling offers a median **4** cells both exterior-facing and habitable-sized | **this** |
+
+Short at `detached` **23,3 %** of dwellings, at `corpus_median` **50,0 %**. This
+is ADR 0029 consequence 4's mechanism — starvation for cells that are *both*
+exterior-facing and habitable-sized — reproduced on real geometry, and it is a
+fact about the **toy's** `composition` and `STANDARDS`, which are placeholders.
+It is **not** a measurement of `data/standards/room-constraints.json` and must
+not be quoted as one.
+
+**Three — exact tiling.** Where a Brief is built and the solver runs, the
+candidate is almost always geometrically valid and almost never a survivor: 53 of
+57 fail on **unassigned floor alone**, median **17 cells = 1,06 m²**, p90 60
+cells, max 92. The witness fails the same way — 57 invalid, **50 of them
+tiling-only** — which is the tell that this is the conversion's residue and not
+the solver's error. A real dwelling's own Rooms do not tile its own boundary at
+ADR 0014's two-rectangle cap, and `model.no_unassigned_area` is hard.
+
+## V.4 Two things the ladder found that were not being looked for
+
+**The six-room hole is a property of the fitted Envelope, not of six rooms.**
+ADR 0029 consequence 4 left n = 6 as the single uncovered cell in C13's band,
+failing on both fixtures. On the `cap` arm it partly closes: **4 of 14** slots
+survive at n = 6 where `corpus` gives **0 of 14**. A per-dwelling Envelope at six
+rooms can be typed where the per-count median cannot. The hole belongs to
+`envelope_for(6)`, exactly as `probe_exposure` suspected and could not show.
+
+**A real boundary is where the 15 s budget starts to bind.** Wall p50 goes
+0,19 → 3,30 → **10,11 s** and p90 reaches the cap on both real-sampled arms. No
+survivor waits more than 1,68 s to become valid, so the budget is not what loses
+candidates — but the headroom Part II measured on the published fixture is mostly
+gone once the Envelope is a real dwelling's.
+
+## V.5 What Part V does not establish
+
+- **That the 15 s budget or τ = 4 is wrong.** Zero real slots failed for time and
+  only two went INFEASIBLE. What Part V shows is that the *survivor rate* Parts
+  I–III publish is measured on a population the harness can pose a Brief for, and
+  a real boundary is largely not in it.
+- **That a real boundary is infeasible for the solver.** The opposite: 55 of 57
+  solver calls returned a valid arrangement inside one.
+- **Anything about the shipped room table.** V.3's programme finding is about
+  `scenarios.composition` and `scenarios.STANDARDS`.
+- **A clean shape effect.** `cap` → `real` moves boundary *and* ground-truth
+  source together. The re-fit was forced — see `rectangularisation.md` §14.4 —
+  and it means the third rung is not a single-factor step.
+- **Anything outside 5–11 rooms**, one seed, or 60 dwellings. The `no_brief`
+  rates are large enough that the effective sample behind the survivor columns is
+  50 and 57 slots, not 120.
+- **That widening the Envelope would help.** Nothing here prices that, and
+  `rectangularisation.md` §13.3 refused it on separate evidence.
+
+## Reproducing Part V
+
+```
+cd experiments/rectangularise
+python real_boundary.py 400          # representability; ~4 min, series + out/ log
+python real_envelope.py 60           # the two Envelopes + the re-fit; ~2 s/dwelling
+cd ../solver-toy
+python real_typing.py                # which constraint refuses; one second, no solver
+python real_arm.py 1                 # 360 solves; results/REAL_ARM.jsonl
+```
+
+⚠️ **A converted dwelling is not a witness for its own boundary.** The recorded
+rectangles are fitted to the cap Envelope, a superset of the true outline, so
+against the true outline they fail H1 *and* H3 — seven of the first eight slots.
+`real_envelope.refit_to_true_mask` substitutes the domain at `fit_rects`' call
+boundary rather than editing it. Reading that failure as a coordinate bug is the
+trap here; it is a statement about which Envelope the fit was solved on.
