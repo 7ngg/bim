@@ -17,7 +17,7 @@ two points differ by a re-draw.
 Two pool definitions, because they are not the same pool and §2.2.7's second
 limit is stated about one of them:
 
-  `rig`    -- `absolute_area.gate_pool` as it stands. Its primary branch returns
+  `rig`    -- `absolute_area.bucket_pool` -- what `gate_pool` returned before ticket 60
               the WHOLE multiset bucket and applies the area and aspect terms
               only in the by-room-count fallback.
   `gated`  -- §2.2.1 as written: *"the gate's first term is an exact match, so
@@ -43,7 +43,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from fit_warp import COLLAPSE, SEED, AREA_TOL, ASPECT_TOL          # noqa: E402
-from absolute_area import (FIT, ROOMS, OUT, MARKET, gate_pool,     # noqa: E402
+from absolute_area import (FIT, ROOMS, OUT, MARKET, bucket_pool,   # noqa: E402
+                           admissible_pool,
                            pair_targets, run_one, floors_for, pct)
 
 BANDS = {"4-6": range(4, 7), "7-10": range(7, 11)}
@@ -71,12 +72,10 @@ def load():
     return cands, by_ms, by_n
 
 
-def gated_pool(brief, by_ms):
-    """§2.2.1 as written: the bucket, scanned by the other two terms."""
-    return [p for p in by_ms.get(brief["ms"], [])
-            if p["k"] != brief["k"]
-            and abs(brief["area"] - p["area"]) <= AREA_TOL * p["area"]
-            and abs(brief["aspect"] - p["aspect"]) <= ASPECT_TOL * p["aspect"]]
+# Ticket 60: one definition of the gate, in `absolute_area`, imported
+# everywhere. Four scripts each carried their own copy and three of them
+# differed from 2.2.1 -- that duplication IS the defect this ticket found.
+gated_pool = admissible_pool
 
 
 def walk_pool(brief, order, tlim, hold_ring, max_m):
@@ -234,7 +233,7 @@ def main():
     for pname in pools:
         if pname == "rig":
             def pick(b):
-                return gate_pool(b, by_ms, by_n)
+                return bucket_pool(b, by_ms, by_n)
         else:
             def pick(b):
                 return gated_pool(b, by_ms)

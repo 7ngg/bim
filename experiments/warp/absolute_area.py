@@ -455,10 +455,39 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key="",
             "erosion_m2": round(covered - sum(got), 4)}
 
 
-def gate_pool(brief, by_ms, by_n):
-    """The shipped three-term admissibility gate, read against the BRIEF rather
+def admissible_pool(brief, by_ms):
+    """proposer.md 2.2.1's gate, all three terms, read against the BRIEF rather
     than against a donor Envelope -- ADR 0020 fixes `interior` from the Brief, so
-    the Brief's `target_area` and aspect are what a candidate is admitted on."""
+    the Brief's `target_area` and aspect are what a candidate is admitted on.
+
+    *"The gate's first term is an exact match, so the bucket is the pool and the
+    other two terms are a scan of it."* An empty return is a real product state --
+    2.2.1's *"outside the gate, do not retrieve; hand the Brief to source B"* --
+    and not a miss to be papered over. Ticket 60."""
+    return [p for p in by_ms.get(brief["ms"], [])
+            if p["k"] != brief["k"]
+            and abs(brief["area"] - p["area"]) <= AREA_TOL * p["area"]
+            and abs(brief["aspect"] - p["aspect"]) <= ASPECT_TOL * p["aspect"]]
+
+
+def bucket_pool(brief, by_ms, by_n):
+    """**Not the gate.** The multiset bucket unscanned, with an off-multiset
+    fallback -- what this rig ran until ticket 60, and what every published
+    `absolute_area` arm before it was measured through.
+
+    Kept, named, and no longer the default, for one reason: the converted sample
+    cannot reach production depth under the gate. Median pool is 9 and 5 against
+    production's 86.6 and 58.7, no Brief holds 64, and a best-of-m curve fitted
+    on it returns a floor of zero with a zero-width interval -- a shallow-
+    censoring artefact. This is the **depth proxy** the curve needs, and its
+    price is measured: `gate_effect.py` finds its members decline **36.2 %**
+    against an admitted donor's **27.6 %** (paired within Brief, sign test
+    p = 0.0001) and carry a worst-room deviation 68 % worse at p50. So a curve
+    fitted here **under-states** what production depth buys, and 82.4 % of what
+    it returns is floor the shipped gate refuses (`gate_sites.py`).
+
+    Use it only where depth is the quantity and membership is not. Never for a
+    per-candidate statistic."""
     adm = [p for p in by_ms.get(brief["ms"], []) if p["k"] != brief["k"]]
     if adm:
         return adm
@@ -594,7 +623,7 @@ def summarise(rows, lenient=False):
     }
 
 
-def run_pool(sample, by_ms, by_n, rng, tlim, k, hold_ring=False):
+def run_pool(sample, by_ms, by_n, rng, tlim, k, hold_ring=False, pick=None):
     """Best-of-pool, which is what C6 actually does: generate many, reject most,
     show survivors. A Brief is SERVED if at least one of its `k` candidates puts
     every Room at or above its floor.
@@ -605,11 +634,16 @@ def run_pool(sample, by_ms, by_n, rng, tlim, k, hold_ring=False):
     for one Brief shares the Envelope -- *"independence would predict a 1e-6
     Brief-level loss against a measured 6.9 %"*. Every target is raised onto
     `dim.market_default_area` first, so this is the argument under test at the
-    level the Homeowner meets it."""
+    level the Homeowner meets it.
+
+    `pick` defaults to `admissible_pool`, the shipped gate. Ticket 60: it used to
+    be `bucket_pool`, which is not the gate, and a Brief the gate leaves blank was
+    being counted as served on a pool of a different room programme."""
+    pick = pick or (lambda b: admissible_pool(b, by_ms))
     served = starved = no_pool = 0
     per_brief = []
     for brief in sample:
-        pool = gate_pool(brief, by_ms, by_n)
+        pool = pick(brief)
         if not pool:
             no_pool += 1
             continue
@@ -648,6 +682,8 @@ def main():
     tlim = 3.0
     pool_k = 8
     arms = ["self", "cross", "calib", "market"]
+    pooldef = "gate"          # ticket 60; `bucket` reproduces the pre-60 rig
+    suffix = ""               # ticket 60; keeps two pool definitions off each other
     for a in sys.argv[1:]:
         if a.startswith("--time="):
             tlim = float(a.split("=", 1)[1])
@@ -655,6 +691,12 @@ def main():
             arms = a.split("=", 1)[1].split(",")
         if a.startswith("--pool="):
             pool_k = int(a.split("=", 1)[1])
+        if a.startswith("--pooldef="):
+            pooldef = a.split("=", 1)[1]
+        if a.startswith("--suffix="):
+            suffix = a.split("=", 1)[1]
+    if pooldef not in ("gate", "bucket"):
+        raise SystemExit("--pooldef must be 'gate' (2.2.1) or 'bucket' (pre-60)")
 
     recs = {r["k"]: r for r in json.load(open(ROOMS))}
     fits = [r for r in json.load(open(FIT)) if r["status"] in ("OPTIMAL", "FEASIBLE")]
@@ -684,6 +726,14 @@ def main():
 
     rng = random.Random(SEED)
     sample = rng.sample(cands, min(n_arg, len(cands)))
+    if pooldef == "gate":
+        def pick(b):
+            return admissible_pool(b, by_ms)
+    else:
+        def pick(b):
+            return bucket_pool(b, by_ms, by_n)
+    print("pool definition: %s" % ("2.2.1's three-term gate" if pooldef == "gate"
+                                   else "the pre-60 bucket, NOT the gate"))
 
     out, status = {}, defaultdict(Counter)
     for arm in [a for a in arms if a in ARM_NAMES]:
@@ -692,7 +742,7 @@ def main():
             if arm == "self":
                 cand, targets = brief, [a for _, a in brief["rooms"]]
             else:
-                pool = gate_pool(brief, by_ms, by_n)
+                pool = pick(brief)
                 if not pool:
                     misses += 1
                     continue
@@ -719,7 +769,7 @@ def main():
         # Every row, not just the summary. `acceptance-thresholds/`'s rule, which
         # is the reason a new statistic off that study costs seconds: if you add a
         # statistic, add its inputs to the record. A re-run here is ~20 min an arm.
-        json.dump(rows, open(OUT / f"absolute_area_rows_{arm}.json", "w"))
+        json.dump(rows, open(OUT / f"absolute_area_rows_{arm}{suffix}.json", "w"))
         out[arm] = summarise(rows)
         out[arm]["retrieval_misses"] = misses
         out[arm]["solver_status"] = dict(status[arm])
@@ -728,10 +778,10 @@ def main():
         print(json.dumps(out[arm], indent=1))
 
     if "pool" in arms:
-        out["pool"] = run_pool(sample, by_ms, by_n, rng, tlim, pool_k)
+        out["pool"] = run_pool(sample, by_ms, by_n, rng, tlim, pool_k, pick=pick)
     if "ringpool" in arms:
         out["ringpool"] = run_pool(sample, by_ms, by_n, rng, tlim, pool_k,
-                                   hold_ring=True)
+                                   hold_ring=True, pick=pick)
 
     out["_meta"] = {"n_requested": n_arg, "time_limit_s": tlim, "seed": SEED,
                     "t_int_mm": T_INT_MM, "f_partition": F_PARTITION,
@@ -739,7 +789,7 @@ def main():
                     "void_share_p50": round(pct([b for _, b in s_all], .5), 4),
                     "void_share_p90": round(pct([b for _, b in s_all], .9), 4)}
     OUT.mkdir(exist_ok=True)
-    json.dump(out, open(OUT / "absolute_area.json", "w"), indent=1)
+    json.dump(out, open(OUT / f"absolute_area{suffix}.json", "w"), indent=1)
     print("\nwrote", OUT / "absolute_area.json")
 
 

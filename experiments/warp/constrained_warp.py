@@ -59,7 +59,7 @@ from fit_warp import (COLLAPSE, GRID_MM, MIN_SIDE, MIN_SIDE_DEFAULT,   # noqa: E
                       SEED, ASPECT_HARD, JOIN_UNITS, W_STATED, W_INVENTED,
                       STATED_SHARE, coord_frame, uniform)
 from absolute_area import (FIT, ROOMS, OUT, MARKET, F_PARTITION,       # noqa: E402
-                           gate_pool, pair_targets, notch_share, joins,
+                           bucket_pool, pair_targets, notch_share, joins,
                            rects_mm, outside_of, space_m2, part_targets_cells,
                            frame_components, realised_frame_areas, pct)
 
@@ -334,7 +334,7 @@ def main():
     # constraint and not the draw.
     pairs = []
     for brief in sample:
-        pool = gate_pool(brief, by_ms, by_n)
+        pool = bucket_pool(brief, by_ms, by_n)
         if not pool:
             continue
         cand = rng.choice(pool)

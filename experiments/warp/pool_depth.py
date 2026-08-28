@@ -11,7 +11,7 @@ holds, so this is the cheap prerequisite: no warp, no solve.
 Three pool definitions, because they are not the same and the difference is the
 whole answer:
 
-  `rig`    -- what `absolute_area.gate_pool` actually returns. Its primary branch
+  `rig`    -- `absolute_area.bucket_pool` -- what `gate_pool` returned before ticket 60.
               returns the WHOLE multiset bucket and applies the area and aspect
               terms only in the by-room-count fallback.
   `gated`  -- the shipped three-term gate of 2.2.1 -- *"the gate's first term is
@@ -35,7 +35,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from fit_warp import COLLAPSE, SEED, AREA_TOL, ASPECT_TOL   # noqa: E402
-from absolute_area import FIT, ROOMS, OUT, gate_pool, pct   # noqa: E402
+from absolute_area import (FIT, ROOMS, OUT, bucket_pool,      # noqa: E402
+                           admissible_pool, pct)
 
 BANDS = {"4-6": range(4, 7), "7-10": range(7, 11)}
 PROD_MEDIAN = {"4-6": 86.6, "7-10": 58.7}   # coverage_restated.py, full index
@@ -61,12 +62,10 @@ def load():
     return recs, cands, by_ms, by_n
 
 
-def gated_pool(brief, by_ms):
-    """2.2.1 as written: the bucket, scanned by the other two terms."""
-    return [p for p in by_ms.get(brief["ms"], [])
-            if p["k"] != brief["k"]
-            and abs(brief["area"] - p["area"]) <= AREA_TOL * p["area"]
-            and abs(brief["aspect"] - p["aspect"]) <= ASPECT_TOL * p["aspect"]]
+# Ticket 60: one definition of the gate, in `absolute_area`, imported
+# everywhere. Four scripts each carried their own copy and three of them
+# differed from 2.2.1 -- that duplication IS the defect this ticket found.
+gated_pool = admissible_pool
 
 
 def report(name, per_band, out):
@@ -109,7 +108,7 @@ def main():
           f"(the same draw absolute_area.py makes)")
 
     out = {}
-    for name, fn in (("rig", lambda b: gate_pool(b, by_ms, by_n)),
+    for name, fn in (("rig", lambda b: bucket_pool(b, by_ms, by_n)),
                      ("gated", lambda b: gated_pool(b, by_ms))):
         per_band = defaultdict(list)
         for b in sample:
