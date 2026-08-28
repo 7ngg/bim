@@ -26,6 +26,10 @@ Outputs go to `out/`, gitignored. Seed 20260819 throughout, the same one
 | `pool_fidelity.py [briefs]` | best-of-pool — what a *Brief* gets, once every pool member is fitted | ~1 s/brief at `--take=8` |
 | `coverage_restated.py` | §2.2's coverage table joined to the conversion, per multiset | seconds |
 | `absolute_area.py [n]` | does a Room that asks for 12 m² **get** 12 m²? The same warp against an **un-normalised** target and measured on the **Space**, not the part | ~15 min an arm at `n=600` |
+| `pool_depth.py [n]` | how deep a pool the sample can draw, under three pool definitions. No warp, no solve | seconds |
+| `best_of_m.py [n]` | **the best-of-m curve**: starvation against pool depth, nested and paired | ~7 min a pool at `n=200 --m=64` |
+| `best_of_m_fit.py` | fits and extrapolates that curve to production depth, with a bootstrap | ~2 min |
+| `constrained_warp.py [n]` | what ADR 0020's notch invariant and ADR 0028's void charge cost when **posted in the solve** rather than arrived at | ~6 min at `n=200` |
 
 Order: `room_area_spread.py` first (it builds `out/dwelling_rooms.json`, which
 every other script reads).
@@ -202,3 +206,71 @@ away and is not kept here.
 target_area × (1 + f)` with `f = 0.0575` lands Σ Space at **+0,4 %** of the floor
 the Brief asked for. There is no sizing correction owed anywhere, and the 4,2 %
 calibration ticket 54 computed was measuring the two rig defects above.
+
+## What ticket 57 added, and the two traps in it
+
+**The curve costs almost nothing more than the point.** `served_at_m` is a
+prefix-any over one fixed draw order, so the whole curve is fixed by the **index
+of the first serving candidate** and `run_pool`'s early break stays valid. Going
+from m = 8 to m = 64 spends extra warps only on the Briefs starving at 8. Every
+point is paired against every other; no two differ by a re-draw.
+
+| m | 1 | 2 | 4 | 8 | 12 | 16 | 32 | 64 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| every Brief with a pool | 35.2 % | 18.6 % | 10.1 % | 6.5 % | 6.0 % | 6.0 % | 5.5 % | 5.5 % |
+| `run_pool`'s convention | 33.5 % | 16.5 % | 7.7 % | **4.1 %** | 3.6 % | 3.6 % | 3.1 % | **3.1 %** |
+| 7–10 rooms | 37.4 % | 18.7 % | 9.3 % | 8.4 % | 8.4 % | 8.4 % | 8.4 % | 8.4 % |
+
+An eightfold deepening buys **one point**, and at 7–10 rooms it buys nothing.
+`ringpool`'s published **3,6 %** reappears at m = 12–16 against 4,1 % at m = 8 —
+one Brief on a different draw permutation.
+
+**Trap 1 — `gate_pool` is not the shipped gate, and `--pool=8` is not a tenth of
+production depth.** `proposer.md` §2.2.1 makes the multiset bucket the first term
+and the area and aspect terms *a scan of it*. `gate_pool`'s primary branch returns
+the **whole bucket** and applies the other two only in its by-room-count fallback.
+Measured over the same sample: shipped gate p50 **9** (4–6) and **5** (7–10),
+max 51, 14.5 % empty; `gate_pool` p50 **81** and **37**, max 146. So §2.2.7's
+*"a pool of 87 in production is a pool of 8 here"* is right about the gate and
+wrong about the rig. Gate-admitted donors are also **better** — first-candidate
+decline 29.8 % gated against 35.2 % bucket — so the two differences pull opposite
+ways and neither can be waved off.
+
+**Trap 2 — do not fit a plain Beta to the curve.** Independence is wrong by 780×,
+so the fit has to be a mixture; but every `Beta(a,b)` sends `E[p^m]` to zero and
+therefore predicts that enough depth serves every Brief. Fitted here it returns
+**0,45 %** at m = 8 against a measured **8,2 %**. The curve has a floor and the
+model must be able to express it: a point mass at `p = 1`,
+`starvation(m) = π + (1−π)·B(a+m,b)/B(a,b)`. `π` is **2,8 %** [0,3–5,6] overall
+and **5,3 %** [0,0–11,2] at 7–10 rooms. `π` is identified by the **depth** of the
+censored observations, so the shallow gated pool cannot see it at all — its own
+fit returns π = 0 with a zero-width interval, which is an artefact and not a
+result.
+
+**`absolute_area.py` now reports the realised hole.** `bbox` decomposes exactly as
+`Σ Space + erosion + notch + enclosed void` and only the first two were on the
+record, which is why ADR 0028's measurements had to be made from `experiments/void/`.
+Every row now carries `void_m2`, `notch_m2`, `erosion_m2`, `s_realised`,
+`void_realised` and `bbox_m2`, and `summarise()` an `unassigned` block with the
+donor-to-realised amplification.
+
+⚠️ **Read realised shares off the FRAME, never off the millimetre geometry.**
+`notch_share` flood-fills one boolean cell per square millimetre; on donor parts
+that is small, on solved geometry it is ~80 million cells per plan and the run
+never finishes. `frame_components` + `realised_frame_areas` do it exactly and in
+O(cells) — the complement's components are fixed by `spans`, because the warp
+moves gap sizes and never index spans.
+
+**The two owed constraints cost 2,6 % of candidates, and it is all the notch.**
+`constrained_warp.py`, 194 paired cases: ADR 0028's void charge costs **zero**,
+ADR 0020's notch invariant costs 5 candidates, and `both` costs the same 5. The
+cost is a function of how hard the invariant is held — ±0.04 loses 1,5 %, ±0.02
+loses 2,6 %, holding it **exactly** loses **8,8 %** and takes worst-room deviation
+0.139 → 0.226.
+
+⚠️ **`s` does not cover all of the notch.** `notch_share` sums the **two largest**
+boundary-touching components and **27,5 %** of donors have three or more. The
+cheap encoding — `W*H − Σ part areas − void`, linear and free — therefore holds a
+strictly larger region than ADR 0020 names. Constrain the cells `s` is read off
+instead: it costs one product per notch cell (p50 6) and it is the difference
+between drift that tracks the tolerance and drift that stalls at 0.04.

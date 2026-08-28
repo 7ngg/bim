@@ -840,10 +840,20 @@ is the plane `dim.min_area` and `dim.statutory_min_area` actually bind.
 
 | arm | plans | per-Room abs dev p05 / p50 (m²) | Σ Space vs `target_area`, mean | Rooms pushed under a floor | plans losing one |
 |---|---:|---:|---:|---:|---:|
-| `self` — candidate is the Brief's own dwelling | 521 | −2.67 / −0.07 | **−2.3 %** | 5.8 % | **14.8 %** |
-| `cross` — real gate-admitted retrieval | 499 | −5.17 / −0.13 | **−4.3 %** | 13.4 % | **30.7 %** |
-| `calib` — `cross`, box scaled so Σ Space = `target_area` | 501 | −3.89 / +0.02 | −0.2 % | 7.5 % | **18.8 %** |
-| `market` — every target raised onto `dim.market_default_area` | 508 | −4.41 / −0.10 | **−3.1 %** | 10.8 % | **31.1 %** |
+| `self` — candidate is the Brief's own dwelling | 521 | −2.23 / −0.01 | **−0.8 %** | 4.9 % | **13.1 %** |
+| `cross` — real gate-admitted retrieval | 499 | −4.91 / −0.02 | **−2.2 %** | 12.7 % | **30.5 %** |
+| `calib` — `cross`, box scaled so Σ Space = `target_area` | 499 | −3.97 / +0.03 | −0.1 % | 8.2 % | **22.0 %** |
+| `market` — every target raised onto `dim.market_default_area` | 508 | −4.05 / −0.04 | **−1.2 %** | 10.3 % | **29.9 %** |
+| **`ring`** — `cross` with the Envelope's edge ring held before the solve | 499 | — | **+0.4 %** | 10.1 % | **24.9 %** |
+
+⚠️ **This table was re-measured by ticket 56 and every row moved.** The rig had
+been eroding a wall that is not there — it tiled the Envelope *box* and eroded
+every Room on all four sides, where ADR 0001 tiles the solve domain and a boundary
+edge costs no floor, a 75 mm ring worth **3.7 % of `interior` at p50**. **Read the
+`ring` row and no other as what the engine delivers**: it is the only arm that
+enforces ADR 0020's amendment, and it lands Σ Space at **+0.4 %** of the floor the
+Brief asked for. `experiments/warp/README.md` carries the paired before/after
+table and the committed pre-56 rows.
 
 The last two columns count only Rooms whose **own stated target already clears the
 floor**, so a Swiss dwelling entitled to a 6 m² kitchen is not counted against the
@@ -859,23 +869,29 @@ its floor.
    **−16.6 %**. Direction is what matters here: ticket 50 priced
    `dim.statutory_min_area` as hard partly because `dim.market_default_area` is
    two-sided and pulls from both sides. It does not pull from both sides.
-2. **The level error and the distribution error are separable, and both bite.**
-   Σ Space ÷ `target_area` decomposes at p50 into three terms with three different
-   owners — the rung's inflation **1.0575**, what the box actually holds after `s`
-   (`cross` **1.0071**), and the erosion (**0.9124**) — whose product 0.9717 closes
-   against the measured −2.9 %. Calibrating the box until Σ Space = `target_area`
-   needs **+4.2 %** and takes plan-level statutory loss 30.7 % → **18.8 %**. So
-   roughly two fifths of the damage is one fixable constant and **three fifths
-   survives a perfect level.**
+2. **The level error and the distribution error are separable — and after ticket
+   56 the level error is gone, so all of it is distribution.** Σ Space ÷
+   `target_area` still decomposes at p50 into three terms with three different
+   owners — the rung's inflation **1.0575**, what the box holds after `s` (`cross`
+   **0.9833**), and the erosion (**0.9490**). ⚠️ **The earlier reading of this
+   finding is dead.** It said calibrating the box needs **+4.2 %** and takes
+   plan-level statutory loss 30.7 % → 18.8 %, so *"roughly two fifths of the damage
+   is one fixable constant"*. Ticket 56 showed the +4.2 % **was** the two rig
+   defects: with the ring held, Σ Space lands at **+0.4 %** of the stated floor and
+   **there is no sizing correction owed anywhere**. Post-fix `calib` is *worse*
+   than `ring` on plan-level loss (22.0 % against 24.9 % — `calib` buys margin the
+   engine does not give). The whole of the damage survives a correct level, and
+   **that is what §7.6 then prices against pool depth.**
 3. **At the pool level it costs about as much again as every dimensional decline
    put together.** Per-candidate shares are not what a Homeowner meets: C6
    generates many and rejects most. Best-of-8, targets on `market_default`, 194
-   Briefs — **13, or 6,7 %, have no candidate that clears every floor**, against
-   ADR 0018's **6,9 %** Brief-level decline loss. ⚠️ **Do not compound the
-   per-candidate share to get here**: independence predicts 0,311⁸ ≈ **0,009 %**,
-   a factor of **780** out. ADR 0018 consequence 3 reproducing itself on a new
-   statistic, with the same cause — every candidate for one Brief is sized from
-   the same `interior`.
+   Briefs — **5,7 % have no candidate that clears every floor**, and **3,6 %** on
+   the `ringpool` arm, which is the one that holds ADR 0020's invariant and so is
+   the one to quote. ⚠️ **Do not compound the per-candidate share to get here**:
+   independence predicts 0,311⁸ ≈ **0,009 %**, a factor of **780** out. ADR 0018
+   consequence 3 reproducing itself on a new statistic, with the same cause —
+   every candidate for one Brief is sized from the same `interior`. §7.6 measures
+   what that 3,6 % does as the pool deepens, and the answer is *very little*.
 4. **The kitchen is the limb with no headroom, as predicted.** AZ floors it at
    8,0 m² against a Swiss p50 of 8,04. In `market` — where every kitchen was asked
    for **9,0 m²** or more — **21.8 %** are delivered below 8,0, and the lower
@@ -890,6 +906,175 @@ not decide `dim.statutory_min_area`'s severity, which is `rules.json`'s.
 ⚠️ **Do not quote these past one decimal.** At `--time=3.0` CP-SAT is
 wall-clock-dependent: two runs of `self` at the identical seed and inputs returned
 5.96 % and 5.78 % on the same statistic.
+
+### 7.6 What pool depth buys, and the floor it does not reach
+
+`acceptance-bar.md` §11.1 keeps `dim.statutory_min_area` hard and offers a starved
+Brief three steps, **the first of which is *deepen the pool*** — described there as
+*"the step most likely to be the answer, since 3,6 % is a pool-of-8 number against
+production pools 58.7–86.6 deep"*. That is a mechanism with no number attached.
+This is the number, and **step 1 is not the answer.**
+
+`experiments/warp/best_of_m.py`, 200 sampled Briefs, `ringpool` semantics (targets
+on `market_default`, the Envelope ring held), seed 20260819.
+
+**The curve is nested, which is why it costs almost nothing.** `served_at_m` is a
+prefix-any over one fixed draw order — if candidate 3 serves, so does every
+m ≥ 3 — so the whole curve is determined by the **index of the first serving
+candidate** and the early break in `run_pool` stays sound. Going from m = 8 to
+m = 64 spends extra warps only on the Briefs that were starving at 8. Every point
+is paired against every other by construction.
+
+| m | 1 | 2 | 4 | **8** | 12 | 16 | 32 | **64** |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| starved, all Briefs with a pool | 35.2 % | 18.6 % | 10.1 % | **6.5 %** | 6.0 % | 6.0 % | 5.5 % | **5.5 %** |
+| starved, `run_pool`'s own convention | 33.5 % | 16.5 % | 7.7 % | **4.1 %** | 3.6 % | 3.6 % | 3.1 % | **3.1 %** |
+| 4–6 rooms | 32.6 % | 18.5 % | 10.9 % | 4.3 % | 3.3 % | 3.3 % | 2.2 % | **2.2 %** |
+| 7–10 rooms | 37.4 % | 18.7 % | 9.3 % | 8.4 % | 8.4 % | 8.4 % | 8.4 % | **8.4 %** |
+
+The second row is the published statistic's own convention — it excludes Briefs
+whose every candidate failed to warp — and it reproduces §7.5's **3,6 %** at
+m = 12–16 against **4,1 %** at m = 8, the difference being one Brief on a
+different draw permutation.
+
+**Three readings, and the third is the one §11.1 needs.**
+
+1. **Eight is already on the flat part.** An **eightfold** deepening, 8 → 64, moves
+   starvation **4,1 % → 3,1 %**: one point. Ninety per cent of what depth can buy
+   is bought by m ≈ 12.
+2. **At 7–10 rooms depth buys nothing at all** — 8.4 % from m = 6 to m = 64, flat.
+   That is the band ADR 0013 already calls tight and where starvation is worst.
+3. **Declines are still correlated, and the level fix did not touch it.** The
+   conditional decline — *P(candidate j+1 declines | j prior declines)* — is flat
+   under independence and rises here from **35.2 %** at the first candidate to
+   50.7, 73.5, 81.2 and **88.9 %** by the seventh. A Brief that has been declined a
+   few times is almost certain to be declined again: the residual is a property of
+   the **Brief**, not of the draw. Ticket 56 removed the shared *level* error and
+   what remains — the warp's per-room **distribution** — has not thinned across a
+   pool.
+
+**The extrapolation to production depth, and the model it required.** The sample
+cannot hold m = 87 under the shipped gate (below), so the curve is fitted and
+published as a fit. Independence is known wrong by a factor of 780, which says
+mixture; the obvious mixture is `p ~ Beta(a,b)` with `E[p^m] = B(a+m,b)/B(a,b)`.
+
+⚠️ **A plain Beta is also wrong, and it fails in the dangerous direction.** Every
+Beta sends `E[p^m]` to zero, so it predicts that enough depth serves every Brief.
+Fitted to this data it returns **0,45 %** at m = 8 against a measured **8,2 %** —
+an answer contradicted by the column beside it, and one that would have said
+*deepen the pool* is free. The fix is a **point mass at p = 1**, a share of Briefs
+retrieval serves at no depth because the corpus simply does not hold an
+arrangement clearing their floors:
+
+    starvation(m)  =  π  +  (1 − π) · B(a + m, b) / B(a, b)
+
+`π` is the asymptote, and it is exactly what step 1 cannot buy. Fitted by maximum
+likelihood on the censored observations — a Brief whose pool holds 3 members is
+**not** a Brief that survived best-of-32 — with a 200-sample bootstrap:
+
+| | π (the floor) | at m = 8 | at production m | 
+|---|---:|---:|---:|
+| all Briefs | **2,8 %** [0,3 – 5,6] | 4,9 % | **2,8 %** [0,5 – 5,6] at 87 |
+| 4–6 rooms | 1,1 % [0,0 – 4,7] | 5,0 % | **1,3 %** [0,0 – 4,8] at 87 |
+| 7–10 rooms | **5,3 %** [0,0 – 11,2] | 5,4 % | **5,3 %** [0,0 – 11,2] at 59 |
+
+So deepening from 8 to production depth buys roughly **two points**, and at 7–10
+rooms it buys **one tenth of one point** — the curve is at its asymptote by m = 12.
+
+⚠️ **The intervals are wide and they are the finding, not decoration.** `π` is
+identified by the *depth* of the censored observations, so it is the one quantity
+a shallow sample cannot pin down; the honest reading of 7–10's [0,0 – 11,2] is
+that the sample bounds the floor loosely, not that it is small.
+
+**What `--pool=8` was actually drawn from, which turns out not to be the shipped
+gate.** §2.2.7's second limit says the sample is the converted 2,317, *"so a pool
+of 87 in production is a pool of 8 here"*. Measured over the same sample
+(`experiments/warp/pool_depth.py`):
+
+| pool definition | p50, 4–6 | p50, 7–10 | max | empty | ≥ 64 |
+|---|---:|---:|---:|---:|---:|
+| shipped gate — §2.2.1's bucket, scanned by area and aspect | **9** | **5** | 51 | 14.5 % | **0 %** |
+| what `absolute_area.gate_pool` returns | **81** | **37** | 146 | 0.5 % | 43.5 % |
+| production, full 46,794 index | 86.6 | 58.7 | — | — | — |
+
+**§2.2.7's sentence is right about the shipped gate and wrong about the rig.**
+Against the gate as §2.2.1 writes it the sample is ~9.6× and ~11.7× short, so
+"a pool of 87 is a pool of 8 here" is a fair ratio. But `gate_pool`'s primary
+branch returns the **whole multiset bucket** and applies the area and aspect terms
+only in its by-room-count fallback, so the pool the 3,6 % was drawn from is at
+production *depth* with members the gate would not admit.
+
+That cuts both ways and both were measured. Gate-admitted donors are **better**:
+first-candidate decline is **29.8 %** on the gated pool against **35.2 %** on the
+bucket, so the shipped system's members are ~5 points better than the ones priced.
+But the gated sample bottoms out at depth ~10, and **its own fit returns π = 0
+with a zero-width interval** — a shallow-censoring artefact, the same failure as
+the plain Beta. The deep bucket is the only arm here that can see an asymptote at
+all, which is why the table above is fitted on it.
+
+**What deepening costs.** A pool member is a warp plus a projection solve. The warp
+is measured here at **0.79 s** (bucket) and **1.66 s** (gated, whose fixed point
+iterates more), against the projection solve on a real boundary at p50 **10,11 s**
+with p90 at the 15 s cap (`solver-formulation.md` Part V). So depth is affordable
+**only if starvation is screenable on the Proposal**, before the solve — 79 extra
+warps is ~60–130 s, 79 extra solves is **13–20 minutes for one Brief**, and it
+falls entirely on the starving Brief, which is the worst possible distribution.
+
+⚠️ **Whether it is screenable is not established here, and the rig cannot settle
+it.** `dim.statutory_min_area` is `site: both` — the solver *posts* it and the
+validator *evaluates* it — and everything above is measured on the **warped
+rectangles**, i.e. on the Proposal. No warped Proposal on this map has ever been
+put through the projection solve: `fit_warp.py` imports `experiments/solver-toy/`
+for its relation extractor only. **3,6 % and every number in this section are
+Proposal-level starvation**, and the solver has freedom the warp does not, so the
+Plan-level figure could fall either side.
+
+**What §7.6 does not decide.** Not `dim.statutory_min_area`'s severity — settled
+hard by ticket 55 on an argument that never depended on this number, and a smaller
+figure here relaxes the escalation rather than reopening the rule. Not source B's
+per-room absolute area fidelity, which §11.1 step 2 depends on and §6.1 has no term
+for. What it does say is that **step 1 carries about two points and cannot go below
+π**, so steps 2 and 3 are load-bearing and source B's unmeasured area fidelity is
+now the urgent one.
+
+### 7.7 What the warp's two owed constraints cost
+
+`fit_warp.warp_model` posts neither constraint this map has since decided the warp
+holds: ADR 0020's amendment (the notch share stays at the `s` the box was derived
+from) and ADR 0028 (the enclosed void is charged to its receiving Room and
+weighted). The `ring` arms reach the first by **re-sizing the box** rather than by
+constraining the solve, so no arm had ever run the genuinely constrained model.
+Both bind the same solve, so their cost is one number.
+`experiments/warp/constrained_warp.py`, 194 paired (Brief, donor) cases.
+
+| arm | INFEASIBLE | lost vs `free` | \|notch drift\| p90 | realised void p90 | worst-room dev p50 |
+|---|---:|---:|---:|---:|---:|
+| `free` — what ships | 10.8 % | — | 0.0910 | 0.375 | 0.1391 |
+| `void` — ADR 0028 | 10.8 % | **0** | 0.0923 | **0.250** | 0.1478 |
+| `notch` — ADR 0020 | 13.4 % | 5 | **0.0197** | 0.375 | 0.1621 |
+| **`both`** | **13.4 %** | **5 — 2,6 %** | **0.0195** | **0.250** | 0.1662 |
+
+**The void half is free and the notch half is not.** ADR 0028 costs **zero**
+candidates, reproducing `experiments/void/`'s 9/90-on-every-arm; the joint cost
+*is* the notch's cost. And it is a function of how hard the invariant is held:
+
+| notch tolerance (share points) | ±0.04 | ±0.02 | ±0.01 | ±0.005 | exact |
+|---|---:|---:|---:|---:|---:|
+| candidates lost vs `free` | 1,5 % | **2,6 %** | 3,6 % | 3,6 % | **8,8 %** |
+| worst-room dev p50 | 0.1645 | 0.1662 | 0.1797 | 0.1846 | **0.2256** |
+
+Holding it exactly costs **8,8 %** of candidates and takes worst-room deviation
+from 0.139 to **0.226** — a sixth of the pool and a fifth of the fidelity, for an
+invariant the `ring` fixed point currently gets for free by moving the box instead.
+
+⚠️ **ADR 0020's `s` does not cover all of the notch.** `notch_share` defines `s` as
+the **two largest** boundary-touching complement components, and **27,5 %** of
+converted donors have three or more. On those, boundary-touching floor exists that
+is neither notch nor void by the ADR's own definitions — and an encoding that
+holds "all uncovered minus the enclosed" is therefore holding a strictly larger
+region than the ADR names. Both encodings were run; the table above constrains the
+cells `s` is actually read off, which is why its drift tracks the tolerance
+(0.0388 → 0.0195 → 0.0097 → 0.0051 → 0.0003) where the looser one stalled at 0.04.
 
 ---
 
