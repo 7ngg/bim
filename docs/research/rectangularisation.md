@@ -1143,10 +1143,15 @@ Invisible here because `uncovered` sums the correct case and the incorrect one.
 Handed to the acceptance bar.
 
 **Off-frame wings.** `dwelling_frame` rotates a dwelling onto one angle. A
-dwelling built on two is sheared into a *different flat* — **1.5 % of dwellings**
+dwelling built on two is sheared into a *different flat* — ~~1.5 % of dwellings~~
 have a room off frame by 10–20°, scoring cell agreement 0.705 with worst-room IoU
-**0.167**, and they come back **OPTIMAL** while doing it. Ticketed as *The
+~~0.167~~, and they come back **OPTIMAL** while doing it. Ticketed as *The
 dwelling that is built on two angles*.
+
+⚠️ **Both struck figures are 400-dwelling artefacts; §15 re-measures on all 2,317.**
+The population is **4.79 %** at ≥ 10° and the 10–20° band's worst-room IoU is
+**0.397**. §15.1 also finds that the shipped `worst_room_iou` gate was already
+refusing 39.6 % of it.
 
 Harness: `render_sheet.py`, `void_census.py`. Sheets at `out/sheets/SHEET.html`.
 
@@ -1447,3 +1452,197 @@ dwellings reach a witness that both covers ≥ 90 % and spills ≤ 5 %.
 Harness: `real_boundary.py` (representability, series at
 `series/real_boundary.json.gz`) and `real_envelope.py` (the two Envelopes and
 the re-fit, series at `series/real_envelopes.json.gz`); logs in `out/`.
+
+---
+
+## 15. The dwelling built on two angles, and the gate that was already refusing it
+
+Ticket 46. ADR 0017 failure mode 1: `dwelling_frame` rotates a dwelling onto
+**one** angle — the minimum rotated rectangle of the whole room union — so a
+dwelling built on two, a wing splayed off a spine, has every room in the second
+wing sheared into the first wing's frame. The output is a plausible home and it
+is not the home that was converted. It came back **OPTIMAL** while doing it.
+
+Everything below is on the **full 2,317-dwelling converted index**. ADR 0017's
+own table is on 400, and the difference matters in one place — §15.5.
+
+### 15.1 The headline
+
+> **The population is 4,79 % of the index, and the shipped `worst_room_iou`
+> gate is already refusing 39,6 % of it. 28,6 % of everything that gate
+> removes is off-frame — the map has been refusing two-angle dwellings since
+> the gate landed, unlabelled, and nobody knew.**
+
+`proposer.md` §2.2.4 gates the retrieval index at `worst_room_iou ≥ 0,30`,
+hard, at a stated cost of 6,65 % of the index. `off_frame_gate.py` joins the
+off-frame measurement to that gate's own quantity and **reproduces the 6,65 %
+exactly**, which is what makes the join trustworthy rather than merely
+plausible.
+
+| off frame by | n | share | worst_iou med / p10 | already gated |
+|---|---:|---:|---:|---:|
+| 0–2° | 2 063 | 89,0 % | 0,778 / 0,421 | 4,4 % |
+| 2–5° | 61 | 2,6 % | 0,699 / 0,262 | 14,8 % |
+| 5–10° | 82 | 3,5 % | 0,618 / 0,197 | 13,4 % |
+| **10–20°** | **61** | **2,6 %** | **0,397 / 0,070** | **39,3 %** |
+| **20°+** | **50** | **2,2 %** | **0,353 / 0,087** | **40,0 %** |
+
+|  | below the gate | at or above |
+|---|---:|---:|
+| off frame ≥ 10° | **44** | **67** |
+| off frame < 10° | 110 | 2 096 |
+
+**The residue is 67 dwellings — 2,89 % of the index** — that are ≥ 10° off frame
+and pass every fidelity check the index has. That is the population this ticket
+is actually about, and it is half the size the ticket assumed.
+
+### 15.2 Off-frame is informative beyond `worst_room_iou`, and that is why it is published
+
+The obvious objection to publishing anything is that the record already holds a
+fidelity quantity and off-frame is merely a cause of it. It is not: at **every**
+stratum of `worst_room_iou`, an off-frame dwelling scores materially lower cell
+agreement than an on-frame one at the same IoU.
+
+| `worst_iou` band | on frame (< 10°) | off frame (≥ 10°) | delta |
+|---|---:|---:|---:|
+| 0,30–0,45 | 0,841 (n = 152) | 0,731 (n = 24) | **−0,110** |
+| 0,45–0,60 | 0,883 (n = 241) | 0,809 (n = 21) | −0,074 |
+| 0,60–0,75 | 0,920 (n = 509) | 0,832 (n = 16) | −0,088 |
+| 0,75–1,01 | 0,965 (n = 1 194) | 0,911 (n = 6) | −0,054 |
+
+`worst_room_iou` is a **per-room minimum** and the shear is a **whole-dwelling**
+defect, so the first cannot be a sufficient statistic for the second. The
+quantity is not redundant and the record does not hold it.
+
+### 15.3 `frame_residual` — the quantity, and why it is not the ticket's
+
+The ticket names the field and does not define it. Three candidates were
+measured and the difference decides where any cut would land:
+
+- **`off_frame_max`** — the largest per-room deviation, which is what
+  `void_census.py` and ADR 0017 report. A one-room statistic on a
+  whole-dwelling defect.
+- **off-frame area mass** — the area share of rooms more than 5° off. Stops a
+  2 m² store counting like a 30 m² living room, and **buries a 5° threshold
+  inside a field that is supposed to be raw**.
+- **`frame_residual`** — the **area-weighted mean deviation of a dwelling's
+  rooms from its dwelling axis, in degrees**. Continuous, whole-dwelling, and
+  carrying no free parameter, which is the same ground §2.2.4 gave for
+  partitioning `frontage_reach` at 1,0 rather than fitting a weight.
+
+The third is what is published. Its distribution on the shipped frame:
+
+| `frame_residual`, degrees | p50 | p75 | p90 | p95 | p99 | max | mean |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| shipped union-mrr frame | 0,000 | 0,057 | 0,834 | 2,845 | 9,822 | 23,75 | 0,489 |
+| area-weighted modal frame | 0,000 | 0,021 | 0,507 | 2,043 | 7,410 | 21,37 | 0,347 |
+
+**A cut placed on `off_frame_max` does not transfer to this quantity**, which is
+why §15.4 places it here rather than inheriting ADR 0017's 10°.
+
+### 15.4 There is no knee, and that is the finding
+
+Cell agreement against the residual, over the 2 163 dwellings that survive the
+IoU gate:
+
+| residual | n | share | cell agr. med / p10 | `worst_iou` med | pool percentile |
+|---|---:|---:|---:|---:|---:|
+| 0,0–0,5° | 1 949 | 90,1 % | 0,944 / 0,857 | 0,787 | 52,4 |
+| 0,5–1,0° | 62 | 2,9 % | 0,914 / 0,809 | 0,745 | 45,7 |
+| 1,0–2,0° | 61 | 2,8 % | 0,891 / 0,767 | 0,732 | 41,1 |
+| 2,0–4,0° | 42 | 1,9 % | 0,854 / 0,763 | 0,603 | 22,4 |
+| 4,0–8,0° | 33 | 1,5 % | 0,802 / 0,706 | 0,489 | **10,6** |
+| 8,0–16,0° | 13 | 0,6 % | 0,778 / 0,647 | 0,562 | 16,7 |
+| 16°+ | 3 | 0,1 % | 0,696 / 0,638 | 0,450 | — |
+
+The decline is **smooth**. There is no elbow to place a cut on, so any partition
+would be a fitted constant chosen for the look of it — the thing §2.2.4 exists to
+refuse.
+
+**The last column is why none is needed.** *Pool percentile* is where the
+dwelling's `worst_room_iou` sits in the distribution of everything that survives
+the gate — that is, where §2.2.4's existing pre-rank already puts it. A donor at
+4–8° residual sits at the **10,6th percentile**. With a bucket of 58–87 (§2.2.7)
+and `m = 8` drawn from its head, a donor at the tenth percentile is not taken.
+**The rank the map already ships demotes this population to the floor of the
+pool without being told to.**
+
+### 15.5 ⚠️ ADR 0017's 0,167 is a six-dwelling artefact
+
+Its failure-mode-1 table reports the 10–20° band at worst-room IoU **0,167** and
+the 20°+ band at **0,429** — a reversal that should have been read as a sample
+size. It was: the bands hold 6 and 5 dwellings of 400. Over the full index they
+are **0,397** and **0,353**, monotone as expected, and the population is nearly
+twice the rate ADR 0017 quotes (4,79 % against 2,7 % at ≥ 10°).
+
+Nothing downstream turns on it — the number was never load-bearing for a
+decision — but the ticket, this note's §12.3 and ADR 0017 all carried it, and a
+figure quoted three times is one somebody will eventually build on.
+
+### 15.6 The frame the conversion picks is the wrong one, and a better one is a wash in the body and a real gain in the tail
+
+The union mrr is fitted to **both** wings, so on a two-angle dwelling the angle
+it returns can be neither wing's — every room is then off frame rather than only
+the minority wing's. `frame_choice.py` measures the obvious alternative: the
+**area-weighted modal room angle**, which sits on the dominant wing by
+construction.
+
+Counted per dwelling it looks like a coin flip — 377 better, 357 worse. Weighed,
+it is not close:
+
+| | n | mean | sum | p90 | max |
+|---|---:|---:|---:|---:|---:|
+| improved | 377 | 0,923° | **347,8°** | 2,225° | 22,400° |
+| regressed | 357 | 0,057° | **20,4°** | 0,137° | 1,911° |
+
+**The regressions are estimator noise and the gains are the defect.** Net
++327,4° over 2 317 dwellings, and the modal frame dominates the shipped one at
+every published quantile (§15.3). Where it changes a reading rather than a
+decimal:
+
+| | shipped | modal |
+|---|---:|---:|
+| residual > 2° | 6,26 % | 5,05 % |
+| residual > 4° | 3,63 % | 2,37 % |
+| residual > 8° | 1,64 % | 0,91 % |
+
+At a 2° line the modal frame **rescues 29 dwellings and pushes 1 across**; at 4°,
+30 against 1.
+
+**89,2 % of the population is irreducibly two-angle** — re-framed to the modal
+angle, only 12 of the 111 dwellings ≥ 10° fall under 10°. A better single frame
+is a better *measurement*, not a fix, and nothing here claims otherwise.
+
+### 15.7 Why re-framing per wing was refused without being priced
+
+The ticket's second candidate — segment into angle-coherent components, fit each
+in its own frame, reconcile — is refused on representability rather than cost.
+
+Two frames meeting at an angle is not something ADR 0003's Envelope can express,
+and §14 has just measured how far that object already is from a real outline: a
+median of **6** rectangles against a family that yields 1–4. A re-framed dwelling
+would be a donor for a Brief v1 cannot serve, in a shape family §13.3 has
+already refused to widen on separate evidence. The reconciliation is a new
+problem bought to produce an unusable result.
+
+⚠️ **This is a refusal on scope, not a measurement**, and it is the one line in
+§15 with no number under it.
+
+### 15.8 What this section does not establish
+
+- **What an off-frame donor costs a warped candidate.** Everything here is
+  measured on the donor. The warp is `experiments/warp/`, held by another open
+  ticket, and the conversion may not reach into it — so *whether a sheared
+  donor produces a worse Plan*, as opposed to a worse record, is unmeasured.
+  It is the honest gap in this decision and it is named on ADR 0031.
+- **That the modal frame is the best frame.** It is better than the shipped one
+  on this corpus. Two estimators were compared, not searched.
+- **Anything about ResPlan**, which is already orthogonal and cannot carry this
+  defect at all.
+- **That the 5° convention in `void_census.py` means anything.** It is a
+  reporting threshold inherited from ticket 27; `frame_residual` deliberately
+  has none.
+
+Harness: `off_frame_gate.py` (the join to the shipped gate),
+`frame_choice.py` (the two frames) and `frame_residual.py` (the published
+quantity and the cut that was refused); records in `out/`.

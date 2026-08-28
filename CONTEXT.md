@@ -266,6 +266,29 @@ building that is square to a street; measured against the world's axes not one
 room in the corpus is a rectangle. Every shape statement about a corpus dwelling
 names the axis it was measured on, or it means nothing.
 
+**Singular by convention and not by fact.** **4,79 %** of the converted index has
+a room more than 10° off the axis it was given — a wing splayed off a spine, which
+real housing does. The conversion rotates onto **one** angle regardless, so those
+dwellings are sheared onto it and emerge as a plausible home that is not the home
+that was converted. The axis is a choice the conversion makes, and
+[[Frame residual]] is how far that choice was from free.
+_Avoid_: reading "the dwelling axis" as a property the dwelling has. It is a
+property the conversion **assigns**, and a second one exists in one dwelling in
+twenty.
+
+**Frame residual** — the area-weighted mean deviation of a dwelling's Rooms from
+the [[Dwelling axis]] it was assigned, in degrees. Published on every converted
+record. Deliberately carries **no threshold**: a maximum is a one-room statistic
+about a whole-dwelling defect, and an area *share* would bury a cut inside a raw
+field.
+_Avoid_: treating it as a duplicate of worst-room IoU. At a fixed IoU an
+off-frame dwelling still scores 5–11 cell-agreement points lower, so a per-room
+minimum is not a sufficient statistic for a shear.
+_Avoid_: expecting it to gate anything. It gates and ranks nothing — the
+retrieval pre-rank already puts a 4–8° donor at the tenth percentile — except in
+the trained source's **evaluation baseline**, the one place excluding costs
+nothing (ADR 0031).
+
 **Representable** — whether a real dwelling can be expressed in this system's
 model at all: at most **two** rectangles per Room, tiling an Envelope of a
 bounding box minus at most two notches. The property that decides whether a corpus dwelling is used

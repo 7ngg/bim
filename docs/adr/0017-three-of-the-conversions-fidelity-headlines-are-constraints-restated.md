@@ -104,8 +104,22 @@ a solver failure — those dwellings come back OPTIMAL.
 | 0–2° | 90.2 % | 0.941 | 0.768 |
 | 2–5° | 3.5 % | 0.844 | 0.699 |
 | 5–10° | 3.5 % | 0.876 | 0.745 |
-| **10–20°** | **1.5 %** | **0.705** | **0.167** |
-| 20°+ | 1.2 % | 0.676 | 0.429 |
+| **10–20°** | **1.5 %** | **0.705** | ~~0.167~~ |
+| 20°+ | 1.2 % | 0.676 | ~~0.429~~ |
+
+⚠️ **Corrected by ADR 0031 — this table is on 400 dwellings and its last two rows
+hold six and five of them.** The IoU reversal between the two bands should have
+been read as a sample size, and was not. Over the **full 2,317-dwelling converted
+index** the bands are **0.397** and **0.353**, monotone, and the population is
+**4.79 %** at ≥ 10° rather than the 2.7 % this table implies.
+`rectangularisation.md` §15.1. No decision ever rested on the struck figures, but
+they were quoted in three places.
+
+**And the map was already refusing this population without saying so.**
+`proposer.md` §2.2.4's `worst_room_iou ≥ 0.30` gate takes **39.6 %** of it, and
+**28.6 %** of everything that gate removes is off-frame. The residue — 67
+dwellings, 2.89 % of the index — is kept, labelled with `frame_residual`, and
+demoted by the pre-rank that already exists (ADR 0031).
 
 **Nothing published faces this, so there is nothing to copy.** Every generator in
 `docs/research/floorplan-generation-stack.md` fits axis-aligned rectangles, and

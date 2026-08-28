@@ -218,14 +218,30 @@ of the coverage table.
 | **`frontage_reach`** — the minimum, over the dwelling's `needs_window` Rooms, of the boundary run that Room holds ÷ the frontage budget the solver posts for it | §4.5; below 1.0 the donor holds a Room that cannot seat its window on its own boundary |
 | **`worst_room_iou`** — the minimum, over the dwelling's Rooms, of the fitted rectangles' IoU against the real room polygon | §2.2.4; the only donor-**fidelity** quantity in this record. `fit_rects.py` already emits per-room `iou`, so it is a `min` and no re-fit |
 | **`voids`** — the enclosed complement components of the parts frame, as index spans, each with the **donor Room that owned that floor** | §2.2.8; ADR 0028. Watershed ownership purity is p50 1.00 and ≥ 0.80 on 72.7 % of components |
+| **`frame_residual`** — the area-weighted mean deviation of the donor's Rooms from its dwelling axis, in degrees | §4.4; ADR 0031. A dwelling built on two angles is sheared onto one by the conversion, and this records how far. Published on every record regardless of value, and **carrying no threshold inside it** |
 | `RegionProfile`/`CorpusProvenance` = `AZ`/`CH` | C14 |
 
-**Four of these are new obligations on the conversion**, which today emits
+⚠️ **`frame_residual` is not derivable from `worst_room_iou` and the two are not
+the same fact.** At every stratum of `worst_room_iou` an off-frame donor scores
+5–11 cell-agreement points lower than an on-frame one at the same IoU
+(`rectangularisation.md` §15.2): a per-room minimum cannot be a sufficient
+statistic for a whole-dwelling shear. It is nevertheless **neither gated nor
+ranked on** — §2.2.4 records why, and that paragraph is load-bearing.
+
+**Five of these are new obligations on the conversion**, which today emits
 `rel: {same, spurious}` as counts rather than per pair, and emits neither
-`frontage_reach` nor the void components. That is a change to
+`frontage_reach`, the void components nor `frame_residual`. That is a change to
 `experiments/rectangularise/fit_rects.py`, handed to its holder — this spec
-specifies the fields, not the emitter. **Take them in one pass**: they are four
-statistics off the same records, and four passes is three wasted re-fits.
+specifies the fields, not the emitter. **Take them in one pass**: they are five
+statistics off the same records, and five passes is four wasted re-fits.
+
+⚠️ **That pass also carries a change to `dwelling_frame` itself**, and it is the
+reason the pass may not be split. ADR 0031 replaces the union minimum-rotated-
+rectangle angle with the **area-weighted modal room angle**, which re-bases
+`swiss_fit_k2.json` — the record every corpus figure on this map derives from.
+Standalone that is a whole re-reading bought for a tail improvement; riding this
+pass it is one function. **Until the pass runs, the conversion is frozen and every
+figure quoted here is on the union-mrr frame.**
 
 ⚠️ **`worst_room_iou` is a fidelity fact and `frontage_reach` is not, and they are
 gated differently on purpose** — §2.2.4.
@@ -419,6 +435,36 @@ proxy.
   Brief is not involved — while `frontage_reach` is **joint with the Brief's
   Envelope** and §2.2.6 records that the conversion cannot tell `exterior` from
   `party`. A gate may not claim what it does not know; this one knows.
+
+**`frame_residual` is a pure donor fact and is deliberately neither gated nor
+ranked, which is the one asymmetry on this page that is not about what a quantity
+knows.** ADR 0031. On the rule just stated it is eligible for a hard gate — it
+compares a donor's Rooms to that donor's own axis and no Brief is involved — and
+it gets none, because the rule is necessary and not sufficient.
+
+- **There is no knee to cut on.** Cell agreement declines smoothly across the
+  residual — 0.944 / 0.914 / 0.891 / 0.854 / 0.802 / 0.778 over
+  `rectangularisation.md` §15.4's bands — with no elbow anywhere. A partition here
+  would be a **fitted constant chosen for the look of the table**, which is what
+  this section refuses everywhere else. `frontage_reach` may partition at 1.0 only
+  because the solver's own hard constraint sits there. Nothing sits anywhere here.
+- **The pre-rank above has already done it.** Off-frame donors carry low IoU, so
+  ordering on `worst_room_iou` descending sorts them down unprompted: a donor at
+  4–8° residual sits at the **10.6th percentile** of the surviving pool. Against a
+  bucket of 58–87 and `m = 8` drawn from its head, that donor is not taken. A
+  second cut on a correlated quantity demotes what is already at the floor and
+  charges a fitted constant to do it.
+
+**A gate is for a candidate that is wrong; a rank is for one that is worse.** An
+off-frame donor is worse — the shear damages room shape, while adjacency and
+separation are posted hard in the conversion and survive it intact, and
+arrangement is what a donor hands over. `worst_room_iou < 0.30` is *wrong*: a Room
+is essentially not that Room. That is the whole of the difference.
+
+⚠️ **The gate above is already doing this job in part, and nobody knew.** 28.6 %
+of everything `worst_room_iou ≥ 0.30` removes is off-frame, and it takes **39.6 %**
+of the off-frame population — §15.1. The 6.65 % index cost quoted above is
+unchanged; what changes is the reading of *what* it buys.
 
 **`m` is an ENGINE_CHOICE and this spec does not fix it.** It is a cost dial as
 well as a latency dial — each candidate is a warp plus a 15 s projection, and
@@ -1244,6 +1290,27 @@ the corpus distribution, not a threshold.
 is: a source that zones well and reaches no valid Plan has not earned its place,
 and none of the four has been measured on a generated Plan by anyone, because no
 Proposer has been run.
+
+**The corpus distributions above are held out on `frame_residual`, and this is
+the only place on the map where an off-frame dwelling is excluded rather than
+demoted.** ADR 0031. Each of the four terms is computed *on a corpus dwelling* as
+the target a generated Plan is scored against, so a dwelling the conversion
+sheared onto one angle — 2.89 % of the index survives every fidelity gate while
+being ≥ 10° off frame — scores the model against **our own conversion error**
+rather than against real housing.
+
+⚠️ **Nothing else on this map takes that cut, and the reason is asymmetric cost.**
+In the retrieval pool and in §2.3's training set, excluding thins an index ADR
+0013 already calls thin, so §2.2.4 demotes and §4.5's precedent keeps. In a
+**baseline** the exclusion costs nothing, because a baseline has to be *true* and
+not maximal. Read across from §4.5 carefully: it kept windowless kitchens because
+*"a landlocked room is not a defect in the donor, it is a fact about real
+housing"* — the **splay** is such a fact, and the **shear** is not. Only §4.5's
+thinness argument transfers.
+
+⚠️ **The four rates above are quoted on the unfiltered corpus** — `zoning.md` §2's
+2,500 dwellings and §4.5's 5.88 %, neither held out on a field that does not exist
+yet. They move when the §2.2.1 pass lands and must be re-read then, not before.
 
 ### 6.2 Stop conditions for training
 
