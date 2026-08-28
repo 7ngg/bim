@@ -3,8 +3,8 @@ id: 63
 title: The gate measures stretch with two blunt scalars
 parent: map
 labels: [wayfinder:grilling]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
   - experiments/warp/
@@ -87,3 +87,101 @@ different pair of objects.
 *The rig gate is not the shipped gate* (2026-08-28), which had to measure whether
 the terms were inert before it could say what the rig's shortcut cost — and found
 them decidedly not inert, with a mechanism nobody had written down.
+
+
+## Resolution
+
+**The stretch has a closed form, it was inside the warp's own model, and it
+JOINS the gate rather than replacing the two scalars.** ADR
+[0032](../../adr/0032-the-gate-gains-a-sound-third-term-and-keeps-the-two-blunt-ones.md);
+`experiments/warp/stretch_terms.py`, joined to the 1,974 candidates
+`gate_effect.py` had already warped, **no new warps**.
+
+### 1. What the stretch quantity is
+
+`warp_model` posts `Σ gx = W`, `gx_i ≥ 1` and, per part,
+`Σ gx[a:b] ≥ MIN_SIDE[room]`. So for **any** set of parts with pairwise-disjoint
+x-spans, `Σ MIN_SIDE ≤ W`. Maximising that sum over disjoint sets is an interval
+DP over the record's own index spans — microseconds, pure Python, **no new
+dependency** — and gives `W_req`, the smallest box extent this donor's frame
+admits at the ergonomic floor. Likewise `H_req`.
+
+```
+req = max( W_req / W , H_req / H )      W, H = ADR 0020's box at scale 1.0
+```
+
+**It is sound.** `req > 1` is a violated necessary condition of the model the
+warp solves, so it implies INFEASIBLE: **103 of 103** measured, no exceptions. It
+is not sufficient — the 2-D coupling `wv ≤ 3·hv` and the area objective are
+outside it, and 98 candidates with `req ≤ 1` were refused anyway.
+
+**The cut is 1.0 and is not fitted** — it is where the warp's own hard constraint
+sits, the licence §2.2.4 gives `frontage_reach` and denies `frame_residual`.
+
+### 2. Whether it dominates the scalar pair — no, it is orthogonal to it
+
+It is a much better *decline* predictor and monotone where `d_area` is not:
+`req` runs **16.2 → 35.0 → 65.2 → 100 %** across its bands against `d_area`'s
+29.9 → 37.4 → **31.6** → 53.3. But decline is not the axis. Best-of-pool
+worst-room deviation per Brief, **at the bucket's real 82.4 %-refused
+composition** and equal depth `m = 3`, 400 bootstrap draws:
+
+| gate | Briefs served | best-of-pool p50 | p90 |
+|---|---:|---:|---:|
+| incumbent ±10 %/±15 % | 88.1 % | 0.0596 | 0.2303 |
+| **incumbent + `req ≤ 1`** | **89.4 %** | **0.0591** | **0.2294** |
+| `req ≤ 1` alone | 89.4 % | 0.0643 | **0.2543** |
+| `logd ≤ 0.30` + `req ≤ 1` | 89.1 % | 0.0638 | 0.2333 |
+
+Dropping the pair moves **p90 the wrong way**. The pair buys *proportion*; the
+bound buys *feasibility*.
+
+### 3. Replaces or joins — **joins**, and a third refuser is right exactly once
+
+It removes 60 of the incumbent's 987 admitted candidates, **every one a certain
+decline**, taking the paired per-candidate rate **27.6 % → 22.9 %** with
+identical best-of-pool p50, p90 and served rate in both bands. It is better than
+free: `m` is a warp budget and a dead candidate wastes a draw, so at equal `m`
+and real composition it takes served Briefs **88.1 % → 89.4 %**. `dim.max_area`
+is unmoved — exact upper bound on the breach rate (`dev > k_min − 1 = 1.02`) is
+**1.96 %** either way.
+
+**The ticket's own first candidate is pruned rather than measured.** The per-axis
+frame-extent ratio is `√(area ratio × aspect ratio)` and
+`√(area ratio ÷ aspect ratio)` — `(1 − s)` cancels — a bijection with the
+incumbent pair up to the donor's *void* share, agreeing with the incumbent
+conjunction on **89.4 %** of candidates. It is the incumbent in polar
+coordinates.
+
+### 4. What the market does
+
+Graph2Plan filters on **room types, counts and adjacencies** and ranks by
+**boundary similarity, a turning function anchored at the front door**
+(`proposer-architecture.md` §770-779). Its shape match is a *rank*, not a gate —
+which is a prior for loosening, and the measurement above refuses it. Adopting
+the turning function itself needs the donor's boundary polygon, which the index
+record does not carry and the frozen `fit_rects.py` pass does not owe. Out for
+v1.
+
+### What this cost, and what it did not
+
+⚠️ **`gate_effect`'s population is 50/50 and a production bucket is 82.4 %
+refused.** Every §4b/§4c figure in the probe is on the 50/50 draw and the bias
+runs *toward* loosening the gate. §4e repairs it by weighting each row by its own
+Brief's `n_admitted`/`n_refused` — no new warps. **The §4e rows are the load-
+bearing ones and are the only ones quoted here.**
+
+⚠️ **The `m = 8` block is confounded and is printed with that warning on it.**
+The urn draws with replacement from at most six warped rows, so each arm
+saturates at its own distinct count — the incumbent's three against a loose
+rule's six, i.e. best-of-3 against best-of-6, flattering the loose rule by
+exactly the quantity under test. **The shipped `m` is 8 and every figure here is
+at 3.** A real `m = 8` needs `gate_effect.py --k=8`, ~2 h of warps. Raised as
+*What the fourth gate term is worth at the shipped pool depth*.
+
+⚠️ **`req ≤ 0.7` dominates the incumbent on four axes at once on the 50/50
+population** — admit 54.0 % against 50.0 %, decline 16.2 % against 27.6 %, dev
+p50 0.0845 and p90 0.4398 both better. It is refused: 0.7 is a fitted constant,
+the term stops being sound below 1.0, and the population it wins on is the one
+§4e exists to correct. **A ticket proposing a `req` cut below 1.0 is re-opening a
+decision with all three of those on the record.**

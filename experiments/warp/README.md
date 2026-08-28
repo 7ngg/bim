@@ -32,6 +32,7 @@ Outputs go to `out/`, gitignored. Seed 20260819 throughout, the same one
 | `best_of_m.py [n]` | **the best-of-m curve**: starvation against pool depth, nested and paired | ~7 min a pool at `n=200 --m=64` |
 | `best_of_m_fit.py` | fits and extrapolates that curve to production depth, with a bootstrap | ~2 min |
 | `constrained_warp.py [n]` | what ADR 0020's notch invariant and ADR 0028's void charge cost when **posted in the solve** rather than arrived at | ~6 min at `n=200` |
+| `stretch_terms.py` | **what the two dimensional gate terms are a proxy for**, computed directly and joined to `gate_effect.py`'s warps. No new warps | seconds |
 
 Order: `room_area_spread.py` first (it builds `out/dwelling_rooms.json`, which
 every other script reads).
@@ -372,3 +373,50 @@ standing rule: `out/` is gitignored, a re-run is hours, and every number in
 `proposer.md` §2.2.9 is derivable from these. `--report --suffix=…` re-summarises
 them in seconds and `--planes` re-derives the two-plane diagnostic; copy a series
 file into `out/` first, since that is where `--report` reads.
+
+
+## What ticket 63 added, and the three traps in it
+
+`stretch_terms.py` computes the **frame requirement** — the smallest box extent a
+donor's cut-line frame admits at the ergonomic floor — off the index record alone,
+by an interval DP over the part spans. It reads `out/gate_effect_briefs.json` and
+joins to the 1 974 candidates already warped there, so it costs seconds and no
+solve. ADR 0032.
+
+The bound is **sound**: `warp_model` posts `sum(gx) = W`, `gx_i >= 1` and per part
+`sum(gx[a:b]) >= MIN_SIDE`, so for any set of parts with pairwise-disjoint x-spans
+`sum MIN_SIDE <= W`. Maximising over disjoint sets is a lower bound on `W`, and
+`req > 1` therefore implies INFEASIBLE. Measured: **103 of 103**, no exceptions.
+It is not *sufficient* — it does not model the 2-D coupling `wv <= 3*hv` or the
+area objective — so 98 candidates with `req <= 1` were still refused.
+
+⚠️ **`gate_effect`'s population is 50/50 and a production bucket is 82,4 %
+gate-refused.** Every §4b and §4c figure is on the 50/50 draw, and the bias runs
+*toward* loosening the gate — precisely the direction this ticket was tempted in.
+§4e repairs it with no new warps: each Brief record carries its own `n_admitted`
+and `n_refused`, so weighting each row by its stratum size gives the urn the
+bucket's real composition. **Quote §4e, not §4b.** Under the repair, replacing the
+scalar pair stops winning: best-of-pool p90 goes **0,2303 → 0,2543**, the wrong way.
+
+⚠️ **§4e's `m = 8` block is CONFOUNDED and is printed with that warning on it.**
+The urn draws with replacement from at most six warped rows, three a stratum, so
+each arm saturates at its own distinct count — the incumbent's three against a
+loose rule's six. At `m = 8` that is a best-of-3 against a best-of-6 and it
+flatters the loose rule by exactly the quantity under test. **`m = 3` is the
+largest depth both arms fill with distinct warps and is the only quotable row.**
+A real `m = 8` needs `gate_effect.py --k=8` — 16 warps a Brief, ~2 h.
+
+⚠️ **`ext` is in the script as a control and is not a candidate.** ADR 0020's box
+is `interior/(1-s)` at the *Brief's* aspect and the donor's bbox is
+`area_d/(1-s_d)` at its own, so `(1-s)` cancels and the per-axis extent ratio is
+`sqrt(area ratio x aspect ratio)` and `sqrt(area ratio / aspect ratio)` — a
+bijection with the incumbent pair up to the donor's *void* share. It agrees with
+the incumbent conjunction on **89,4 %** of candidates. It is the incumbent in
+polar coordinates, and a frontier point quoted off it is the incumbent's own
+point relabelled.
+
+**`dim.max_area` is checked without a re-warp.** The rule is
+`got <= k[type] x target` with `k` in 2,02–8,15 (`rules.json` `area_bands`), so a
+breach needs a room at `got/target - 1 > 1,02`, and `worst_room_dev` is the max of
+that over rooms — `dev > 1,02` is a *necessary* condition and the count is an
+exact upper bound. 1,96 % under the incumbent, 2,08 % under `req <= 1` alone.

@@ -153,13 +153,15 @@ first: no training, no GPU, and its arrangements are a real home's by
 construction.
 
 **Admissibility is a hard gate, not a ranking term.** A corpus dwelling is a
-candidate only if all three hold:
+candidate only if all four hold — three since ADR 0018, and the fourth added by
+ADR 0032 on the ground that it is **sound** and so costs no coverage at all:
 
 | Gate | Value |
 |---|---|
 | room multiset | exact match in the Brief vocabulary (§4.1) |
 | total floor area | within **±10 %** of the Brief's |
 | envelope aspect ratio | within **±15 %** of the Brief's |
+| **frame requirement** | **`req = max(W_req/W, H_req/H) ≤ 1`** — ADR 0032. The smallest box extent the donor's cut-line frame admits at the ergonomic floor, against ADR 0020's box. **Sound**: `req > 1` is a violated necessary condition of the warp's own model, so the term refuses only candidates the warp would have declined — **103 of 103**, measured |
 
 Outside the gate, **do not retrieve** — hand the Brief to source B. The entire
 claim of retrieval is that the arrangement is a real home's. Stretch a plan 40 %
@@ -206,6 +208,35 @@ the bucket: **82.4 %** of what it handed the warp is floor the gate refuses
 **1.33×** the area tolerance and **1.83×** the aspect tolerance outside. Read this
 paragraph as three terms, all binding, and an empty result as §2.2's *"outside the
 gate, do not retrieve"*.
+
+**The fourth term is sound, and that is why a hard gate may have four.** ADR
+0032. `warp_model` posts `Σ gx = W`, `gx_i ≥ 1` and, per part,
+`Σ gx[a:b] ≥ MIN_SIDE[room]`, so for **any** set of parts with pairwise-disjoint
+x-spans `Σ MIN_SIDE ≤ W`. Maximising that over disjoint sets is an interval DP
+over the record's own index spans — microseconds, no solve, no new dependency —
+and gives `W_req`; likewise `H_req`. The cut sits at **1.0** because that is
+where the warp's hard constraint sits, which is the same licence §2.2.4 gives
+`frontage_reach` and denies `frame_residual`. Every other term on this page
+trades coverage for quality; this one trades nothing, because everything it
+refuses was already refused downstream. It takes per-candidate decline
+**27.6 % → 22.9 %** and leaves best-of-pool p50, p90 and the Brief-level served
+rate untouched.
+
+⚠️ **It is necessary and not sufficient, so it does not replace the two scalars
+and the measurement says so in the direction that matters.** 98 candidates with
+`req ≤ 1` were refused anyway — the 2-D coupling `wv ≤ 3·hv` and the area
+objective are outside the bound. Dropping the pair and keeping only `req` moves
+best-of-pool **p90 0.2303 → 0.2543** at the bucket's real composition and equal
+depth. The pair buys **proportion**; the bound buys **feasibility**. They are
+orthogonal.
+
+⚠️ **The per-axis frame-extent ratio is the same quantity as the two scalars and
+must not be proposed as a third candidate.** ADR 0020's box is
+`interior/(1 − s)` at the *Brief's* aspect and the donor's bbox is
+`area_d/(1 − s_d)` at its own, so `(1 − s)` cancels and the ratios are
+`√(area ratio × aspect ratio)` and `√(area ratio ÷ aspect ratio)` — a bijection
+with the pair up to the donor's *void* share, agreeing with the incumbent
+conjunction on **89.4 %** of candidates.
 
 ⚠️ **The two dimensional terms are not made inert by ADR 0020, and the obvious
 argument that they are is wrong.** Under ADR 0020 the box is sized
@@ -263,6 +294,7 @@ pool, and do not expect a Brief-level one to move when you stop doing so.
 | **per-pair relation provenance** — for every axis-pair, whether the *corpus* asserted that separation or the *conversion* invented it | §2.2.5; ADR 0016 measures the invented share at **12.62 %** of axis-pairs and only the conversion can tell them apart |
 | the entrance-adjacent Room, if the corpus identifies one | §2.2.6 |
 | **`frontage_reach`** — the minimum, over the dwelling's `needs_window` Rooms, of the boundary run that Room holds ÷ the frontage budget the solver posts for it | §4.5; below 1.0 the donor holds a Room that cannot seat its window on its own boundary |
+| **`W_req`, `H_req`** — the smallest box extent, per axis, this donor's cut-line frame admits at the ergonomic floor | §2.2's fourth gate term, ADR 0032. **Derived, not owed**: an interval DP over the frame's own index spans and the room types, both already in this record, so the frozen `fit_rects.py` pass does not grow a field. Precomputed into the index because it is Brief-free; only the division by the box is per-candidate |
 | **`worst_room_iou`** — the minimum, over the dwelling's Rooms, of the fitted rectangles' IoU against the real room polygon | §2.2.4; the only donor-**fidelity** quantity in this record. `fit_rects.py` already emits per-room `iou`, so it is a `min` and no re-fit |
 | **`voids`** — the complement components of the parts frame **other than the notch spans**, as index spans, each with the **donor Room that owned that floor** | §2.2.8; ADR 0028 and its amendment. ⚠️ **Widened from *enclosed* to *inside the Envelope*** by ticket 61 — the enclosure test misses the 27.2 % of donors carrying a third boundary-touching component. Watershed ownership purity is p50 1.00 and ≥ 0.80 on 72.7 % of components, **measured on the enclosed population only** |
 | **`frame_residual`** — the area-weighted mean deviation of the donor's Rooms from its dwelling axis, in degrees | §4.4; ADR 0031. A dwelling built on two angles is sheared onto one by the conversion, and this records how far. Published on every record regardless of value, and **carrying no threshold inside it** |
@@ -461,7 +493,9 @@ The gate admits a median 58–87 dwellings after conversion (§2.2.7). C6 wants 
 candidates and not 87 near-identical ones.
 
 1. **Gate** — dict hit, then scan the bucket on total area and aspect, then
-   **`worst_room_iou ≥ 0.30`, hard**. Free.
+   **`req ≤ 1`, hard** (ADR 0032), then **`worst_room_iou ≥ 0.30`, hard**. Free —
+   `req` is two precomputed integers and two divisions, and it is ordered before
+   the IoU cut only because it is cheaper, not because it is stronger.
 2. **Pre-rank** — **partition on `frontage_reach ≥ 1.0`**, then order within each
    part by **`worst_room_iou` descending**, then by the affine warp's worst-room
    deviation, which needs no solve. A proxy, and only for choosing whom to warp.
@@ -650,6 +684,14 @@ to source B.
 driven by the *Envelope*, which every candidate for one Brief shares. Treating
 17.8 % as independent across 8 candidates predicts a 10⁻⁶ Brief-level loss; the
 measured loss is **6.9 %**. Quote the measured number.
+
+⚠️ **Every decline figure in this section predates ADR 0032's fourth gate term
+and is an upper bound once it lands.** The term removes **6.1 %** of the
+candidates the three-term gate admits, all of them certain declines, taking the
+paired per-candidate rate **27.6 % → 22.9 %**. It does not move best-of-*m*: the
+removed members were never the best member, so the worst-room deviation table
+above and the **93.1 %** served figure stand unchanged. What it changes is how
+much of `m` is spent on corpses.
 
 ⚠️ **Three limits on the fidelity figures, and the first one has two answers —
 which is the whole of ticket 60.** The sample is the 2,317 converted dwellings of
