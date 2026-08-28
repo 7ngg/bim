@@ -27,6 +27,8 @@ Outputs go to `out/`, gitignored. Seed 20260819 throughout, the same one
 | `coverage_restated.py` | §2.2's coverage table joined to the conversion, per multiset | seconds |
 | `absolute_area.py [n]` | does a Room that asks for 12 m² **get** 12 m²? The same warp against an **un-normalised** target and measured on the **Space**, not the part | ~15 min an arm at `n=600` |
 | `pool_depth.py [n]` | how deep a pool the sample can draw, under three pool definitions. No warp, no solve | seconds |
+| `gate_sites.py [n]` | which branch of the **pre-60** `gate_pool` fired and what it admitted — the two divergences that are not about depth. No warp, no solve | seconds |
+| `gate_effect.py [n]` | **does the gate buy fidelity?** Splits one Brief's own bucket into gate-admitted and gate-refused and warps K from each, so the comparison is paired within a Brief rather than between two Brief populations | ~7 s a paired Brief at `--k=3` |
 | `best_of_m.py [n]` | **the best-of-m curve**: starvation against pool depth, nested and paired | ~7 min a pool at `n=200 --m=64` |
 | `best_of_m_fit.py` | fits and extrapolates that curve to production depth, with a bootstrap | ~2 min |
 | `constrained_warp.py [n]` | what ADR 0020's notch invariant and ADR 0028's void charge cost when **posted in the solve** rather than arrived at | ~6 min at `n=200` |
@@ -64,6 +66,31 @@ version of `fit_warp.py` drew a target Envelope from any dwelling of the same
 room count and refused 23 % of warps. Applying the shipped three-term gate — the
 thing that exists to stop exactly that — took it to 16 %. A retrieval experiment
 that does not gate is measuring a system nobody proposed.
+
+⚠️ **And this trap was written down, and then the rig walked back into it twice.**
+Ticket 60. `absolute_area.gate_pool` returned the whole multiset **bucket** the
+moment it was non-empty and scanned by area and aspect only in its by-room-count
+fallback — so **82.4 %** of what it handed the warp is floor the gate refuses, and
+its blank rate is **0.5 %** against the gate's ~13.4 %. Worse, that fallback drops
+the multiset term itself, serving retrieval on **3.0 %** of Briefs (**4.0 %** at
+7–10 rooms) where §2.2.1 says *hand the Brief to source B*. `fit_warp.py`'s own
+pairing kept a same-multiset Envelope without checking area or aspect at all, and
+kept an **off-multiset** one whenever area and aspect happened to pass: **22.5 %**
+of its retained pairs were ones the gate refuses. Both are repaired. `gate_pool`
+is now **two named functions** — `admissible_pool` (the gate, the default
+everywhere) and `bucket_pool` (what the rig used to do, kept only as the depth
+proxy `best_of_m.py` needs) — and `fit_warp.py` takes `--pairing=gate|pre60` so
+the published percentiles can be reproduced before they are re-based.
+
+⚠️ **The bucket is a depth stand-in and never a membership one, and the price is
+measured.** `gate_effect.py`, paired within one Brief over 987 candidates an arm:
+a gate-**refused** donor is declined **36.2 %** of the time against an admitted
+donor's **27.6 %** and carries a worst-room deviation 68 % larger at p50, sign
+test **p = 0.0001**, with a monotone dose on both terms. At **Brief** level the
+same comparison is a wash (p = 0.74) because declines are correlated within a
+pool. So: a per-candidate statistic must come off `admissible_pool`, and a curve
+that needs production depth may come off `bucket_pool` **provided it says so** —
+its members are worse, so such a curve under-states what real depth buys.
 
 **Scale the programme onto the covered area, not the bbox.** A converted dwelling
 leaves a median **13.1 %** of its bounding box as notch and void, and no choice

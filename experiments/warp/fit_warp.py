@@ -278,11 +278,16 @@ def main():
     tlim = 1.0
     no_aspect = "--no-aspect" in sys.argv
     no_min = "--no-min" in sys.argv
+    pairing = "gate"          # ticket 60; `pre60` reproduces the published draw
     for a in sys.argv[1:]:
         if a.startswith("--iters="):
             iters = int(a.split("=")[1])
         if a.startswith("--time="):
             tlim = float(a.split("=")[1])
+        if a.startswith("--pairing="):
+            pairing = a.split("=")[1]
+    if pairing not in ("gate", "pre60"):
+        raise SystemExit("--pairing must be 'gate' (2.2.1) or 'pre60'")
 
     fits = [r for r in json.load(open(FIT)) if r["status"] in ("OPTIMAL", "FEASIBLE")]
     recs = {r["k"]: r for r in json.load(open(ROOMS))}
@@ -316,15 +321,32 @@ def main():
         # a different dwelling's envelope -- and then **the shipped three-term gate**,
         # so the source is one retrieval would actually have admitted. Warping into
         # an ungated envelope measures the absence of the gate, not the warp.
-        cands = [p for p in by_n[src["n"]] if p["k"] != src["k"]]
-        if not cands:
-            continue
-        d = rng.choice(cands)
-        if src["ms"] != d["ms"] and not (
-                abs(src["area"] - d["area"]) <= AREA_TOL * d["area"]
-                and abs(src["aspect"] - d["aspect"]) <= ASPECT_TOL * d["aspect"]):
-            # this source is outside the gate for this envelope -- retrieval would
-            # never have offered it. Draw the envelope from the admitted set.
+        #
+        # Ticket 60. `pre60` drew `d` from `by_n` -- same ROOM COUNT -- and then
+        # kept it whenever `src["ms"] == d["ms"]`, which short-circuits the area
+        # and aspect terms, OR whenever those two terms passed, which admits an
+        # off-multiset envelope the gate's FIRST term refuses outright. Over 600
+        # draws **22.5 %** of retained pairs were ones the shipped gate refuses
+        # (12.3 % same-multiset-unchecked, 10.2 % off-multiset). Both are kept and
+        # runnable so the published percentiles can be reproduced before they are
+        # re-based; `gate` is the default and the one to quote.
+        if pairing == "pre60":
+            cands = [p for p in by_n[src["n"]] if p["k"] != src["k"]]
+            if not cands:
+                continue
+            d = rng.choice(cands)
+            if src["ms"] != d["ms"] and not (
+                    abs(src["area"] - d["area"]) <= AREA_TOL * d["area"]
+                    and abs(src["aspect"] - d["aspect"]) <= ASPECT_TOL * d["aspect"]):
+                adm = [p for p in by_ms[src["ms"]]
+                       if p["k"] != src["k"]
+                       and abs(src["area"] - p["area"]) <= AREA_TOL * p["area"]
+                       and abs(src["aspect"] - p["aspect"]) <= ASPECT_TOL * p["aspect"]]
+                if not adm:
+                    gated_out += 1
+                    continue
+                d = rng.choice(adm)
+        else:
             adm = [p for p in by_ms[src["ms"]]
                    if p["k"] != src["k"]
                    and abs(src["area"] - p["area"]) <= AREA_TOL * p["area"]
@@ -525,14 +547,16 @@ def main():
 
     OUT.mkdir(exist_ok=True)
     json.dump({"n": solved, "iters": iters, "time_cap_s": tlim,
+               "pairing": pairing, "gated_out": gated_out,
+               "declined_share": round(infeasible_axis / max(solved, 1), 4),
                "warp_ms_p50": st.median(times) * 1000,
                "warp_ms_p90": pct(times, 0.9) * 1000,
                "affine": {"p50": st.median(aff_dev), "p90": pct(aff_dev, 0.9),
                           "worst_p50": st.median(aff_worst)},
                "fitted": {"p50": st.median(fit_dev), "p90": pct(fit_dev, 0.9),
                           "worst_p50": st.median(fit_worst)}},
-              open(OUT / "fit_warp.json", "w"), indent=1)
-    print(f"\nwrote {OUT/'fit_warp.json'}")
+              open(OUT / f"fit_warp_{pairing}.json", "w"), indent=1)
+    print(f"\nwrote {OUT/f'fit_warp_{pairing}.json'}")
 
 
 if __name__ == "__main__":

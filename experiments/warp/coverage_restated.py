@@ -16,6 +16,16 @@ in expectation, over the full 46,794-dwelling index rather than the 2,600
 sampled by the fit. A multiset the fit did not sample enough of falls back to
 its band's rate, and how many Briefs that covers is reported rather than hidden.
 
+⚠️ **This file gates against a random same-room-count donor `d`, not against the
+Brief, and that is deliberate — do NOT "fix" it to match `absolute_area`'s
+`admissible_pool`.** It predates ADR 0020. Back then a Brief's area and aspect
+came from an Envelope donor, so drawing one is how a Brief is simulated here;
+under ADR 0020 the Brief carries its own. `gate_curve.py`, `room_area_spread.py`
+and `pool_fidelity.py` share the convention. Changing it re-bases **86.6 and
+58.7** — the production pool depths quoted across the whole map — so it is a
+decision with its own blast radius and not a tidy-up. Ticket 60 left it alone on
+purpose and recorded it here.
+
 Run: python experiments/warp/coverage_restated.py
 """
 
