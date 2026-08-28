@@ -855,12 +855,47 @@ same sentence. Here **there is no parse-time sentence**, because there is nothin
 wrong with the Brief. Naming it is the point: a guarantee with a silent hole is
 worse than a stated exception.
 
+**Starvation is declared on the Plan, never on the Proposal.** *Can a starved
+candidate be refused before the solve* put warped Proposals through `project()`
+for the first time and the ordering turned out to be load-bearing. The solver
+**posts** this rule — it is `site: both` — so it sizes the Rooms *subject to* the
+floors and will shrink a Room above its floor to feed one below it. Σ Space is
+unmoved doing so (p50 **0,0000**), which is §3.2's own reasoning for bound 9's
+severity, measured: the solve does not create floor, it moves it.
+
+So a candidate that looks starved on its warped rectangles usually is not
+starved: **41 of 50 are served by the projection**, 82,0 % [71,4–92,6]. Declaring
+starvation on the Proposal throws those away. The figure quoted above is
+therefore an **upper bound on a quantity measured at the wrong site**: read at the
+Plan on the same Briefs it is about half — 3,28 % → **1,64 %** — and that
+re-reading is worth more than every step below.
+
+⚠️ **That halving is measured on 61 Briefs and 2 starved cases, and it is a
+direction rather than a number.** The Plan-level twin of §3.2's best-of-*m* curve
+does not exist; `proposer.md` §2.2.9 owes it.
+
+**And no pre-solve screen may be added to buy the difference back.** The
+projection on a warped candidate costs **less than the warp that produced it** —
+wall p50 **0,145 s** against the warp's 0,674 — so a gate sitting between them
+skips the cheaper of the two steps. There is nothing to save.
+
 **Three steps, in order, and the hard set is not one of them.**
 
 1. **Deepen the pool before declaring starvation.** No failing Plan is shown and
    no predicate moves — this is spending more search, which this section has never
-   forbidden. It is also the step most likely to *be* the answer, since 3,6 % is a
-   pool-of-8 number against production pools 58.7–86.6 deep.
+   forbidden. ⚠️ **It is not the answer, and both halves of that are now
+   measured.** *What best-of-pool is worth at production pool depth*: an
+   eightfold deepening buys **one point** (4,1 % → 3,1 %), the curve is flat by
+   m ≈ 12, at 7–10 rooms it buys **nothing at all**, and under it sits a floor of
+   **π = 2,8 %** [0,3–5,6] no depth reaches. So this is a **config value** and not
+   a re-shape of the proposer service: `POOL_DEPTH_ON_STARVATION = 16`, past
+   57's knee with margin.
+   **It is, however, comfortably affordable, and the arithmetic that said
+   otherwise was off by an order of magnitude.** One extra pool member costs a
+   **mean 2,17 s** — warp 1,12 plus projection 1,05 — so eight more members on a
+   starving Brief is ~17 s, spent on the ~3 % of Briefs that reach this step. The
+   10,11 s figure that made this look unaffordable is 58's **real-boundary** arm,
+   which no candidate ever presents.
 2. **Fall through to source B**, per ADR 0005, which is already the declared
    behaviour where retrieval cannot answer. ⚠️ **Source B's per-room absolute area
    fidelity is unmeasured** — `proposer.md` §6.1's evaluation has four
@@ -875,7 +910,29 @@ worse than a stated exception.
 **Not available:** relaxing the hard set to fill a gallery, and any sentence on
 this rule that names a law (C8). The rule is `hard`, so a failing Plan is
 discarded and never shown; everything the Homeowner reads here is arithmetic about
-areas.
+areas. **Nor a Proposal-level *screen*.** A filter sitting between the warp and the solve
+was weighed and refused — 82 % of what it refuses the solve serves, its only
+*sound* form is arithmetic that never fires (Σ hard floors against the candidate's
+own derived box: p50 0,566, **max 0,736**), and it would skip the cheaper of the
+two steps. ⚠️ **That is a refusal of a filter, not of a third site.** Posting this
+floor as a **constraint inside the warp solve** changes what the warp *emits*
+rather than what survives it, and this section does not decide it: it could only
+buy the projection's INFEASIBLE rate, **5,1 % overall and 8,8 % at 7–10 rooms**,
+which is the band ADR 0013 calls tight and the one where depth buys nothing.
+
+⚠️ **The solver reads a perimeter Room smaller than this bar does, by a median
+3,9 % of its area.** `solver.py` binds H4 on `(250w − t_int)(250h − t_int)`,
+eroding all four sides; ADR 0001 does not erode at the Envelope boundary, because
+the tiling edge there already sits at exterior-inner-face + `t_int/2`. It cannot
+be fixed inside the model — 75 mm is below the 250 mm grid's own quantisation and
+`brief.md` §5.3 makes the solve domain a third quantity — so **the projection is
+strictly stricter than the rule it posts**, on the Rooms that touch the outside.
+Measured over 1 786 warped Rooms: **1,51 %** clear their floor on this bar's plane
+and fail on the solver's. It is the same 75 mm ring ticket 56 removed from the
+measuring rig, re-found where it cannot be removed, and it is why a candidate can
+be Proposal-clear and still be refused. It costs yield and never admits a Plan
+that should have been refused, so it is recorded rather than treated as a defect
+to fix before v1.
 
 ## 12. Open, and deliberately so
 
@@ -894,7 +951,8 @@ areas.
 | ~~§11's worked example is not reproducible~~ — **closed by §11**, which quotes §3.1's published per-otaq series instead of a number nobody could derive | — |
 | **What best-of-pool is worth at production depth** — 3,6 % is measured at pool-of-8 and the fidelity sample cannot hold a pool of 87. §3.2 | *What best-of-pool is worth at production pool depth* |
 | **Source B's per-room absolute area fidelity** — §11.1 step 2 routes the starved Brief there and `proposer.md` §6.1 has no term that measures it | whoever next holds `proposer.md` §6 |
-| The **`escalation` block's step 1** — how much deeper the pool goes, and who pays the solve time | the Runtime and process split row, once §3.2's curve lands |
+| ~~The **`escalation` block's step 1** — how much deeper the pool goes, and who pays the solve time~~ — **closed** by *Can a starved candidate be refused before the solve*: `POOL_DEPTH_ON_STARVATION = 16`, a mean **2,17 s** per extra member, on the ~3 % of Briefs that reach the step | — |
+| **The Plan-level twin of §3.2's best-of-*m* curve.** §11.1's 1,64 % is 61 Briefs and 2 starved cases; the curve itself was measured at the Proposal | `proposer.md` §2.2.9 |
 ---
 
 ## 13. What a dwelling owes — the four programme rules
