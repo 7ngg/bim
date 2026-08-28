@@ -143,3 +143,37 @@ Recorded because each looked obviously right and cost a run to disprove.
   deleted a room outright in 15 % of dwellings. The notch is the largest rectangle
   *inside* the component (`max_rect_in_mask`), which under-cuts and costs a room
   nothing.
+
+## The frame, and three traps in the ticket-46 probes
+
+`off_frame_gate.py`, `frame_choice.py` and `frame_residual.py` measure what
+`dwelling_frame` does to a dwelling built on two angles. ADR 0031 and
+`docs/research/rectangularisation.md` §15. All three read the cached
+`out/swiss_fit_k2.json` plus the raw geometry, run in about four minutes each,
+and **write to no other directory**.
+
+**1. Do not quote a `void_census.py` band beside a `§15` one.** They measure the
+same defect on different populations — 400 dwellings against all 2,317 — and the
+small one's last two bands hold six and five dwellings. That is where ADR 0017's
+**0.167** came from; the index figure is **0.397**. Any table with fewer than ~30
+dwellings in a band is a direction, not a rate.
+
+**2. `off_frame_max` and `frame_residual` are different quantities and a cut on
+one does not transfer.** The first is the largest per-room deviation (what
+`void_census.py` reports); the second is the **area-weighted mean**, which is
+what ADR 0031 publishes. A 10° line on the max is roughly a 2–4° line on the
+residual, and neither is a threshold the design uses — the decision deliberately
+places no cut at all.
+
+**3. The modal frame looks like a coin flip and is not.** `frame_choice.py`
+counts 377 dwellings improved against 357 regressed; the regressions mean
+**0.057°** and the improvements mean **0.923°**. Count them and you will refuse a
+change worth +327° net. Weigh them.
+
+⚠️ **The frame change is specified and NOT applied.** `frame_of` in
+`frame_choice.py` is the reference implementation; `dwelling_frame` in
+`measure_swiss.py` still returns the union-mrr angle, and every number in this
+directory is on that frame. ADR 0031 requires the swap to ride the single re-run
+`fit_rects.py` already owes for `proposer.md` §2.2.1's five index fields —
+changing it alone re-bases `swiss_fit_k2.json` and every corpus figure on the map
+with it.
