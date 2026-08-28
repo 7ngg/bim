@@ -1,0 +1,49 @@
+real dwellings: 60
+
+==========================================================================
+1. IS IT SIZE? -- can a real Room be typed as anything at all
+==========================================================================
+   real Rooms: 409   fitting NO toy type at clear_t=100: 8 (0.0196)
+   -> size is NOT the binding constraint.
+
+   type        rooms that fit  min (w, h, area) in cells
+   living                 174  (11, 11, 192)
+   bedroom                250  (8, 8, 112)
+   kitchen                313  (7, 7, 80)
+   dining                 239  (9, 9, 112)
+   study                  313  (7, 7, 80)
+   bathroom               354  (6, 6, 56)
+   wc                     401  (4, 4, 24)
+   utility                384  (5, 5, 40)
+   hall                   380  (5, 5, 48)
+   corridor               390  (4, 4, 40)
+
+==========================================================================
+2. IS IT EDGE TYPING? -- how much of a real boundary a preset can see
+==========================================================================
+   A preset is a four-vector over BBOX edges. A face off the bbox is
+   typed only through the notch it bounds, so the share of true
+   boundary lying on a bbox edge bounds what a preset can express.
+    cap: on a bbox edge  p10 0.638  median 0.737  p90 0.834   exterior_fraction at corpus_median median 0.786
+   real: on a bbox edge  p10 0.445  median 0.667  p90 0.793   exterior_fraction at corpus_median median 0.766
+   -> a third of a real boundary is off its own bbox, but the notch
+      branch recovers most of the typing: NOT the binding constraint.
+
+==========================================================================
+3. IS IT THE PROGRAMME? -- habitable slots demanded against offered
+==========================================================================
+   `COMPOSITION` fixes how many habitable Rooms the mix needs. A
+   habitable Room must be exterior-facing AND habitable-sized.
+   detached       demanded median 5   offered median 4   dwellings short 14/60 = 0.233
+   corpus_median  demanded median 5   offered median 4   dwellings short 30/60 = 0.500
+   -> this is what refuses. It is ADR 0029 consequence 4's mechanism
+      on real geometry, and it is a fact about the TOY's programme
+      model, not about the solver and not about the boundary.
+
+==========================================================================
+What this does NOT say
+==========================================================================
+   `composition` and `STANDARDS` are the TOY's placeholders, not
+   `data/standards/room-constraints.json`. This measures the harness
+   against real dwellings; it does not measure the shipped room
+   table, and it must not be quoted as if it did.
