@@ -63,9 +63,27 @@ where `experiments/solver-toy/sweep.py` ran at 100. Absolute seconds here are
 therefore not comparable with the published 13.65 s p95; the arms are comparable
 with each other, which is what item 2 asked for.
 
+⚠️ **`corpus_median` has moved, and the arms survive it.** Every sweep in this
+directory ran before *The exposure presets were fitted to a measurement of one
+room* (2026-08-26) re-fitted the preset from the corpus **p3–p10** to **p51**.
+Exposure is held constant within every pair here, so it is a nuisance factor and
+the ratios stand — but no absolute rate from this directory may be quoted as
+holding "at corpus-median exposure", and the phrase *"at both `detached` and
+`corpus_median`"* over-claims coverage of the low end. Deliberately **not
+re-run**: 3.5 h of machine time to re-measure a paired comparison under an easier
+nuisance factor. `docs/research/room-rectangles.md` §3 carries the full note;
+ADR 0029 carries the decision.
+
 Room counts are **7, 8, 10 and 12**. Not 4, 5 or 6: `scenarios.make_brief` finds
 no feasible room-type assignment below 7 once minima are eroded — at `t_int` 100,
-120 *and* 150, and at both `detached` and `corpus_median` exposure — where at
-`clear_t = 0` all three build. **No solver measurement on this map covers the
-bottom half of C13's 3–10 band**, and that is a finding rather than a limitation
-of this harness.
+120 *and* 150, and at both `detached` and the then-`corpus_median` exposure —
+where at `clear_t = 0` all three build. **No solver measurement on this map
+covers the bottom half of C13's 3–10 band**, and that is a finding rather than a
+limitation of this harness. ✅ **Superseded in part**: on the corpus fixture
+(ADR 0029) n = 5 solves at 10/10, so the uncovered region is now **n = 6 alone**.
+
+⚠️ Read those two arms as the corpus **p100 and p3–p10**, not as a spread around
+the middle — see the note above. The cause is now partly located: the
+corpus-fitted Envelope family (`scenarios.CORPUS_ENVELOPES`) **refuses n = 4
+outright**, because `ground_truth` gives every Envelope part a room and a 40,4 m²
+dwelling cannot hold an articulated boundary and a 2,75 m `living` at once.

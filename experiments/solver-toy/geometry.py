@@ -10,6 +10,7 @@ A `Rect` is half-open: it covers x in [x1, x2) and y in [y1, y2).
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Iterable, List, Sequence, Tuple
 
 
@@ -210,15 +211,24 @@ class Envelope:
         return False
 
     def all_faces(self) -> List[Tuple[str, int, int, int, bool]]:
-        """Every boundary face, as ('v'|'h', coord, lo, hi, is_exterior)."""
-        faces = list(self._bbox_runs())
-        for n in self.notches:
-            e = self._notch_is_exterior(n)
-            faces.append(("v", n.x1, n.y1, n.y2, e))
-            faces.append(("v", n.x2, n.y1, n.y2, e))
-            faces.append(("h", n.y1, n.x1, n.x2, e))
-            faces.append(("h", n.y2, n.x1, n.x2, e))
-        return faces
+        """Every boundary face of the *interior*, as ('v'|'h', coord, lo, hi, is_exterior).
+
+        Built by walking the real boundary — the set of unit edges with interior
+        on one side and not on the other, merged into maximal runs. A stretch of
+        bbox edge a notch removed is simply absent, and a notch face that is not
+        on a bbox line appears exactly once.
+
+        Until *The toy Envelope is more compact than a real dwelling* this
+        emitted every bbox edge **in full** plus all four faces of every notch,
+        so a corner notch's removed stretch was counted twice — once as bbox
+        edge, once as a phantom notch face laid over it. On `envelope_for(8)`
+        that read 180 grid units of perimeter against a true 144. The phantom
+        faces reached `exterior_faces()` too, and through it `frontage.py`'s H8
+        budget, which is why the defect was not confined to a fraction.
+        `experiments/envelope-exposure/true_fraction.py` is the shapely
+        implementation this agrees with, kept there as an independent check.
+        """
+        return list(_faces_of(self))
 
     def exterior_faces(self) -> List[Tuple[str, int, int, int]]:
         """Every *exterior* wall face, as ('v'|'h', coord, lo, hi).
@@ -229,33 +239,22 @@ class Envelope:
 
         Ticket 15: this used to return every boundary face unfiltered, which is
         why every timing on the map described a detached bungalow. It is now
-        filtered by the `exposure` preset.
+        filtered by the `exposure` preset, and since *The toy Envelope is more
+        compact than a real dwelling* it is also free of the phantom faces that
+        inflated every frontage budget taken off it.
         """
         return [(k, c, lo, hi) for (k, c, lo, hi, e) in self.all_faces() if e]
 
     @property
     def exterior_fraction(self) -> float:
-        """Exterior share of the Envelope perimeter.
-
-        ⚠️ **This double-counts, and no preset is fitted on it any more.**
-        `all_faces()` emits every bbox edge in full *and* all four faces of every
-        notch, so the stretch a corner notch removed is counted twice — once as
-        part of the bbox edge that no longer runs there, once as a phantom notch
-        face on the same line. At eight rooms the true perimeter is 144 grid
-        units and `all_faces()` counts 180: a denominator 25 % too large.
-        `experiments/envelope-exposure/true_fraction.py` computes it correctly
-        from the real boundary and is what the presets were fitted against.
-
-        The phantom faces reach `exterior_faces()` too, which the solver reads
-        for H8. That half is harmless — `contains` forbids a room inside a notch,
-        so no room can be flush with the removed stretch and claim its daylight.
-        Left unfixed here on purpose: this directory is claimed by *What an
-        ordered entry sequence costs the solver*, and the fix changes what the
-        solver is handed. Handed to that ticket.
+        """Exterior share of the Envelope perimeter, counted once per face.
 
         The corpus figures this used to quote (p25 0.23, median 0.37, p75 0.47)
         measured **one room per dwelling**, not the dwelling. Corrected values
         are p25 0.55, median 0.68, p75 0.80 — `dataset-inventory.md` §1.5.
+        No preset is fitted on this scalar any more: `EXPOSURE_PRESETS` is fitted
+        on exterior run per room, because a fraction does not transfer between
+        dwellings whose perimeters differ.
         """
         total = ext = 0
         for (k, c, lo, hi, e) in self.all_faces():
@@ -263,6 +262,79 @@ class Envelope:
             if e:
                 ext += hi - lo
         return ext / total if total else 0.0
+
+
+@lru_cache(maxsize=4096)
+def _faces_of(env: "Envelope") -> Tuple[Tuple[str, int, int, int, bool], ...]:
+    """The real boundary of `env`, typed by its exposure preset.
+
+    Walks unit edges rather than reasoning about notch positions, so it is
+    correct for a notch anywhere on the boundary — including the mid-edge notch
+    `u_shape_true` cuts, which is the one member of ADR 0003's rect/L/U/T family
+    that adds perimeter. Cached: an Envelope is frozen and the solver asks for
+    its faces once per model build.
+    """
+    W, H = env.W, env.H
+    cell = [[env.contains(Rect(x, y, x + 1, y + 1)) for y in range(H)]
+            for x in range(W)]
+
+    def inside(x: int, y: int) -> bool:
+        return 0 <= x < W and 0 <= y < H and cell[x][y]
+
+    # Unit boundary edges, gathered per line and merged into maximal runs.
+    runs: List[Tuple[str, int, int, int]] = []
+    for x in range(W + 1):
+        lo = None
+        for y in range(H + 1):
+            on = y < H and (inside(x - 1, y) != inside(x, y))
+            if on and lo is None:
+                lo = y
+            elif not on and lo is not None:
+                runs.append(("v", x, lo, y))
+                lo = None
+    for y in range(H + 1):
+        lo = None
+        for x in range(W + 1):
+            on = x < W and (inside(x, y - 1) != inside(x, y))
+            if on and lo is None:
+                lo = x
+            elif not on and lo is not None:
+                runs.append(("h", y, lo, x))
+                lo = None
+
+    # Typing. A face on a bbox line takes the preset's exterior/party split for
+    # that line; a face anywhere else is an internal notch face and takes the
+    # typing of the notch it bounds. Both branches are `_bbox_runs`' and
+    # `_notch_is_exterior`'s, unchanged — only the face set is new.
+    ext_spans: dict = {}
+    for (k, c, lo, hi, is_ext) in env._bbox_runs():
+        ext_spans.setdefault((k, c), [])
+        if is_ext:
+            ext_spans[(k, c)].append((lo, hi))
+    notch_ext = [(n, env._notch_is_exterior(n)) for n in env.notches]
+
+    out: List[Tuple[str, int, int, int, bool]] = []
+    for (k, c, lo, hi) in runs:
+        if (k, c) in ext_spans:
+            cuts = sorted({lo, hi}
+                          | {max(lo, min(hi, a)) for (a, _) in ext_spans[(k, c)]}
+                          | {max(lo, min(hi, b)) for (_, b) in ext_spans[(k, c)]})
+            for a, b in zip(cuts, cuts[1:]):
+                if b <= a:
+                    continue
+                e = any(a >= s and b <= t for (s, t) in ext_spans[(k, c)])
+                out.append((k, c, a, b, e))
+            continue
+        e = False
+        for n, is_ext in notch_ext:
+            if not is_ext:
+                continue
+            on = (k == "v" and c in (n.x1, n.x2)) or (k == "h" and c in (n.y1, n.y2))
+            if on:
+                e = True
+                break
+        out.append((k, c, lo, hi, e))
+    return tuple(out)
 
 
 def l_shape(W: int, H: int, notch_w: int, notch_h: int) -> Tuple[Tuple[Rect, ...], Tuple[Rect, ...]]:
@@ -276,7 +348,16 @@ def l_shape(W: int, H: int, notch_w: int, notch_h: int) -> Tuple[Tuple[Rect, ...
 
 
 def u_shape(W: int, H: int, notch_w: int, notch_h: int, gap: int) -> Tuple[Tuple[Rect, ...], Tuple[Rect, ...]]:
-    """U-shaped Envelope: bbox minus two top notches separated by `gap`."""
+    """Bbox minus two top **corner** notches separated by `gap` — a T, not a U.
+
+    ⚠️ The name is inherited and the shape it builds is ADR 0003's **T**: both
+    notches are anchored at a corner, so what is left is a wide base under a
+    central tooth. Every notch here is a corner notch, and a corner notch
+    removes area while adding **no perimeter at all** — this shape's boundary is
+    exactly `2 * (W + H)`, its bounding box's. That is why `envelope_for` could
+    not track a real dwelling's articulation at any notch share: see
+    `u_shape_true` for the member of the family that can.
+    """
     n1 = Rect(0, H - notch_h, notch_w, H)
     n2 = Rect(notch_w + gap, H - notch_h, W, H)
     parts = (
@@ -284,6 +365,35 @@ def u_shape(W: int, H: int, notch_w: int, notch_h: int, gap: int) -> Tuple[Tuple
         Rect(notch_w, H - notch_h, notch_w + gap, H),
     )
     return (n1, n2), parts
+
+
+def u_shape_true(W: int, H: int, notch_w: int, notch_h: int, offset: int) -> Tuple[Tuple[Rect, ...], Tuple[Rect, ...]]:
+    """U-shaped Envelope: bbox minus **one mid-edge** notch on the N edge.
+
+    ADR 0003 names rect, L, U and T. Until *The toy Envelope is more compact
+    than a real dwelling* the generator emitted only rect, L and T — and the
+    missing member is the only one that buys perimeter. A notch cut from the
+    *middle* of an edge, rather than from a corner, leaves two re-entrant
+    corners and lengthens the boundary by exactly `2 * notch_h` at zero extra
+    area cost. That is the articulation a real dwelling has and a corner notch
+    cannot express: measured over 2,238 Swiss dwellings, a real boundary runs
+    6-12 % longer than its own bounding box and the excess rises with room
+    count, while every corner-notched Envelope sits at exactly 0 %.
+
+    `offset` is the notch's left edge; it must leave a tooth on both sides, so
+    `0 < offset` and `offset + notch_w < W`.
+    """
+    if not (0 < offset and offset + notch_w < W):
+        raise ValueError(
+            f"u_shape_true needs a tooth each side: 0 < {offset} and "
+            f"{offset + notch_w} < {W}")
+    notch = Rect(offset, H - notch_h, offset + notch_w, H)
+    parts = (
+        Rect(0, 0, W, H - notch_h),
+        Rect(0, H - notch_h, offset, H),
+        Rect(offset + notch_w, H - notch_h, W, H),
+    )
+    return (notch,), parts
 
 
 def tiling_defects(rooms: Sequence[Rect], env: Envelope) -> dict:
