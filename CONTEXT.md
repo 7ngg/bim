@@ -159,6 +159,24 @@ the **job**, never on the Proposal, so nothing downstream can prefer a source.
 those whose room programme matches it and whose size and proportion are close
 enough to warp without inventing. Its size is the candidate count, so an empty
 pool is a Brief with no real precedent rather than an error.
+_Avoid_: the [[Bucket]] as a stand-in for it. **82,4 %** of a bucket is dwellings
+the size and proportion terms refuse, and refusing them buys real fidelity even
+though neither quantity survives into the [[Warp]]'s own arithmetic: a refused
+donor is declined **36,2 %** of the time against an admitted donor's **27,6 %**,
+and carries a worst-room area deviation **68 %** larger at p50 — measured paired
+*within one Brief*, so it is the donor and not the Brief. The confusion is not
+hypothetical; every warp-fidelity figure this project published before ticket 60
+was measured on a bucket.
+
+**Bucket** — every converted dwelling sharing one Brief's room programme, before
+size and proportion are checked. The **first** term of admissibility and only the
+first: a bucket becomes a [[Retrieval pool]] when the other two terms have
+scanned it. It is worth naming because it is roughly ten times deeper, which is
+the only way a sample far smaller than the index can reach production pool depth
+at all — but it stands in for **depth** and never for **membership**, and a
+statistic that reads one candidate at a time may not be taken off it. At pool
+level the distinction washes out, because declines are correlated within a pool
+and the pool absorbs a weaker member.
 
 **Warp budget** — how far a real dwelling may be stretched before it stops being
 worth retrieving. A limit, not a preference; a dwelling outside it is not

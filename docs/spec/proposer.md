@@ -197,6 +197,53 @@ are a scan of it. Over the 46,794-dwelling index there are **916 distinct
 multisets** in the Brief's own vocabulary (§4.1), and a bucket is the median 66–92
 of the coverage table.
 
+⚠️ **The bucket is not the pool, and the sentence above has been read as though it
+were.** *"The bucket is the pool"* means the bucket is the **set the other two
+terms scan** — it is the pool's *domain*, not the pool. Every warp-fidelity number
+this spec published before ticket 60 was measured through a rig that stopped at
+the bucket: **82.4 %** of what it handed the warp is floor the gate refuses
+(`experiments/warp/gate_sites.py`, 2,000 Briefs), the median refused donor sitting
+**1.33×** the area tolerance and **1.83×** the aspect tolerance outside. Read this
+paragraph as three terms, all binding, and an empty result as §2.2's *"outside the
+gate, do not retrieve"*.
+
+⚠️ **The two dimensional terms are not made inert by ADR 0020, and the obvious
+argument that they are is wrong.** Under ADR 0020 the box is sized
+`interior = target_area × (1 + f)` and `box = interior/(1 − s)` from the **Brief's**
+own area and aspect; a donor contributes its parts, its types, its cut-line frame
+and its notch share, and its own area and aspect never enter the warp's
+arithmetic at all. They are nevertheless worth **8.6 points of decline**. Measured
+paired *within one Brief* — same targets, same ring, K = 3 drawn from each stratum
+of that Brief's own bucket, 987 candidates an arm over 329 Briefs,
+`experiments/warp/gate_effect.py`:
+
+| the donor is one the gate | declined | worst-room area deviation p50 | p90 |
+|---|---:|---:|---:|
+| **admits** | **27.6 %** | **0.097** | 0.491 |
+| **refuses** | **36.2 %** | **0.163** | 0.725 |
+
+Sign test on the per-Brief decline counts: the refused arm is worse on 129 Briefs,
+the admitted arm on 74, tied on 126 — **p = 0.0001**. And it is a **dose, not a
+threshold**: decline rises 28.3 → 30.1 → 40.2 → **55.2 %** as the donor moves from
+inside the aspect tolerance to more than four times outside it, and 29.9 → 37.4 →
+31.6 → **53.3 %** on area.
+
+**The mechanism is the frame, not the arithmetic.** ADR 0020 scales the donor's
+area and aspect away and then stretches the donor's *cut-line frame* into the
+Brief's box. A donor far from the Brief stretches further, and what refuses the
+stretch is the ergonomic floor and `dim.aspect_ratio_hard` the warp already posts
+(§2.2.2). So the two terms are a **cheap proxy for how hard the frame will have to
+stretch**, which is what they were buying all along — the *"stretch a plan 40 % in
+proportion and the claim is false"* reading in §2.2 was aimed at the arrangement,
+which the monotone theorem shows is never at risk, and it happens to land on a
+real quantity anyway.
+
+⚠️ **At Brief level the pool absorbs it, and that is ADR 0018 consequence 3 again.**
+Best of 3 from each stratum: 19 Briefs served only by the admitted arm, 16 served
+only by the refused arm, 290 by both, 4 by neither — **p = 0.74**. Member quality
+is a **per-candidate** property. Never take a per-candidate figure off an ungated
+pool, and do not expect a Brief-level one to move when you stop doing so.
+
 > Graph2Plan's 99 ms retrieval is **not a target and not a floor** — it is the
 > cost of a *similarity*, a graph kernel evaluated against every candidate.
 > Nothing here is a similarity. A lookup is one dict hit plus a linear scan of
@@ -586,12 +633,49 @@ driven by the *Envelope*, which every candidate for one Brief shares. Treating
 17.8 % as independent across 8 candidates predicts a 10⁻⁶ Brief-level loss; the
 measured loss is **6.9 %**. Quote the measured number.
 
-⚠️ **Two limits on the fidelity figures.** The pool here is drawn from the 2,317
-converted dwellings of the ADR 0016 sample, not the full index, so a pool of 87
-in production is a pool of 8 here — best-of-8 is what was measured and the full
-index can only do better. And the stated-versus-invented weighting was probed at
-a **30 % stated share**, which is a probe parameter and not a measurement of what
-Homeowners state.
+⚠️ **Three limits on the fidelity figures, and the first one has two answers —
+which is the whole of ticket 60.** The sample is the 2,317 converted dwellings of
+the ADR 0016 sample and not the full index. What that costs depends on which pool
+the figure came off, and *"a pool of 87 in production is a pool of 8 here"* is
+true of one and false of the other (`experiments/warp/pool_depth.py`, same
+200-Brief sample):
+
+| pool definition | p50 4–6 | p50 7–10 | max | empty | ≥ 64 |
+|---|---:|---:|---:|---:|---:|
+| §2.2.1 as written — the bucket, scanned by area and aspect | **9** | **5** | 51 | 14.5 % | **0 %** |
+| the bucket alone — what the rig drew until ticket 60 | **81** | **37** | 146 | 0.5 % | 43.5 % |
+| production, full 46,794-dwelling index | 86.6 | 58.7 | — | — | — |
+
+- **Under the gate**, the sample really is ~9.6× and ~11.7× short and **no** Brief
+  in it holds 64 members, so a best-of-8 measured here is a truncated production
+  pool and the ratio is fair.
+- **Under the bucket**, the sample is at production *depth* already, with 43.5 % of
+  Briefs holding 64 or more — so a best-of-8 measured there is a genuine
+  best-of-8, not a floor, and the shortfall is in **membership**, not depth.
+- ~~*"and the full index can only do better"*~~ — **struck.** The curve is flat by
+  m ≈ 12 under a floor no depth reaches (`proposer-architecture.md` §7.6), so the
+  extra depth is worth about one point rather than an unbounded improvement.
+
+**Which arm each figure on this page came off.** The coverage table, the
+`gate_curve` fixes, the affine per-room miss and this section's decline and
+best-of-*m* figures were all measured through the three-term gate and stand.
+`proposer-architecture.md` §7.5's arm table and §11.1's starvation figure were
+measured through the bucket and are re-based there; ADR 0018's fitted-warp
+percentiles were measured through a **third** pairing of its own — `fit_warp.py`
+kept a same-multiset Envelope without checking area or aspect and an off-multiset
+one whenever those two happened to pass, **22.5 %** of its retained pairs — and
+that is repaired and re-run at `--pairing=gate`. It barely moves: worst-room
+deviation **p50 0.111 → 0.095**, **p90 unchanged** at 0.471, decline share flat at
+15.8 → 16.4 %. **The median improves and the tail does not.** It is robust because
+that rig sizes the box from the donor Envelope *itself*, so even an ungated donor
+is self-consistent; §7.5's rig sizes the box from the **Brief**, which is where a
+mismatched donor actually costs something — and there the same repair is worth
+nine points. The relation theorem is unmoved under either pairing: confident-wrong
+**0**, severity **0**, reversals **0**, as the monotonicity argument says it must
+be.
+
+And the stated-versus-invented weighting was probed at a **30 % stated share**,
+which is a probe parameter and not a measurement of what Homeowners state.
 
 #### 2.2.8 The enclosed void, and whose floor it is
 

@@ -838,13 +838,50 @@ writes it (`interior = target_area × 1.0575`, `box = interior/(1 − s)`); and 
 quantity measured is the **Space**, `erode(⋃ parts, t_int/2)` per ADR 0001, which
 is the plane `dim.min_area` and `dim.statutory_min_area` actually bind.
 
-| arm | plans | per-Room abs dev p05 / p50 (m²) | Σ Space vs `target_area`, mean | Rooms pushed under a floor | plans losing one |
-|---|---:|---:|---:|---:|---:|
-| `self` — candidate is the Brief's own dwelling | 521 | −2.23 / −0.01 | **−0.8 %** | 4.9 % | **13.1 %** |
-| `cross` — real gate-admitted retrieval | 499 | −4.91 / −0.02 | **−2.2 %** | 12.7 % | **30.5 %** |
-| `calib` — `cross`, box scaled so Σ Space = `target_area` | 499 | −3.97 / +0.03 | −0.1 % | 8.2 % | **22.0 %** |
-| `market` — every target raised onto `dim.market_default_area` | 508 | −4.05 / −0.04 | **−1.2 %** | 10.3 % | **29.9 %** |
-| **`ring`** — `cross` with the Envelope's edge ring held before the solve | 499 | — | **+0.4 %** | 10.1 % | **24.9 %** |
+⚠️ **Every row of this table was drawn from the multiset bucket, not from the
+shipped gate, and the two rows that have been re-measured both moved by nine
+points.** Ticket 60. `absolute_area.gate_pool` returned the whole bucket and
+applied the area and aspect terms only in a by-room-count fallback, so **82.4 %**
+of what it handed the warp is floor §2.2.1 refuses. `self` is unaffected — its
+candidate is the Brief's own dwelling — and `calib` and `market` have not been
+re-run.
+
+| arm | pool | plans | per-Room abs dev p05 / p50 (m²) | Σ Space vs `target_area`, mean | Rooms pushed under a floor | plans losing one |
+|---|---|---:|---:|---:|---:|---:|
+| `self` — candidate is the Brief's own dwelling | n/a | 521 | −2.23 / −0.01 | **−0.8 %** | 4.9 % | **13.1 %** |
+| `cross` — a different dwelling, targets paired by type | bucket | 499 | −4.91 / −0.02 | **−2.2 %** | 12.7 % | **30.5 %** |
+| **`cross`** | **gate** | **446** | **−3.68 / −0.03** | **−1.7 %** | **8.5 %** | **21.1 %** |
+| `calib` — `cross`, box scaled so Σ Space = `target_area` | bucket | 499 | −3.97 / +0.03 | −0.1 % | 8.2 % | **22.0 %** |
+| `market` — every target raised onto `dim.market_default_area` | bucket | 508 | −4.05 / −0.04 | **−1.2 %** | 10.3 % | **29.9 %** |
+| `ring` — `cross` with the Envelope's edge ring held before the solve | bucket | 499 | — | **+0.4 %** | 10.1 % | **24.9 %** |
+| **`ring`** — **the row to read as what the engine delivers** | **gate** | **457** | **−3.05 / +0.05** | **+0.5 %** | **6.2 %** | **17.1 %** |
+
+**The correction is one-directional and it is large.** On the `ring` row — the one
+this section tells you to read and the one `acceptance-bar.md` §11.1 is priced
+against — plans losing a Room to a floor go **24.9 % → 17.1 %**, Rooms pushed
+under **10.1 % → 6.2 %**, and the per-Room p05 tail from −4.91 to **−3.05 m²** on
+`cross`. The published table was measuring a system that retrieves donors the
+shipped gate refuses, and those donors warp worse: paired within one Brief, a
+gate-refused donor is declined **36.2 %** of the time against an admitted donor's
+**27.6 %** (`experiments/warp/gate_effect.py`, sign test p = 0.0001). Σ Space is
+unmoved at **+0.5 %**, so ticket 56's level result stands exactly as written —
+this is a *distribution* correction, which is the same place §7.5 finding 2 says
+all the remaining damage lives.
+
+⚠️ **And it costs reach, which is the other half and it points the other way.**
+Retrieval misses go **27 → 88** of 600 Briefs. The bucket almost never returned an
+empty pool (0.5 %) because its fallback dropped the multiset term entirely and
+served **3.0 %** of Briefs off a *different room programme*; the gate returns
+blank on ~13.4 % and those Briefs go to source B per §2.2. **A fidelity table
+measured on the rig was optimistic about coverage and pessimistic about
+fidelity, and neither error cancels the other.**
+
+⚠️ **Finding 1's *"57.7–59.0 % of Rooms come in under target across every arm"* is
+stale and was already stale before this ticket.** Measured now: **52.7 %** on
+gated `cross`, **44.8 %** on gated `ring`, and the pre-60 bucket `cross` re-read
+off ticket 56's own log is **51.7 %**. The *direction* — the deviation is
+one-sided and the plan total is short — survives on every arm and is what the
+finding is for; the band does not.
 
 ⚠️ **This table was re-measured by ticket 56 and every row moved.** The rig had
 been eroding a wall that is not there — it tiled the Envelope *box* and eroded
@@ -892,6 +929,17 @@ its floor.
    consequence 3 reproducing itself on a new statistic, with the same cause —
    every candidate for one Brief is sized from the same `interior`. §7.6 measures
    what that 3,6 % does as the pool deepens, and the answer is *very little*.
+   ⚠️ **Re-measured under the shipped gate the figure rises to 4,4 %** — 22
+   starved of 495 Briefs at n = 600, ticket 60 — **and it rises for the opposite
+   reason the fidelity figures above fall.** Gate-admitted donors warp better
+   *per candidate*, but the gated pool is ~10× shallower (p50 **9** and **5**
+   against the bucket's 81 and 37), and at Brief level depth buys survival while
+   member quality washes out — `gate_effect.py` measures the member-quality
+   effect at Brief level as a wash, **p = 0.74**. ⚠️ **The number that moves most
+   is neither of those**: `briefs_with_no_usable_candidate` goes to **105 of
+   600**, so roughly **one Brief in six** reaches source B rather than a warp,
+   against a rig that put it nearer one in twenty. That is a coverage fact, not a
+   fidelity one, and §11.1 step 2 is where it lands.
 4. **The kitchen is the limb with no headroom, as predicted.** AZ floors it at
    8,0 m² against a Swiss p50 of 8,04. In `market` — where every kitchen was asked
    for **9,0 m²** or more — **21.8 %** are delivered below 8,0, and the lower
@@ -994,7 +1042,7 @@ of 87 in production is a pool of 8 here"*. Measured over the same sample
 | pool definition | p50, 4–6 | p50, 7–10 | max | empty | ≥ 64 |
 |---|---:|---:|---:|---:|---:|
 | shipped gate — §2.2.1's bucket, scanned by area and aspect | **9** | **5** | 51 | 14.5 % | **0 %** |
-| what `absolute_area.gate_pool` returns | **81** | **37** | 146 | 0.5 % | 43.5 % |
+| what `absolute_area.gate_pool` returned, pre-60 — now `bucket_pool` | **81** | **37** | 146 | 0.5 % | 43.5 % |
 | production, full 46,794 index | 86.6 | 58.7 | — | — | — |
 
 **§2.2.7's sentence is right about the shipped gate and wrong about the rig.**
@@ -1011,6 +1059,34 @@ But the gated sample bottoms out at depth ~10, and **its own fit returns π = 0
 with a zero-width interval** — a shallow-censoring artefact, the same failure as
 the plain Beta. The deep bucket is the only arm here that can see an asymptote at
 all, which is why the table above is fitted on it.
+
+✅ **Ticket 60 settled the rig and the ~5 points survive a paired test.** The
+29.8-against-35.2 comparison above is **between two pools**, and the two arms hold
+different Brief populations — 171 Briefs against 199 — so composition alone could
+have produced it. Split one Brief's own bucket into the members the gate admits
+and the members it refuses, warp K = 3 from each, and the effect is larger, not
+smaller (`experiments/warp/gate_effect.py`, 987 candidates an arm over 329
+Briefs):
+
+| the donor is one the gate | declined | worst-room deviation p50 | p90 |
+|---|---:|---:|---:|
+| **admits** | **27.6 %** | **0.097** | 0.491 |
+| **refuses** | **36.2 %** | **0.163** | 0.725 |
+
+Sign test on the per-Brief decline counts — refused worse on 129 Briefs, admitted
+worse on 74, tied 126 — **p = 0.0001**, and the effect is a **dose**: 28.3 → 30.1
+→ 40.2 → **55.2 %** as the donor moves from inside the aspect tolerance to four
+times outside it. ⚠️ **At Brief level it is a wash (p = 0.74)**, because declines
+are correlated within a pool. So the rig's two errors sit on **different**
+statistics and cannot be netted: it was pessimistic on everything read one
+candidate at a time and optimistic on everything that spends depth.
+
+**Which is why the bucket is kept rather than deleted.** `gate_pool` is now two
+named functions — `admissible_pool`, the gate and the default everywhere, and
+`bucket_pool`, this depth proxy. The curve above stays fitted on the bucket
+because nothing else in the sample reaches m = 64, and it is now a **lower
+bound**: its members are the worse ones, so real depth buys at least what it
+says.
 
 **What deepening costs.** A pool member is a warp plus a projection solve. The warp
 is measured here at **0.79 s** (bucket) and **1.66 s** (gated, whose fixed point
