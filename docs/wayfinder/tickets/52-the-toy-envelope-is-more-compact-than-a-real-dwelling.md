@@ -3,8 +3,8 @@ id: 52
 title: The toy Envelope is more compact than a real dwelling
 parent: map
 labels: [wayfinder:task]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
   - experiments/solver-toy/
@@ -143,3 +143,138 @@ A decision on compact-versus-matched with its reasoning, the `exterior_fraction`
 double-count fixed or explicitly declined, `AREA_PER_ROOM_M2` resolved, and the
 two research documents above either re-run or re-worded so neither publishes a
 number measured at a preset that no longer exists.
+
+## Resolution — the Envelope gains a corpus arm, the old one is frozen, and the correction is free (2026-08-28)
+
+**ADR [0029](../../adr/0029-the-toy-envelope-gains-a-corpus-fitted-arm-and-the-published-one-is-frozen.md).**
+Findings: `docs/research/solver-formulation.md` **Part IV**. Harness
+`experiments/solver-toy/envelope_fit.py` and `fixture_delta.py`, rows in
+`results/FIXTURE.jsonl`.
+
+### Compact versus matched: **matched, as a second fixture, with the delta measured once**
+
+Not a correction in place. Editing `envelope_for` retroactively moves the
+substrate under **four closed decisions** — ADR 0014, ADR 0019, ticket 15's 15 s
+and τ = 4, ticket 24's arrangement metric — and one ticket does not silently
+invalidate four. `FIXTURE` defaults to `published`, bit-exact. The corpus family
+is `fixture="corpus"`, and ADR 0029 makes it the one **every new measurement
+uses**.
+
+**It is not a tie, and the published fixture was handicapping the solver.**
+140 solves, matched `(n, exposure, seed)`, shipped config verbatim:
+
+| | survivors | p50 | p90 | no Brief |
+|---|---:|---:|---:|---:|
+| published | 48/70 — 68,6 % | 0,30 s | 1,26 s | 20 |
+| **corpus** | 60/70 — **85,7 %** | 0,27 s | 1,28 s | 10 |
+
+Paired: both 48, **only published 0**, only corpus 12, neither 10. Exact McNemar
+**p = 0,0005**. **No slot** has the published fixture winning. **Time does not
+move**, on an Envelope carrying +11,6 to +25,6 % floor and +25 to +32 % perimeter
+— the same shape of result as ADR 0019's.
+
+### The cause was never the notch share, and this ticket's headline row was the noise cell
+
+⚠️ **Two corrections to this ticket's own evidence.**
+
+1. **n = 12 must not be quoted.** That corpus cell holds **17** dwellings and its
+   boundary runs **34,6 %** longer than its own bounding box against 11,8 % at
+   eleven. In the well-sampled band (5–9, N = 291–480) the perimeter ratio is
+   **0,91–0,97**, not the 0,68 the headline table implies. The defect is real and
+   about a third the size claimed.
+2. **Every notch this harness cuts is a corner notch, and a corner notch adds no
+   perimeter at all.** `envelope_for(n)`'s true boundary is exactly `2 (W + H)` at
+   every count. So no notch share and no notch *count* could ever have fixed it —
+   matching the corpus with corner notches needs a share of **27–36 %** against a
+   corpus **16–21 %**. `u_shape` builds ADR 0003's **T**, not its U.
+
+**The fix is ADR 0003's missing shape.** A **mid-edge** notch adds exactly
+`2 × depth` at zero area cost — `geometry.u_shape_true`. The two-notch budget is
+split **by job**: corner notch removes floor, mid-edge notch buys perimeter.
+Fitted on three targets — area, perimeter, bounding-box occupancy — one ring lands
+within **0,7 %** of the corpus median at every count 5–11, with mid-edge depth
+rising 5 → 12 grid units, tracking the corpus's own rising articulation.
+⚠️ **Two targets are not enough**: on area and perimeter alone the fit buys the
+boundary from a big bbox and carves the area back with a 31–35 % corner notch.
+Every number lands and the shape is two thin arms.
+
+### `AREA_PER_ROOM_M2`: **kept at 9.65**, and it was never a number to correct
+
+It is the published fixture's own constant, and moving it moves every timing in
+Parts I–III. The honest figures are per-count and live in the corpus fixture:
+10,83–11,77 m² per room. This also prices 29's fixture defect — at n = 8 the
+corpus gives **11,77**, which **clears** the 11,58 both cut structures need; at
+n = 7 it gives 11,46, which does not. Part of "no pinwheel below 7 rooms" is the
+fixture being too small and part is real.
+
+### `exterior_fraction`: **fixed**, and the harmless half was not harmless
+
+`all_faces()` now walks the real boundary; cross-checked against the independent
+shapely implementation in `envelope-exposure/true_fraction.py` — 45 (count,
+preset) pairs, **0 mismatches**. ⚠️ **The phantoms reached `frontage.py`'s H8
+budget**, which every arithmetic-death table on this map was computed through: at
+twelve rooms `detached` read **68 000 mm** of exterior run against a true
+**46 000**, a numerator up to **32 %** too large. Re-checked at every cell:
+**zero verdicts change.** H8's necessary condition was never close to binding.
+
+### The two research documents: **re-worded, not re-run**, and the blast radius was wider than this ticket knew
+
+⚠️ **ADR 0019 / Part III also ran half its grid at the stale `corpus_median`** —
+29 closed 2026-08-25, the re-fit landed 2026-08-26. This ticket named only
+`room-rectangles`. Exposure is held **fixed within each pair** in both studies, so
+it is a nuisance factor and both McNemar results are untouched; what moves is the
+*population claim*, and the pooled rates are **conservative**. The four
+`room-rectangles` sweeps are the same case at 3,5 h of machine time. §II.2 is
+rewritten whole — its preset table, its `vs corpus` column and its
+arithmetic-death table were all wrong, and the death table is **overturned**: no
+count in the band is arithmetically dead.
+
+### The six-room mystery: diagnosed, and it was never frontage
+
+`assign_kinds` goes INFEASIBLE for want of dissection cells that are **both**
+exterior-facing and large enough to host a habitable type — median **3** at
+`flat_single_aspect` against a requirement of **4**, which `COMPOSITION` fixes and
+which **does not grow with `n`**. Upstream of any solve. Confirmed from the other
+side: on the corpus fixture the six-room failure disappears and a seven-room one
+opens. **The hole moves; it does not close** — `probe_exposure`'s own headline,
+now on an independently-fitted family. 51's `kitchen.needs_window` lead is *not*
+implicated: the binding count is composition, not the kitchen.
+
+### The bottom of C13's band moves from "below 7" to "6"
+
+On the corpus fixture **n = 5 builds and solves 10/10** at both exposures. The
+map's standing *"no solver measurement covers the bottom half of the 3–10 band"*
+is now **one named cell**, n = 6, failing in `assign_kinds` on both fixtures.
+⚠️ **n = 4 is refused** by the corpus family, and the refusal is a finding: a
+40,4 m² dwelling cannot carry an articulated boundary *and* a 2,75 m `living`
+column at once, and `ground_truth` gives every part a room.
+
+### The option not taken, and it is what the market does
+
+Every published generator — HouseGAN++, HouseDiffusion, Graph2Plan, WallPlan —
+conditions on a **real boundary from its dataset**; none fits a parametric
+envelope generator. Refused here for one reason only: the conversion lives in
+`experiments/rectangularise/`, which **46 holds**, and writing it blind is the
+merge hazard that has already cost this map two pure-rework tickets. Charted as
+[Every Envelope the solver has seen is invented](58-every-envelope-the-solver-has-seen-is-invented.md).
+
+### ⚠️ A trap that cost this ticket a whole sweep and inverted its headline
+
+`clear_t` **must** equal the solver's `t_int_mm` whenever `erode_minima` is on.
+The solver binds minima on the *clear* rect; a truth built at `clear_t = 0`
+satisfies them on the *solved* rect and stops being a witness, so the model can be
+**provably** unable to tile its own Envelope. The first run of `fixture_delta.py`
+returned **OPTIMAL with 55 interior cells unassigned at every seed and both
+exposures**, which reads as a fixture defect, and reported the fixtures **tied at
+p = 1,00** where the correct rig separates them at **p = 0,0005**. One argument at
+one call site. Part II.1 warns in prose; `sweep_ng.execute` is the pattern.
+
+### Declared on resolution
+
+- `docs/adr/0029-…` — new.
+- `docs/adr/0003-…` — **not edited**. Its shape family and two-notch cap are
+  unchanged; what changed is that the generator now emits all four members.
+- `experiments/envelope-exposure/README.md` — unclaimed; both handoffs it left
+  are discharged in place rather than passed on again.
+- `docs/research/solver-formulation.md` Part III — this ticket's file, so the
+  stale-preset caveat belongs on it rather than on a new ticket.
