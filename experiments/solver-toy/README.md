@@ -40,7 +40,9 @@ the stable part.
 | File | What it is |
 |---|---|
 | `geometry.py` | `Rect`, `Envelope`, and pure-geometry predicates. Integer grid units only, no floating point on the solver path. |
-| `scenarios.py` | Seeded Briefs, Envelopes and Proposals for 8, 12 and 24 rooms. |
+| `scenarios.py` | Seeded Briefs, Envelopes and Proposals for 8, 12 and 24 rooms. Two Envelope **fixtures** — see below. |
+| `envelope_fit.py` | Fits the corpus Envelope family, per room count, against 2,238 real dwellings. Seconds; reads the committed series. |
+| `fixture_delta.py` | What moving between the two fixtures costs the solver: paired `(n, exposure, seed)`, shipped config. `results/FIXTURE.jsonl`. ~15 min at 5 seeds. |
 | `solver.py` | The CP-SAT projection model. `LayoutProjector` / `SolveConfig` / `project()`. |
 | `validate.py` | Independent checker. **Shares no code with the solver** beyond raw geometry — deliberately, so the two can disagree. |
 | `smoke.py`, `probe1..5.py` | The runs behind the findings doc. |
@@ -117,6 +119,36 @@ See `docs/research/arrangement-metric.md`.
 | `relation_confidence` | Fix only relations where the Proposal's best separation direction beats its second-best by this margin. This is τ; ticket 15 fitted it to 4 and ticket 24 found what it filters — confident-wrong severity. |
 | `arc_radius` | Prune candidate adjacency pairs by Proposal distance. Implemented, never benchmarked. |
 
+## Two Envelope fixtures, and why the default is the old one
+
+`envelope_for(n, exposure, fixture=...)` serves two families. **`published`** is
+the default and is every number in `docs/research/solver-formulation.md` Parts
+I-III, in ADR 0014 and in ADR 0019. **`corpus`** is fitted per room count against
+2,238 real Swiss dwellings on area, perimeter *and* bounding-box occupancy, to
+within 0,7 % at every count from 5 to 11.
+
+The published family is **15 % smaller per room** than the corpus median and sits
+at exactly **0 %** boundary excess over its own bounding box, where a real
+dwelling runs 6-12 % over and rises with room count. The cause is not the notch
+share and not the notch count:
+
+> **Every notch `l_shape` and `u_shape` cut is a corner notch, and a corner notch
+> removes floor while adding no perimeter at all.** `u_shape` builds ADR 0003's
+> **T**, not its U. `geometry.u_shape_true` cuts the missing member -- a mid-edge
+> notch, which adds exactly `2 x depth` at zero area cost.
+
+The default does **not** move. A closed decision does not change because a later
+ticket fitted a better fixture beside it; the move is priced once by
+`fixture_delta.py` instead. ADR 0029.
+
+⚠️ **`clear_t` must equal the solver's `t_int_mm` whenever `erode_minima` is on.**
+The solver binds minima on the *clear* rect; a truth built at `clear_t = 0`
+satisfies them on the *solved* rect and stops being a witness, and the model can
+then be **provably** unable to tile its own Envelope. The first run of
+`fixture_delta.py` returned OPTIMAL with 55 interior cells unassigned at every
+seed and both exposures and it was this one argument. It reads exactly like a
+fixture defect. `sweep_ng.execute` passes `t_int` through; do the same.
+
 ## Known gaps
 
 - ~~**Rooms tile exactly; real walls have thickness.**~~ **Closed.** ADR 0001's
@@ -126,6 +158,16 @@ See `docs/research/arrangement-metric.md`.
 - ~~Every timing is a **single run at one seed**. No variance estimate.~~
   **Closed** by ticket 15: `sweep.py` / `report.py`, ~1 000 solves, Part II.
 - Grid resolution was never swept — everything ran at 250 mm. *Still true.*
+- ~~**The Envelope was never checked against a real dwelling.**~~ **Closed** by
+  *The toy Envelope is more compact than a real dwelling*: `envelope_fit.py`,
+  `fixture_delta.py`, ADR 0029. Its residue is that **no Envelope here is a real
+  boundary** — both families are parametric, where every published generator
+  (HouseGAN++, HouseDiffusion, Graph2Plan, WallPlan) conditions on a boundary
+  drawn from its dataset. That arm needs `experiments/rectangularise/` and has
+  its own ticket.
+- The corpus fixture covers **5-11 rooms**. `n` = 4 is *refused*, not missing: a
+  40,4 m² dwelling cannot carry an articulated boundary and a 2,75 m `living`
+  column at once, and `ground_truth` gives every Envelope part a room.
 - ~~The Proposal's relation channel is untested.~~ **Closed** by ticket 24:
   `probe6.py`, `docs/research/arrangement-metric.md`. Its residue is that the
   corruption model is Gaussian corner noise, which produces almost no *same-axis

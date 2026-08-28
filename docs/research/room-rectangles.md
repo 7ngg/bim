@@ -111,6 +111,25 @@ room is a shape a plan is left with.
 at `t_int` 150 (ADR 0010), corpus-median exposure, σ = 0.5 m, four workers, exact
 tiling soft.
 
+> ⚠️ **`corpus_median` has moved since every sweep in this document ran, and the
+> arms are unaffected.** *The exposure presets were fitted to a measurement of
+> one room* (2026-08-26) re-fitted the preset from the corpus **p3–p10** to
+> **p51**, after `dataset-inventory.md` §1.5 was corrected. Every sweep here
+> predates it. The design is **paired within exposure** — `k1` against
+> `free_scoped` against `free_all` on the same Envelope, room count and seed —
+> so exposure is a nuisance factor held constant and every *ratio* below stands.
+> What must not be read off them is an absolute rate "at corpus-median
+> exposure": the condition was harsher than a real flat's, so the L counts and
+> survivor rates are **conservative**. Not re-run — 3.5 h of machine time to
+> re-measure a comparison under an easier nuisance factor. See ADR 0029.
+>
+> One phrase in this document and its README **is** retired: results quoted as
+> holding "at both `detached` and `corpus_median` exposure" were reporting
+> agreement between the corpus p100 and the corpus p3–p10 — genuinely far apart,
+> so the agreement was real and is now *stronger* than claimed, since the two
+> conditions are today p100 and p51. The phrase over-claims coverage of the low
+> end, not of the comparison.
+
 **Ground truth is guillotine**, so no room is an L and no second rectangle is ever
 *needed*. This measures the **cost** of the freedom and never its benefit — which
 is the right half to measure here, and it is what makes the L counts readable:
@@ -392,13 +411,25 @@ rectangle into an L.
   profile is unverified. *What geometry an IfcSpace actually gets*.
 - **The low end of C13's band.** `scenarios.make_brief` finds no feasible
   room-type assignment below **7 rooms** once minima are eroded, at every `t_int`
-  tested including 100, at both `detached` and `corpus_median` exposure — where
-  at `clear_t = 0` all of 4, 5 and 6 build. So **no solver measurement on this
-  map, this one included, covers the bottom half of the shipped 3–10 band.** That
-  is evidence for the map's *Whether the solve grid should be finer than 250 mm*
-  patch and it extends *Ergonomic minima*'s "{5, and 6 unknown}" deletion to 4
-  and 6 — in the toy's own minima, which are not the shipped ergonomic layer, so
-  it corroborates a direction rather than settling a number.
+  tested including 100, at both `detached` and the then-`corpus_median` exposure —
+  where at `clear_t = 0` all of 4, 5 and 6 build. So **no solver measurement on
+  this map, this one included, covers the bottom half of the shipped 3–10 band.**
+  ✅ **Superseded in part.** On the corpus Envelope fixture (ADR 0029)
+  **n = 5 builds and solves at 10/10** at both exposures, so the uncovered region
+  is now **exactly n = 6** rather than everything below 7 — `solver-formulation.md`
+  Part IV.2. The failure is `assign_kinds`, not the solver, and its mechanism is
+  named in IV.3.
+  That is evidence for the map's *Whether the solve grid should be finer than
+  250 mm* patch and it extends *Ergonomic minima*'s "{5, and 6 unknown}" deletion
+  to 4 and 6 — in the toy's own minima, which are not the shipped ergonomic
+  layer, so it corroborates a direction rather than settling a number.
+  ⚠️ **Both arms were the corpus p100 and p3–p10**, so this covers the low end of
+  *exposure* far better than it covers the middle, which had no arm at all until
+  the 2026-08-26 re-fit. And the **fixture** is now known to be part of the
+  cause: the corpus-fitted Envelope family refuses `n` = 4 outright — a 40,4 m²
+  dwelling cannot carry an articulated boundary *and* a 2,75 m `living` at the
+  same time — which is a sharper statement of the same bottom-of-band gap than
+  "no measurement covers it". ADR 0029.
 - **ResPlan.** Every figure here is Swiss Dwellings.
 
 ---

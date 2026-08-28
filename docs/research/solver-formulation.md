@@ -915,26 +915,72 @@ post-fix.**
 ## II.2 Exposure — and it does not do what was expected
 
 ADR 0003 makes the Envelope an ordered ring of typed edges, and only an
-`exterior` edge may hold a window. Presets, with the exterior share of perimeter
-each actually achieves on this harness's Envelopes, against the Swiss Dwellings
-distribution (`dataset-inventory.md` §1.5: p5 0.16, p25 0.23, median 0.37,
-p75 0.47, p95 0.59):
+`exterior` edge may hold a window.
 
-| preset | edges exterior | achieved fraction | vs corpus |
+> ⚠️ **Everything in this section was measured at presets that no longer exist,
+> and the table it used to open with was wrong in all three of its columns.**
+> *The exposure presets were fitted to a measurement of one room* (2026-08-26)
+> re-fitted `EXPOSURE_PRESETS` after `dataset-inventory.md` §1.5 was corrected
+> from a median exterior fraction of 0.37 to **0.67** — the old distribution
+> measured **one room per dwelling**, not the dwelling. The old table compared
+> realised fractions against that uncorrected distribution, and computed those
+> fractions with an `exterior_fraction` that **double-counted**. Both are fixed.
+> The tables below are what stands.
+
+**A preset is now a quantile with a ring shape, not a building form**, fitted on
+**exterior run per room** rather than on a fraction of perimeter — a fraction
+does not transfer between dwellings whose perimeters differ, and H8 reads run: a
+room needs a window's width of façade and cannot spend a percentage. Fitted over
+2,238 dwellings, `experiments/envelope-exposure/fit_ladder.py`; corpus run per
+room is p5 **2.09 m**, p25 **3.28**, median **4.19**, p75 **5.09**, p95 **6.94**,
+anchored at n = 7.
+
+| preset | fitted to | ring | at n = 7 |
 |---|---|---|---|
-| `detached` | all four | 1.00 | **above p95 — no real dwelling** |
-| `terrace_mid` | S, N | 0.64 – 0.71 | above p95 |
-| `flat_corner` | S, E | 0.53 – 0.60 | ~p95 |
-| `corpus_median` | S, plus 45 % of N | 0.32 – 0.41 | **straddles the median** |
-| `flat_single_aspect` | S | 0.19 – 0.22 | ~p25 |
+| `detached` | ceiling, 100 % | four-sided | 4.86 m — corpus p68 |
+| `corpus_median` | **p50** | four-sided | 4.21 m — p51 |
+| `flat_corner` | **p25** | adjacent pair | 3.29 m — p25 |
+| `terrace_mid` | **p25** | opposite pair | 3.25 m — p24 |
+| `flat_single_aspect` | **p5** | single | 2.07 m — p5 |
 
-Two of the four presets ADR 0003 named sit **above the corpus p95**, so
-`corpus_median` was added, fitted to 0.37 — a partial edge, which is also the
-honest shape, since a real flat's front elevation is commonly part glazing and
-part shared.
+`corpus_median`'s name is accurate for the first time: it previously ran at the
+corpus **p3–p10**, and `flat_single_aspect` ran off the bottom of all 2,238
+dwellings. `flat_corner` and `terrace_mid` are a deliberate **matched pair** —
+same exposure, different ring — so the two isolate ring shape at fixed run.
+
+**The preset family is refuted as a description of real dwellings, and kept
+anyway.** Counting a side as an aspect when it carries ≥ 15 % of its own bbox
+edge, real dwellings are **63.3 % four-sided and 26.0 % three-sided**; the three
+flat presets name **10.6 %** between them and there is no three-sided preset at
+all. The keys survive because they are named in `brief.md`, `acceptance-bar.md`,
+`room-constraints.json`, `CONTEXT.md`, ADR 0003 and three experiment directories.
+
+### The frontage budget every death table used was inflated by up to 32 %
+
+`Envelope.all_faces()` emitted each bbox edge **in full** *and* all four faces of
+every notch, so the stretch a corner notch removed was counted twice — once as
+bbox edge, once as a phantom notch face on the same line. The phantoms reached
+`exterior_faces()`, and through it `frontage.py`'s `have` term. On
+`envelope_for(8)` the true perimeter is **144** grid units against **180**
+counted; at twelve rooms `detached` read **68 000 mm** of exterior run against a
+true **46 000**.
+
+Fixed in `geometry.py` by walking the real boundary — cross-checked against the
+independent shapely implementation in
+`experiments/envelope-exposure/true_fraction.py` over 45 (count, preset) pairs,
+**0 mismatches**. **Zero cells change verdict.** The double-count was large and
+cost nothing, because H8's necessary condition was never close to binding at any
+preset in the band. That is the finding: the defect is real, and every conclusion
+drawn through it survives.
 
 **Expected: H8 becomes binding at low exposure and solve time rises. It does
-not.** Median time to first Plan, 8 seeds, `mm_affine`, clear reading, τ = 0:
+not.** Median time to first Plan, 8 seeds, `mm_affine`, clear reading, τ = 0.
+
+> ⚠️ Measured at the **old** presets, and **not re-run** — deliberately. Every
+> re-fitted preset lands *between* `detached` (100 %, unchanged) and the old
+> `flat_single_aspect`, so the conclusion is bracketed by two columns that still
+> stand. Re-running would confirm a result already enclosed by its own controls.
+> Read the columns as an ordering, not as absolute seconds at today's presets.
 
 | n | detached | terrace_mid | flat_corner | corpus_median | flat_single_aspect |
 |---|---|---|---|---|---|
@@ -954,30 +1000,49 @@ What exposure does instead is fail **earlier and harder**, at Brief construction
 rather than at solve time — which is the more useful finding, because it is
 cheap to detect and cannot be tuned away.
 
-### `flat_single_aspect` is arithmetically dead from 7 rooms, and no solver is involved
+### ~~`flat_single_aspect` is arithmetically dead from 7 rooms~~ — overturned
 
 Habitable rooms do not overlap, so the stretches of exterior wall they occupy are
 disjoint, and each consumes at least its own shorter minimum dimension. That is a
-**necessary condition with no search in it**:
+**necessary condition with no search in it**, and it is the one sound part of
+what this section used to say:
 
 ```
 sum over habitable rooms of min(min_w, min_h)   <=   total exterior run
 ```
 
-| n | habitable | need | `flat_single_aspect` has | verdict |
-|---:|---:|---:|---:|---|
-| 6 | 4 | 8 500 | 9 000 | ok, 500 mm slack |
-| **7** | 5 | 10 500 | 9 500 | **dead by 1 000 mm** |
-| 8 | 5 | 10 500 | 10 000 | dead |
-| 12 | 7 | 14 500 | 13 000 | dead |
-| 24 | 14 | 28 250 | 18 000 | dead by 10 250 mm |
+**The arithmetic-death table it produced is dead.** It was computed at a
+`flat_single_aspect` fitted to the uncorrected §1.5 distribution, running off the
+bottom of all 2,238 dwellings. Re-run at the re-fitted preset and with the
+phantom faces removed — same necessary condition, same minima, `frontage.py`:
 
-All millimetres, `frontage.py`. Single-aspect flats sit at the corpus **p25**, so
-this is not an exotic case. **H8 as posted forbids the commonest
-restricted-aspect dwelling above 6 rooms**, and no time limit, seed, τ or
-Proposal changes it. The sweep short-circuits these cells rather than solving
-them, which is why they read `H8_IMPOSSIBLE`. Handed on as its own decision — see
-the ticket.
+| n | habitable | need | old had | **now has** | verdict |
+|---:|---:|---:|---:|---:|---|
+| 6 | 4 | 8 500 | 9 000 | **13 750** | alive by 5 250 mm |
+| **7** | 5 | 10 500 | 9 500 | **14 500** | **alive by 4 000 mm** |
+| 8 | 5 | 10 500 | 10 000 | **15 250** | alive by 4 750 mm |
+| 12 | 7 | 14 500 | 13 000 | **29 000** | alive by 14 500 mm |
+
+**No count in the band is arithmetically dead, and H8 as posted forbids
+nothing.** The single-aspect flat is a corpus **p5** case, not the p25 this
+section claimed, which is the other half of why the old reading was alarming.
+
+**What survives is the shape of the claim, not its content.** A Brief still fails
+to build at some cells — `flat_single_aspect` at 6 and 8 rooms on the published
+fixture — and the cause is **not** frontage length. Diagnosed by *The toy
+Envelope is more compact than a real dwelling*: `assign_kinds` goes INFEASIBLE
+because the guillotine dissection does not offer enough cells that are *both*
+exterior-facing and large enough to host a habitable type. The binding habitable
+count is **fixed at four** (`COMPOSITION`: one living, one kitchen, two bedrooms)
+and does not grow with `n`; what varies is supply. At `flat_single_aspect` the
+median dissection offers **3** such cells against a requirement of 4; at
+`corpus_median` it offers 4–5.
+
+So the failure is a property of **the Envelope that `n` selects**, not of `n` —
+and re-fitting the Envelope to real dwellings moves the hole rather than closing
+it. On the corpus fixture the six-room failure disappears entirely (0/5 → 5/5,
+and `flat_corner`/`terrace_mid` 3/5 → 5/5) and a new one opens at seven. Six
+failing cells on the published fixture, one on the corpus fixture, same grid.
 
 ### The nine windowless dwellings: corpus noise, and H8 stands
 
@@ -1300,6 +1365,19 @@ be typed. All serial at `num_workers = 4`, on the same 4-core Ivy Bridge
 > Part II's shipped 15 s and τ = 4 both survive. What does *not* survive is the
 > ticket's stated reason for expecting movement, and one number it inherited.
 
+> ⚠️ **Half this Part's grid ran at a `corpus_median` that no longer exists, and
+> the McNemar result is unaffected.** Ticket 29 closed 2026-08-25; the preset
+> re-fit landed 2026-08-26. Suite A's "7 room counts × **2 exposures**" means
+> `detached` — unchanged at 100 % — and a `corpus_median` then running at the
+> corpus **p3–p10** rather than the p51 it now names. Exposure is held **fixed
+> within each pair**, so it is a nuisance factor and the paired comparison the
+> ADR rests on is untouched. What moves is the *population claim*: the pooled
+> **76.9 % / 74.5 %** describe an exposure harsher than a real flat's, so they
+> are **conservative**, and "two exposures" must not be read as "one of them was
+> the corpus median". Not re-run: re-running would re-measure the same pairing
+> under an easier nuisance factor. See *The toy Envelope is more compact than a
+> real dwelling* and ADR 0029.
+
 ## III.0 Two corrections before the tables
 
 ### The premise about τ is refuted by measurement, not by the sweep
@@ -1418,6 +1496,17 @@ at 8 rooms *both* arms need 11.58 m² per room, 20 % above the 9.65 the publishe
 Envelopes were built at. That is a defect in the fixtures worth recording on its
 own — Part II's small-*n* cells were run at an area per room its own placeholder
 table cannot always satisfy.
+
+> **Priced from the corpus side, and 11.58 was not an arbitrary bar.** Real
+> dwellings run **11.34 m² per room** at the median over 4–12 rooms (2,238 Swiss
+> dwellings), so the published fixture is **15 % smaller per room** than the
+> population every conclusion here generalises to — and the pinwheel's own floor
+> at 8 rooms sits almost exactly at the real median. The corpus fixture
+> (`scenarios.CORPUS_ENVELOPES`) gives 11.77 m² per room at eight, which
+> **clears** 11.58, and 11.46 at seven, which does not. So part of "no pinwheel
+> below 7 rooms" is the fixture being too small, and part is real. `9.65` is
+> **kept** rather than corrected in place: moving it moves every timing in Parts
+> I–III under four closed decisions. ADR 0029.
 
 ## III.2 The headline — room count against cut structure
 
@@ -1774,3 +1863,174 @@ python corpus_guillotine.py         # III.6, needs both converted arms
 Rows land in `results/N9*.jsonl`, resumable exactly like Part II's. **Run nothing
 else on the machine while sweeping.** Suites A, B, C, E and T run at the shipped
 15 s; suite D runs at 30 s, and only suite D's rows can answer a budget above 15.
+
+---
+
+# Part IV — the fixture (ticket 52)
+
+Everything above this line was measured on Envelopes this harness **invented**.
+`envelope_for` scales one interior area linearly in `n` at a fixed aspect and a
+fixed notch share, and until now nothing had asked whether the result resembles a
+dwelling. Measured against the 2,238 dwellings of
+`experiments/envelope-exposure/series/`, it does not: it is **15 % smaller per
+room** than the corpus median, and its boundary sits at **exactly 0 %** excess
+over its own bounding box where a real dwelling runs **6–12 % over**, rising with
+room count.
+
+> ### Headline: **the published fixture was handicapping the solver, and the correction is free.**
+>
+> Re-fitted to real dwellings, the survivor rate goes **68,6 % → 85,7 %** with
+> **no measurable change in solve time**, on an Envelope carrying 12–26 % more
+> floor and 25–32 % more perimeter. Paired over 70 slots there is **not one** in
+> which the published fixture produces a survivor and the corpus one does not.
+> Exact McNemar **p = 0,0005**.
+>
+> Nothing above this line is re-run and nothing above it moves. The published
+> fixture stays bit-exact and default; ADR 0029 makes the corpus fixture the one
+> every *new* measurement uses.
+
+## IV.1 Why no setting of the old knobs could have fixed it
+
+**Every notch this harness has ever cut is a corner notch, and a corner notch
+removes floor while adding no perimeter at all.** `l_shape` cuts one; `u_shape`
+cuts two, both corner-anchored — it builds ADR 0003's **T**, not its U. Measured,
+`envelope_for(n)`'s true boundary is exactly `2 (W + H)` at every count in the
+band.
+
+So notch **share** was the wrong lever and notch **count** was the wrong lever.
+Matching the corpus perimeter with corner notches alone needs a share of
+**27–36 %** against the corpus's own bounding-box deficit of **16–21 %** — a shape
+that is two thin arms, not a dwelling.
+
+A **mid-edge** notch adds exactly `2 × depth` at zero extra area cost. That is
+ADR 0003's **U**, the one member of its rect/L/U/T family the generator never
+emitted, and it is precisely the missing quantity. `geometry.u_shape_true`.
+
+The two-notch budget is therefore split **by job** — corner notch removes floor,
+mid-edge notch buys perimeter — and fitted against three targets: area, perimeter
+and bounding-box occupancy. One rectilinear ring then lands within **0,7 %** of
+the corpus median at every count from 5 to 11, with a fitted mid-edge depth
+rising 5 → 12 grid units across the band, tracking the corpus's own rising
+articulation. `envelope_fit.py`.
+
+⚠️ **Two targets are not enough, and this is the trap.** Fitted on area and
+perimeter alone the search buys the whole boundary from a large bounding box and
+carves the area back out with a 31–35 % corner notch. Every number lands and the
+shape is wrong. Bounding-box occupancy is the third target that forces the
+perimeter onto the mid-edge notch.
+
+## IV.2 The delta, at the shipped configuration
+
+140 solves, matched `(n, exposure, seed)` slots, one arm per fixture. Shipped
+config verbatim: `mm_affine`, eroded minima, τ = 4, σ = 0.5 m, 15 s, 4 workers,
+`t_int` 100. Five seeds over 5–11 rooms × {`detached`, `corpus_median`}.
+`fixture_delta.py`, rows in `results/FIXTURE.jsonl`.
+
+| n | published m² | perim | m²/room | corpus m² | perim | m²/room | ΔA | ΔP |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 7 | 66.25 | 34.0 | 9.46 | 80.06 | 43.0 | 11.44 | +20,8 % | +26,5 % |
+| 8 | 75.00 | 36.0 | 9.38 | 94.19 | 47.5 | 11.77 | +25,6 % | +31,9 % |
+| 9 | 87.50 | 39.0 | 9.72 | 100.75 | 49.5 | 11.19 | +15,1 % | +26,9 % |
+| 10 | 97.62 | 41.5 | 9.76 | 108.94 | 52.5 | 10.89 | +11,6 % | +26,5 % |
+| 11 | 105.12 | 43.5 | 9.56 | 119.12 | 54.5 | 10.83 | +13,3 % | +25,3 % |
+
+| | survivors | p50 | p90 | max | no Brief |
+|---|---:|---:|---:|---:|---:|
+| published | 48/70 — **68,6 %** | 0,30 s | 1,26 s | 2,00 s | 20 |
+| **corpus** | 60/70 — **85,7 %** | 0,27 s | 1,28 s | 2,43 s | 10 |
+
+Paired: **both 48, only published 0, only corpus 12, neither 10** — exact McNemar
+**p = 0,0005**. The gain is one-sided and it is located, not diffuse:
+
+| n | published | corpus | what changed |
+|---:|---|---|---|
+| 5 | no Brief, 10/10 | **10/10 survivors** | a whole room count gained |
+| 6 | no Brief, 10/10 | no Brief, 10/10 | unchanged |
+| 7 | 8/10 — two OPTIMAL, 24 cells unassigned | **10/10** | coverage slack fixed |
+| 8–11 | 10/10 | 10/10 | tie |
+
+**Time does not move**, on an Envelope 12–26 % larger. That is the same shape of
+result as Part III's: the formulation is indifferent to the property that was
+expected to bite it.
+
+### The bottom of C13's band is now one cell, not half a band
+
+This document and `room-rectangles.md` both carry the claim that **no solver
+measurement on this map covers the bottom half of C13's 3–10 band**, because
+`make_brief` finds no typable dissection below 7 rooms once minima are eroded.
+On the corpus fixture **n = 5 builds and solves at 10/10, at both exposures**.
+
+What remains is **exactly n = 6**, which fails on both fixtures, deterministically,
+at both exposures, in `assign_kinds` rather than in the solver. The residual gap
+is a single named cell. Its mechanism is IV.3's.
+
+## IV.3 What actually fails when a Brief fails, and it was never frontage
+
+`probe_exposure` records a 0/5 at six rooms with **5 250 mm of frontage slack**,
+and nothing had identified the cause. It is not H8's necessary condition:
+
+**The binding habitable count is fixed at four** — `COMPOSITION` requires one
+`living`, one `kitchen` and two `bedroom` — and **does not grow with `n`**. What
+varies is *supply*: how many cells of the guillotine dissection are **both**
+exterior-facing over a window's width **and** large enough to host a habitable
+type. At `flat_single_aspect` the median dissection offers **3** against a
+requirement of 4; at `corpus_median` it offers 4–5. `assign_kinds` then returns
+INFEASIBLE, upstream of any solve.
+
+So "dead from `n` rooms" was never the right shape of claim — the failure is a
+property of **the Envelope that `n` selects**. Re-fitting the Envelope to real
+dwellings confirms it from the other side: on the corpus fixture the six-room
+failure at `clear_t = 0` disappears entirely and a seven-room one opens. **The
+hole moves; it does not close.**
+
+## IV.4 The frontage budget was inflated by up to 32 %, and it cost nothing
+
+`Envelope.all_faces()` emitted each bounding-box edge **in full** *and* all four
+faces of every notch, so the stretch a corner notch removed was counted twice.
+The phantoms reached `exterior_faces()`, and through it `frontage.py`'s `have`
+term — every arithmetic-death table on this map was computed through them. At
+twelve rooms `detached` read **68 000 mm** of exterior run against a true
+**46 000**.
+
+`geometry.py` now walks the real boundary, cross-checked against the independent
+shapely implementation in `experiments/envelope-exposure/true_fraction.py`:
+45 (count, preset) pairs, **0 mismatches**. Re-checked at every cell in the band,
+**zero verdicts change** — H8's necessary condition was never close to binding.
+The defect is real and every conclusion drawn through it survives.
+
+## IV.5 What Part IV does not establish
+
+- **That a real boundary behaves like a fitted one.** Both fixtures are
+  parametric. Every published generator — HouseGAN++, HouseDiffusion, Graph2Plan,
+  WallPlan — conditions on a boundary drawn from its dataset, and this map has
+  never done so. Its own ticket, *Every Envelope the solver has seen is
+  invented*; it needs `experiments/rectangularise/`.
+- **That 15 s and τ = 4 are right on the corpus fixture.** They are re-affirmed
+  as *sufficient* — 85,7 % survivors, p90 1,28 s — not re-fitted. Re-fitting them
+  is a separate decision with C6 and the job budget in scope.
+- **Anything at n = 4.** The corpus family **refuses** it: `ground_truth` gives
+  every Envelope part a room, and a 40,4 m² dwelling cannot carry an articulated
+  boundary and a 2,75 m `living` column at once. That is a statement about small
+  dwellings, not a limitation of the fit.
+- **Anything above 11 rooms.** The corpus cell at 12 holds **17** dwellings and
+  its boundary runs 34,6 % longer than its own bounding box against 11,8 % at
+  eleven. It is the noise cell, and it is the row ticket 52 led its own headline
+  table with.
+
+## Reproducing Part IV
+
+```
+cd experiments/solver-toy
+python envelope_fit.py              # the fit, off the committed series; seconds
+python fixture_delta.py 5           # 140 solves, ~15 min, results/FIXTURE.jsonl
+python ../envelope-exposure/true_fraction.py    # the independent face check
+```
+
+⚠️ **`clear_t` must equal the solver's `t_int_mm` whenever `erode_minima` is on.**
+The solver binds minima on the *clear* rect; a truth built at `clear_t = 0`
+satisfies them on the *solved* rect and stops being a witness, so the model can be
+**provably** unable to tile its own Envelope. The first run of `fixture_delta.py`
+returned OPTIMAL with 55 interior cells unassigned at every seed and both
+exposures, and reported the two fixtures tied at **p = 1,00** where the correct
+rig separates them at **p = 0,0005**. It was one argument at one call site.
+Part II.1 warns about it; `sweep_ng.execute` threads `t_int` through.

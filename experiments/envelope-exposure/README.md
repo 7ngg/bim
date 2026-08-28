@@ -125,6 +125,23 @@ guillotine layouts* left behind, now priced from the corpus side. Both live in
 `solver-toy/` and are handed on as *The toy Envelope is more compact than a real
 dwelling*.
 
+✅ **Settled, and this section's own headline row was the noise cell.** ADR 0029.
+Two corrections, both measured:
+
+- **Quote n ≤ 11, never n = 12.** That corpus cell holds **17** dwellings and its
+  boundary runs **34,6 %** longer than its own bounding box against 11,8 % at
+  eleven. In the well-sampled band (5–9, N = 291–480) the toy's perimeter ratio
+  against the corpus is **0,91–0,97**, not the 0,68 the twelve-room row implies.
+  The compactness defect is real and about a third the size the headline claimed.
+- **The lever was never the notch share.** `l_shape` and `u_shape` cut only
+  **corner** notches, and a corner notch adds *no perimeter at all*:
+  `envelope_for(n)`'s true boundary is exactly `2 (W + H)` at every count.
+  Matching the corpus with corner notches alone needs a notch share of **27–36 %**
+  against a corpus **16–21 %**. The fix is `geometry.u_shape_true` — a **mid-edge**
+  notch, ADR 0003's U, which the generator had never emitted and which adds
+  `2 × depth` at zero area cost. `solver-toy/` now carries both fixtures and the
+  default is unchanged.
+
 ## `true_fraction.py` — `exterior_fraction` double-counts
 
 `Envelope.exterior_fraction` is the quantity every **old** preset was tuned to
@@ -137,8 +154,17 @@ The phantom faces reach `exterior_faces()` too, which the solver reads for H8.
 That half is harmless: `contains` forbids a room inside a notch, so no room can
 be flush with the removed stretch and claim its daylight. The fraction is not
 harmless, so this module recomputes it from the real boundary, and it is what the
-new presets were fitted against. The fix in `geometry.py` is handed to
-`solver-toy`'s holder because it changes what the solver is given.
+new presets were fitted against.
+
+✅ **Fixed in `geometry.py`** by *The toy Envelope is more compact than a real
+dwelling* — `all_faces()` now walks the real boundary, and this module is kept as
+the **independent shapely check** it agrees with: 45 (count, preset) pairs, **0
+mismatches**. ⚠️ **The "harmless" half was not harmless in the one place nobody
+looked**: the phantoms reached `frontage.py`'s H8 budget, which at twelve rooms
+read 68 000 mm of exterior run against a true 46 000 — a numerator up to **32 %
+too large**, and every arithmetic-death table on the map was computed through it.
+Re-checked at every cell in the band: **zero verdicts change**, because H8's
+necessary condition was never close to binding. ADR 0029.
 
 ## `probe_exposure.py` — Brief feasibility is still not monotone in n
 
