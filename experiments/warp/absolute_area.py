@@ -168,6 +168,56 @@ def notch_share(parts):
     return sum(sorted(touching, reverse=True)[:2]) / bbox, enclosed / bbox
 
 
+def frame_components(spans, nx, ny):
+    """The complement's 4-connected components over the frame's FIXED cell grid.
+
+    Which cells a part covers is combinatorial -- the warp moves gap sizes, never
+    the index spans -- so the components are fixed once per donor and only their
+    areas move. Returns `(notch_cells, void_components)` on the same split
+    `notch_share` makes: the two largest boundary-touching components are ADR
+    0020's notch, everything enclosed is ADR 0028's void.
+
+    Ticket 57. This exists because `notch_share` takes MILLIMETRE rectangles and
+    flood-fills a boolean array of that many cells. On the donor's own integer
+    parts that is small; on solved geometry it is ~80 million cells per plan, so
+    the realised shares have to be read off the frame instead."""
+    cov = np.zeros((ny, nx), dtype=bool)
+    for parts in spans:
+        for (a, b, c, d) in parts:
+            cov[c:d, a:b] = True
+    seen = cov.copy()
+    touching, enclosed = [], []
+    for sy in range(ny):
+        for sx in range(nx):
+            if seen[sy, sx]:
+                continue
+            stack, cells, on_border = [(sy, sx)], [], False
+            seen[sy, sx] = True
+            while stack:
+                y, x = stack.pop()
+                cells.append((x, y))
+                if y in (0, ny - 1) or x in (0, nx - 1):
+                    on_border = True
+                for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    py, px = y + dy, x + dx
+                    if 0 <= py < ny and 0 <= px < nx and not seen[py, px]:
+                        seen[py, px] = True
+                        stack.append((py, px))
+            (touching if on_border else enclosed).append(cells)
+    touching.sort(key=len, reverse=True)
+    return [c for comp in touching[:2] for c in comp], enclosed
+
+
+def realised_frame_areas(notch_cells, void_comps, gx, gy):
+    """Notch, void and bbox in m2 under a solved gap pair. Exact, and O(cells)."""
+    def area(cells):
+        return sum(gx[i] * gy[j] for (i, j) in cells)
+    cell_m2 = GRID_MM ** 2 / 1e6
+    return (area(notch_cells) * cell_m2,
+            sum(area(c) for c in void_comps) * cell_m2,
+            sum(gx) * sum(gy) * cell_m2)
+
+
 def outside_of(plan_rects):
     """Everything on the far side of the Envelope: the exterior, and the notch,
     which is an Envelope edge and not a partition.
@@ -373,10 +423,36 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key="",
         if abs(tot - target_area) / target_area < 0.002:
             break
         scale *= target_area / tot
+    # Ticket 57, obligation 1. Sum(Space) and per-room deviation were reported and
+    # the hole BETWEEN the parts was not, which is why ADR 0028's measurements had
+    # to be made from outside this rig in `experiments/void/`. The frame's bbox
+    # decomposes exactly four ways and every term is now on the record:
+    #
+    #     bbox = Sum(Space) + erosion + notch + enclosed void
+    #
+    # `s` and `void` above are the DONOR's shares, read off the seed. These are
+    # the REALISED ones, read off the solved rectangles, and they are not the same
+    # number: proposer.md 2.2.8 measures the warp amplifying the donor's void 2.2x
+    # because it is the one region of the frame carrying no target. On
+    # `acceptance-thresholds/`'s standing rule -- if you add a statistic, add its
+    # inputs to the record -- so a later reader can re-derive these without a
+    # 15-minute re-solve.
+    ncells, vcomps = frame_components(spans, len(xs) - 1, len(ys) - 1)
+    notch_a, void_a, bbox_m2 = realised_frame_areas(ncells, vcomps, gx, gy)
+    s_real = notch_a / bbox_m2 if bbox_m2 else 0.0
+    void_real = void_a / bbox_m2 if bbox_m2 else 0.0
     return {"status": "OK", "got": got, "types": types, "s": s, "void": void,
             "target_area": target_area, "targets": targets_m2,
             "cov_over_int": cov_over_int, "space_over_cov": space_over_cov,
-            "n_rooms": len(types)}
+            "n_rooms": len(types),
+            # realised, on the solved frame
+            "s_realised": round(s_real, 5), "void_realised": round(void_real, 5),
+            "bbox_m2": round(bbox_m2, 4),
+            "notch_m2": round(notch_a, 4),
+            "void_m2": round(void_a, 4),
+            "covered_m2": round(covered, 4),
+            "space_m2_total": round(sum(got), 4),
+            "erosion_m2": round(covered - sum(got), 4)}
 
 
 def gate_pool(brief, by_ms, by_n):
@@ -468,6 +544,33 @@ def summarise(rows, lenient=False):
                 pct([r["cov_over_int"] for r in rows], .5), 4),
             "space_over_covered": round(
                 pct([r["space_over_cov"] for r in rows], .5), 4),
+        },
+        # Ticket 57, obligation 1: the realised hole. `bbox` decomposes as
+        # Sum(Space) + erosion + notch + enclosed void, and only the first two
+        # were ever reported here. The void is the term ADR 0028 charges to a
+        # receiving Room, and `model.no_unassigned_area` is HARD, so the solver is
+        # required to close it -- realised void is floor the Homeowner is handed
+        # without asking. Donor-vs-realised is the amplification 2.2.8 measures.
+        "unassigned": {
+            "void_m2": {p: round(pct([r["void_m2"] for r in rows], q), 4)
+                        for p, q in (("p50", .50), ("p90", .90), ("p99", .99))},
+            "void_max_m2": round(max([r["void_m2"] for r in rows], default=0), 4),
+            "share_with_any_void": round(
+                sum(1 for r in rows if r["void_m2"] > 1e-9) / max(1, len(rows)), 4),
+            "share_void_over_0p5_m2": round(
+                sum(1 for r in rows if r["void_m2"] >= 0.5) / max(1, len(rows)), 4),
+            "donor_void_p50_m2": round(
+                pct([r["void"] * r["bbox_m2"] for r in rows], .5), 4),
+            "amplification_p50": round(pct(
+                [r["void_m2"] / (r["void"] * r["bbox_m2"])
+                 for r in rows if r["void"] * r["bbox_m2"] > 1e-9], .5), 3),
+            "notch_m2_p50": round(pct([r["notch_m2"] for r in rows], .5), 4),
+            "erosion_m2_p50": round(pct([r["erosion_m2"] for r in rows], .5), 4),
+            "void_share_of_bbox_p50": round(
+                pct([r["void_realised"] for r in rows], .5), 5),
+            "notch_share_realised_p50": round(
+                pct([r["s_realised"] for r in rows], .5), 4),
+            "notch_share_donor_p50": round(pct([r["s"] for r in rows], .5), 4),
         },
         "conditional": {
             "rooms_whose_target_clears": cond_rooms,
