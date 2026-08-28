@@ -229,3 +229,163 @@ ADR changes.
 the plane corrected and the ring held, Σ Space lands **+0,4 %** of the
 `target_area` the Brief asked for. The derivation is unchanged, and `rules.json`
 sees no change, which is the second time this ADR has ended there.
+
+---
+
+## Second amendment: `s` is the **Envelope's** notch share, and it never was
+
+Added by *The notch is two components and a quarter of donors have more*
+(ticket 61), which set out to decide whether a third boundary-touching
+complement component belongs in `s` and found that the question is the smaller
+of two, and that answering it the obvious way makes the larger one worse.
+
+### The third component is not a third notch, and cannot be
+
+`fit_rects.envelope_approx(domain, max_notches=2)` builds the Envelope as **the
+bounding box minus at most two inscribed notch rectangles**. Measured over the
+2,317 converted donors:
+
+| | |
+|---|---|
+| `notches_used` | **2 on 90.16 %**, 1 on 8.72 %, 0 on 1.12 % — and **never more** |
+| `notches_needed` (complement components ≥ 0.25 m²) | **3 or more on 37.6 %** |
+| `envelope_loss` — real notch area left *inside* the Envelope by the cap | p50 **1.78 %** of the domain, p90 **9.92 %**, mean **3.72 %** |
+
+So a donor's third boundary-touching complement component is **floor inside the
+Envelope that no part covers**. It is not the building's shape: the building's
+shape is the ≤ 2 notch rectangles, and everything the cap refuses to model is
+deliberately inside the ring. Its character says the same thing — p50 **1.25 m²**,
+p90 4.12, **89.7 % perfectly rectangular** against 62 % for the first component,
+**99.7 %** seated at a corner or edge distinct from the first two, and 46.4 % one
+250 mm cell thin. It is the same object ADR 0028 already names, distinguished
+from it only by a test — *enclosed by parts* — that fails at the frame border.
+
+**The two-notch cap is not challenged and does not move.** At this ADR's own
+materiality bar (consequence 3, at least 5 % of the bounding box) **0.30 %** of
+donors carry three or more components. ADR 0003's cap is evidenced at a measured
+ceiling and *The two-notch cap is now evidenced* stands unamended.
+
+### The larger error: `s` is measured on the wrong rectangle
+
+`s` is read off the **parts** complement, so it is the notch **plus** whatever
+`envelope_loss` and fit residue happen to adjoin it. The Envelope's own share is
+`1 - bbox_fill x (1 + envelope_loss)`, already derivable from every fit record.
+On the **88.8 %** of donors whose parts frame and dwelling bounding box are the
+same rectangle (p50 gap 0.0000; elsewhere the parts frame is *smaller*):
+
+| | p50 | p90 | mean | > 2 points |
+|---|---:|---:|---:|---:|
+| `s` (shipped) | 0.1291 | — | 0.1373 | — |
+| `s_env` (the Envelope's) | 0.1100 | — | 0.1182 | — |
+| **`s` − `s_env`** | **+0.0153** | +0.0427 | **+0.0191** | **38.2 %** |
+| `s_all` − `s_env` | +0.0201 | +0.0489 | +0.0237 | 50.1 % |
+
+**Widening `s` to cover every touching component moves it further from the
+object it names, not nearer.** That is the ticket's own question answered in the
+negative, and it is why the answer is not "count the third component".
+
+**What the error costs is not floor — it is the drawn ring.** The shipped box is
+`interior/(1 − s)`, so the Envelope inside it is `interior × (1 − s_env)/(1 − s)`
+= **+2.2 % mean**. The emitted Envelope's notch is therefore about **1.9 points
+of the bounding box larger than any real dwelling's** — on a 90 m² dwelling,
+roughly **1.9 m² of notch no donor had**. A notch is not bookkeeping: ADR 0003
+makes it a **typed ring edge**, drawn, dimensioned, named to a Homeowner as *a
+garden in one case and a neighbour in the other*, and exported as an IFC entity.
+Inventing 1.9 m² of it is a fidelity defect in the one part of the Envelope this
+map went to the corpus to avoid inventing.
+
+### The decision
+
+**`s` is the share of the candidate's bounding box taken by the Envelope's own
+notch rectangles — `notches_used` of them, at most two — and nothing else.**
+
+`box = interior / (1 − s)` is unchanged in form. `interior` is unchanged, on the
+plane the first amendment fixed. What changes is which cells `s` counts, and the
+box shrinks by p50 **1.7 %**, mean **2.2 %**.
+
+**The two changes ship together or neither ships.** Under the shipped `s` the
+over-sized box has been silently paying for the uncovered floor inside the ring:
+`covered ÷ interior` is mean **0.9942**, and ticket 56 measured Σ Space at
+**+0,4 %** of `target_area` with the ring held. Re-basing `s` alone removes the
+compensation without removing the cause and takes Σ Space to about **−1,9 %** —
+inside `area.invented_envelope_hard`'s ±5 % but spending a third of it on a
+correction that was supposed to be exact. The cause is uncovered floor inside
+the Envelope, **p50 2.47 % of it, mean 2.93 %**, and ADR 0028's amendment is
+what removes it. Sequencing this wrong is the one way to make the plan worse.
+
+**The guarantee is restated and is now true of the object it names.** *Every
+candidate delivers `interior` of **Envelope** by construction* — exactly, since
+`box × (1 − s) = interior` with `s` the Envelope's own share. Σ Space reaches
+`interior` because the solve tiles the Envelope exactly (`model.no_unassigned_area`,
+hard), and the floor it hands out is accounted for rather than absorbed at
+random once ADR 0028 charges it.
+
+### What it costs, and whether anything is owed
+
+**No new technology, no new dependency, no refactor.** `env_at` already computes
+the notch rectangles and discards them; §2.2's index-record table already
+promises *"`notches_used`, and each notch's index span"* and `fit_rects.py` has
+never emitted the spans. This is that **already-specified field**, taken on the
+pass the conversion is already frozen for — the sixth alongside the cut-line
+frame, per-pair relation provenance, `frontage_reach`, the void components with
+their donor owner, and `frame_residual`. One statistic off the same records.
+
+Until that pass runs, `s_env = 1 − bbox_fill × (1 + envelope_loss)` reproduces it
+from fields every record already carries, on the 88.8 % where the frames agree.
+That is enough to measure with and not enough to ship on, because a notch span
+snapped to the cut-line frame is what the warp constrains and a scalar is not.
+
+### Considered and rejected
+
+- **Widen `s` to every boundary-touching component (`s_all`).** The ticket's own
+  proposal, and the arithmetically exact one for the guarantee as previously
+  worded: `covered ÷ interior` goes to ~0.999. Rejected because it is exact
+  about the wrong object — it budgets the box for floor the ring **encloses**,
+  moves `s` a further 0.5 points from the Envelope's share, and would have the
+  emitted ring's notch bigger still. It buys a mean **0.51 %** of floor
+  (p90 1.97 %, max 7.31 %) at the cost of making the notch a number that
+  describes no geometry at all.
+- **Keep `s` as shipped and charge only the third component.** Cheapest, and it
+  closes the gap the ticket named. Rejected: it leaves `s` 1.9 points above the
+  Envelope's share on 38.2 % of donors and leaves the invented notch in the
+  drawing, which is the part a Homeowner sees.
+- **Raise the notch cap so a third component can be a third notch.** Refused by
+  ADR 0003's second amendment on a measured ceiling — a vertex budget rescues
+  **4.17 %** of the corpus, 46.3 % of which still fails at four notches, and
+  half the tail is chamfered or curved, which no rectilinear budget reaches.
+  Nothing here reopens it.
+
+### What the market does
+
+Retrieval-conditioned generators do not form this scalar at all. **Graph2Plan
+conditions on the boundary raster itself**, so there is no notch share to get
+wrong and no compression to lose the object in; `s` exists here only because
+ADR 0020 derives a *box* per candidate rather than carrying a boundary. That is
+a prior for keeping `s` tied to a geometric object we can point at — the notch
+rectangles — rather than to a residual computed from whatever the fit missed.
+And the reason nobody else reports this defect is the one ADR 0028 already
+recorded: `floorplan-generation-stack.md` finds **zero of ~20 published
+generators emit walls with thickness**, and `competitive-landscape.md` finds
+eleven products that all stop at schematic design. **A plan that stops at
+schematic has no obligation to tile**, so no vendor ever has to say whether an
+uncovered pocket is outside the building or inside it.
+
+### Consequences
+
+1. **Consequence 3's material-notch table owes a re-measure, and only in part.**
+   Its `L` (52.96 %) and `U`/`T` (25.42 %) rows reproduce on the parts complement
+   within 0.5 points and its `rectangular` row does not (15.67 % against 21.6 %),
+   and the 5.95 % it leaves at three-or-more material components cannot exist
+   against an Envelope that has at most two. The **headline is safe** — `L` is
+   the common case and the material reading is the 6x gain — and the two end rows
+   are on the contaminated object. Re-measure once the notch spans are published;
+   do not restate the table meanwhile.
+2. **The fork *What best-of-pool is worth at production pool depth* hit is
+   collapsed.** It found that constraining *all* uncovered-minus-void holds a
+   strictly larger region than this ADR names, with notch drift stalling at 0.04,
+   where constraining the cells `s` is read off tracked the tolerance. With `s`
+   defined on the notch spans, the region to constrain is **the notch spans**,
+   and there is no longer a choice to get wrong. The tolerance table — 2,6 % of
+   candidates at ±0.02, 8,8 % held exactly — is measured against a different
+   region and is a **guide to the shape of the cost, not the cost**.
+3. **`rules.json` sees no change.** Third time.
