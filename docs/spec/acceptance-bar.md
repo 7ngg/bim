@@ -914,11 +914,33 @@ areas. **Nor a Proposal-level *screen*.** A filter sitting between the warp and 
 was weighed and refused — 82 % of what it refuses the solve serves, its only
 *sound* form is arithmetic that never fires (Σ hard floors against the candidate's
 own derived box: p50 0,566, **max 0,736**), and it would skip the cheaper of the
-two steps. ⚠️ **That is a refusal of a filter, not of a third site.** Posting this
-floor as a **constraint inside the warp solve** changes what the warp *emits*
-rather than what survives it, and this section does not decide it: it could only
-buy the projection's INFEASIBLE rate, **5,1 % overall and 8,8 % at 7–10 rooms**,
-which is the band ADR 0013 calls tight and the one where depth buys nothing.
+two steps. ⚠️ **That is a refusal of a filter, not of a third site.**
+
+**And the third site is now taken.** *Should the warp post the statutory floor*
+decided it: the warp posts `dim.statutory_min_area` **hard, per Room, on this
+bar's plane, in a single pass** — ADR 0033. That is ADR 0027's *"the stage that
+misses it owns the miss"* being paid by the stage the ADR named, and none of the
+screen's three grounds transfers to it, because a constraint does not refuse, it
+re-sizes.
+
+**What it changes for this section is the base rate, not the escalation.**
+Starvation is still declared on the Plan; the screen is still refused; the three
+steps still run in order. What moves is the population they run on. The warp as
+`proposer.md` §2.2.2 specified it emits **31,6 %** of candidates carrying a Room
+below the law — median miss **1,356 m²**, tail to **8,444** — and posted, that is
+**4,6 %**, the residual being grid dust from a seed-shape estimate (p50 0,038 m²).
+At Brief level, m = 8 over 199 Briefs: service 96,48 % → 94,97 %, *legal* service
+**90,95 % → 94,97 %**, and the share of served Briefs holding a floor-clean
+candidate **94,27 % → 100 %**. So **18,3 % Proposal-level starvation is no longer
+the number to quote at step 1** — it was measured on the unposted warp.
+
+⚠️ **A two-pass warp was measured and refused, and the reason generalises.**
+Re-warping without the floor on INFEASIBLE recovers every lost candidate and
+takes violations to 14,0 % with nothing lost, which reads as strictly dominant.
+It is not: every second-pass candidate violates *by construction*, since it is
+exactly the one the floor refused. It buys a rate and buys **no invariant**, so
+this section would still have to reason about starved Proposals and nothing here
+would simplify. A guarantee that holds except when it doesn't is not one.
 
 ⚠️ **The solver reads a perimeter Room smaller than this bar does, by a median
 3,9 % of its area.** `solver.py` binds H4 on `(250w − t_int)(250h − t_int)`,
@@ -933,6 +955,18 @@ measuring rig, re-found where it cannot be removed, and it is why a candidate ca
 be Proposal-clear and still be refused. It costs yield and never admits a Plan
 that should have been refused, so it is recorded rather than treated as a defect
 to fix before v1.
+
+⚠️ **ADR 0033 re-prices that deferral without re-opening it.** The two quantities
+now have a name — `CONTEXT.md`'s [[Space plane]], the **bar plane** against the
+**solver plane** — and the warp posts the floor on this bar's, deliberately, so
+that a legal quantity is constrained on the plane the law is measured on rather
+than on a plane one component happens to be able to express. The consequence is
+that **59 of 302** floor-clean candidates — **19,5 %** — fail their floor on the
+solver's plane after the warp has paid to clear it on this one. ⚠️ That is a
+*per-candidate* share of a *floor-bound* population and is **not** comparable
+with the 1,51 % above, which is per-Room over all warped Rooms; they are two
+denominators, not a contradiction. What is new is only the cost basis: the
+deferral was priced when no stage was paying for the guarantee, and one now is.
 
 ## 12. Open, and deliberately so
 

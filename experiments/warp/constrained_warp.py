@@ -92,7 +92,7 @@ def warp_model_constrained(spans, nx, ny, targets, W, H, weights, min_side,
                            joins_x, joins_y, tlim, seed=None,
                            notch_cells=None, notch_share_target=None,
                            void_comps=None, void_owner=None, weight_void=False,
-                           notch_tol=NOTCH_TOL):
+                           notch_tol=NOTCH_TOL, area_floor_cells=None):
     """`fit_warp.warp_model` plus the two constraints. Deliberately a COPY and
     not an edit: `fit_warp.py` carries ADR 0018's published numbers and ticket 56
     declined to touch it for the same reason."""
@@ -146,6 +146,16 @@ def warp_model_constrained(spans, nx, ny, targets, W, H, weights, min_side,
             areas.append(av)
         area = sum(areas) + sum(charged.get(r, []))   # ADR 0028's charge
         room_areas.append(sum(areas))
+        # Ticket 64: `dim.statutory_min_area`, posted HARD, per Room and not per
+        # part (ADR 0014 -- and the rule's own statement says so). LINEAR: the
+        # part areas are already variables and the floor is a constant, so this
+        # adds no product to a model whose cost is its multiplications. The
+        # constant arrives in cells from `part_targets_cells`, which converts a
+        # Space area with `space_m2`'s own erosion rule -- so the floor binds on
+        # ADR 0001's plane, the one `dim.statutory_min_area` is stated on, and
+        # NOT on `solver.py`'s stricter four-side one.
+        if area_floor_cells is not None and area_floor_cells[r]:
+            m.Add(area >= area_floor_cells[r])
         e = m.NewIntVar(0, 20_000, "e%d" % r)
         m.Add(e * targets[r] >= 1000 * (area - targets[r]))
         m.Add(e * targets[r] >= 1000 * (targets[r] - area))
