@@ -49,11 +49,13 @@ every apartment type it sells, through an undocumented public JSON API its own
 website calls. Against that population the shipped tier is mostly **right** — and
 wrong in two specific places, one of which nobody was checking.
 
+⚠️ **Read §11 before acting on anything below.** Ticket 73 / ADR 0035 consumed this note, re-fitted four cells and **refused** the `bathroom_combined` move this TL;DR leads with. It also found that the defect worth fixing is at **dwelling** level and invisible per cell — the summed targets ran 11 % under what Baku builds while five of six cells sat within 10 % of it.
+
 | # | Finding |
 |---|---|
 | **1** | ⭐ **`market_practice` is no longer a gap. 318 distinct Baku plan geometries with per-room areas were obtained, and the measurement plane is confirmed.** `api.mida.gov.az/api/front/getApartment/{id}` returns the published *eksplikasiya* per apartment type. Two endpoints were re-fetched first-hand and the room areas **sum to `internal_size` exactly**, which proves the schedule is **net internal** — the plane ADR 0010 makes the Space polygon. §6.1. |
 | **2** | ⭐ **Three of the seven area cells land on Azerbaijani practice.** `kitchen` 9,0 against a MİDA median of **9,06** — agreement to 0,06 m². `bedroom_double` 12,0 against 13,20 and `living_room_2plus` 16,0 against 17,60, both ratio 1,10. The tier is much better than the Swiss comparison implied, because it is an Azerbaijani number answering an Azerbaijani question. §6.3. |
-| **3** | ⚠️ **One cell is wrong in the direction nobody was checking: `bathroom_combined` 3,8 m² is ABOVE what Baku builds.** 63,5 % of MİDA's main sanitary rooms are smaller than the engine's soft target (p50 3,51). §5 measured this cell against Swiss rooms, found it on the median to two decimals, and concluded it *"needs nothing"*. **Two corpora, opposite verdicts, and the Azerbaijani one is the region the profile claims.** §6.3. |
+| **3** | ⚠️ **One cell is wrong in the direction nobody was checking: `bathroom_combined` 3,8 m² is ABOVE what Baku builds.** 63,5 % of MİDA's main sanitary rooms are smaller than the engine's soft target (p50 3,51). §5 measured this cell against Swiss rooms, found it on the median to two decimals, and concluded it *"needs nothing"*. **Two corpora, opposite verdicts, and the Azerbaijani one is the region the profile claims.** §6.3. ⚠️ **WEIGHED AND REFUSED by ticket 73 / ADR 0035 — §11.5.** MİDA is the subsidised state fund, so below-target is the direction its bias predicts and the evidence is weak; three other populations agree with 3,8 and only MİDA dissents. The cell HELD. |
 | **4** | **`mətbəx-yemək otağı` does not occur in MİDA's vocabulary at all** — zero times in 5,954 type records; the whole residential vocabulary is **eight room names**. MİDA's open-plan room is `Mətbəx-studio`, it is in **5 of 318 plans (1,57 %)**, and it is in **0 multi-room apartments**. Every 2-, 3- and 4-otaq MİDA plan has a separate kitchen and a separate living room. §6.4. |
 | **5** | ⭐ **Two independent measurements of what an open-plan cooking room costs agree at ≈18 m².** MİDA's `Mətbəx-studio` p50 **17,37** (n = 5 plans) and the Swiss `KITCHEN`+`DINING` sum p50 **18,83** (n = 1,308 dwellings). The shipped target is **6,0** — a factor of **2,9**. §4.4, §6.3. |
 | **6** | ⭐ **A gas rule decides the open-plan question, and it splits the two open-plan types.** AzDTN 2.13-1 cl. 8.31 (mandatory) requires a gas hob to sit in a **`mətbəx otağı`**. AzDTN 2.7-3 cl. 4.7 files `mətbəx-yemək otağı` *inside* the word kitchen — so a **kitchen-diner is compliant with gas**, while a **kitchen-LIVING room is not**, absent an electric hob. MİDA fits gas hobs. §6.5. |
@@ -533,6 +535,9 @@ bedrooms — so those rows are **rank-matched within each plan** before comparin
 | `bedroom_single` | 9,0 | smallest `Yataq otağı`, 2+-bed plans | 159 | **11,45** | 6,9 % | 1,27 |
 | `bathroom_combined` | 3,8 | largest `Sanitar qovşağı` per plan | 318 | **3,51** | **63,5 %** | **0,92** |
 | `bathroom` | 3,2 | largest `Sanitar qovşağı` per plan | 318 | **3,51** | 28,6 % | 1,10 |
+
+⚠️ **The `bathroom` row above is a mis-match and must not be quoted — ticket 73, §11.5.** MİDA's eight-name vocabulary carries no separate `hamam otağı`; every sanitary room is a `Sanitar qovşağı` and the largest in a plan is a **combined** bath+WC. 3,51 is `bathroom_combined`'s figure. There is **no MİDA evidence for a bath-only room**, because MİDA does not build one.
+
 | `kitchen_zone_in_diner` | 6,0 | `Mətbəx-studio` | 5 | **17,37** | 0 % | **2,90** |
 
 **The tier is far better than the Swiss comparison made it look, and the reason is
@@ -981,3 +986,120 @@ Nothing here is fixed. Each item names its owner.
 | ≈27 % of Azerbaijani `ümumi sahə` is non-habitable; `circ.fraction_hard` is 30 % **Swiss-fitted** and now has an AZ comparator | `rules.json` | `rules.json`'s holder |
 | `minima.md` §7.1's *"closer to a binary GIA-style count"* generalisation needs narrowing to cl. 5.1's table — Azerbaijan **does** weight balconies fractionally, and `daylight.md` §4.2 already verified the coefficients | `minima.md` | the profile's research holder |
 | `counts_as_otaq: false` for `kitchen_dining` is now **corroborated by AzDTN 2.7-3 cl. 4.7**, which files the type inside `mətbəx` — the flag can move from `derived` toward `verified` | `room-constraints.json` | the profile's holder |
+
+---
+
+## 11. What was decided on this note — ticket 73 / ADR 0035
+
+This section is written by the ticket that consumed the note, not by the note.
+It records what moved, what did not, and the three statistics this note did not
+publish that the decision turned out to need.
+
+### 11.1 Every figure here was independently recomputed before a constant moved
+
+C11's posture applied to this note's own numbers. `mida_room_schedules.py` was
+re-run and its pooled table reproduced exactly; the **rank-matched** §6.3 table —
+which is the one the decision rests on and which no committed script printed —
+was recomputed from `out/mida_types.json` by a probe that imports nothing from
+the harness. **Every rank-matched figure in §6.3 reproduced to the cent**: living
+17,60 (n=312), kitchen 9,06 (n=312), largest bedroom 13,20 (n=287), smallest
+bedroom in 2+-bed plans 11,45 (n=159), largest sanitary 3,51 (n=318).
+
+### 11.2 Three statistics this note did not publish, and the decision needed all three
+
+| statistic | value | why it mattered |
+|---|---|---|
+| **Second sanitary room per plan** | p50 **2,06** m² (p25 1,90 / p75 2,24), **n=172** — 54 % of plans carry two | The `wc` cell was silent and fell to a **Swiss** median of 1,85. This is the Azerbaijani number that replaced it. |
+| **`Qonaq otağı` by otaq count** | 1 otaq **15,34** (n=32); 2 otaq 17,80; 3 otaq 17,39; 4 otaq 18,38 | §6.3 pooled the living rooms. Split, `living_room_1room_flat` turns out to sit **below** its 16,0 target while `living_room_2plus` sits above — the two cells needed opposite verdicts and the pooled figure could not give them. |
+| **Circulation as a share of net internal** | p50 **13,2 %** (p25 11,9 / p75 15,9), n=318 | §6.2 published `Dəhliz` p50 9,52 m² as a room figure. **316 of 318 plans carry exactly one**, so it is a whole-apartment quantity, and this share is the form in which it can be compared to `circ.fraction_hard`'s Swiss-fitted 30 %. |
+
+### 11.3 The finding that decided it, which is not in §0
+
+**No per-cell gap was large and the dwelling was 11 % small.** Against MİDA's own
+net internal less its 13,2 % circulation, the tier's summed targets at 3 otaq were
+**51,6 m²** against a room budget of **58,3**; at 2 otaq, **40,8** against **45,5**.
+
+Five of six cells sat within 10 % of practice, so a cell-by-cell review — which is
+what §6.3 invites — reads as "mostly fine, one bathroom to argue about". The
+defect only appears when the cells are summed, and it appears because ADR 0023
+made `dim.market_default_area` **two-sided**: a recommended *minimum* is being
+used as a *centre*, so the objective penalises a room for reaching the size Baku
+builds. §0 finding 11 states the mismatch qualitatively; this is its price.
+
+After the re-fit: **57,2** against 58,3 at 3 otaq (−11 % → −2 %), 43,6 against
+45,5 at 2 otaq.
+
+### 11.4 What moved
+
+| cell | from | to | matched class | n |
+|---|---:|---:|---|---:|
+| `living_room_2plus` | 16,0 | **17,6** | `Qonaq otağı`, largest per plan | 312 |
+| `bedroom_double` | 12,0 | **13,2** | `Yataq otağı`, largest per plan | 287 |
+| `bedroom_single` | 9,0 | **11,5** | `Yataq otağı`, smallest, 2+-bed plans | 159 |
+| `wc` | *silent* → Swiss 1,85 | **2,1** | `Sanitar qovşağı`, 2nd-largest per plan | 172 |
+
+Each cell keeps its AzDTN value under `superseded_by_measurement`. p50 rounded to
+the nearest 0,1 m², enforced by `verify_shipped_cells.py` at ±0,05.
+
+### 11.5 What did not move, and `bathroom_combined` is the one to read
+
+**The monotone-upward rule (ADR 0035 decision 2) governs all of it.** MİDA is the
+subsidised state fund, so its sample is biased **low** against Baku as a whole.
+MİDA *above* a target is evidence against the bias and is strong; MİDA *below* a
+target is what the bias predicts and is weak. **MİDA may raise a cell and may
+never lower one.**
+
+- **`bathroom_combined` 3,8 held**, against this note's §6.3 flagging it as the
+  one contradicted cell. Three reasons: the rule above; three other populations
+  agree with 3,8 and only MİDA dissents (Swiss p50 3,78 over 68 434 rooms, the
+  profile's own 4,25 m² over 35 821 bath+WC rooms, AzDTN's 3,8); and MİDA's p75
+  is 3,82, so a quarter of even the cheap end exceeds it.
+- **`living_room_1room_flat` 16,0 held** — MİDA 15,34, below, and a subsidised
+  one-room flat is where the low bias is strongest.
+- **`kitchen` 9,0 held** — 9,06 is 0,7 % away and moving it is spurious precision.
+- **`bathroom` 3,2 held, and this note's §6.3 row for it should not be quoted.**
+  It matched the cell to the *largest* `Sanitar qovşağı`, which is a **combined**
+  bath+WC. MİDA's eight-name vocabulary has no separate `hamam otağı` at all, so
+  **there is no MİDA evidence for a bath-only room** and 3,51 is
+  `bathroom_combined`'s figure, not this one.
+- **`bedroom_mansard` 8,0 held** — MİDA builds apartments.
+- **`kitchen_zone_in_diner` 6,0 held** — ADR 0034 governs; `Mətbəx-studio` (n=5)
+  is a studio device and must not be promoted to this cell's source.
+
+### 11.6 Circulation was refused a room cell
+
+§6.2's `Dəhliz` p50 9,52 m² is a **whole-apartment** figure (316 of 318 plans
+carry exactly one), and the profile has three circulation types. Posting a whole
+on one of three parts is ADR 0034's defect inverted, so it was refused. It is
+handed to `rules.json` as a dwelling-level comparator instead: **13,2 %** of net
+internal against `circ.fraction_hard`'s Swiss-fitted **30 %**, which Baku practice
+does not approach.
+
+### 11.7 The harvest is now partly committed
+
+`experiments/baku-market-areas/mida_plans_318.json` (172 KB) — the 318 distinct
+plan geometries, the unit of analysis every statistic here is computed over —
+plus the raw harvest's md5 `6fe6d97ef72882ddb75c293a2a731cd8`, the crawl stats
+and the filter counts. The **raw** harvest stays gitignored: it is 5 954 rows,
+one per apartment, and committing it would be reproducing MİDA's published tables
+wholesale, which `minima.md` §7.1's posture forbids.
+
+⚠️ **The cost, stated rather than hidden: the deduplication is not re-auditable
+without the raw.** If the endpoint dies, the 318-plan file is the record and the
+5 954 → 318 collapse cannot be re-derived. The md5 is there so a future re-crawl
+can be compared against the harvest the constants were fitted on — if it differs,
+the population moved and the cells must be re-read, not patched.
+
+Regenerate: `emit_derived_schedule.py`. Check the shipped constants against it:
+`verify_shipped_cells.py`.
+
+### 11.8 Handoffs this decision leaves
+
+Everything in §10 that ticket 73 did not take remains open and keeps its owner.
+Three items are **new**:
+
+| what | who owns it |
+|---|---|
+| ⚠️ **Raising a `market_default` target raises a HARD cap.** `dim.max_area` binds `k[type] × target_area`, hard, so all four re-fitted cells loosen a hard rule. C14 authorises a profile to raise a *floor* and is silent on raising a *cap*. The lever exists and is unowned | *Nineteen room types and nine area-band classes* (`area_bands`, `k`) |
+| **The Envelope grows for a silent Brief.** `brief.md` §5 rung 1 sizes at Σ `target_area` × (1 + f), so a 3-otaq brief stating no area now derives an Envelope ≈10 % larger. Intended, but it changes what the engine emits for an unchanged prompt | `brief.md`'s holder |
+| **`circ.fraction_hard` has an AZ comparator now**: MİDA circulation p50 13,2 % of net internal against the Swiss-fitted 30 % | `rules.json`'s holder |

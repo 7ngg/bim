@@ -957,7 +957,7 @@ between them: 1650 mm of bedroom width is a bed plus room to walk past it, and
 A profile publishes one only for the room types its law names — ten of nineteen
 are silent in `AZ` — and **silence is not an error**: where there is no statutory
 floor the ergonomic minimum stands alone. It always sits *below* the same
-profile's preferred area, and it binds only where the solve failed to reach that
+profile's [[Target area]], and it binds only where the solve failed to reach that
 target.
 
 **A law may floor a *part* of a room rather than the room, and then the profile
@@ -982,7 +982,7 @@ _Avoid_: “a Plan that reaches its target clears it by construction” — **me
 and false**. The premise holds and the conclusion does not, because a warp
 delivers a *proportion* of a target rather than the target: 25,5 % of warped
 candidates put some Room below its floor even when every stated target sits at or
-above the profile's preferred area. A statutory floor is a live constraint on
+above the profile's [[Target area]]. A statutory floor is a live constraint on
 engine output, not a formality the objective satisfies on its way past.
 
 **A Region profile may raise a hard floor and may never lower one.** That is the
@@ -1002,11 +1002,48 @@ one limb of one region's law is a value edit and not a rule edit.
 _Avoid_: reading the composed floor as a single rule with a single severity, or
 quoting either half's corpus cost as the pair's. And do not reach for it as the
 number a room is *sized* to: it is a floor far below what anyone builds, and the
-liveable number is the [[Region profile]]'s preferred area.
+liveable number is the [[Target area]].
+
+**Target area** — the area a Room is *sized to*: the two-sided band the solver's
+soft objective is centred on, and the number a Homeowner reads back as their own
+request. It is the liveable figure the [[Hard area floor]] sits far below.
+
+**It is a band and not a floor**, and that is the distinction the whole term
+exists to carry. A delivered Space landing off its target is the **normal** case,
+not an error, so *"the plan is smaller than I asked for"* is a statement about a
+band's lower side rather than a defect. A Room with no target has **no upper
+bound either**, which is how a 40 m² WC once passed every rule.
+
+**Where it comes from is a ladder, not a constant.** A [[Region profile]]'s
+preferred value first; the corpus median where the profile is silent — which is a
+disclosed [[Corpus provenance]] mismatch, a *number* rather than a layout; and
+where neither answers, the field is absent and the Room is sized against its
+ergonomic floor alone, surfaced as an assumption saying exactly that.
+
+**A profile's preferred values are measured practice floored by regulator
+recommendation — not a regulator's minimum wearing a target's name.** A
+recommended minimum used as a *centre* under-sizes by the whole distance between
+the minimum and the ordinary, and it does so invisibly: every cell can sit within
+a tenth of practice while the *dwelling* their sum describes is a tenth too
+small. ADR 0035.
+
+**Measured evidence may raise a preferred value and may never lower one**, where
+the evidence is a built population narrower than the region it stands for. The
+asymmetry is the sampling: a population drawn from the affordable end sitting
+*above* a target contradicts its own bias and is strong, while the same
+population sitting *below* is only that bias restated. This is the
+[[Region profile]]'s monotone rule in a second place and for a second reason —
+that one is about legal force, this one about who was measured.
+_Avoid_: treating a target as the smallest acceptable area. It is the middle of a
+band, the floor is a different term with a different severity, and reading one as
+the other is what makes a plan legal and unliveable.
+_Avoid_: "preferred area", "market default", "soft objective target" and
+"`target_area`" as if they were four things. They are this one, seen from the
+profile, the tier table, the objective and the Brief.
 
 **Region profile** — the set of *conventional* values a Plan is built and drawn
 to: the thickness catalogue, the decimal separator, the room-name abbreviations,
-the opening catalogue keys, the preferred room areas, the window fraction, and
+the opening catalogue keys, the preferred room areas ([[Target area]]), the window fraction, and
 the [[Statutory floor]]s its law publishes.
 Underneath it is really a **construction system plus a drawing convention**;
 country is only a proxy, and a poor one — Germany and Azerbaijan are both

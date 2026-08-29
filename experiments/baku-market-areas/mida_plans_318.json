@@ -1,0 +1,12390 @@
+{
+ "id": "mida_plans_318",
+ "what": "Distinct Baku plan geometries published by MIDA, deduplicated. The unit of analysis for every az_mida_2026 statistic in data/standards/room-constraints.json.",
+ "source": "az_mida_2026 (see data/standards/room-constraints.json #/sources)",
+ "plane": "net internal; each plan's room areas sum to its own `internal` to the cent",
+ "provenance": {
+  "raw_harvest": "experiments/baku-market-areas/out/mida_types.json (gitignored, NOT redistributed)",
+  "raw_md5": "6fe6d97ef72882ddb75c293a2a731cd8",
+  "raw_type_records": 5954,
+  "after_sanity_filter": 4701,
+  "distinct_plan_geometries": 318,
+  "dedup_key": "exact multiset of (room name, area rounded to 0,01 m2)",
+  "dedup_is_not_re_auditable_without_the_raw": true,
+  "crawl_stats": {
+   "300001": [
+    "Hovsan YK",
+    39,
+    2962
+   ],
+   "300004": [
+    "Yasamal YK",
+    29,
+    1713
+   ],
+   "100001": [
+    "Yasamal YK 2",
+    42,
+    1076
+   ],
+   "300005": [
+    "Hovsan YK 2",
+    60,
+    2962
+   ],
+   "300019": [
+    "Binaqadi YK",
+    28,
+    1398
+   ],
+   "300011": [
+    "Binaqadi YK 1",
+    0,
+    0
+   ],
+   "300023": [
+    "Hovsan YK (2,31)",
+    0,
+    0
+   ],
+   "300022": [
+    "Saray YK",
+    0,
+    0
+   ],
+   "300024": [
+    "Hovsan YK 3",
+    0,
+    0
+   ]
+  }
+ },
+ "plans": [
+  {
+   "nrooms": 0,
+   "internal": 34.97,
+   "external": 43.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Mətbəx-studio",
+     "sq": 15.14
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.06
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.91
+    }
+   ]
+  },
+  {
+   "nrooms": 0,
+   "internal": 34.97,
+   "external": 43.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Mətbəx-studio",
+     "sq": 15.14
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.06
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.91
+    }
+   ]
+  },
+  {
+   "nrooms": 0,
+   "internal": 35.57,
+   "external": 43.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 3.28
+    },
+    {
+     "n": "Mətbəx-studio",
+     "sq": 17.37
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.01
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.91
+    }
+   ]
+  },
+  {
+   "nrooms": 0,
+   "internal": 40.1,
+   "external": 48.6,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.7
+    },
+    {
+     "n": "Mətbəx-studio",
+     "sq": 17.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.7
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    }
+   ]
+  },
+  {
+   "nrooms": 0,
+   "internal": 40.1,
+   "external": 48.33,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.73
+    },
+    {
+     "n": "Mətbəx-studio",
+     "sq": 17.74
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.41
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 31.5,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.49
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.54
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 6.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.06
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 31.52,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.51
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.56
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 6.87
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 31.53,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.49
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.56
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 6.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 32.88,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.54
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.35
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 32.95,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.54
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.39
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.41
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.01,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.54
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.43
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.02,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.64
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.39
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.07
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.41
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.08,
+   "external": 40.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 2.64
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.43
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.07
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.51
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.1,
+   "external": 40.52,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 3.68
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.54
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.12
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.67
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.09
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.1,
+   "external": 40.52,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 3.68
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.54
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.11
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.67
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.1
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.3,
+   "external": 40.52,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.7
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.37,
+   "external": 40.52,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 3.68
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.54
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.12
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.67
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 33.37,
+   "external": 40.52,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 3.68
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.54
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.11
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.67
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.37
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 34.97,
+   "external": 43.02,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.14
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.06
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.91
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 35.46,
+   "external": 43.02,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 3.28
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.37
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.01
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 35.57,
+   "external": 43.02,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 3.28
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.37
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.01
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.91
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 37.31,
+   "external": 47.84,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.62
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.57
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.35
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.08
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 37.8,
+   "external": 48.09,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 37.9,
+   "external": 48.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 37.91,
+   "external": 48.76,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.62
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.85
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.34
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.08
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 37.92,
+   "external": 48.82,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.62
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.85
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.35
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.08
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 37.93,
+   "external": 48.58,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.62
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.86
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.35
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.08
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 37.93,
+   "external": 48.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.42
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.86
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.35
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.08
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 38.5,
+   "external": 47.7,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 38.6,
+   "external": 47.84,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 38.6,
+   "external": 48.8,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 38.6,
+   "external": 48.76,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Dəhliz",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 38.8,
+   "external": 47.85,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.1
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 39,
+   "external": 49.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.1
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 39.1,
+   "external": 49.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.1
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 39.2,
+   "external": 49.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 4.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 14.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 1,
+   "internal": 64.1,
+   "external": 77.25,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 14.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 49.22,
+   "external": 63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.33
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.52
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.39
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.9
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 49.77,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.93
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.41
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.22
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.42
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 49.9,
+   "external": 63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.9
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.12,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.64
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.42
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.16,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.93
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.64
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.46
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.17,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.92
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.68
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.44
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.18,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.92
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.69
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.44
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.21,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.93
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.68
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.47
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.22,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.93
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.69
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.48
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.3,
+   "external": 60.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.6,
+   "external": 61.48,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.7,
+   "external": 62.41,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.28
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.84
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.08
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.71,
+   "external": 62.42,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.84
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.08
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.73,
+   "external": 62.58,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.28
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.84
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.67
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.08
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.85,
+   "external": 62.65,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.84
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.08
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 50.9,
+   "external": 61.9,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 51.1,
+   "external": 65.25,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 51.2,
+   "external": 65.98,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.7
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 51.3,
+   "external": 65.75,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 51.4,
+   "external": 65.57,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 51.4,
+   "external": 62.41,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 51.6,
+   "external": 61.99,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.27,
+   "external": 62.66,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 5.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.78
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.12
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.67
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.09
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.29,
+   "external": 62.66,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 5.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.12
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.67
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.09
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.68,
+   "external": 65.57,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.01
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.68,
+   "external": 65.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.86
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.01
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.7,
+   "external": 62.66,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.74,
+   "external": 62.66,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 5.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.12
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.67
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.63
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.76,
+   "external": 65.57,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.01
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 52.83,
+   "external": 65.03,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 53.09,
+   "external": 65.45,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.73
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 53.5,
+   "external": 64.77,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 53.55,
+   "external": 65.95,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 53.69,
+   "external": 66.11,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 53.7,
+   "external": 65.22,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 53.8,
+   "external": 65.45,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54,
+   "external": 65.95,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.1
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.01,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.34
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.06
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.18
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.3,
+   "external": 65.72,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.5,
+   "external": 65.89,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.65,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.18
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.65,
+   "external": 66.92,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.05
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.19
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.73,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.36
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.18
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.79,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.94
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.18
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.8,
+   "external": 66.92,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.81
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.94
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.07
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.19
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.89,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.94
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.38
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.18
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.89,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 17.94
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 9.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.18
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.97,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.94
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 54.98,
+   "external": 66.92,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.81
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.94
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.07
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.37
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 55.02,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.96
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.09
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 55.03,
+   "external": 66.92,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.83
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.96
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.28
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.37
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 55.07,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.94
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.38
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 55.07,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.78
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 17.94
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 9.07
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.38
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 55.14,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.96
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.09
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 55.14,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 17.9
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 9.09
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.36
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 55.2,
+   "external": 66.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 18.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 9.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.56,
+   "external": 68.56,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.47
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.65
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.64,
+   "external": 68.56,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.47
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.69
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.67,
+   "external": 68.34,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.78
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.71,
+   "external": 68.57,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.74,
+   "external": 70.51,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.87
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.74,
+   "external": 70.92,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.36
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.27
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.66
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.78,
+   "external": 68.57,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.89
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.84,
+   "external": 68.34,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.95
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.84,
+   "external": 68.34,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.95
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.85,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.79
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.18
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.64
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.02
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.61
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.99
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.86,
+   "external": 68.56,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.47
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.95
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.86,
+   "external": 68.58,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.47
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.95
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.86,
+   "external": 68.58,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.47
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.55
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.91
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.87,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.26
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.64
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.91
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.99
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.9,
+   "external": 70.11,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 56.98,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.26
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.64
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.02
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.99
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.1,
+   "external": 69.88,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.29,
+   "external": 71.19,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.36
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.27
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.66
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.29,
+   "external": 76.61,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.87
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.37,
+   "external": 71.18,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.87
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.37,
+   "external": 71.51,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.36
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.27
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.66
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.4,
+   "external": 70.31,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.4,
+   "external": 70.22,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.42,
+   "external": 71.11,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.46
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.44,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.34
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.88
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.93
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.69
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.07
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.5,
+   "external": 70.17,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.5,
+   "external": 70.58,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.55,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.34
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.88
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.02
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.69
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.09
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.56,
+   "external": 71.26,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.46
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.6,
+   "external": 70.83,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.6,
+   "external": 70.51,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.9
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.66,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.93
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.43
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.88
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.71
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.61
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.11
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.68,
+   "external": 69.01,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.31
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 11.65
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.36
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.41
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.68,
+   "external": 69.01,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.28
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 11.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.7,
+   "external": 70.58,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.7,
+   "external": 71.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 11.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.7,
+   "external": 69.01,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.31
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 11.67
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.36
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.41
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.7,
+   "external": 69.1,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.2
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 11.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.73,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.93
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.43
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.88
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.02
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.71
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.65
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.11
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.79,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.49
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.88
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.74
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.65
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.07
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.87,
+   "external": 70.44,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.49
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.88
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.02
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.74
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.65
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.13
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 57.9,
+   "external": 70.82,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.1,
+   "external": 70.97,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.2,
+   "external": 71.08,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.3,
+   "external": 71.51,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.3,
+   "external": 71.18,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.9
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.4,
+   "external": 70.92,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.4,
+   "external": 70.92,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.9
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.4,
+   "external": 71.23,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.4,
+   "external": 70.64,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.6
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.7
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.5,
+   "external": 70.6,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 58.9,
+   "external": 71.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.6
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 59.6,
+   "external": 68.58,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 60.44,
+   "external": 74.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.83
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.33
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.41
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.69
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.74
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.52
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 60.55,
+   "external": 74.28,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.83
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.33
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.52
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.69
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.74
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.52
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 61.1,
+   "external": 74.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.7
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 61.2,
+   "external": 74.28,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.5
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 62.4,
+   "external": 78.56,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 21.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 62.73,
+   "external": 76.49,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 12.24
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 63.1,
+   "external": 76.49,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.3
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 63.65,
+   "external": 77.28,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 14.88
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.16
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.01
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 64.2,
+   "external": 77.28,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 15
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 67.39,
+   "external": 83.28,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 6.96
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 13.22
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.87
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 68,
+   "external": 83.52,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 19.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 13.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 7.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.9
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 68.54,
+   "external": 84.11,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 26.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 2,
+   "internal": 69.3,
+   "external": 84.11,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 26.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.5
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 67.2,
+   "external": 84.95,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 67.2,
+   "external": 84.99,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 67.5,
+   "external": 85.4,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 67.6,
+   "external": 85.35,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 67.7,
+   "external": 85.35,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.13,
+   "external": 85.32,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.37
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.21,
+   "external": 86.25,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.33,
+   "external": 85.68,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.35,
+   "external": 84.39,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.68
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.26
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.78
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.92
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.44,
+   "external": 85.77,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.68
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.6,
+   "external": 85.32,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.74,
+   "external": 84.95,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.04
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.77,
+   "external": 84.95,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.04
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.93
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.77,
+   "external": 86.25,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.99
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.79,
+   "external": 86.18,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.02
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.82,
+   "external": 86.34,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.99
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.84,
+   "external": 85.05,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.99
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.31
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.26
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.78
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.86,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.55
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.41
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.25
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.07
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.63
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.43
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.9,
+   "external": 85.68,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.93,
+   "external": 86.34,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.02
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.93,
+   "external": 86.43,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.99
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.31
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 68.95,
+   "external": 85.05,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.02
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.31
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.08
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.26
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.78
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.04,
+   "external": 86.43,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.02
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.31
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.08,
+   "external": 85.88,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.05
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.93
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.98
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.08,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.92
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.1
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.22
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.7
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.42
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.19,
+   "external": 85.4,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.05
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.93
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.98
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.22,
+   "external": 85.4,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.05
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.93
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.93
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.98
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.24,
+   "external": 85.35,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.05
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.93
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.27,
+   "external": 85.35,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.05
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.91
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.44
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.31,
+   "external": 85.35,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.01
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.13
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.25
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.4,
+   "external": 86.25,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.4,
+   "external": 86.18,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.43,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.9
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.1
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.91
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.44
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.47,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.92
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.1
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.91
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.48,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.11
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.44
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.5,
+   "external": 84.39,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.1
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.5,
+   "external": 86.43,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.51,
+   "external": 81.64,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.21
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.26
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.78
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.03
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.74
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.46
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.52,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.92
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.11
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.47
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.56,
+   "external": 81.64,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.21
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.78
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.03
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.74
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.98
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.46
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.6,
+   "external": 86.34,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.66,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.11
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.68,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.11
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.93
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.65
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.62
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.7,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.92
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.11
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.65
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.73,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 7.92
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.11
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.99
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.93
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.68
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.65
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.66
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.8,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.55
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.05
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.61
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.63
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.99
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.92,
+   "external": 81.64,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.21
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.3
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.78
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.03
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.74
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.98
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.93,
+   "external": 81.64,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.21
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.31
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.78
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.03
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.74
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.98
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 69.94,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.55
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.41
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.07
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.63
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.99
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 70.09,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.56
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.49
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.09
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.69
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.63
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.99
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 70.35,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.59
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.58
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.14
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.71
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.66
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.99
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 70.46,
+   "external": 84.47,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.59
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.64
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.16
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.74
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.66
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.99
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 71.23,
+   "external": 86.68,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.15
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.86
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.52
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.69
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.42
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 71.43,
+   "external": 87.86,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.61
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.02
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 71.54,
+   "external": 86.86,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.37
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 71.73,
+   "external": 87.77,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.65
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.86
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.52
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.69
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.46
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.42
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 71.74,
+   "external": 87.19,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72,
+   "external": 86.86,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.09,
+   "external": 88.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.05
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.45
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.79
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.1,
+   "external": 86.68,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.2
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.4
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.18,
+   "external": 88.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.99
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.2,
+   "external": 87.71,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.02
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.06
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.23,
+   "external": 87.86,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.99
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.3,
+   "external": 87.19,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.53,
+   "external": 87.78,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.23
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.75
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.69
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.97
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.55,
+   "external": 87.78,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.23
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.75
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.69
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.97
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.7,
+   "external": 87.77,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.1
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.4
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.72,
+   "external": 87.78,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.23
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.75
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.69
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.16
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.74,
+   "external": 87.78,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.91
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.22
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.23
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.75
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.69
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.16
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.76,
+   "external": 88.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16.02
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.44
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.86
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.79
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.82
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.8,
+   "external": 88.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.82,
+   "external": 85.63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.56
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.38
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.28
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.1
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.18
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.26
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.82,
+   "external": 85.63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.42
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.9,
+   "external": 88.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.9,
+   "external": 85.4,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.92,
+   "external": 85.63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.56
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.28
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.18
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.18
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.26
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.92,
+   "external": 85.63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.56
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.28
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.18
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.18
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.14
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.92,
+   "external": 85.4,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.52
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.92,
+   "external": 85.63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.55
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.28
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.19
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.18
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.26
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.93,
+   "external": 85.63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.56
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.28
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.19
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.18
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.26
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.93,
+   "external": 85.63,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.56
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.28
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.19
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.18
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.14
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.26
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 72.93,
+   "external": 85.4,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.53
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 73,
+   "external": 87.86,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 73.2,
+   "external": 88.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 73.3,
+   "external": 88.15,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 16
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.8
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 73.4,
+   "external": 87.7,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74,
+   "external": 86.91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74,
+   "external": 88.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.9
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.2
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.52,
+   "external": 87.06,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.73
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.18
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.62
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.84
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.4
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.52,
+   "external": 87.06,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.73
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.18
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.62
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.84
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.11
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.53,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.43
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.53,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.05
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.19
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.23
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.19
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.93
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.69
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.41
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.57,
+   "external": 87.06,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.73
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.18
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.62
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.84
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.43
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.57,
+   "external": 87.06,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.73
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.18
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.62
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.84
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.43
+    },
+    {
+     "n": "Dəhliz",
+     "sq": 3.13
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.78,
+   "external": 87.06,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.73
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.18
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.62
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.84
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 74.78,
+   "external": 87.06,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 8.73
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.18
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.62
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.84
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.26
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.2,
+   "external": 89.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.1
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.21,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.11
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.21,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.17
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.48
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.25
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.73
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.49
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.24,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.14
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.24,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.17
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.48
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.25
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.98
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.73
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.49
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.28,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.18
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.28,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.17
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.48
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.25
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.02
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.73
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.49
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.14
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.3,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.2
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.8
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.5
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.1
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.58,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.97
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.93
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.2
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.58,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.06
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 18.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 9.97
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.93
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.2
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.67,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.9
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.36
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.25
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.71,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.01
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.71,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.04
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.66
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.13
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.78
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.93
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.54
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.73
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.74,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.36
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.74,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 18.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.36
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.88,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.27
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.93
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.2
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.88,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.06
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 18.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 10.27
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.93
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.65
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.2
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 75.89,
+   "external": 89.54,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.06
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.27
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.93
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.66
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.2
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.59,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.36
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.25
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.59,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.95
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.52
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.16
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.95
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.54
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.73
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.67,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.95
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.52
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.17
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.98
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.58
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.73
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.7,
+   "external": 91,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.71,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 10.01
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.5
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.2
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.7
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.71,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.95
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.52
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.18
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.01
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.58
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.73
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.73,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.5
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.25
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.79,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.56
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.25
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.94,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.76
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.56
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 76.94,
+   "external": 90.96,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 9.82
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 18.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 9.38
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.56
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.97
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.15
+    }
+   ]
+  },
+  {
+   "nrooms": 3,
+   "internal": 83.03,
+   "external": 100.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.05
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 15.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 17.84
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.93
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.14
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 78.67,
+   "external": 96.42,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.58
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 7.76
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.27
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 78.78,
+   "external": 96.13,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.76
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.61
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 7.76
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.59
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.44
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.28
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 80.94,
+   "external": 99.89,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.55
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 81.08,
+   "external": 99.43,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.61
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 83.21,
+   "external": 101.67,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.55
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.64
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.34
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 83.91,
+   "external": 102.11,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.61
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.37
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 84.11,
+   "external": 102.49,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.61
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.57
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 84.56,
+   "external": 103.05,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.58
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.06
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.06
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 84.7,
+   "external": 103.22,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.29
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.82
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 8.58
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.06
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.2
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.97
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.7
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 87.7,
+   "external": 106.36,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.33
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 23.52
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 7.76
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.58
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.44
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.27
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.48
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 89.3,
+   "external": 109.62,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 15.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.33
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Qarderob",
+     "sq": 1.89
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.68
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 89.33,
+   "external": 109.16,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 15.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Qarderob",
+     "sq": 1.89
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.68
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 89.33,
+   "external": 109.12,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 15.45
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.07
+    },
+    {
+     "n": "Eyvan",
+     "sq": 0.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.66
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 9.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.36
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.87
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.84
+    },
+    {
+     "n": "Qarderob",
+     "sq": 1.87
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.68
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 91.93,
+   "external": 112.97,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 14.25
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 17.19
+    },
+    {
+     "n": "Eyvan",
+     "sq": 2.34
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 14.4
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.65
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 9.68
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Qarderob",
+     "sq": 2.6
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.86
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 96.1,
+   "external": 110.87,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.19
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.38
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 12.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.82
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.1
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 96.1,
+   "external": 110.87,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.19
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.38
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 12.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.82
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.1
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 96.53,
+   "external": 110.87,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.19
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.38
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 12.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.82
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.2
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 96.6,
+   "external": 110.87,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.19
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.38
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 12.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.82
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.66
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.21
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 96.63,
+   "external": 110.87,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.19
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.38
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 12.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.82
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.7
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.2
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 96.67,
+   "external": 110.87,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.19
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.44
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 12.04
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.57
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 13.92
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 1.82
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.24
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.13
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.66
+    },
+    {
+     "n": "Eyvan",
+     "sq": 4.21
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 98.7,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.69
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.26
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.73
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.18
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.45
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 98.7,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.4
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 98.95,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.72
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.23
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.51
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 98.99,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.74
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.72
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.85
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.21
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.48
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 98.99,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.72
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.85
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.25
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.48
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 98.99,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.69
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 99,
+   "external": 121.7,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.8
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 99,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.8
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 99,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.7
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.9
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.5
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 99.03,
+   "external": 119.5,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 11.74
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 18.72
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 10.91
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 12.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.85
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.25
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.48
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.38
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 106.18,
+   "external": 127.6,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 13.33
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 23.52
+    },
+    {
+     "n": "Eyvan",
+     "sq": 22.56
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 10.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 7.76
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 11.6
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 8.27
+    },
+    {
+     "n": "Eyvan",
+     "sq": 1.92
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.24
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 4.48
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 114.6,
+   "external": 135.76,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.5
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 23.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 15
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 18
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 17.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 4,
+   "internal": 114.61,
+   "external": 135.76,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 12.51
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 23.4
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 15
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 15.6
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 18
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 17.2
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 2.9
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    }
+   ]
+  },
+  {
+   "nrooms": 5,
+   "internal": 156.5,
+   "external": 184.2,
+   "rooms": [
+    {
+     "n": "Dəhliz",
+     "sq": 20.6
+    },
+    {
+     "n": "Qonaq otağı",
+     "sq": 27.7
+    },
+    {
+     "n": "Mətbəx",
+     "sq": 16.3
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 17.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 16.5
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 19.1
+    },
+    {
+     "n": "Yataq otağı",
+     "sq": 21.3
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.8
+    },
+    {
+     "n": "Sanitar qovşağı",
+     "sq": 3.6
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.3
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    },
+    {
+     "n": "Eyvan",
+     "sq": 3.4
+    }
+   ]
+  }
+ ]
+}

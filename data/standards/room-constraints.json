@@ -653,6 +653,19 @@
       "force": "informative",
       "force_note": "Source of every claim in §5 marked verified: per-version round-trip, code-page coverage, the cp1251/superscript-two conflict, the R2010->R2000 downgrade, DIMDSEP round-trip, and DIMDSEP being inert at DIMDEC=0.",
       "reusable": true
+    },
+    "az_mida_2026": {
+      "title": "MIDA (Menzil Insaati Dovlet Agentliyi) published apartment room schedules (eksplikasiya), Baku",
+      "issuer": "Azerbaycan Respublikasinin Menzil Insaati Dovlet Agentliyi",
+      "date": "harvested 2026-08-30 from the five populated Baku projects (Hovsan, Hovsan 2, Yasamal, Yasamal 2, Binaqadi)",
+      "url": "https://api.mida.gov.az/api/front/getApartment/{id} -- undocumented public JSON endpoint behind the mida.gov.az React shell",
+      "licence": "Third-party published sales material. C9 puts licence outside the gate for research data on a non-commercial project. The repo commits the DERIVED 318-plan schedule, never the raw harvest.",
+      "force": "informative",
+      "force_note": "NO LEGAL FORCE, AND THAT IS THE POINT. This is not a norm; it is a MEASUREMENT of what one builder builds. `informative` is the only value in source_force_vocabulary that fits, and the validator must never derive an AZ disclosure from it. TWO LIMITS TRAVEL WITH EVERY NUMBER READ OFF IT. (1) MIDA is the STATE HOUSING FUND -- subsidised guzestli menzil at administered prices, the regulated-affordable end of Baku, not the private market, which differs UPWARD. (2) It is design intent, not compliance: 84,0 % of its kitchens meet AzDTN 2.7-2 cl. 5.7's mandatory 8,0 m2 and one in six does not. The measurement plane is NET INTERNAL, pinned first-hand -- each apartment's room areas sum to its own published `internal_size` to the cent, which is what ADR 0010 measures.",
+      "unit_of_analysis": "DISTINCT PLAN GEOMETRY, keyed on the exact multiset of (room name, area). 5 954 type records -> 4 701 after a sanity filter -> 318 distinct plans. MIDA repeats one plan across floors and entrances up to 60x; counting type rows would reproduce the replication artefact that destroys the Swiss KITCHEN_DINING median.",
+      "vocabulary_limit": "EIGHT ROOM NAMES, AND THERE IS NO NINTH: Qonaq otagi, Yataq otagi, Metbex, Metbex-studio, Sanitar qovsagi, Dehliz, Qarderob, Eyvan. It carries NO separate `hamam otagi`, so it is silent on `bathroom`; NO `metbex-yemek otagi`, so it is silent on `kitchen_zone_in_diner`; and ONE circulation name covering a whole apartment, so it cannot be split across the profile's three circulation types.",
+      "harness": "experiments/baku-market-areas/mida_room_schedules.py; committed derived schedule at experiments/baku-market-areas/mida_plans_318.json",
+      "rounding_rule": "Every cell read off this source is the p50 over distinct plan geometries, rounded to the NEAREST 0,1 m2 (ties away from zero) -- the precision AzDTN 2.7-3 cl. 5.1's own list is published at. experiments/baku-market-areas/verify_shipped_cells.py fails if a shipped cell sits more than 0,05 m2 from its measured p50, so the rounding cannot drift into a free hand."
     }
   },
   "source_force_vocabulary": {
@@ -785,7 +798,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || MEASURED AND HELD. MIDA's 1-otaq Qonaq otagi p50 is 15,34 (n=32), BELOW this 16,0. Not lowered: the monotone-upward rule refuses it, because a subsidised 1-room flat is exactly where MIDA's low bias is strongest. Note this cell did NOT follow living_room_2plus up -- the two are separately matched and MIDA separates them too. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one."
             },
             "accessible": null
           },
@@ -797,11 +810,18 @@
               "conf": "verified"
             },
             "market_default": {
-              "v": 16.0,
-              "src": "az_azdtn_2_7_3",
-              "ref": "cl. 5.1",
+              "v": 17.6,
+              "src": "az_mida_2026",
+              "ref": "Qonaq otagi, largest per plan; n=312 distinct plan geometries",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "RE-FITTED 16.0 -> 17.6 BY TICKET 73 / ADR 0035, against 318 distinct Baku plan geometries. p50 17,60 (p25 16,05 / p75 18,33) and stable across otaq counts -- 17,80 at 2 otaq, 17,39 at 3, 18,38 at 4. AzDTN 2.7-3 cl. 5.1's 16,0 survives as the recommended MINIMUM and is now the floor this target sits above, not the target itself. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one. The superseded value was AzDTN 2.7-3 cl. 5.1's 16.0 m2, a RECOMMENDED MINIMUM for DETACHED HOUSES; it is retained as `superseded_by_measurement` below because it is still the regulator's number and a Practitioner will look for it. `derived` and not `verified`: the room areas are verified reads off MIDA's published schedules, the p50 over distinct plans is computed from them by the stated rule.",
+              "superseded_by_measurement": {
+                "v": 16.0,
+                "src": "az_azdtn_2_7_3",
+                "ref": "cl. 5.1",
+                "conf": "verified",
+                "note": "The regulator's recommended minimum for detached houses, which this cell held until ADR 0035. Not a floor the validator reads -- statutory_floor is that."
+              }
             },
             "accessible": null
           },
@@ -813,11 +833,18 @@
               "conf": "verified"
             },
             "market_default": {
-              "v": 9.0,
-              "src": "az_azdtn_2_7_3",
-              "ref": "cl. 5.1",
+              "v": 11.5,
+              "src": "az_mida_2026",
+              "ref": "Yataq otagi, smallest per plan, plans holding 2 or more; n=159 distinct plan geometries",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "RE-FITTED 9.0 -> 11.5 BY TICKET 73 / ADR 0035, against 318 distinct Baku plan geometries. p50 11,45 (p25 10,40 / p75 12,25). THE WIDEST GAP IN THE TIER: only 6,9 % of MIDA secondary bedrooms are below the old 9,0, so the solver's PREFERRED single bedroom sat at the 7th percentile of what the cheap end of Baku builds. Rounded to 11,5 by the tier's stated rule: nearest 0,1 m2, ties away from zero, which is the precision AzDTN's own list is published at. Enforced by experiments/baku-market-areas/verify_shipped_cells.py, which fails if any MIDA cell sits more than 0,05 m2 from its measured p50 -- the rounding rule is checkable, not a habit. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one. The superseded value was AzDTN 2.7-3 cl. 5.1's 9.0 m2, a RECOMMENDED MINIMUM for DETACHED HOUSES; it is retained as `superseded_by_measurement` below because it is still the regulator's number and a Practitioner will look for it. `derived` and not `verified`: the room areas are verified reads off MIDA's published schedules, the p50 over distinct plans is computed from them by the stated rule.",
+              "superseded_by_measurement": {
+                "v": 9.0,
+                "src": "az_azdtn_2_7_3",
+                "ref": "cl. 5.1",
+                "conf": "verified",
+                "note": "The regulator's recommended minimum for detached houses, which this cell held until ADR 0035. Not a floor the validator reads -- statutory_floor is that."
+              }
             },
             "accessible": {
               "v": 9.0,
@@ -835,11 +862,18 @@
               "conf": "verified"
             },
             "market_default": {
-              "v": 12.0,
-              "src": "az_azdtn_2_7_3",
-              "ref": "cl. 5.1",
+              "v": 13.2,
+              "src": "az_mida_2026",
+              "ref": "Yataq otagi, largest per plan; n=287 distinct plan geometries",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "RE-FITTED 12.0 -> 13.2 BY TICKET 73 / ADR 0035, against 318 distinct Baku plan geometries. p50 13,20 (p25 11,90 / p75 14,50). 31,0 % of MIDA principal bedrooms are below the old 12,0. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one. The superseded value was AzDTN 2.7-3 cl. 5.1's 12.0 m2, a RECOMMENDED MINIMUM for DETACHED HOUSES; it is retained as `superseded_by_measurement` below because it is still the regulator's number and a Practitioner will look for it. `derived` and not `verified`: the room areas are verified reads off MIDA's published schedules, the p50 over distinct plans is computed from them by the stated rule.",
+              "superseded_by_measurement": {
+                "v": 12.0,
+                "src": "az_azdtn_2_7_3",
+                "ref": "cl. 5.1",
+                "conf": "verified",
+                "note": "The regulator's recommended minimum for detached houses, which this cell held until ADR 0035. Not a floor the validator reads -- statutory_floor is that."
+              }
             },
             "accessible": null
           },
@@ -856,7 +890,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || NO MIDA EVIDENCE. MIDA builds apartments; a mansard bedroom is a detached-house room and AzDTN 2.7-3 remains the only source. Unchanged. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one."
             },
             "accessible": null,
             "reachable_in_v1": {
@@ -876,7 +910,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || MEASURED AND HELD, AND THIS IS THE CLOSEST AGREEMENT IN THE PROFILE. MIDA p50 9,06 against 9,0 (n=312) -- 0,7 % apart, which is noise, and presumably not a coincidence since MIDA designs to the same regulator. Moving it would be spurious precision. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one."
             },
             "accessible": {
               "v": 9.0,
@@ -898,7 +932,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || NOT COMPARABLE, AND ADR 0034 IS WHY. This cell measures a ZONE (`referent: part`), so it is a sound lower bound and never a target. MIDA has no `metbex-yemek otagi` at all -- zero occurrences across 5 954 records -- and its `Metbex-studio` (n=5, p50 17,37) is a studio device present in 1,57 % of plans and NEVER in a multi-room one. It must not be promoted to this cell's source; ADR 0034 set the compound targets at rung 2 and only a room-level Azerbaijani measurement may supersede them. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one."
             },
             "accessible": null
           },
@@ -924,7 +958,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || NO MIDA EVIDENCE EXISTS FOR THIS CELL, and that is a finding rather than an omission. MIDA's eight-name vocabulary has no separate `hamam otagi`: every sanitary room is a `Sanitar qovsagi`, and the largest one in a plan is a COMBINED bath+WC. A separate bath-only room is not something MIDA builds, so 3,2 keeps its AzDTN provenance untouched. Do not quote the 3,51 m2 sanitary median at this cell -- it is bathroom_combined's. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one."
             },
             "accessible": null
           },
@@ -935,7 +969,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || MEASURED, CONTRADICTED, AND HELD -- READ THIS BEFORE RE-OPENING IT. MIDA's largest sanitary room per plan has p50 3,51 (n=318), so 3,8 sits at roughly MIDA's p63,5 and 63,5 % of Baku state-fund main bathrooms are SMALLER. This is the one cell where the Azerbaijani and Swiss checks give OPPOSITE verdicts. It is held for three reasons, in order. (1) The monotone-upward rule: MIDA below a target is the direction its subsidised-segment bias predicts, so the evidence is weak. (2) Three other populations agree with 3,8 and only MIDA dissents -- Swiss p50 3,78 over 68 434 rooms, this profile's own 4,25 m2 over 35 821 real bath+WC rooms, and AzDTN's own 3,8. (3) MIDA's p75 is 3,82, so a quarter of even the cheap end exceeds this target. A ticket lowering this cell is overturning a decision taken with the contradiction already in hand. MONOTONE-UPWARD RULE, ADR 0035. MIDA is the subsidised state fund, so its sample is biased LOW against Baku as a whole. Where MIDA sits ABOVE a target the bias runs AGAINST the finding -- even the cheap end builds bigger -- so it is strong evidence the target is low. Where MIDA sits BELOW, the bias EXPLAINS it, so it is weak. MIDA may therefore RAISE a market_default cell and may NEVER lower one."
             },
             "accessible": null,
             "reachable_in_v1": {
@@ -945,7 +979,13 @@
           },
           "wc": {
             "statutory_floor": null,
-            "market_default": null,
+            "market_default": {
+              "v": 2.1,
+              "src": "az_mida_2026",
+              "ref": "Sanitar qovsagi, SECOND-largest per plan, plans holding 2 or more; n=172 distinct plan geometries",
+              "conf": "derived",
+              "note": "NEW CELL, TICKET 73 / ADR 0035, AND IT REPLACES A SWISS FALLBACK. `wc` was silent, so brief.md 9.2 rung 2 supplied the Swiss corpus median 1,85 m2 -- one of the disclosed CorpusProvenance != RegionProfile instances. MIDA p50 is 2,06 (p25 1,90 / p75 2,24), rounded to 2,1. 54 % of MIDA plans (172 of 318) carry a second sanitary room. DERIVED BY A RANK RULE AND THE RULE IS THE WEAK PART: MIDA's vocabulary has ONE sanitary name, `Sanitar qovsagi`, so `the smaller of two is the WC` is an inference from rank and size, not a read. It is corroborated by shape -- p50 2,06 with p75 2,24 is a pan-and-basin room and cannot be a bathroom -- and by the ergonomic layer, whose own wc floor it clears. An Azerbaijani inference beats a Swiss measurement for the region this profile is for, and that is the whole reason to take it."
+            },
             "accessible": null
           },
           "hall": {
@@ -977,7 +1017,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two. || TICKET 73 / ADR 0035 STRUCK THE `no Baku market or MIDA space standard could be obtained` SENTENCE FROM THIS CELL, AND NO WIDTH MOVED. MIDA's published eksplikasiya carries per-room AREAS ONLY -- name and m2, no dimensions -- so the 318-plan population that re-fitted four area cells is SILENT on every width in this block. There is still no Azerbaijani measurement of a built room's width, and that is now the accurate statement of the gap rather than the older, wider one. See profiles.AZ.market_evidence.az_mida_2026 and what_could_not_be_obtained.market_practice. NOTE the register split cl. 5.1 carries: the AREA list is `tovsiye edilir` (recommended) and this WIDTH list is `qebul edilmelidir` (mandatory) -- which is why an unmeasured width is a weaker problem than an unmeasured target would be."
             },
             "accessible": null
           },
@@ -988,7 +1028,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two. || TICKET 73 / ADR 0035 STRUCK THE `no Baku market or MIDA space standard could be obtained` SENTENCE FROM THIS CELL, AND NO WIDTH MOVED. MIDA's published eksplikasiya carries per-room AREAS ONLY -- name and m2, no dimensions -- so the 318-plan population that re-fitted four area cells is SILENT on every width in this block. There is still no Azerbaijani measurement of a built room's width, and that is now the accurate statement of the gap rather than the older, wider one. See profiles.AZ.market_evidence.az_mida_2026 and what_could_not_be_obtained.market_practice. NOTE the register split cl. 5.1 carries: the AREA list is `tovsiye edilir` (recommended) and this WIDTH list is `qebul edilmelidir` (mandatory) -- which is why an unmeasured width is a weaker problem than an unmeasured target would be."
             },
             "accessible": {
               "v": 2200,
@@ -1005,7 +1045,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two. || TICKET 73 / ADR 0035 STRUCK THE `no Baku market or MIDA space standard could be obtained` SENTENCE FROM THIS CELL, AND NO WIDTH MOVED. MIDA's published eksplikasiya carries per-room AREAS ONLY -- name and m2, no dimensions -- so the 318-plan population that re-fitted four area cells is SILENT on every width in this block. There is still no Azerbaijani measurement of a built room's width, and that is now the accurate statement of the gap rather than the older, wider one. See profiles.AZ.market_evidence.az_mida_2026 and what_could_not_be_obtained.market_practice. NOTE the register split cl. 5.1 carries: the AREA list is `tovsiye edilir` (recommended) and this WIDTH list is `qebul edilmelidir` (mandatory) -- which is why an unmeasured width is a weaker problem than an unmeasured target would be."
             },
             "accessible": null
           },
@@ -1016,7 +1056,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two. || TICKET 73 / ADR 0035 STRUCK THE `no Baku market or MIDA space standard could be obtained` SENTENCE FROM THIS CELL, AND NO WIDTH MOVED. MIDA's published eksplikasiya carries per-room AREAS ONLY -- name and m2, no dimensions -- so the 318-plan population that re-fitted four area cells is SILENT on every width in this block. There is still no Azerbaijani measurement of a built room's width, and that is now the accurate statement of the gap rather than the older, wider one. See profiles.AZ.market_evidence.az_mida_2026 and what_could_not_be_obtained.market_practice. NOTE the register split cl. 5.1 carries: the AREA list is `tovsiye edilir` (recommended) and this WIDTH list is `qebul edilmelidir` (mandatory) -- which is why an unmeasured width is a weaker problem than an unmeasured target would be."
             },
             "accessible": null
           },
@@ -1027,7 +1067,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two. || TICKET 73 / ADR 0035 STRUCK THE `no Baku market or MIDA space standard could be obtained` SENTENCE FROM THIS CELL, AND NO WIDTH MOVED. MIDA's published eksplikasiya carries per-room AREAS ONLY -- name and m2, no dimensions -- so the 318-plan population that re-fitted four area cells is SILENT on every width in this block. There is still no Azerbaijani measurement of a built room's width, and that is now the accurate statement of the gap rather than the older, wider one. See profiles.AZ.market_evidence.az_mida_2026 and what_could_not_be_obtained.market_practice. NOTE the register split cl. 5.1 carries: the AREA list is `tovsiye edilir` (recommended) and this WIDTH list is `qebul edilmelidir` (mandatory) -- which is why an unmeasured width is a weaker problem than an unmeasured target would be."
             },
             "accessible": {
               "v": 1200,
@@ -1044,7 +1084,7 @@
               "src": "az_azdtn_2_7_3",
               "ref": "cl. 5.1",
               "conf": "derived",
-              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. market_default rests entirely on regulator recommendation: no Baku market or MIDA space standard could be obtained. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two."
+              "note": "AzDTN 2.7-3 is a DETACHED-HOUSE norm. Transferred to the apartment case, so conf degrades from verified to derived and force is recommended, never statutory. || CITATION CORRECTED by ticket 70 from `cl. 5.4` to `cl. 5.1`. AzDTN 2.7-3 cl. 5.4 is the house ground base and structures and contains no widths; the width list closes cl. 5.1, immediately after the area list. THE VALUE IS UNCHANGED and was always right -- this is a provenance defect in a field no guard reads, the same class as the referent defect ticket 70 exists to close. Found by docs/research/az-kitchen-diner-whole-room.md 12.1 and independently by docs/research/az-market-default-against-practice.md, which counted six cells where the first note counted two. || TICKET 73 / ADR 0035 STRUCK THE `no Baku market or MIDA space standard could be obtained` SENTENCE FROM THIS CELL, AND NO WIDTH MOVED. MIDA's published eksplikasiya carries per-room AREAS ONLY -- name and m2, no dimensions -- so the 318-plan population that re-fitted four area cells is SILENT on every width in this block. There is still no Azerbaijani measurement of a built room's width, and that is now the accurate statement of the gap rather than the older, wider one. See profiles.AZ.market_evidence.az_mida_2026 and what_could_not_be_obtained.market_practice. NOTE the register split cl. 5.1 carries: the AREA list is `tovsiye edilir` (recommended) and this WIDTH list is `qebul edilmelidir` (mandatory) -- which is why an unmeasured width is a weaker problem than an unmeasured target would be."
             },
             "accessible": null
           }
@@ -2033,9 +2073,35 @@
         "azs_481_2011_and_azs_476_2011": "Azerbaijan's own brick and limestone standards -- sold, not published. Brick and stone modules are cited to gost_530_2012 and gost_4001_84 instead, and the profile says so.",
         "baku_degree_days": "Blocks a defensible t_ext_total; that value is flagged provisional rather than guessed.",
         "msn_2_04_05_95_text": "In force in AZ, unobtainable from any Azerbaijani source. KEO is reported off the Russian twin and NOT implemented.",
-        "market_practice": "No Baku market or MIDA space standard. market_default -- the DEFAULT tier and the solver's target -- therefore rests entirely on regulator recommendation transferred from a detached-house norm. This is the weakest part of the profile and it is the default one. || SUPERSEDED IN PART, 2026-08-30, AND THE RE-READ IS NOT THIS TICKET'S. MIDA DOES publish per-room areas: mida.gov.az is a React shell, so every earlier attempt fetched the shell and concluded nothing was there, while its bundle calls an undocumented public JSON endpoint returning the full eksplikasiya per apartment type -- 318 distinct Baku plan geometries, room areas summing to internal_size to the cent, which pins the plane as net internal (ADR 0010). So the FIRST sentence above is now false and the SECOND is still true: the tier has not been re-read against that population. One cell is already known to contradict it -- bathroom_combined targets 3,8 where 63,5 % of Baku main bathrooms are SMALLER, the opposite verdict to the Swiss check that settled it. Ticket 70 touched only kitchen_dining and living_dining_kitchen and deliberately left the tier alone; the whole-tier re-read, the bathroom_combined contradiction and whether to commit the harvest are one ticket of their own. Evidence: docs/research/az-market-default-against-practice.md.",
+        "market_practice": "NARROWED BY TICKET 73, 2026-08-30, AND THE ENTRY THAT WAS HERE IS NOW HALF FALSE. What could NOT be obtained is the PRIVATE / PREMIUM Baku market: no developer, portal or agency publishes per-room areas for the unsubsidised segment, and 14 Azerbaijani property portals were checked. That segment is where the numbers differ UPWARD from everything measured, so every market_default cell remains a LOWER-biased estimate of Baku as a whole. What CAN now be obtained, and has been, is the state housing fund: see profiles.AZ.market_evidence.az_mida_2026 -- 318 distinct Baku plan geometries on a confirmed net-internal plane. The old claim that market_default 'rests entirely on regulator recommendation' is dead: four cells are now measured, and the seven that are not each say in their own note why MIDA could not reach them.",
         "az_accessibility_instructions_2001_02": "Appear unpublished online.",
         "az_window_sill_and_guarding_trigger": "AzDTN 2.7-2 publishes NEITHER a window sill height NOR the sill threshold at which guarding becomes mandatory. Both searched first-hand in the full 2021 text: 'pəncərə altlığı' zero hits; no window-specific məhəccər clause; no child-safety clause. The guarding HEIGHT (cl. 8.3, 1,2 m) is verified; sill and trigger are engine_choice and say so. A measured negative, in the same class as ticket 14's 'the corpus has no module at all'."
+      },
+      "market_evidence": {
+        "comment": "WHAT IS ACTUALLY BUILT, AND BY WHOM. tier_model defines market_default as 'what is actually built and what a Homeowner expects'. Until ticket 73 the tier held regulator RECOMMENDED MINIMA for DETACHED HOUSES and nothing had ever measured what Azerbaijan builds, so the definition and the contents disagreed. This block is the measurement, and ADR 0035 is the decision taken on it.",
+        "az_mida_2026": {
+          "what": "MIDA's published per-apartment room schedules (eksplikasiya), five populated Baku projects",
+          "n": "318 distinct plan geometries from 5 954 type records; per-cell n stated on each cell",
+          "plane": "NET INTERNAL, pinned first-hand: each apartment's room areas sum to its own published `internal_size` to the cent. This is the plane ADR 0010 measures, so no conversion applies.",
+          "segment": "STATE HOUSING FUND ONLY -- subsidised guzestli menzil at administered prices. This is the regulated-affordable end of Baku construction. It is NOT Port Baku, Sea Breeze or Crescent, and where the private premium market differs it differs UPWARD. Every number here is therefore a LOW-BIASED estimate of Baku, which is what makes the monotone-upward rule sound.",
+          "compliance_caution": "A published schedule is design intent, not compliance. Against AzDTN 2.7-2 cl. 5.7's MANDATORY minima, MIDA's own plans meet kitchen >= 8,0 in 84,0 % of cases (262/312, smallest 6,87 m2), living >= 16,0 at 2+ otaq in 87,1 % (244/280), bedroom >= 8,0 in 98,6 % (283/287). One in six MIDA kitchens is below the minimum its own regulator publishes. Do not read this population as a compliance oracle.",
+          "cells_it_moved": [
+            "living_room_2plus 16,0 -> 17,6",
+            "bedroom_double 12,0 -> 13,2",
+            "bedroom_single 9,0 -> 11,4",
+            "wc null -> 2,1 (new)"
+          ],
+          "cells_it_could_not_reach": {
+            "bathroom": "MIDA has no separate `hamam otagi`; every sanitary room is a `Sanitar qovsagi`.",
+            "bedroom_mansard": "MIDA builds apartments; a mansard is a detached-house room.",
+            "kitchen_zone_in_diner": "Zero `metbex-yemek otagi` across 5 954 records. `Metbex-studio` (n=5) is a studio device and is not this room.",
+            "hall / corridor / entrance_lobby": "ONE circulation name, `Dehliz`, and 316 of 318 plans carry exactly one -- so its p50 9,52 m2 is a WHOLE-APARTMENT circulation figure and cannot be posted on one of the profile's three circulation types. Posting a whole on a part is the ADR 0034 defect inverted. It is handed to data/acceptance/rules.json as a dwelling-level circulation comparator instead: MIDA circulation is p50 13,2 % of net internal (p25 11,9 / p75 15,9, n=318) against circ.fraction_hard's Swiss-fitted 30 %, which Baku practice therefore does not approach."
+          },
+          "dwelling_level_check": "THE TEST THE RE-FIT WAS TAKEN ON, AND THE ONE A PER-CELL REVIEW CANNOT SEE. MIDA net internal excluding balconies, p50 by otaq: 32,55 / 52,40 / 67,19 / 85,60 for 1/2/3/4. Circulation is 13,2 % of that, so the room budget at 3 otaq is about 58,3 m2. The tier's summed targets at 3 otaq were 51,6 m2 before ADR 0035 -- 11 % under what Baku builds -- and are 57,2 m2 after, 2 % under. At 2 otaq, 40,8 -> 43,6 against a 45,5 budget. Every per-cell gap was inside 10 % and the SUM was not, because ADR 0023 made dim.market_default_area two-sided and a recommended MINIMUM was being used as a CENTRE.",
+          "harness": "experiments/baku-market-areas/mida_room_schedules.py",
+          "committed_data": "experiments/baku-market-areas/mida_plans_318.json",
+          "findings": "docs/research/az-market-default-against-practice.md"
+        }
       }
     },
     "UK": {
