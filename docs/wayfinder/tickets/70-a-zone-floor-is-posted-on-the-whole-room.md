@@ -4,7 +4,7 @@ title: A zone floor is posted on the whole room
 parent: map
 labels: [wayfinder:grilling]
 status: open
-assignee:
+assignee: tng
 blocked_by: []
 writes:
   - docs/adr/0033-the-warp-posts-the-statutory-floor-and-pays-adr-0027s-debt.md

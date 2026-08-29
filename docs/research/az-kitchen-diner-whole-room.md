@@ -20,6 +20,15 @@ Homeowner and no surface text names a law.
 **This note edits no artefact.** Ticket 70 owns the decision; `experiments/warp/`
 is claimed by four other tickets and is not written here.
 
+**Its sibling, and the boundary between them.**
+`docs/research/az-market-default-against-practice.md` was written alongside this
+note and answers the **`market_default`** question — what the tier is against a
+measured room population, and whether Baku practice can replace it. It carries the
+**MİDA harvest** (318 distinct Baku plan geometries with per-room areas), which
+**supersedes the per-room half of §9.1's negative** here; read that section's
+warning before quoting §9.1. Two side findings in §12 were reached independently
+in both notes, which is concurrence rather than duplication.
+
 ---
 
 ## 0. TL;DR
@@ -41,7 +50,7 @@ it.** Ticket 70's premise survives contact with the sources.
 | **8** | ⭐ **And they settle §11.4's conjecture — which turns out to be half right.** §11.4 guessed AZ's 15 m² living room, 10 m² two-person bedroom and 2700 mm height were inherited from those amendments. **The height is** — Amendment №1 п.1.1 says *«не менее 2,7 м»* in 2004. **The room areas are not**: п.2.4 says the one-room living room is **14 m²** and has no two-person bedroom rule at all. §6.3. |
 | **8a** | ⭐ **Which exposes something sharper: cl. 5.7 departs from СП 54.13330 cl. 5.11 in exactly TWO places, and the 6,0 is not one of them.** Laid against both parents, AzDTN 2.7-2 cl. 5.7 is the 2004 Azerbaijani text updated to Russia's schedule — 16, 8, 8 (10), **6**, 5 and the 7 m² mansard proviso all match Russia **word for word**. Azerbaijan changed **one** value (one-room living room **15** against Russia's and 2004's 14) and **added one rule** Russia has no counterpart for (*«birotaqlı mənzillərin girişində qarderob – 2,5 m²-dən»*). ⚠️ **So the 6,0 is not an Azerbaijani judgement about Azerbaijani kitchens** — it was carried across from the Russian successor line together with the room type, **and the missing whole-room figure was carried across with it.** §6.3, §10.1. |
 | **9** | **«кухня-столовая» appears ZERO times across the entire amendment package.** The kitchen-diner as a room type has **no SNiP-era antecedent in Azerbaijan**. It enters Azerbaijani law with AzDTN 2.7-2 in 2021 — and enters it already carrying only a zone figure. There is no older, fuller rule that was cut down. §6.2. |
-| **10** | **What AzDTN *does* publish that bounds this room: Cədvəl 1, and it is `recommended`, not statutory.** cl. 5.1 carries a whole-**apartment** area schedule by room count — city 28–38 / 44–53 / 56–65 / 70–77 / 84–96 / 103–109 m², village higher — but it is prefaced *«qəbul edilməsi tövsiyə olunur»* and it binds only the **state and municipal** housing fund. For the private fund the same clause hands area, room count and composition to **the client**. §7. |
+| **10** | **What AzDTN *does* publish that bounds this room: Cədvəl 1, and it is `recommended`, not statutory.** cl. 5.1 carries a whole-**apartment** area schedule by room count — over the 1–4 otaq band C13 promises, city **28–38 / 44–53 / 56–65 / 70–77 m²**, village higher; the table itself is **not reproduced**, per the standing posture in §7.1 — but it is prefaced *«qəbul edilməsi tövsiyə olunur»* and it binds only the **state and municipal** housing fund. For the private fund the same clause hands area, room count and composition to **the client**. §7. |
 | **11** | **No Azerbaijani source below the norms supplies the number either.** MİDA publishes no space standard — its own sales documents disclose only *otaq sayı* × *ümumi sahə*. No AzMİU or other Azerbaijani teaching source states a whole-room figure or a dining-zone allowance. Both are clean negatives from independent searches. §9. |
 | **11a** | **The gap is REGIONAL, not Azerbaijani — which is the strongest support the negative gets.** Of eight jurisdictions checked, exactly **one** publishes a live whole-room figure for a combined kitchen-diner (Turkey, and only by refusing the category and summing the parts). Russia — Azerbaijan's closest legal relative — has the **identical zone-only structure**. Belarus publishes no room areas at all. Kazakhstan quantifies **both** zones and still no room. ⚠️ So §2's absence is not a drafting oversight some other Azerbaijani instrument might repair; it is how this whole family of norms treats the type. §10.2. |
 | **12** | ⚠️ **A side finding, checkable and wrong today: `clear_widths_mm` cites the wrong clause.** `habitable_room` and `kitchen` both carry `ref: "cl. 5.4"` against `az_azdtn_2_7_3`. AzDTN 2.7-3 cl. 5.4 is about **ground bases and load-bearing structures**. The widths (3,0 m and 2,6 m) are in **cl. 5.1**. The values are right; the citation points at the wrong clause. §12. |
@@ -630,17 +639,38 @@ non-normative Azerbaijani space standard. It publishes none.
 
 - MİDA's own sales list for the Yevlax complex (179 apartments) discloses
   **`Mənzil №` / `Otaq sayı` / `Ümumi sahə` / `Qiymət`** — apartment number,
-  room count, total area, price. **No per-room breakdown of any kind.**
+  room count, total area, price. **No per-room breakdown in the sales list.**
 - Its contractor and aggregator pages give whole-apartment ranges only
   (Yasamal phase 2: 40,12–84,47 m² across studio/1/2/3-room).
 - The *güzəştli mənzil* Əsasnamə governs eligibility and finance, not design.
 
-**No Azerbaijani source — state, developer or listing — was found labelling a
-room `mətbəx-yemək otağı` with an area.** Real-estate portals expose room count
-and total area only; there is no per-room kitchen-dining field to search.
+**No Azerbaijani source labelling a room `mətbəx-yemək otağı` with an area was
+found.** Real-estate portals expose room count and total area only; there is no
+per-room kitchen-dining field to search.
 
-⚠️ This negative covers **indexed text**. Marketing floor-plan *images* could
-carry the label baked into the graphic; that avenue was not exhausted.
+⚠️ **THIS SECTION'S NEGATIVE IS NARROWER THAN IT LOOKS, AND THE HALF ABOUT
+PER-ROOM DATA IS SUPERSEDED.** *"MİDA publishes no space standard"* stands —
+there is no MİDA **norm**. But MİDA **does** publish a per-room schedule
+(*eksplikasiya*) for every apartment type it sells, through the undocumented JSON
+API its own React front end calls:
+`https://api.mida.gov.az/api/front/getApartment/{id}`. The sales-list PDF and the
+indexed HTML carry only totals, which is why a text search finds none; the data is
+behind the API. **318 distinct Baku plan geometries with full room schedules** were
+harvested and analysed in
+`docs/research/az-market-default-against-practice.md` §6, where the measurement
+plane is also pinned (the rooms sum to `internal_size` exactly, so the schedule is
+net internal).
+
+**What that does and does not change for THIS note's question.** It does not
+change the answer: MİDA's residential vocabulary is **eight room names** and
+`mətbəx-yemək otağı` is **not one of them** — zero occurrences in 5,954 type
+records. MİDA's open-plan room is `Mətbəx-studio`, present in 5 of 318 plans and
+in **no** multi-room apartment. So the negative in §0.1 survives, now on a much
+larger evidence base than indexed text.
+
+⚠️ The residual gap is unchanged: marketing floor-plan **images** from private
+developers could carry the label baked into the graphic, and that avenue is not
+exhausted.
 
 ### 9.2 No Azerbaijani teaching source states the number either
 
