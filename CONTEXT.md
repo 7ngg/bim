@@ -438,6 +438,26 @@ one privately was free to disagree with the profile and with the others. ADR 003
 _Avoid_: "room category", "room kind" — and any sentence where a profile key or a
 corpus label stands where a type belongs.
 
+**Area-band class** — the population a [[Room type]]'s **upper** area band was
+fitted on, and the fourth projection of the type. Carries `k`, `absolute_cap` and
+the soft weight; it is what `dim.max_area` and `dim.market_default_area` key on.
+
+It resolves by **containment, not identity**, and that is the whole of the term.
+A [[Corpus label]] map says what a label **is**; this one says which population
+**contains** a type. The two differ, and treating them as one relation is why
+nine of nineteen types resolved to nothing and a hard rule silently did not fire
+on them — `hall` among them, which `resolve` invents in every dwelling. The
+merged circulation label cannot default a hall's *target*, and it is exactly the
+right *band*, because a band is a dispersion statistic over a population and that
+population is the merge.
+
+Every row declares the rung it resolved on — `contains(label)`,
+`contains(fixture)`, `composed`, `analogy` — so the weak links are visible rather
+than uniform-looking, and **totality is gated**: a type with no class is worse
+than a wrong bound, because a wrong bound reports itself. ADR 0038.
+_Avoid_: calling one a [[Corpus label]] even where the two share a spelling, and
+reading a class as evidence about a *target*. It bounds; it never anchors.
+
 **Corpus label** — the room vocabulary a [[Corpus]] annotates in, and the third
 scheme after the [[Room type]] and the region profile's own keys. Belongs to
 whoever built the dataset, so it is neither region-invariant nor ours, and it

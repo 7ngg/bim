@@ -180,7 +180,7 @@
       "src": "az_azdtn_2_7_2",
       "ref": "cl. 5.7",
       "conf": "verified",
-      "value_source": "data/standards/room-constraints.json#/profiles/{region}/rooms/areas_m2/{key}/statutory_floor, resolved through profiles.{region}.rooms.mapping.rooms.{erg_key}.az_area -- the same ordered when_otaq_count guard list dim.market_default_area reads. A null az_area means NO STATUTORY FLOOR, not an error; ten of nineteen keys are silent in AZ and the ergonomic minimum is the whole floor for those. || REFERENT, ticket 70 / ADR 0034: every az_area guard entry now carries `referent` -- room | part | undetermined. A `part` read means the cell measures a PROPER PART of the room the ergonomic key names (AzDTN floors the kitchen ZONE inside a kitchen-diner, never the room). Its value is then a SOUND LOWER BOUND -- the room contains the part, so it refuses a strict subset of what the law refuses and there are no false refusals -- and it MAY feed this rule and MAY NEVER feed dim.market_default_area. An entailed bound sums the entry's `compose_with` cells where the norm's own type definition establishes the parts are disjoint; verified cells only. Two AZ reads are `part` (kitchen_dining, living_dining_kitchen) and one is `undetermined` (living_dining), which is a MARKER ONLY and changes no behaviour.",
+      "value_source": "data/standards/room-constraints.json#/profiles/{region}/rooms/areas_m2/{key}/statutory_floor, resolved through profiles.{region}.rooms.mapping.rooms.{erg_key}.az_area -- the same ordered when_otaq_count guard list dim.market_default_area reads. A null az_area means NO STATUTORY FLOOR, not an error; ten of nineteen keys are silent in AZ and the ergonomic minimum is the whole floor for those. || REFERENT, ticket 70 / ADR 0034: every az_area guard entry now carries `referent` -- room | part | undetermined. A `part` read means the cell measures a PROPER PART of the room the ergonomic key names (AzDTN floors the kitchen ZONE inside a kitchen-diner, never the room). Its value is then a SOUND LOWER BOUND -- the room contains the part, so it refuses a strict subset of what the law refuses and there are no false refusals -- and it MAY feed this rule and MAY NEVER feed dim.market_default_area. An entailed bound sums the entry's `compose_with` cells where the norm's own type definition establishes the parts are disjoint; verified cells only. ONE AZ read is `part` (kitchen_dining). CORRECTED BY TICKET 71 ON 74's HANDOFF: this said `Two ... (kitchen_dining, living_dining_kitchen)` and ADR 0036 took the open-plan cell to az_area: null, because a `part` read asserts the norm entails something about a room it has a word for and AzDTN has no word for that room. 74 measured it, could not write this file -- 71 and 72 both claimed it -- and handed it on as prose and one is `undetermined` (living_dining), which is a MARKER ONLY and changes no behaviour.",
       "corpus_cost": 0.5451,
       "fitted_by": "docs/wayfinder/tickets/50-a-statutory-floor-posted-soft.md",
       "note": "NEW, AND IT IS THE FIRST HARD RULE ON THIS MAP THAT CARRIES A REGION. C14 is amended by *A statutory floor, posted soft, in the one region v1 ships*: a Region profile may RAISE a hard floor and may never lower one. acceptance-bar.md section 3's three reasons are re-read -- reasons 1 and 2 (defensible where no law exists; region-invariant because bodies are) survive untouched and keep the ergonomic layer as the region-free base; reason 3 (lets v1 ship without settling the region list) is SPENT, because C12 settled the list at exactly one profile. The guarantee that mattered is preserved exactly, because raising is monotone: a region we have never surveyed still gets the full ergonomic bar, and no profile can take a predicate away.  ||  WHY THE RULE EXISTS: the ergonomic floor is INERT. dim.min_area rejects 0.19 % of real Swiss dwellings and adds 0.00 % to the hard union -- it is the only rule on this file that changes nothing -- while it is the sole predicate standing between a Homeowner and the 1,85 x 1,68 m = 3,1 m2 double bedroom acceptance-bar.md section 3 was written to forbid. min_clear_short 1650 is a FITS floor (bed 1350 + body zone 300 one side), not a HABITABLE floor, and AzDTN cl. 5.7 publishes the habitable one.  ||  READ THE corpus_cost WITH ITS DENOMINATOR. 0.5451 is the share of 42,985 real Swiss dwellings holding at least one Space below its AZ statutory floor, and +19.98 points marginal over the fitted/real-pier union. IT IS NOT THIS RULE'S REJECTION RATE, for two reasons written out so nobody quotes it as one. First, the bar does not gate the retrieval index -- admission is conversion fidelity (proposer.md section 2.2.1, and worst-room IoU per ticket 47), not the bar -- so a donor below the floor is not removed from the pool and the coverage argument that refused a p95 cap in room-area-bands.md 6.1 does NOT transfer. Second, the engine warps a donor to the Brief's targets, and market_default is at or above statutory_floor in EVERY reachable AZ cell (living 16/16, bedroom_double 12>10, bedroom_single 9>8, kitchen 9>8, kitchen_zone_in_diner 6/6). A Plan that reaches its soft target clears this rule by construction; the rule fires only where the solve FAILED to reach it, which is exactly the case it exists for.  ||  WHAT IS UNMEASURED, AND THE TRIGGER TO REVISIT. The rule's true cost is on engine output, and no Proposer has been run. ADR 0018's warp fidelity is a PROPORTION result -- fit_warp.py:373-384 normalises absolute area away -- so the warp has never been measured against a stated target_area (owed by experiments/warp/). If the first Proposer run shows the warp systematically undershooting per-room area, this rule collapses yield and homeowner_surface.no_survivors fires. That is a ONE-FIELD rollback and it is DETECTABLE; the alternative failure -- shipping a 6,6 m2 kitchen into Baku, soft, unannotated, indistinguishable to a Homeowner from a good one -- is not detectable and ships. The asymmetry is the decision: a hard rule that is too strict is discovered, a soft rule that is too lax is not.  ||  PER-LIMB MARGINAL over the fitted/real-pier union, so a later ticket amends a limb rather than the rule: kitchen >= 8,0 m2 costs 16,88 points of the 19,98 and the Swiss kitchen p50 is 8,04 m2, so that limb lands on the corpus MEDIAN; room* as bedroom_double >= 10,0 costs 5,73; living/living_dining >= 15/16 costs 1,03; bedroom_single >= 8,0 costs 0,30; kitchen_zone_in_diner >= 6,0 costs 0,00. All five are taken, including the kitchen, on the reasoning above -- and section 7.5's precedent, which handed win.habitable_has_window's 45,19 % to the retrieval and conversion side rather than paying for it by weakening a statutory rule.  ||  BRIEF-SIDE PRE-IMAGE, per ADR 0015. Sigma of hard minima rises: a one-otaq dwelling goes from 9,0 m2 (living 3,7 + kitchen 1,8 + bathroom_combined 2,5 + hall 1,0) to 26,5 m2, two-otaq to 37,5, three to 47,5, four to 57,5, before the partition footprint. Those are ordinary Baku flat sizes and nothing leaves C13's 3-10 band; the 9,0 m2 one-otaq flat the old floor admitted is the defect, restated at parse time. brief.md section 9.4 bounds 1 and 3 must read the raised floor, and the message they emit is arithmetic -- your Envelope cannot hold n otaq -- never a compliance claim, which is how this rule stays inside C8.  ||  C8 CUTS BOTH WAYS AND THIS IS THE DIRECTION IT CUTS HERE. C8 forbids CLAIMING code compliance. It does not forbid BEING compliant. No Homeowner-facing message on this rule names a law: it is severity hard, so a failing Plan is discarded and never shown (C6, homeowner_surface.no_survivors), and the only text a Homeowner ever sees is the Brief-side arithmetic above.  ||  RE-DECIDED WITH THE PRICE KNOWN, AND IT STAYS HARD -- ticket 55. The trigger this note names FIRED, early and on purpose, and the rule does not move. Four reasons, in the order they bind. (1) THE ASYMMETRY WAS NEVER CONDITIONAL ON THE PRICE. Ticket 50 posted this rule on the argument that a hard rule too strict is discovered at build time and rolled back by one field, while a soft rule too lax SHIPS -- a 6,6 m2 kitchen reaching a Baku Homeowner as an unannotated survivor, indistinguishable from a good one under C6, uncatchable by C2's would-I-live-here. Discovery is what just happened. Acting on it by weakening the rule spends the argument on the one event that vindicates it.  (2) THE PRICE HALVED AND IS AN UPPER BOUND: 6,7 % of Briefs became 3,6 %, at pool-of-8 against a production median pool of 58.7 to 86.6. See engine_cost.caveat.  (3) THE 17,4 % IS THE WARP'S, NOT THE RULE'S. No sizing constant reaches it -- ticket 56 proved f=0.0575 correct and the level lands at +0,4 % -- so what survives is the warp's per-room DISTRIBUTION. A predicate is the wrong instrument against a proposer defect, and acceptance-bar.md 7.5's precedent is this same object from the same side: win.habitable_has_window's 45,19 % was handed to the retrieval and conversion side and not paid for by weakening a statutory rule.  (4) THE MARKET SETTLES IT. competitive-landscape.md 5.2: code compliance is claimed by six vendors and implemented by approximately zero -- every one is either user-authored graph rules, LLM Q&A over a PDF the user uploaded that never touches the geometry, or a ToS disclaimer. A curated, first-hand, geometrically-enforced statutory floor is the single thing this engine has that the surveyed market does not. Trading it for 3,6 % of yield sells the differentiator to cover a debt the proposer owes.  ||  ALL FIVE LIMBS STAY HARD, INCLUDING THE KITCHEN. The kitchen limb is 16,88 of the 19,98 marginal corpus points and the one the warp fails, so it is the only limb worth dropping -- and dropping it does not lower the kitchen floor a little, it REMOVES it. The ergonomic kitchen min_area is 1,8 m2 (900 x 2100 mm, a galley strip) against an AZ statutory floor of 8,0: a 3 m2 kitchen would pass. The Swiss p50 of 8,04 against a floor of 8,0 is not evidence the floor is too high, it is evidence the floor is exactly where people build, which is what a habitable minimum is for.  ||  WHAT THE 3,6 % GETS INSTEAD OF A WEAKER RULE: a three-step escalation, homeowner_surface.no_survivors.escalation, ending in a no-survivor sentence that names NO Brief defect because there is none. acceptance-bar.md 11.  ||  BRIEF-SIDE, AND IT IS NOT A PRE-IMAGE. brief.md 9.4 gains BOUND 9 -- a stated per-room target below its own hard area floor -- at severity warn, and ADR 0015 does NOT decide that severity. The implication fails: model.no_unassigned_area fixes Sigma Space at the interior exactly and 9.3 targets are two-sided bands, so a kitchen stated at 6 CAN be delivered at 8 with another Room absorbing the loss. Per ADR 0015 consequence 5 a hard bound would then be a heuristic that refuses buildable Briefs, and per consequence 2 a bound carrying a fitted slack threshold of its own is the tell that it is not a pre-image. 9.5 forbids the tidy fix too -- raising a stated 6 to 8 in the defaulting ladder is auto-repair, and the ladder fills only ABSENT fields.",
@@ -297,12 +297,12 @@
       "conf": "fitted",
       "corpus_cost": 0.0311,
       "fitted_by": "docs/wayfinder/tickets/37-what-a-rooms-area-is-allowed-to-be.md",
-      "note": "NEW. Every area predicate in this file was a floor or a total, so a 40 m2 WC passed the bar and model.no_unassigned_area made the surplus compulsory. Measured and reasoned in full at docs/research/room-area-bands.md 6.1; transcribed here by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which holds this file, and NOT re-derived. A STATED TARGET IS SOVEREIGN: the absolute cap is a fallback, not a ceiling, because C4 makes the Brief the real interface and the defect this rule fixes is an area the ENGINE invented. k is not one constant (2.02 to 8.15) and a single global k would be the invented number this rule exists to avoid. The solver side is FREE: H4 already builds a = w*h via AddMultiplicationEquality for the minimum, and an upper bound on a product tightens propagation on w and h rather than weakening it. The percentile is not free either: p95 rejects 26.6 % of real dwellings, p99 6.0 %, p99.5 3.1 % -- and this corpus is the retrieval and training population, so a rejection here is coverage lost. p99.5 is also the percentile at which the 4-room case stops being inexpressible. Reproduced independently by this ticket over 42,985 dwellings at 3.11 % against room-area-bands' 3.1 %. PROVENANCE: every number is Swiss and the profile is AZ. A maximum is NOT region-free the way dim.min_area is -- the ergonomic floor is region-free because a body is a body, and a maximum is a market fact with no such defence."
+      "note": "NEW. Every area predicate in this file was a floor or a total, so a 40 m2 WC passed the bar and model.no_unassigned_area made the surplus compulsory. Measured and reasoned in full at docs/research/room-area-bands.md 6.1; transcribed here by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*, which holds this file, and NOT re-derived. A STATED TARGET IS SOVEREIGN: the absolute cap is a fallback, not a ceiling, because C4 makes the Brief the real interface and the defect this rule fixes is an area the ENGINE invented. k is not one constant (2.02 to 8.15) and a single global k would be the invented number this rule exists to avoid. The solver side is FREE: H4 already builds a = w*h via AddMultiplicationEquality for the minimum, and an upper bound on a product tightens propagation on w and h rather than weakening it. The percentile is not free either: p95 rejects 26.6 % of real dwellings, p99 6.0 %, p99.5 3.1 % -- and this corpus is the retrieval and training population, so a rejection here is coverage lost. p99.5 is also the percentile at which the 4-room case stops being inexpressible. Reproduced independently by this ticket over 42,985 dwellings at 3.11 % against room-area-bands' 3.1 %. PROVENANCE: every number is Swiss and the profile is AZ. A maximum is NOT region-free the way dim.min_area is -- the ergonomic floor is region-free because a body is a body, and a maximum is a market fact with no such defence.  ||  TYPE-TO-CLASS PUBLISHED, ticket 71 / ADR 0038. `k[type]` in the statement above and `k[class]` in the table were never bridged, so this rule -- HARD, site both -- could not be evaluated on nine of the nineteen Room types and silently did not fire: hall, bedroom_principal, study, shower_room, utility, bathroom_combined, kitchen_dining, living_dining_kitchen and entrance_lobby. `hall` is the one that matters, because brief.md 3.1 invents one wherever the Brief names none, so EVERY Plan carried a Room with no upper bound, ceilinged only by circ.fraction_hard at 30 % of Sum(Space) -- 27 m2 of hall on a 90 m2 dwelling, which is brief.md 9.3's 40 m2 WC reached through a different door. Resolution at room-constraints.json ergonomic.area_band_classes; totality is gated, not assumed.  ||  TWO LIMBS, AND C14'S GUARANTEE ATTACHES TO ONE OF THEM. az-market-default-against-practice.md recorded an unowned lever: raising a profile market_default raises this hard cap, C14 authorises a profile to raise a FLOOR and is silent on loosening a CAP. Settled here rather than by amending C14. `k x target_area` is a PROPORTIONALITY band around a REQUESTED size -- it moves with the request by design, identically whether the request came from a Homeowner (C4, sovereign) or from the profile's own measured practice (ADR 0035, may only move up, floored by regulator recommendation). `absolute_cap` is the region-free outer bound and NO profile touches it. C14's `no profile may weaken a predicate` attaches to the predicate and to the absolute limb; it never attached to a band around a number the Brief itself supplies. What makes that safe rather than merely stated is the headroom gate owed to gate_check.py -- market_default <= absolute_cap of the resolved class -- which was RUN over the 11 profile cells and passes, tightest AZ kitchen at 9,0 / 20,59 = 2,29x.  ||  A CROSS-PROVENANCE PRODUCT, MEASURED AND NOT FIXED HERE. `k` is a ratio fitted about a CH class median and `target` is an AZ number, so `k x target` is the class's p99.5 only where the two agree. Across the seven types taking this limb it runs 62 % to 114 % of the class's own absolute_cap, and the visible symptom is an INVERSION: `living` caps at 2,35 x 17,6 = 41,4 m2 while `living_dining` caps at 2,02 x 17,6 = 35,6 m2, so the room that contains a dining area caps SMALLER. Both share the AZ target living_room_2plus and their k were fitted about medians 20,51 and 28,32. Neither limb is ticket 71's to move -- the target is ADR 0035's market tier and k is ADR 0023's fitted set -- so it is measured, named and ticketed."
     },
     {
       "id": "dim.stated_target_implausible",
       "item": "2",
-      "statement": "A stated Room target_area exceeds absolute_cap for its Room type.",
+      "statement": "A Room target_area exceeds absolute_cap for its Room type, whichever rung of brief.md 9.2's ladder supplied it.",
       "severity": "warn",
       "site": "validator",
       "scope": "brief",
@@ -313,7 +313,7 @@
       "ref": "docs/research/room-area-bands.md section 6.3",
       "conf": "fitted",
       "fitted_by": "docs/wayfinder/tickets/37-what-a-rooms-area-is-allowed-to-be.md",
-      "note": "NEW, and it is the counterweight to dim.max_area's sovereignty of a stated target. Surfaced against the Brief exactly as area.given_envelope_warn is: it keeps the Homeowner sovereign while catching an LLM parse that put a decimal in the wrong place. Transcribed from docs/research/room-area-bands.md 6.3 by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*."
+      "note": "NEW, and it is the counterweight to dim.max_area's sovereignty of a stated target. Surfaced against the Brief exactly as area.given_envelope_warn is: it keeps the Homeowner sovereign while catching an LLM parse that put a decimal in the wrong place. Transcribed from docs/research/room-area-bands.md 6.3 by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*.  ||  SCOPE WIDENED FROM `stated` TO ANY RESOLVED TARGET, ticket 71 / ADR 0038. The check is about the NUMBER, not its provenance, and the narrow reading left the one provenance nobody can correct at parse time uncovered: a Homeowner's implausible target is the case this rule was written for, but a rung-1 profile default or a rung-2 corpus median above the cap would have sailed through, and that is the lever az-market-default-against-practice.md flagged. Severity stays `warn` and scope stays `brief` -- C4 makes the Brief the interface and refusing a Homeowner's own number is worse than surfacing it. A PROFILE value above the cap is a DATA error rather than a Brief error, so the real backstop for that limb is the build-time headroom gate owed to experiments/region-profile/gate_check.py; see dim.max_area's TWO LIMBS note. This is a scope correction, not a new rule: rule_count stays 43."
     },
     {
       "id": "circ.potential_reachability",
@@ -393,7 +393,7 @@
       "value": 0.3,
       "src": "swiss_dwellings_p99_p99_5",
       "conf": "fitted",
-      "note": "An outer bound, not a quality bar. Set where it only ever catches Plans that are visibly broken, so it cannot become the 99-percent-rejection rule the ticket warns about. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. UNMOVED. p99 is 0.284 and p99.5 is 0.322, so 0.30 sits inside the tail exactly where this note already claimed, and rejects 0.69 % of real dwellings. The claim is now a measurement.",
+      "note": "An outer bound, not a quality bar. Set where it only ever catches Plans that are visibly broken, so it cannot become the 99-percent-rejection rule the ticket warns about. DENOMINATOR NAMED by ticket 17 / ADR 0010: was 'GIA', which is not a quantity v1 computes. It is the sum of ALL Space areas, circulation included, which is az_umumi_sahe itself. The two differ by the partition footprint, roughly 4-5 percent. FREE TO CHANGE, because both numbers here are unfitted placeholders -- but the fit owed by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* must use THIS denominator, and must compute the corpus side the same way.  || FITTED by *Fit the ENGINE_CHOICE acceptance thresholds to the corpora* (ADR 0023), docs/research/acceptance-thresholds.md. UNMOVED. p99 is 0.284 and p99.5 is 0.322, so 0.30 sits inside the tail exactly where this note already claimed, and rejects 0.69 % of real dwellings. The claim is now a measurement.  ||  AN AZ COMPARATOR EXISTS NOW, and the value does NOT move -- ticket 73's handoff, written here by ticket 71 (73 held neither this file nor a mandate to move a fitted value). Baku practice runs a dwelling-level circulation share of 13,2 % of net internal (p25 11,9 / p75 15,9) against this Swiss-fitted 30 %, which it does not approach. That is CONFIRMING rather than contradicting: 30 % is an outer bound set where it only ever catches visibly broken Plans, and a market sitting at 13,2 % is a market this bound does not bind. It is also the third documented CorpusProvenance / RegionProfile agreement rather than a mismatch. Do not read 13,2 % as a candidate threshold: circ.fraction_soft is the band that ranks, it is fitted to the Swiss interquartile range [0,09, 0,15], and the AZ p25-p75 [0,119, 0,159] overlaps it substantially -- re-fitting either to AZ is a market-tier act and needs its own published cost.",
       "corpus_cost": 0.0069,
       "fitted_by": "docs/wayfinder/tickets/20-fit-engine-choice-thresholds-to-the-corpora.md"
     },
@@ -726,7 +726,9 @@
         "k": 2.18,
         "soft_w": 0.88,
         "cv": 0.26,
-        "label_src": "polygon"
+        "label_src": "polygon",
+        "corpus_label": "PRIVATE  (= ROOM + BEDROOM + STUDIO collapsed)",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "bathroom": {
         "target": 4.1,
@@ -734,7 +736,9 @@
         "k": 2.23,
         "soft_w": 0.99,
         "cv": 0.23,
-        "label_src": "fixture"
+        "label_src": "fixture",
+        "corpus_label": "BATHROOM, cut by fixture: bath or shower present",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "wc": {
         "target": 1.85,
@@ -742,7 +746,9 @@
         "k": 3.36,
         "soft_w": 1.0,
         "cv": 0.23,
-        "label_src": "fixture"
+        "label_src": "fixture",
+        "corpus_label": "BATHROOM, cut by fixture: toilet present, no bath or shower",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "kitchen": {
         "target": 8.04,
@@ -750,7 +756,9 @@
         "k": 2.56,
         "soft_w": 0.65,
         "cv": 0.35,
-        "label_src": "polygon"
+        "label_src": "polygon",
+        "corpus_label": "KITCHEN",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "living_dining": {
         "target": 28.32,
@@ -758,7 +766,9 @@
         "k": 2.02,
         "soft_w": 0.82,
         "cv": 0.28,
-        "label_src": "polygon"
+        "label_src": "polygon",
+        "corpus_label": "LIVING_DINING",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "living_room": {
         "target": 20.51,
@@ -766,7 +776,9 @@
         "k": 2.35,
         "soft_w": 0.8,
         "cv": 0.29,
-        "label_src": "polygon"
+        "label_src": "polygon",
+        "corpus_label": "LIVING_ROOM",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "corridor": {
         "target": 7.58,
@@ -774,7 +786,9 @@
         "k": 3.28,
         "soft_w": 0.4,
         "cv": 0.58,
-        "label_src": "polygon"
+        "label_src": "polygon",
+        "corpus_label": "CORRIDOR  (= hall + entrance_lobby + corridor, merged by the corpus)",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "dining": {
         "target": 9.79,
@@ -782,7 +796,9 @@
         "k": 3.67,
         "soft_w": 0.46,
         "cv": 0.5,
-        "label_src": "polygon"
+        "label_src": "polygon",
+        "corpus_label": "DINING",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
       },
       "storeroom": {
         "target": 2.24,
@@ -790,11 +806,40 @@
         "k": 8.15,
         "soft_w": 0.22,
         "cv": 1.04,
-        "label_src": "polygon"
+        "label_src": "polygon",
+        "corpus_label": "STOREROOM",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution"
+      },
+      "kitchen_dining": {
+        "target": 18.82,
+        "absolute_cap": 49.77,
+        "k": 2.64,
+        "soft_w": 0.63,
+        "cv": 0.37,
+        "label_src": "composed",
+        "corpus_label": "KITCHEN + DINING summed per dwelling",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution",
+        "n_dwellings": 1308,
+        "note": "COMPOSED, ticket 71. KITCHEN + DINING summed per dwelling over the 1,308 dwellings holding both. The direct label is DISQUALIFIED (ADR 0034 c1) so this is the same composition that already produced the rung-2 target, and it reproduces it exactly: p50 18,82 against corpus_medians.kitchen_dining 18,8. SITE CLUSTERING CHECKED -- one site is 12,2 % of the population, so k was re-read two more ways and it holds: 2,49 on site medians (n=160) and 2,58 with the heaviest site dropped, against 2,64 here. BORROWING WOULD HAVE BEEN WRONG AND THE SIGN IS NOT GUESSABLE: kitchen k gives 48,1 (-3 %) and dining k gives 69,0 (+39 %)."
+      },
+      "living_dining_kitchen": {
+        "target": 37.11,
+        "absolute_cap": 69.0,
+        "k": 1.86,
+        "soft_w": 1.0,
+        "cv": 0.23,
+        "label_src": "composed",
+        "corpus_label": "LIVING_DINING + KITCHEN summed per dwelling",
+        "members": "data/standards/room-constraints.json#/ergonomic/area_band_classes/resolution",
+        "n_dwellings": 24046,
+        "note": "COMPOSED, ticket 71. LIVING_DINING + KITCHEN summed per dwelling over the 24,046 dwellings holding both; no corpus label for this type exists at all. Site clustering is not a factor (top site 1,1 %) and k holds at 1,93 on site medians. Borrowing living_dining k gives 73,7, +7 % lenient. THE target HERE IS NOT corpus_medians.living_dining_kitchen: 37,11 is the median of the SUM and exists only to define k, while 36,5 is the sum of two INDEPENDENT medians and is brief.md 9.2 rung 2. Two statistics, 1,7 % apart, both correct. soft_w is published at 1,00 rather than 1,01: its CV 0,2277 ties the normalisation anchor within the spread of the nine back-solved shipped cells (0,2275-0,2320), and re-normalising ADR 0023 values on a 0,8 % difference is a re-fit this ticket does not do."
       }
     },
     "k_is_not_one_constant": "2.02 to 8.15, and the spread is not noise. The habitable rooms AZ actually sizes cluster at 2.0-2.6; the outliers are exactly the four types AZ ships as market_default None, plus dining and storeroom.",
-    "owed": "brief.md 9.4's f_hi/f_lo per-n table is a parse-time constant of the same kind and belongs beside this block rather than inline in prose. *The partition footprint has a mean and no spread* raised it; not taken here because it is brief.md's findings schema and moving it without its consumer would strand it."
+    "owed": "brief.md 9.4's f_hi/f_lo per-n table is a parse-time constant of the same kind and belongs beside this block rather than inline in prose. *The partition footprint has a mean and no spread* raised it; not taken here because it is brief.md's findings schema and moving it without its consumer would strand it.",
+    "class_keys": "A CLASS KEY IS A CORPUS LABEL WEARING A THIRD SPELLING, and `corpus_label` on each row now says which. `room*` is PRIVATE, `living_room` is LIVING_ROOM, `storeroom` is STOREROOM. The keys are deliberately NOT renamed: room-area-bands.md and this file's own prose reference them, and a value-neutral rename would strand those references to buy nothing a declared correspondence does not already buy. Ticket 71.",
+    "members_note": "`members` DID NOT EXIST ON ANY CLASS -- ticket 71 says it was `null` on all nine and that was wrong, it was ABSENT, which is the weaker state of the two because a null at least declares the slot. Either way it was the whole of ticket 71: dim.max_area states k[type] and this table is k[class], so NINE of brief.md section 3's nineteen Room types resolved to nothing and a HARD rule silently did not fire on them -- `hall` among them, which resolve invents in 100 % of Plans. It is a POINTER rather than a list, because the resolution is a vocabulary projection and every other projection lives beside its kin in room-constraints.json after ADR 0037. Copying it back here is how the four private copies happened. ADR 0038.",
+    "classes_count_note": "NINE UNTIL TICKET 71, now ELEVEN. The nine are ADR 0023's, fitted on corpus labels, and none of their values moved. The two added are `composed` rows for the compound types no label can measure -- see each row's note and area_band_classes.ladder rung 3."
   },
   "envelope_constants": {
     "comment": "Handed to this file by *Building scope and envelope handling* via *Fit the ENGINE_CHOICE acceptance thresholds to the corpora*. These are NOT acceptance rules -- they are the constants brief.md section 5 rung 2 uses to INVENT an Envelope when the Homeowner states neither dimensions nor a total area. They live here because this is the file that holds fitted numbers and brief.md section 12 named this ticket as their owner.",
