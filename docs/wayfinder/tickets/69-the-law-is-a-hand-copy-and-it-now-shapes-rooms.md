@@ -3,12 +3,15 @@ id: 69
 title: The law is a hand copy and it now shapes rooms
 parent: map
 labels: [wayfinder:task]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
   - experiments/warp/
   - experiments/region-profile/
+  - data/standards/room-constraints.json
+  - CONTEXT.md
+  - docs/adr/0037-the-profile-is-read-not-copied-and-the-third-vocabulary-is-published.md
 ---
 
 # The law is a hand copy and it now shapes rooms
@@ -155,3 +158,149 @@ risk.**
 ADR 0036 wrote no code and claimed nothing there; both items above are stated so
 they are transcribed rather than re-derived.
 
+
+## Resolution (2026-08-30) — ADR 0037
+
+**The profile is read rather than copied, the third vocabulary is published, and
+the ticket's own premise was too generous: it was raised on the RISK of drift and
+three of the eight copies were already wrong.**
+
+### What was found before anything was changed
+
+1. **`absolute_area.MARKET` sat four cells behind ADR 0035** — which had landed
+   the day before. `PRIVATE` 12,0 against **13,2**, both living limbs 16,0
+   against **17,6**, `wc` 2,1 absent entirely. One day between an ADR landing and
+   its consumer being wrong.
+2. **`HABITABLE` omitted `DINING`, whose `counts_as_otaq` is `true`.** So
+   `floors_for` under-counted otaq and a living-plus-dining dwelling took
+   `living_room_1room_flat`'s **15,0** where the guard says `living_room_2plus`'s
+   **16,0**. A hard floor 1 m² low, on the largest room in the plan — not a wrong
+   report, a wrong constraint.
+3. **`fit_warp.MIN_SIDE` had no `KITCHEN_DINING` row**, falling to
+   `MIN_SIDE_DEFAULT = 5` against the **6** its own stated formula gives. The
+   eighth copy, exactly as handed on by *A zone floor is posted on the whole room*.
+4. **`MARKET["KITCHEN_DINING"] = 6,0` was not drift at all** — it is the read
+   ADR 0034 decision 2 forbids outright. That cell measures the `mətbəx zonası`
+   (`referent: part`), a sound floor and never a target; the ladder's rung 2 gives
+   the room **18,8**. ADR 0034's owed gate (c) had a live violation in shipped code.
+
+### The fix could not be item 1's shape, and the reason is the ticket's real finding
+
+Item 1 read as *replace six literals with a JSON lookup*. Two facts refuse it.
+
+**`floors_for` did not copy numbers; it reimplemented the resolution** — the
+`when_otaq_count` match, the fallthrough order and the otaq set the condition
+reads, all hand-written beside the guard list that publishes them. Swapping the
+values would have bound the half that was right: defect 2 is in the *guard*.
+
+**And the lookup had no key.** The copies are keyed by **corpus label**; the
+profile by **ergonomic key**, reached only through `mapping.rooms`. Nothing in the
+repo published the map between them — it lived as end-of-line comments inside four
+Python dicts. **This is ticket 31's own defect one vocabulary upstream**, *"no
+object stated the bridge between them"*, and it is why every one of these copies
+existed at all. Item 1's *"the mapping is the contract"* named a contract whose
+domain the callers could not reach.
+
+### What was done
+
+1. **`ergonomic.corpus_label_map`** — ten labels plus the three-way collapse, each
+   landing on an ergonomic key, `erg_lenient` carrying the one split the corpus
+   cannot make. Under `ergonomic`, beside `corpus_label_split` and
+   `corpus_medians`, **not** in a region profile: it is a corpus fact and carries
+   no region, so a second corpus needs a second block.
+2. **`experiments/region-profile/profile_read.py`** — the single accessor.
+   `MIN_SIDE`, `MARKET`, `ERG_AREA`, `COLLAPSE`, `GRID_MM` and `T_INT_MM` are now
+   its output, built at import. Every consumer keeps the name it imported, so no
+   call site moved; the dict is a **cache of a read**, not a transcription.
+   `GRID_MM` and `T_INT_MM` were a ninth and tenth copy of the same class —
+   `residue_class_mod_grid` publishes both.
+3. **Item 2 answered: the data is a hard dependency.** No file, no import, no
+   bundled fallback. `_check_floor_transcription`'s silent return when `data/` was
+   absent is the escape hatch that let a copy survive to be *checked* instead of
+   *read*.
+4. **`_check_floor_transcription` is deleted, not extended.** Its own docstring
+   called it *"an assertion, not a fix"*, and it was blind twice over: it asserted
+   the six values that **were** copied, so a seventh missing by **omission** passed
+   it — which is how `floors_for` returned `None` on `living_dining_kitchen` while
+   the bar bound that type at site `both` — and it fired only on one import.
+5. **Item 4 answered: all eight, in one pass, plus two more.** Three were wrong
+   *now*; splitting would have re-derived the bridge twice. ⚠️ `MIN_SIDE` and
+   `ERG_AREA` are **derived**, not transcribed, so what is bound is the *formula*
+   `ceil((min_clear_short + t_int) / grid)` — gate P3 recomputes it.
+6. **ADR 0034's four gates land, and ADR 0036's fifth makes the licence a field.**
+   `licence` on every guard entry: an object naming the clause and the type
+   definition where the read is `part`, `null` elsewhere. ⚠️ **A gate written over
+   `compose_with` alone would pass vacuously forever** — ADR 0036 emptied it on
+   every row. The field is non-vacuous today.
+7. **The forbidden `part` target is stopped at the read and the cell keeps its
+   value.** `kitchen_zone_in_diner.market_default` is a first-hand transcription of
+   AzDTN 2.7-3 cl. 5.1 whose own note already says it *"measures a ZONE … and never
+   a target"*. Nulling it destroys a number a regulator wrote to fix a *consumer*
+   bug, and ADR 0035's monotone rule governs that tier. `market_default_m2` skips a
+   `part` guard and falls to rung 2.
+
+### Item 3: `gate_check.py` 235 → **384 gates**, and every family can fail
+
+Fifteen mutations of the data file were run against the new gates and **15/15 were
+caught** — referent removed, referent unpublished, `compose_with` on a non-verified
+cell, a `part` read losing its ladder target, a target falling to its own entailed
+floor, licence removed, licence naming no clause, a spurious licence on a `room`
+read, a guard entry appearing without `counts_at_authoring` moving, a label
+pointing at no ergonomic key, a collapse source doubling as a label, a second
+lenient split, a corpus label the bridge misses, `t_int` drifting from the
+catalogue, and `counts_as_otaq` flipped. A sixteenth re-introduced a literal
+`MIN_SIDE` into `fit_warp.py` and **gate C1 caught that too** — it gates the
+*shape* of the defect without importing the rigs, because coupling a profile gate
+to `ortools` would make this file fail when the solver toolchain moved.
+
+⚠️ **The mutation run is the evidence, not the count.** This map has retired two
+rules for being unable to fire.
+
+### ⚠️ *"`experiments/warp/` is undisturbed"* is FALSE, and the third correction is large
+
+Measured on the converted index — 46 794 dwellings, 319 222 rooms:
+
+| correction | population | size |
+|---|---:|---|
+| `HABITABLE` gains `DINING` | otaq moves on **1 308** dwellings (2,80 %); a living **floor** actually moves on **59** | **0,13 %**, 15,0 → 16,0 m² |
+| `MIN_SIDE` gains `KITCHEN_DINING` | **41** rooms | 0,013 % |
+| `MARKET` re-read | **138 041** rooms (**43,24 %**) on 99,48 % of dwellings | mean **+0,561 m²** |
+
+**`STAT_FLOOR`'s values did not move — but the floor a dwelling gets did**, on 59
+of them, because the guard resolved differently. The handoff's *"`STAT_FLOOR` does
+not move, so tickets 62, 65 and 67 are undisturbed"* holds for the constant and not
+for the constraint.
+
+⚠️ **Every published `market`-arm number on this map was measured at the old
+tier.** **The direction is provable and the magnitude is not**: every moved cell
+moved *up*, no floor moved, and ADR 0020 sizes the box from Σ target — so no room's
+statutory floor becomes harder to clear. The starvation figures are **conservative,
+not wrong**. A re-run is owed to whoever holds `experiments/warp/` next and is
+deliberately not taken here: it would move results three open tickets are built on,
+inside a ticket holding none of their subjects.
+
+### Handed on
+
+- **A `market`-arm re-run at the ADR 0035 tier** — to `experiments/warp/`'s next
+  holder (**62**, **65** or **67**). Cheap: no re-fit, the tables now resolve
+  themselves — and it is **not a task anyone has to remember**, because `MARKET` is computed at import, so any re-run already uses the new tier. What is owed is **not quoting the published figures**.
+- **A ninth hand copy, named and not taken.** `gate_curve.K` and
+  `room_area_spread.K` duplicate `rules.json`'s `area_bands`. Same class; they
+  constrain no geometry. `rules.json` is claimed by **71** and **72**, so this is
+  prose, exactly as 73 and 74 handed theirs on.
+- **`bedroom_principal` is unreachable from the corpus** — a Brief-nameable type
+  with no corpus label, so retrieval never produces one. Recorded on the bridge.
+
+### Declared on resolution
+
+`data/standards/room-constraints.json` (unclaimed in assignment; **72** lists it,
+and this touched only the bridge block and the `licence` field — none of 72's
+subject, no citation repair, no value edit) and `CONTEXT.md` (unclaimed): new term
+**Corpus label**, plus the licence-is-data clause on **Statutory floor** and the
+every-projection-is-published clause on **Room type**.
+
+### What this did not do
+
+No floor's value changed — a value edit is `room-constraints.json`'s and governed
+by C14's monotone rule. ADR 0033 is untouched. `data/acceptance/rules.json` was not
+opened.
