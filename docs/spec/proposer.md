@@ -372,9 +372,10 @@ subject to Σ gx = W,  Σ gy = H,  every gap ≥ 1               (grid units)
            every part's span ≥ its Room's realisable minimum, both axes
            every part within dim.aspect_ratio_hard
            every two-part Room's shared edge ≥ ADR 0014's join
+           area_r ≥ the Room's statutory floor, per ROOM         § 7, ADR 0033
 ```
 
-Six things about that programme are decisions, not incidentals:
+**Seven** things about that programme are decisions, not incidentals:
 
 1. **The objective is minimax on the *relative* deviation**, with the weighted
    sum as a tie-break. An absolute objective spends every gap on the living room,
@@ -404,6 +405,37 @@ Six things about that programme are decisions, not incidentals:
    **amplifies the donor's void 2.2×**. It costs one
    `AddMultiplicationEquality` per component, p50 one component, on 15.5 % of
    candidates, and it moves `INFEASIBLE` not at all.
+7. **`dim.statutory_min_area` is posted here, hard, and this is where ADR 0027's
+   debt is paid.** ADR 0027 sent the floor's yield price *"to the stage that
+   produced it"* and named the warp's per-room distribution as what remained.
+   Left out, as it was, **31,6 %** of the candidates this programme emits carry a
+   Room below the law — median miss **1,356 m²**, tail to **8,444 m²**, which is
+   a bedroom delivered at 1,6 m² against a floor of 10. Posted, that is
+   **4,6 %**, and the residual is grid dust (p50 0,038 m², max 0,438). It costs
+   **8,66 %** of candidates paired, worst-room deviation p50 **+0,0000**
+   (p90 +0,085), and it is **linear** — `area_r` is already a variable and the
+   floor is a constant, so unlike the void it adds no product at all.
+   - **Per Room, never per part.** The rule's own statement says so; ADR 0014
+     binds it there.
+   - **On the bar plane**, `CONTEXT.md`'s [[Space plane]] — the floor is a Space
+     area, and `part_targets_cells` converts it to cells with `space_m2`'s own
+     erosion, the same call the targets use. Deliberately **not** the
+     projection's four-side plane: see §2.2.9.
+   - **Single pass; `INFEASIBLE` stays a refusal**, exactly as at the ergonomic
+     floor (ADR 0005). A two-pass fallback was measured and refused — every
+     second-pass candidate violates by construction, so it buys a rate and no
+     invariant. ADR 0033.
+   - **It never fights a target.** Under `dim.market_default_area` every target
+     already sits at or above its floor, so the constraint binds against what the
+     warp *achieves*, not against what the Brief *asks*. Measured:
+     `moved_rooms = 0` over 381 cases.
+
+**So a Proposal from source A carries an invariant**: every Room meets the
+statutory limb of its [[Hard area floor]] on the bar plane, or there is no
+Proposal. At Brief level (m = 8, 199 Briefs) this costs **1,51 points** of
+service, 96,48 % → 94,97 %, and buys **4,02** points of *legal* service,
+90,95 % → 94,97 % — the share of served Briefs holding a floor-clean candidate
+goes **94,27 % → 100 %**. `experiments/warp/floor_warp.py`.
 
 **Cost: median 72 ms, p90 534 ms.** Two orders of magnitude under the 15 s
 projection, so the warp is free at the granularity a job actually works in.

@@ -832,6 +832,22 @@ the failure this term exists to prevent. v1 ships `az_umumi_sahe`: the sum of
 Space areas, measured to finished faces at floor level, partitions **not**
 counted.
 
+**Space plane** — *which* clear area a number is, when two of them exist. A
+Space's area is `erode(∪ parts, t_int/2)`, and the erosion has a **boundary
+rule**: an edge on the Envelope is *not* eroded, because ADR 0001's tiling edge
+there already sits at exterior-inner-face + `t_int/2`. That is the **bar plane**,
+the one every predicate in `rules.json` is stated on and the one
+[[Hard area floor]] is read against. `solver.py` cannot express it — 75 mm is
+below the 250 mm grid's own quantisation — so it erodes all four sides of every
+Room and reads the **solver plane**, a *different quantity*, smaller by a median
+**3,9 %** on the Rooms that touch the outside.
+_Avoid_: "the clear area", unqualified, anywhere the difference can bind. The two
+planes are both clear areas, both correct on their own terms, and **1,51 %** of
+warped Rooms clear their floor on one and fail on the other. Naming the plane is
+not pedantry here: the unnamed version already shipped one component that is
+strictly stricter than the rule it posts, and a floor posted on the wrong plane
+constrains geometry to a number no regulator wrote.
+
 **Living area** / **Useful area** — the two quantities an Azerbaijani residential
 plan annotates, as a **fraction**, living over useful. *Living area* is the sum
 of Space area over Rooms carrying the habitable flag — the geometry flag, not
