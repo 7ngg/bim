@@ -3,12 +3,14 @@ id: 43
 title: What an ordered entry sequence costs the solver
 parent: map
 labels: [wayfinder:task]
-status: open
-assignee:
+status: closed
+assignee: tng
 blocked_by: []
 writes:
-  - experiments/solver-toy/
+  - experiments/solver-toy/                # held, never written -- no solve was run
   - docs/research/solver-formulation.md
+  - docs/research/zoning.md                # declared on resolution, unclaimed
+  - experiments/zoning/                    # declared on resolution, unclaimed
 ---
 
 # What an ordered entry sequence costs the solver
@@ -115,3 +117,169 @@ Three things 29 leaves you that change how to run this:
    both need 11.58. Below 7 rooms this Envelope family has no non-guillotine
    tiling at all. If you sweep low room counts, that is the harness talking, not
    your encoding.
+
+---
+
+## Resolution
+
+**No new solver machinery is owed, and the property collapses a *third* way — not
+the way item 1 predicted.** `docs/research/zoning.md` §6 and **D10**;
+`solver-formulation.md` **Part VI**; three probes in `experiments/zoning/`, all
+reading the existing `zoning.json` / `zoning2.json`, **no corpus pass and no
+solve**.
+
+Item 3 was taken first, as the ticket directed, and it made item 2 moot: the
+rules were refuted before the encoding was reached, so **no cost figure exists
+and none should be quoted**.
+
+### 1. What the ordering property actually is (item 1)
+
+The three candidates, over the same 2 500 Swiss dwellings, on the same plane the
+solver constrains — `dist` is BFS over `measure_swiss.contact_graph` (τ 0.30 m,
+door run 1.00 m), which is exactly what `solver-formulation.md` reifies as
+`door_ij` (*"true exactly when the two rooms share a wall segment at least a
+door's width long"*):
+
+| candidate | holds | needs `d_r`? |
+|---|---:|---|
+| **R1** no otaq at hop 1 | **9,6 %** | no — one existing literal |
+| **R1h** no habitable Room at hop 1 | **1,8 %** | no |
+| **R2** every otaq at hop ≥ 2 | **7,7 %** | no |
+| **R2h** every habitable Room at hop ≥ 2 | **1,6 %** | no |
+| **R5** every private Room at hop ≥ 2 | **25,1 %** | no |
+| **R3** circulation nearer than any social Room | 96,8 %† | no |
+| **R4** nearest private ≥ nearest social | **82,6 %**† | **yes** |
+| **R6** strict entry < social < private | **26,9 %**† | **yes** |
+
+† on the population holding both class sets (68–70 %).
+
+**The ticket's own first two candidates are the negation of the slogan they were
+written to encode.** The nearest social Room sits at hop **1** in **73,4 %** of
+dwellings — the modal case by a factor of four. *Entry → hall → living* **means
+the living room is at hop 1**; R1 and R2 forbid precisely that. Stated
+positively, the slogan already holds on **72,9 %** of dwellings with a social
+Room, with no rule posted by anyone. Nor is there a buffer to assert: what sits
+at hop 1 is private **33,9 %**, wet **28,1 %**, kitchen **16,8 %**, social
+**15,2 %**.
+
+**R3 is a construction, not a predicate, and it is already shipped.**
+`openings.md` §7 — *"The hall exists to be the room the front door opens into"* —
+hosts the primary entrance on the invented `hall`, and a candidate whose hall
+misses an `entrance_side` edge *"is already dead at `entry.exists`, before this
+rule is consulted"*. The engine's rate is **100 % by construction** against the
+corpus's 93,2 %. R3 carries no information beyond that.
+
+### 2. What it costs (item 2) — deliberately not measured
+
+**Moot, and the reason is worth keeping.** Every candidate that needed the
+integers was refused on the corpus first, so pricing the encoding would have
+measured the rig rather than the encoding. No solve was run and **no figure
+exists** — do not infer one from ADR 0014's 1,2–1,7×, which is a *box-count*
+multiplier for two-part Rooms and says nothing about auxiliary integers.
+
+⚠️ One thing the ticket's unblocking note left, carried into **Part VI §VI.3**
+rather than dying here: **`AREA_PER_ROOM_M2` = 9,65 is below what the placeholder
+table needs at 7 and 8 rooms in either cut structure** (both need 11,58), and
+below 7 rooms this Envelope family has no non-guillotine tiling at all. So the
+bottom half of C13's 3–10 band is where the fixture is *least* trustworthy and
+also the half no solver measurement covers. Any future pricing work fixes the
+fixture first or measures 8+ only.
+
+### 3. Whether the corpus supports the rule (item 3) — it does not, and the shape of the "no" is the finding
+
+`d(nearest private) − d(nearest social)` over the 1 756 dwellings holding both:
+
+| gap | share | |
+|---|---:|---|
+| − (private **nearer**) | **17,4 %** | violation, **1 in 5,8** |
+| 0 | **51,0 %** | **tie** |
+| + (private further) | **31,6 %** | strict order |
+
+**Half of real dwellings say nothing at all.** The ticket's own bar was *"a rule
+real dwellings break one time in six is not worth new integers"* — 17,4 % is
+worse than that, and the tie mass is the fact nobody had computed.
+
+⚠️ **This refines `zoning.md` §2.2's 16,1 % rather than repeating it.** That
+figure is *mean* against *mean*; this is the **minimum** each side, which is what
+a rule binds, because a rule binds the nearest offender. Quote 16,1 % for the
+gradient's shape and **17,4 %** for a rule's cost.
+
+### 4. Whether it is worth it at all (item 4) — no, and the alternative the ticket offered is false
+
+The ticket asked this against *"the alternative that the three cheap properties
+already shipped capture most of what the plan reads as designed means"* — which
+is also the residue the fog patch left behind. **It is false, and now measured
+false.** Entry-depth inversion against `proposer.md` §6.1 term 3 (**social
+transit**), joined on key over the same 2 500 dwellings:
+
+| | transit 0 | transit 1 | total |
+|---|---:|---:|---:|
+| **inversion 0** | 1 035 | 416 | 1 451 |
+| **inversion 1** | **267** | **38** | 305 |
+
+χ² = **34,55** (Yates 33,71), df 1, **p ≈ 4,2 × 10⁻⁹**, odds ratio **0,354**.
+Expected in the both-cell under independence **78,9**, observed **38** — they are
+**negatively** associated. **15,2 %** of all dwellings invert the gradient with
+**no transit defect at all**, and term 3 is structurally blind to them: transit
+is a *routing* property, inversion is a *distance* one, and a bedroom opening
+straight off the entry hall is the second and not the first.
+
+So the gradient is not merely unassertable — it is **unowned**, which is the
+state the done-test exists to catch. It has a home and it is neither a constraint
+nor nothing: a **fifth §6.1 plan-quality term**, scored against the corpus rate
+in the shape the other four take. That is **D10**, and it is raised as
+[What the entry-depth gradient is worth as a fifth evaluation term](66-what-the-entry-depth-gradient-is-worth-as-a-fifth-evaluation-term.md)
+rather than written here, because `docs/spec/proposer.md` is claimed.
+
+⚠️ The quantity is the **inversion rate** (real **17,4 %**), not the strict-order
+rate: a model that ties everything and a model that reverses everything both
+score 0 % strict, and the corpus is 51,0 % ties, so a strict rate cannot tell
+them apart.
+
+### 5. What the market does
+
+Re-checked for this question, per the standing instruction. **Nothing in the
+reviewed stack posts an ordering constraint, and the reason is structural**:
+Graph2Plan and HouseDiffusion are *conditioned on a supplied access graph* — the
+user hands them the bubble diagram, so privacy depth is an **input**, never
+solved for and never scored. `zoning.md` §4's finding for adjacency holds
+unchanged for order: user-authored, and soft. Nobody measures it, which supports
+D10 and is not an argument against it.
+
+### 6. Consequences
+
+1. **The H-list closes at H10.** `solver-formulation.md`'s H-table now says so.
+   A later proposal to add an ordering constraint is re-opening a decision with a
+   published corpus cost, not filling a gap.
+2. **`zoning.md` D7's verdict stands and its *reason* does not.** D7 said *out of
+   v1* because *cost unmeasured*. The cost was never reached; the corpus decided
+   it. D7 is amended in place so the stale reason is not quoted.
+3. **§2.2 and §2.3 are amended in place** — 16,1 % gains its min-based twin and
+   the tie mass, 93,2 % gains the note that the engine's rate is 100 % by
+   construction.
+4. **15 s, τ = 4 and Part II's percentiles are untouched.** Nothing in this
+   ticket changes a solver constant, so 62, 64 and 65 may keep quoting them.
+5. **`experiments/zoning/` gains its first README**, with six traps — the three
+   social-transit denominators being the one that will bite.
+
+### 7. What this ticket did not do
+
+- **Did not write `docs/spec/proposer.md`** — 64's, sole claimant. D10 is
+  specified in `zoning.md` and raised as ticket 66.
+- **Did not touch `experiments/solver-toy/`**, though it held it. No solve was
+  run, so there was nothing to write there.
+- **Did not graduate the harness fog.** *Whether the harness needs a Brief
+  generator that works on a real boundary* states its trigger as *a decision that
+  needs one*; declining to measure creates no such trigger, so the patch stays
+  fog, correctly owned.
+
+### 8. Declared on resolution, unclaimed at the time
+
+- `docs/research/zoning.md` — §6, D10, and amendments to §2.2, §2.3, D7.
+- `experiments/zoning/` — `entry_order.py`, `entry_order2.py`,
+  `entry_depth_vs_transit.py`, `README.md`.
+
+Both were unclaimed by any open ticket when taken (43, 45, 62, 64, 65 declare
+`experiments/solver-toy/`, `solver-formulation.md`, `homeowner-surface.md`,
+`experiments/warp/`, ADR 0031, `proposer.md`, `acceptance-bar.md`, ADR 0032), so
+the concurrency rule held.
