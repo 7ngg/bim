@@ -566,8 +566,25 @@ claims.
 |---|---|---|
 | Does `mətbəx-yemək otağı` appear in MİDA's room vocabulary? | **No — zero occurrences** across all 5,954 type records | `mida_room_schedules.py`; the vocabulary is eight names and none contains *yemək* |
 | Does MİDA build an open-plan room at all? | Yes, called **`Mətbəx-studio`** | 5 of 318 distinct plans = **1,57 %** |
-| In multi-room apartments? | **Never. 0 of 318** | every 2-, 3- and 4-otaq MİDA plan has a separate `Mətbəx` **and** a separate `Qonaq otağı` |
+| In apartments with a separate `Qonaq otağı`? | **Never. 0 of 318** | every 2-, 3- and 4-otaq MİDA plan has a separate `Mətbəx` **and** a separate `Qonaq otağı` |
+| In apartments with more than one room? | ⚠️ **Always — all 5 of 5** | **corrected by ticket 74.** Every `Mətbəx-studio` plan also carries a separate `Yataq otağı`: 5 rooms each (`Dəhliz`, `Mətbəx-studio`, `Yataq otağı`, `Sanitar qovşağı`, `Eyvan`), 34,97–40,10 m² internal. They are **one-bedroom flats with an open-plan kitchen-living room**, not one-room studios |
 | What is it? | kitchen + living + dining in one room, 35–40 m² studios | plan drawing `1681974345-e3b4e5e30b269ecec465412f8424630a.png`, whose numbered legend (1 Dəhliz, 2 Mətbəx-studio, 3 Yataq otağı, 4 Sanitar qovşağı, 5 Eyvan) matches the API `order_number` exactly |
+
+⚠️ **The row above was stated as *"In multi-room apartments? Never. 0 of 318"*
+and that phrasing is withdrawn — ticket 74.** It is true only under the reading
+*"zero plans holding an open-plan room **and** a separate `Qonaq otağı`"*. Under a
+plain reading of *multi-room* it is **false in every case**: all five
+`Mətbəx-studio` plans carry a separate bedroom, and MİDA's `nrooms: 0` is a sales
+label, not a room count. Verified against
+`experiments/baku-market-areas/mida_plans_318.json`, which is in this repo and was
+in it when the sentence was written.
+
+**Two consequences the original phrasing hid.** By this engine's own units these
+five plans hold **four engine rooms** — inside C13's 3–10 band, not outside it —
+and the engine would count them at **2 otaq**, because `living_dining_kitchen` and
+`bedroom_*` both carry `counts_as_otaq: true`, against MİDA's own 0. That second
+disagreement is *The room-count promise has Azerbaijani evidence now*'s, and it now
+has a named population rather than a hypothetical.
 
 **So the type is norm-real and market-marginal.** AzDTN defines
 `mətbəx-yemək otağı` in §3 as *«mənzildə yeməyin hazırlanması və qəbulu üçün
