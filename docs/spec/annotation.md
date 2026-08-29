@@ -836,6 +836,25 @@ Generated, not authored, on `A-ANNO-TEXT`:
 7. Fire, thermal, acoustic and structural performance are not specified.
 8. Produced to Neufert-grade dimensional standards. **Not checked against any
    building code. Not for construction or permit submission.**
+9. *(only where the Plan holds a `living_dining_kitchen`)* Bu mətbəx qonaq otağına
+   açıqdır; **elektrik plitəsi** nəzərdə tutulmalıdır. — *This kitchen opens into
+   the living room; an **electric** hob is to be provided.*
+
+Note 9 is the **first conditional** note in this list, and the condition is a Room
+type rather than a region or an Envelope edge. It is emitted only where the Plan
+holds a Room of type `living_dining_kitchen`, and it is suppressed for
+`kitchen_dining`, which AzDTN 2.7-3 cl. 4.7 files inside the word `mətbəx` and
+which may therefore hold the gas hob. The two types are one letter apart, so the
+condition is on the type and never on prose.
+
+It is on the sheet for note 8's reason turned around. Note 8 says what the drawing
+does **not** claim; note 9 says the one thing about this Plan a Baku builder cannot
+read off the geometry — the constraint is the room's **category** under AzDTN 2.13-1
+cl. 8.31, not its size, so no dimension on the sheet carries it. `brief.md` §7.1
+carries the Homeowner's half in their own words and names the alternative; a builder
+does not need the alternative, because the type is already decided by the time a
+sheet exists. **It states a consequence and makes no compliance claim** — note 8
+still governs, and C8 is unmoved. ADR 0036.
 
 Note 4 uses **`t.d.s.`** (*təmiz döşəmə səviyyəsi*) where this document used to
 say `FFL` — `AZS ГОСТ 21.101-2010` Əlavə D, Cədvəl D.1. Əlavə D is marked

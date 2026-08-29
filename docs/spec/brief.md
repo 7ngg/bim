@@ -118,6 +118,21 @@ separate is real programme a Homeowner states, and the ergonomic layer already
 carries the three merged types with their own minima. A cased opening between two
 *separate* Rooms is a different thing and belongs to *Opening placement rules*.
 
+**Both open-plan types ship in `AZ`, and one of them carries a consequence the
+other does not.** AzDTN 2.13-1 cl. 8.31 requires a gas hob to stand in a
+`mətbəx otağı`, and AzDTN 2.7-3 cl. 4.7 files a `mətbəx-yemək otağı` **inside**
+that word — *«mətbəx (o cümlədən mətbəx-yemək otağı)»*. So `kitchen_dining` may
+hold the gas hob MİDA fits and **`living_dining_kitchen` may not**; it needs an
+electric one. Neither type is refused, and no rule enforces this — C8 forbids
+reading a regulatory document as a compliance target, and it is disclosed
+instead, in §7. ADR 0036.
+
+The two are one letter apart in every table in this system, which is why the
+compliant one is named here explicitly rather than left to be inferred from
+silence. `openings.md` §5 already reasons from *"a gas hob is the Baku norm"*
+when deciding which openings carry a leaf; this is the same fact reaching the
+type list.
+
 **Not every type is Brief-nameable.** The distinction is data:
 `room-constraints.json` carries a `brief_nameable` flag per ergonomic key, and the
 JSON Schema generator (§10) reads it. **This spec does not write that file** — see
@@ -531,6 +546,45 @@ clearance in the entire source corpus is an accessibility figure, and deliberate
 calibrated **away** from them — composed straight, they reject 36 % of real Swiss
 bathrooms. So this system's floors are explicitly not accessible floors. Silently
 ignoring the request is the one ignore that could hurt someone.
+
+### 7.1 A second carve-out is a disclosure, and it is not an Assumption
+
+**A Brief naming `living_dining_kitchen` is served, and told what follows from
+it.** §3 carries the norm: a gas hob must stand in a `mətbəx otağı`, a
+kitchen-**diner** is one and a kitchen-**living** room is not. The Homeowner is
+shown one sentence naming **both** ways out, because an architect asked this in
+Baku gives two answers and not one:
+
+> an open-plan kitchen in Azerbaijan is fitted with an **electric** hob — the gas
+> hob most Baku apartments are handed over with must stand in a separate kitchen
+> room. If you want the gas hob, ask for a **kitchen-diner** instead: the kitchen
+> and the table share one room, and the living room stays its own.
+
+**This is deliberately not an Assumption, and §6 is why.** The Assumption set is
+`ResolvedBrief \ StatedBrief`, *computed* (§1). A Homeowner who names
+`living_dining_kitchen` has **stated** it: nothing was invented and no value of
+theirs was reinterpreted, so none of §6's three kinds reaches it, and §6 closes
+the taxonomy at three. What this is, is a **consequence of what they asked for** —
+a different axis, and §7 is already where prose the engine must say and cannot
+model lives. Opening a fourth Assumption kind to carry it would reopen a
+taxonomy closed on purpose, and would mislabel the thing: an Assumption is
+something *we* filled in.
+
+**It discloses; it never enforces.** No rule in `rules.json` reads it, no floor
+moves, and no candidate is refused for it. C8 forbids reading a regulatory
+document as a compliance target, and this map has already refused the same
+enforcement once, for cl. 5.10 at `bathroom_combined`. The difference from that
+case is worth stating, because it cuts the other way and the answer is still
+disclosure: there the corpus **contradicted** the norm — 67,24 % of 44 372 real
+dwellings put every toilet in a room with a bath or shower — while here Baku
+practice **agrees** with it in multi-otaq stock (0 of 318 MİDA plans open a
+kitchen into a separate living room) and **departs** from it in exactly five
+one-bedroom open-plan flats. A refusal would refuse those five; an enforcement
+would make a compliance claim. ADR 0036.
+
+The builder's half of the same fact is `annotation.md` general note 9, emitted
+only when the Plan holds a Room of this type. Two readers, two channels — the
+`what_belongs_in_this_block` distinction ADR 0024 turns on.
 
 ---
 

@@ -985,10 +985,33 @@ candidates put some Room below its floor even when every stated target sits at o
 above the profile's [[Target area]]. A statutory floor is a live constraint on
 engine output, not a formality the objective satisfies on its way past.
 
+**The licence runs out where the norm has no word for the room, and that governs
+the `part` read itself and not only the sum.** A law entails a bound on a room by
+naming a *kind* of room and constraining it; where a norm defines no such kind,
+nothing about a room of that description is entailed at all — not the addend and
+not the base cell either. `kitchen_dining` is licensed because AzDTN 2.7-3 cl. 4.7
+files the `mətbəx-yemək otağı` inside the word `mətbəx` and the definitions clause
+supplies its `«ayrıca zonaları»`. `living_dining_kitchen` is **not**, because
+AzDTN defines no open-plan type: nothing in the norm entails that a room it has no
+word for contains a `qonaq otağı` meeting cl. 5.7. **Same licence, opposite
+results, and the difference is whether the norm names the room.** ADR 0036.
+_Avoid_: treating a `part` read as the cautious option. An entailed bound is only
+*sound* while it is *licensed*; an unlicensed one is an invention that inherits a
+`conf: verified` cell's authority, and it can reject rooms the law admits — the
+withdrawn 21,0 / 22,0 open-plan floor sat above **all five** real Baku rooms of
+that kind. Where the licence fails the cell is `null`, and the
+[[Ergonomic minimum]] stands alone in the ordinary way.
+
 **A Region profile may raise a hard floor and may never lower one.** That is the
 one direction in which region reaches the reject set, and it is monotone by
 design: a region nobody has surveyed still gets the full ergonomic bar, and no
 profile can take a predicate away or weaken one.
+_Withdrawing a raise that was never licensed is not lowering one._ The rule
+forbids a profile going **below** the region-free base; the base is the
+[[Ergonomic minimum]], and a cell returning to it because its read was never
+granted is a correction rather than an exercise of the rule in reverse. Reuse the
+reasoning and never the precedent: the test is whether the licence held, not
+whether the number is inconvenient.
 
 **Hard area floor** — the area a Space is actually rejected below:
 `max(`[[Ergonomic minimum]]`, `[[Statutory floor]]`)` for its Room type, per Room
