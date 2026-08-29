@@ -55,29 +55,34 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "solver-toy"))
 from geometry import Rect                       # noqa: E402
 from solver import rank_relations, select_relations   # noqa: E402
 
+# The region profile, READ. Ticket 69: every constant below used to be a hand
+# copy of `data/standards/room-constraints.json` with nothing binding the two,
+# and `MIN_SIDE` was already wrong -- no KITCHEN_DINING entry, so it fell to
+# MIN_SIDE_DEFAULT = 5 against the 6 its own stated formula gives.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "region-profile"))
+import profile_read as profile                  # noqa: E402
+
 HERE = Path(__file__).resolve().parent
 OUT = HERE / "out"
 FIT = HERE.parent / "rectangularise" / "out" / "swiss_fit_k2.json"
 ROOMS = OUT / "dwelling_rooms.json"
 
-GRID_MM = 250
+GRID_MM = profile.GRID_MM       # construction.residue_class_mod_grid.grid_mm
 AREA_TOL, ASPECT_TOL, SEED = 0.10, 0.15, 20260819
-COLLAPSE = {"ROOM": "PRIVATE", "BEDROOM": "PRIVATE", "STUDIO": "PRIVATE"}
+COLLAPSE = dict(profile.COLLAPSE)   # ergonomic.corpus_label_map.collapse
 
-# `ergonomic.rooms[*].min_clear_short` from data/standards/room-constraints.json,
-# converted to the CENTRELINE rectangle the conversion emits -- clear + t_int per
-# ADR 0001 -- and rounded UP onto the grid, because this is a floor.
-#   ceil((min_clear_short + 150) / 250)
-MIN_SIDE = {"PRIVATE": 8,        # bedroom_double 1650 -> 1800
-            "LIVING_ROOM": 8,    # living        1850 -> 2000
-            "LIVING_DINING": 8,  # living_dining 1850 -> 2000
-            "DINING": 6,         # dining        1300 -> 1450
-            "KITCHEN": 5,        # kitchen        900 -> 1050
-            "BATHROOM": 5,       # bathroom      1000 -> 1150
-            "WC": 4,             # wc             800 ->  950
-            "CORRIDOR": 5,       # corridor       900 -> 1050
-            "STOREROOM": 3}      # storage        600 ->  750
-MIN_SIDE_DEFAULT = 5
+# `ergonomic.rooms[*].min_clear_short`, converted to the CENTRELINE rectangle the
+# conversion emits -- clear + t_int per ADR 0001 -- and rounded UP onto the grid,
+# because this is a floor: `ceil((min_clear_short + t_int) / grid)`.
+#
+# The FORMULA is what is bound now, not its frozen output. This table used to be
+# nine literals with the arithmetic in end-of-line comments, and it had no
+# KITCHEN_DINING row at all -- 1300 clear -> 1450 -> 6 units, where the missing
+# row fell through to MIN_SIDE_DEFAULT = 5 and under-posted the minimum side of
+# every kitchen-diner by one grid cell. Ticket 69.
+MIN_SIDE = profile.min_side_table()
+MIN_SIDE_DEFAULT = 5            # unreachable for a corpus label: the table is
+                                # total over `corpus_label_map`, and gate P6 holds it
 JOIN_UNITS = 5                  # ADR 0014: 900 clear, 1 100 realisable -> 4.4 -> 5
 ASPECT_HARD = 3                 # dim.aspect_ratio_hard, per PART (ADR 0014)
 W_STATED = 8                    # a stated target is sovereign -- brief.md 6.1

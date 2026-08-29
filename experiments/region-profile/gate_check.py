@@ -116,6 +116,259 @@ def vocabulary_gates(doc, check):
               f"T31 {k}.name_az is sourced, or engine_choice WITH a note")
 
 
+def bridge_gates(doc, check):
+    """Ticket 69 -- `ergonomic.corpus_label_map`, the THIRD vocabulary.
+
+    Ticket 31 published ergonomic -> AZ on the finding that no object stated the
+    bridge between two independently-authored vocabularies. The same defect sat
+    one step upstream: every rig in `experiments/warp/` speaks the CORPUS label
+    set, every number it needs is keyed by ERGONOMIC key, and the map between
+    them lived only in end-of-line comments inside four Python dicts. These gates
+    are `vocabulary_gates` V1-V3 in the new direction.
+    """
+    inv = doc["ergonomic"]["rooms"]
+    br = doc["ergonomic"]["corpus_label_map"]
+    labels = br["labels"]
+    collapse = {k: v for k, v in br["collapse"].items() if k != "comment"}
+
+    # -- B1  every label lands on a real ergonomic key ----------------------
+    for lab, row in labels.items():
+        check(row["erg"] in inv,
+              f"T69 corpus_label_map.{lab}.erg -> ergonomic.rooms.{row['erg']} exists")
+        check(row["erg_lenient"] is None or row["erg_lenient"] in inv,
+              f"T69 corpus_label_map.{lab}.erg_lenient is null or a real key",
+              str(row["erg_lenient"]))
+
+    # -- B2  the collapse resolves before the lookup, and lands inside it ---
+    for src, dst in collapse.items():
+        check(dst in labels,
+              f"T69 corpus_label_map.collapse {src} -> {dst} is itself a mapped label")
+        check(src not in labels,
+              f"T69 corpus_label_map.collapse source {src} is not ALSO a label",
+              "a label that is both collapsed and mapped resolves twice")
+
+    # -- B3  exactly one label carries a single/double split ---------------
+    split = {lab for lab, row in labels.items() if row["erg_lenient"]}
+    check(split == {"PRIVATE"},
+          "T69 exactly one corpus label carries a lenient split, and it is PRIVATE",
+          f"split on {sorted(split)}")
+
+    # -- B4  every mapped label is documented ------------------------------
+    for lab, row in labels.items():
+        check(bool(row.get("note")), f"T69 corpus_label_map.{lab} carries a note")
+
+    # -- B5  the bridge covers what the conversion actually emits ----------
+    # Conditional: the gate runs against the profile alone, and gains this check
+    # when the converted corpus is on disk.
+    rooms = DATA.parents[2] / "experiments/warp/out/dwelling_rooms.json"
+    if rooms.exists():
+        seen = set()
+        for rec in json.loads(rooms.read_text(encoding="utf-8")):
+            for t, _a in rec["rooms"]:
+                seen.add(t)
+        unmapped = sorted(l for l in seen if collapse.get(l, l) not in labels)
+        check(not unmapped,
+              f"T69 corpus_label_map covers every label the conversion emits "
+              f"({len(seen)} distinct)", f"unmapped: {unmapped}")
+
+
+def referent_gates(doc, check):
+    """ADR 0034's four owed gates, plus ADR 0036's fifth. Ticket 69.
+
+    `mapping.referent_model.gate_owed` names (a)-(d); ticket 74 added (e) after
+    finding that all four passed an UNLICENSED `part` read -- the open-plan floor
+    that sat above all five real Baku rooms of its kind. (d) and (e) are the two
+    that matter: (d) because ADR 0034 leaves the norm's own ordering to be
+    carried by the target, so a `part` row with no target has nothing carrying
+    it; (e) because a licence stated as prose in an ADR is a licence no gate can
+    read, which is the defect ADR 0034 was itself written to close.
+    """
+    az = doc["profiles"]["AZ"]["rooms"]
+    mapping, areas = az["mapping"]["rooms"], az["areas_m2"]
+    rm = az["mapping"]["referent_model"]
+    medians = doc["ergonomic"]["corpus_medians"]
+    published = set(rm["values"])
+
+    # `hall`/`entrance_lobby`/`corridor` share a merged median ticket 31's split
+    # made unusable; corpus_medians records it as an explicit null.
+    median_key = {"hall": "hall_entrance_lobby_corridor",
+                  "entrance_lobby": "hall_entrance_lobby_corridor",
+                  "corridor": "hall_entrance_lobby_corridor"}
+
+    def cell(key, tier):
+        c = (areas.get(key) or {}).get(tier)
+        return c["v"] if isinstance(c, dict) else None
+
+    def rung2(erg_key):
+        c = medians.get(median_key.get(erg_key, erg_key))
+        return c["v"] if isinstance(c, dict) else None
+
+    seen = {"room": 0, "part": 0, "undetermined": 0}
+    rows_with_area = 0
+
+    for key, row in mapping.items():
+        guards = row["az_area"]
+        if guards is None:
+            continue
+        rows_with_area += 1
+        for g in guards:
+            ref = g.get("referent")
+            tag = f"{key}.az_area[when_otaq_count={g['when_otaq_count']}]"
+
+            # -- R1 (a) every guard entry declares what its cell measures -----
+            check(ref in published,
+                  f"ADR 0034 (a) {tag} carries a published referent", str(ref))
+            if ref in seen:
+                seen[ref] += 1
+
+            # -- R2 (b) an entailed sum only ever adds VERIFIED law -----------
+            for extra in g.get("compose_with") or []:
+                c = (areas.get(extra) or {}).get("statutory_floor")
+                check(isinstance(c, dict) and c.get("v") is not None
+                      and c.get("conf") == "verified",
+                      f"ADR 0034 (b) {tag} compose_with {extra} is a verified, "
+                      f"non-null statutory_floor",
+                      "an entailed bound may never sum a derived or fitted cell")
+
+            # -- R5 (e) the licence is a FIELD, and it governs the read -------
+            lic = g.get("licence")
+            if ref == "part":
+                check(isinstance(lic, dict) and bool(lic.get("clause"))
+                      and bool(lic.get("type_defined_as")),
+                      f"ADR 0036 (e) {tag} names the clause whose type definition "
+                      f"licenses the entailed read",
+                      "a `part` read asserts the norm entails a bound on a room it "
+                      "has a word for; where it has none, nothing is entailed")
+            else:
+                check(lic is None,
+                      f"ADR 0036 (e) {tag} carries licence: null -- a {ref} read's "
+                      f"authority is its own cell `ref`")
+
+            if ref != "part":
+                continue
+
+            # -- R3 (c) a `part` read may floor and may NEVER target ----------
+            # The cell keeps its market_default: it is a first-hand transcription
+            # and real provenance. What is forbidden is READING it as the room's
+            # target, so the gate binds the resolution rather than the datum.
+            soft = cell(g["key"], "market_default")
+            target = rung2(key)
+            check(target is not None and (soft is None or target != soft),
+                  f"ADR 0034 (c) {tag} resolves its target from the ladder, not "
+                  f"from the `part` cell",
+                  f"cell market_default {soft}, ladder rung 2 {target}")
+
+            # -- R4 (d) EVERY `part` READ HAS A TARGET ------------------------
+            # The load-bearing one. ADR 0034 leaves kitchen_dining's hard floor
+            # at 6,0 -- BELOW the 8,0 a plain kitchen gets -- and has the target
+            # carry the norm's ordering. With no target, nothing carries it.
+            check(target is not None,
+                  f"ADR 0034 (d) {tag} has a target from some rung of "
+                  f"brief.md 9.2's ladder", f"resolved {target}")
+            plain = cell(g["key"], "statutory_floor")
+            check(plain is None or target > plain,
+                  f"ADR 0034 (d) {tag} target {target} sits above its own "
+                  f"entailed floor {plain}")
+
+    # -- R6  the ADR's own published counts cannot go stale -----------------
+    at = rm["counts_at_authoring"]
+    check(sum(seen.values()) == at["guard_entries"] and rows_with_area == at["rows_with_az_area"]
+          and seen["room"] == at["room"] and seen["part"] == at["part"]
+          and seen["undetermined"] == at["undetermined"],
+          "ADR 0034 referent_model.counts_at_authoring matches the file",
+          f"file: {sum(seen.values())} entries over {rows_with_area} rows, "
+          f"{seen}; recorded: {at['guard_entries']}/{at['rows_with_az_area']}, "
+          f"room {at['room']} part {at['part']} undetermined {at['undetermined']}")
+
+
+def resolver_gates(doc, check):
+    """`profile_read` is the only reader of this file that sizes a room, so it is
+    the one place a bug reaches geometry. Ticket 69.
+
+    These do NOT import `experiments/warp/`: coupling a PROFILE gate to the
+    solver toolchain would make this file fail when ortools moves. The rigs are
+    bound by construction instead -- they hold no literals to check, because
+    `MIN_SIDE`, `MARKET` and `ERG_AREA` are now this module's tables.
+    """
+    import profile_read as p
+
+    inv = doc["ergonomic"]["rooms"]
+    cat = doc["profiles"]["AZ"]["construction"]["catalogue"]
+
+    # -- P1  the grid and t_int are READ, and agree with the catalogue ------
+    check(p.T_INT_MM == cat["brick"]["t_int"]["v"],
+          f"T69 profile_read.T_INT_MM {p.T_INT_MM} is the catalogue's t_int",
+          "ADR 0007: the profile offers exactly one")
+    check(p.GRID_MM == GRID, f"T69 profile_read.GRID_MM {p.GRID_MM} == {GRID}")
+
+    # -- P2  every table is TOTAL over the bridge, so no default can fire ---
+    ms, erg = p.min_side_table(), p.ergonomic_area_table()
+    for lab in p.labels():
+        check(lab in ms and lab in erg,
+              f"T69 profile_read tables are total at corpus label {lab}")
+
+    # -- P3  the derived table is the FORMULA, recomputed from the file -----
+    for lab in p.labels():
+        k = p.erg_key(lab)
+        want = -(-(inv[k]["min_clear_short"]["v"] + p.T_INT_MM) // GRID)   # ceil
+        check(ms[lab] == want,
+              f"T69 MIN_SIDE[{lab}] = ceil((min_clear_short + t_int) / grid)",
+              f"{ms[lab]} vs {want} from {inv[k]['min_clear_short']['v']} mm")
+
+    # -- P4  the transcribed table is the cell, unmodified ------------------
+    for lab in p.labels():
+        check(erg[lab] == inv[p.erg_key(lab)]["min_area"]["v"],
+              f"T69 ERG_AREA[{lab}] is ergonomic.rooms.{p.erg_key(lab)}.min_area")
+
+    # -- P5  the otaq guard is RESOLVED, and the otaq set is the file's -----
+    # `absolute_area.HABITABLE` omitted DINING, whose counts_as_otaq is true, so
+    # a living+dining dwelling counted one otaq and took the 15,0 floor where the
+    # profile says 16,0. The set is now read; this holds it read.
+    for k, node in inv.items():
+        check(p.counts_as_otaq(k) == bool(node["counts_as_otaq"]),
+              f"T69 profile_read.counts_as_otaq({k}) is the file's flag")
+    check(p.statutory_floor_m2("living", 1) != p.statutory_floor_m2("living", 2),
+          "T69 the when_otaq_count guard actually resolves",
+          f"1 otaq {p.statutory_floor_m2('living', 1)}, "
+          f"2+ {p.statutory_floor_m2('living', 2)}")
+
+    # -- P6  ADR 0034 (c), enforced at the read rather than trusted ---------
+    for k, row in doc["profiles"]["AZ"]["rooms"]["mapping"]["rooms"].items():
+        for g in row["az_area"] or []:
+            if g["referent"] != "part":
+                continue
+            soft = (doc["profiles"]["AZ"]["rooms"]["areas_m2"][g["key"]]
+                    .get("market_default") or {}).get("v")
+            for otaq in (None, 1, 2, 3):
+                got = p.market_default_m2(k, otaq)
+                check(got != soft or soft is None,
+                      f"T69 market_default_m2({k}, otaq={otaq}) does not return the "
+                      f"`part` cell {g['key']}", f"got {got}, part cell {soft}")
+
+    # -- P7  a label the bridge does not define RAISES, never defaults ------
+    try:
+        p.erg_key("NOT_A_LABEL")
+        check(False, "T69 an unmapped corpus label raises rather than defaulting")
+    except KeyError:
+        check(True, "T69 an unmapped corpus label raises rather than defaulting")
+
+    # -- C1  no consumer re-introduces a copy -------------------------------
+    # The one check that binds the RIGS without importing them. It gates the
+    # SHAPE of the defect rather than its values: a table of profile numbers
+    # written as a literal beside the file that publishes them. That shape is
+    # how MARKET drifted four cells behind ADR 0035 in a day, how MIN_SIDE lost
+    # KITCHEN_DINING, and how HABITABLE came to omit DINING. Cheap, exact on
+    # these names, and it fails the moment the pattern comes back.
+    COPY = re.compile(r"^\s*(MIN_SIDE|MARKET|ERG_AREA|STAT_FLOOR|STAT_FLOOR_LENIENT"
+                      r"|HABITABLE|LIVING_FAMILY)\s*=\s*[\{\(]", re.M)
+    warp = DATA.parents[2] / "experiments/warp"
+    for f in sorted(warp.glob("*.py")):
+        hits = COPY.findall(f.read_text(encoding="utf-8"))
+        check(not hits,
+              f"T69 {f.name} holds no profile table as a literal",
+              f"re-copied: {sorted(set(hits))} -- read it from profile_read instead")
+
+
 def main():
     doc = json.loads(DATA.read_text(encoding="utf-8"))
     az = doc["profiles"][PROFILE]
@@ -285,6 +538,9 @@ def main():
     print()
 
     vocabulary_gates(doc, check)
+    bridge_gates(doc, check)
+    referent_gates(doc, check)
+    resolver_gates(doc, check)
 
     if fails:
         print("\n".join(fails))

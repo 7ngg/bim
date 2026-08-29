@@ -81,45 +81,24 @@ NOTCH_ARMS = ("both", "bothfloor")
 SOLVER_T_INT = 150              # what `solver.py` erodes on all four sides
 
 
-def _check_floor_transcription() -> None:
-    """`absolute_area.STAT_FLOOR` is a HAND TRANSCRIPTION of
-    `room-constraints.json`, and nothing in the repo binds the two.
-
-    That was tolerable while the table only *measured*. It is not tolerable now
-    that it CONSTRAINS geometry: a drifted value does not produce a wrong
-    number in a report, it produces a warp that sizes rooms to a floor no
-    regulator wrote — which is the C8 failure from the inside. Asserted on
-    import, in the file that posts the constraint, for the same reason
-    `project_join._check_min_side_identity` is.
-
-    ⚠️ This is an assertion, not a fix. The fix is for `STAT_FLOOR` to be READ
-    from the JSON rather than copied beside it; see the ticket's resolution."""
-    import json as _json
-    from pathlib import Path as _P
-    from absolute_area import (STAT_FLOOR, STAT_FLOOR_LENIENT,
-                               LIVING_1OTAQ, LIVING_2PLUS)
-    src = _P(__file__).resolve().parents[2] / "data" / "standards" / "room-constraints.json"
-    if not src.exists():                       # rigs may run without the repo data
-        return
-    areas = _json.load(open(src, encoding="utf-8"))["profiles"]["AZ"]["rooms"]["areas_m2"]
-
-    def floor(key):
-        cell = (areas.get(key) or {}).get("statutory_floor")
-        return cell["v"] if cell else None
-
-    for code_v, erg_key in ((STAT_FLOOR["KITCHEN"], "kitchen"),
-                            (STAT_FLOOR["KITCHEN_DINING"], "kitchen_zone_in_diner"),
-                            (STAT_FLOOR["PRIVATE"], "bedroom_double"),
-                            (STAT_FLOOR_LENIENT["PRIVATE"], "bedroom_single"),
-                            (LIVING_1OTAQ, "living_room_1room_flat"),
-                            (LIVING_2PLUS, "living_room_2plus")):
-        got = floor(erg_key)
-        assert got == code_v, (
-            "statutory floor drift: absolute_area has %r for %s, "
-            "room-constraints.json publishes %r" % (code_v, erg_key, got))
-
-
-_check_floor_transcription()
+# ---------------------------------------------------------------------------
+# `_check_floor_transcription` LIVED HERE AND IT IS GONE -- ticket 69.
+#
+# It asserted, on import, that `absolute_area.STAT_FLOOR`'s six values still
+# matched `room-constraints.json`. Its own docstring called itself "an assertion,
+# not a fix", and it was structurally blind in the two ways that matter: it
+# checked the six values that WERE copied, so a seventh missing by OMISSION
+# passed it -- which is exactly how `floors_for` came to return None on
+# `living_dining_kitchen` while the bar bound that type at site `both` -- and it
+# returned SILENTLY when `data/` was absent, which is the escape hatch that let a
+# copy survive at all.
+#
+# There is nothing left to assert: `floors_for` READS the profile through
+# `profile_read`, the guard list is resolved rather than reimplemented, and the
+# data is a hard import dependency. A drift is now unrepresentable rather than
+# detected. The durable checks moved to `experiments/region-profile/gate_check.py`,
+# where the other 235 profile gates already live.
+# ---------------------------------------------------------------------------
 
 
 def floors_m2(types, lenient=False):

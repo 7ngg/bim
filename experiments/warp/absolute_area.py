@@ -71,41 +71,34 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from fit_warp import (COLLAPSE, GRID_MM, MIN_SIDE, MIN_SIDE_DEFAULT,      # noqa: E402
                       AREA_TOL, ASPECT_TOL, SEED, W_STATED, W_INVENTED,
-                      STATED_SHARE, coord_frame, uniform, warp_model)
+                      STATED_SHARE, coord_frame, uniform, warp_model,
+                      profile)
 
 OUT = HERE / "out"
 FIT = HERE.parent / "rectangularise" / "out" / "swiss_fit_k2.json"
 ROOMS = OUT / "dwelling_rooms.json"
 
-T_INT_MM = 150                  # ADR 0010: 120 half-brick + 2 x 15 finish
+T_INT_MM = profile.T_INT_MM     # ADR 0010: 120 half-brick + 2 x 15 finish
 ERODE_MM = T_INT_MM / 2         # ADR 0001: erode(U parts, t_int/2)
 F_PARTITION = 0.0575            # brief.md 5 rung 1, p50 of Sum(Space) at t_int 150
 
-# `dim.statutory_min_area`, AzDTN 2.7-2 cl. 5.7, through
-# profiles.AZ.rooms.mapping.rooms.<erg_key>.az_area. Only three corpus labels
-# reach a floor: the living family, the private family and the kitchen. The
-# other six map to a null az_area, which room-constraints.json says means NO
-# STATUTORY FLOOR, and their ergonomic minima (0.5-1.7 m2) are inert.
+# `dim.market_default_area`'s target per corpus label -- `brief.md` 9.2's ladder,
+# resolved. This is the line the argument under test is stated against -- *a Plan
+# that reaches its soft target clears the statutory floor by construction* -- so
+# the `market` arm raises every Brief target onto it and asks whether the
+# delivered Space still clears.
 #
-# PRIVATE is the one genuinely ambiguous limb: the corpus collapses
-# {ROOM, BEDROOM, STUDIO} and cannot say single from double, so both floors are
-# reported. `bedroom_double` 10 is the ticket's own naming and the primary.
-STAT_FLOOR = {
-    "KITCHEN": 8.0,             # kitchen
-    "KITCHEN_DINING": 6.0,      # kitchen_zone_in_diner
-    "PRIVATE": 10.0,            # bedroom_double
-}
-STAT_FLOOR_LENIENT = dict(STAT_FLOOR, PRIVATE=8.0)      # bedroom_single
-LIVING_FAMILY = ("LIVING_ROOM", "LIVING_DINING")
-LIVING_1OTAQ, LIVING_2PLUS = 15.0, 16.0                 # when_otaq_count guard
-HABITABLE = ("PRIVATE", "LIVING_ROOM", "LIVING_DINING")  # ADR 0013: otaq
-
-# `dim.market_default_area`'s target, the same mapping. This is the line the
-# argument under test is stated against -- *a Plan that reaches its soft target
-# clears the statutory floor by construction* -- so the `market` arm raises every
-# Brief target onto it and asks whether the delivered Space still clears.
-MARKET = {"KITCHEN": 9.0, "KITCHEN_DINING": 6.0, "PRIVATE": 12.0,
-          "LIVING_ROOM": 16.0, "LIVING_DINING": 16.0, "BATHROOM": 3.2}
+# ⚠️ IT WAS A LITERAL AND IT HAD DRIFTED ON FOUR OF SIX CELLS, one day after
+# ADR 0035 re-fitted the market tier to Baku: PRIVATE 12,0 against 13,2, both
+# living limbs 16,0 against 17,6, and KITCHEN_DINING 6,0 -- which is not drift
+# but the read ADR 0034 decision 2 forbids outright. 6,0 is the `metbex zonasi`
+# cell (`referent: part`), a sound floor and never a target; the ladder's rung 2
+# gives the room 18,8. `market_default_table` enforces that refusal at the read.
+# Ticket 69.
+#
+# Resolved at the UNGUARDED limb, which is what the literal encoded: a per-
+# dwelling otaq resolution would change the arm rather than repair it.
+MARKET = profile.market_default_table()
 
 # Ticket 56 adds `ring` and `ringmarket`. `market` raises every target onto
 # `dim.market_default_area`; `ring` holds the Envelope's ring fixed before the
@@ -116,14 +109,28 @@ RING_ARMS = ("ring", "ringmarket")
 
 
 def floors_for(types, lenient=False):
-    """max(ergonomic, statutory) per room. The ergonomic layer never binds on the
-    three limbs that carry a statutory floor -- living 3.7 against 15/16, kitchen
-    1.8 against 8, bedroom_double 3.1 against 10 -- so the statutory value IS the
-    floor where one exists and there is nothing to take a max against."""
-    otaq = sum(1 for t in types if t in HABITABLE)
-    tbl = STAT_FLOOR_LENIENT if lenient else STAT_FLOOR
-    liv = LIVING_1OTAQ if otaq == 1 else LIVING_2PLUS
-    return [liv if t in LIVING_FAMILY else tbl.get(t) for t in types]
+    """`dim.statutory_min_area`'s AZ limb per room, None where the profile is
+    silent. The ergonomic layer never binds on the limbs that carry a statutory
+    floor -- living 3,7 against 15/16, kitchen 1,8 against 8, bedroom_double 3,1
+    against 10 -- so the statutory value IS the floor where one exists and there
+    is nothing to take a max against.
+
+    ⚠️ TWO THINGS THIS USED TO GET WRONG, ticket 69. It hand-implemented the
+    `when_otaq_count` guard rather than resolving it, and it counted otaq off a
+    HABITABLE tuple that OMITTED `DINING` -- whose `counts_as_otaq` is true in
+    the profile. A dwelling with a living room and a dining room counted one otaq
+    where the profile counts two, and took `living_room_1room_flat`'s 15,0 where
+    the guard says `living_room_2plus`'s 16,0: a hard floor 1 m2 low, on the
+    largest room in the plan. The otaq set is now read, and the guard resolved.
+
+    ⚠️ It also had no `living_dining_kitchen` limb, so `floors_for` returned None
+    on the open-plan type while the bar bound it at site `both` -- ADR 0036's
+    hole. It is still None, but now BECAUSE the profile publishes a null az_area
+    for that row (ADR 0036 withdrew the unlicensed read), not because the table
+    forgot it. A hand copy can be wrong by omission, and this one was."""
+    keys = [profile.erg_key(t, lenient) for t in types]
+    otaq = profile.otaq_count(keys)
+    return [profile.statutory_floor_m2(k, otaq) for k in keys]
 
 
 def notch_share(parts):

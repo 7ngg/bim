@@ -1138,13 +1138,15 @@
                   "when_otaq_count": 1,
                   "key": "living_room_1room_flat",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 },
                 {
                   "when_otaq_count": null,
                   "key": "living_room_2plus",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "habitable_room"
@@ -1172,7 +1174,8 @@
                   "when_otaq_count": null,
                   "key": "kitchen",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "kitchen"
@@ -1189,7 +1192,8 @@
                   "when_otaq_count": null,
                   "key": "bedroom_double",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "habitable_room",
@@ -1207,7 +1211,8 @@
                   "when_otaq_count": null,
                   "key": "bedroom_double",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "habitable_room",
@@ -1225,7 +1230,8 @@
                   "when_otaq_count": null,
                   "key": "bedroom_single",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "habitable_room",
@@ -1255,7 +1261,8 @@
                   "when_otaq_count": null,
                   "key": "bathroom",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "bathroom",
@@ -1285,7 +1292,8 @@
                   "when_otaq_count": null,
                   "key": "wc",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "wc",
@@ -1315,7 +1323,8 @@
                   "when_otaq_count": null,
                   "key": "hall",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "hall_corridor"
@@ -1365,13 +1374,15 @@
                   "when_otaq_count": 1,
                   "key": "living_room_1room_flat",
                   "referent": "undetermined",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 },
                 {
                   "when_otaq_count": null,
                   "key": "living_room_2plus",
                   "referent": "undetermined",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "habitable_room"
@@ -1388,7 +1399,13 @@
                   "when_otaq_count": null,
                   "key": "kitchen_zone_in_diner",
                   "referent": "part",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": {
+                    "clause": "az_azdtn_2_7_3 cl. 4.7, with the definitions clause of az_azdtn_2_7_2",
+                    "type_defined_as": "cl. 4.7 files this room INSIDE the word kitchen -- «mətbəx (o cümlədən mətbəx-yemək otağı)» -- and the definitions clause supplies its «ayrıca zonaları», separate zones for preparing and for consuming food. The norm therefore names this kind of room AND says it contains a distinct cooking zone, which is what entails a bound on the room from a bound on the zone.",
+                    "conf": "verified",
+                    "note": "ADR 0036. THE LICENCE GOVERNS THE READ, NOT ONLY THE SUM. ADR 0034 decision 4 wrote the licence as a condition on compose_with, and 74 found that too narrow: living_dining_kitchen's defect was an unlicensed `part` read whose sum was incidental, and all four of ADR 0034's owed gates passed it. A `part` read asserts that the norm entails something about a room it has a word for; where the norm has no such word -- as with the open-plan type, whose az_area is now null -- nothing is entailed and neither the addend nor the base cell is licensed. Same licence, opposite results. This field is that condition made checkable, one level up from compose_with, which is currently empty on every row and would gate vacuously."
+                  }
                 }
               ],
               "az_clear_width": "kitchen",
@@ -1421,7 +1438,8 @@
                   "when_otaq_count": null,
                   "key": "bathroom_combined",
                   "referent": "room",
-                  "compose_with": []
+                  "compose_with": [],
+                  "licence": null
                 }
               ],
               "az_clear_width": "bathroom",
@@ -1444,7 +1462,7 @@
             },
             "compose_with": "Extra areas_m2 keys summed into the entailed bound, EMPTY unless the norm's own type definition establishes the parts are disjoint. AzDTN 2.7-2's definitions clause defines a metbex-yemek otagi as a room with `ayrica zonalari` -- SEPARATE zones -- for preparing and consuming food, and that separateness is what licenses the sum. Verified cells only; an entailed bound never sums a derived or fitted one. See ADR 0034.",
             "soundness_rule": "An entailed bound never rejects a room the law admits, because the room contains the part. It refuses a STRICT SUBSET of what the law refuses. That is why `part` may feed the hard tier at all, and it is why option 1 -- emptying the limb -- was refused: it would discard information the law entails and drop kitchen_dining to the ergonomic 4,6, BELOW even the zone figure.",
-            "gate_owed": "gate_check.py must assert (a) every az_area guard entry carries a referent, (b) every compose_with key exists in areas_m2 and its statutory_floor is non-null and conf `verified`, (c) no `part` read is reachable from a soft-tier resolution, and (d) EVERY `part` READ HAS A TARGET from some rung of brief.md 9.2's ladder. (d) is the one that is easy to miss and it is load-bearing: ADR 0034 leaves the norm's own ordering to be carried by the target, so a `part` row with no target has nothing carrying it. Handed to ticket 69, which holds experiments/region-profile/.",
+            "gate_owed": "gate_check.py must assert (a) every az_area guard entry carries a referent, (b) every compose_with key exists in areas_m2 and its statutory_floor is non-null and conf `verified`, (c) no `part` read is reachable from a soft-tier resolution, and (d) EVERY `part` READ HAS A TARGET from some rung of brief.md 9.2's ladder. (d) is the one that is easy to miss and it is load-bearing: ADR 0034 leaves the norm's own ordering to be carried by the target, so a `part` row with no target has nothing carrying it. TAKEN BY TICKET 69, which holds experiments/region-profile/, and it added a FIFTH handed on by ticket 74: (e) every `part` read names the clause whose type definition licenses it. All five are asserted in gate_check.py referent_gates().",
             "counts_at_authoring": {
               "guard_entries": 13,
               "rows_with_az_area": 11,
@@ -1452,7 +1470,8 @@
               "part": 1,
               "undetermined": 2,
               "note": "ENTRIES, NOT ROWS, and the two differ because an otaq-guarded row has two limbs and each limb is a separate read. 11 rows carry an az_area and they hold 13 guard entries. `living` is 2 room entries, `living_dining` 2 undetermined, `kitchen_dining` 1 part.  ||  RE-COUNTED BY TICKET 74 / ADR 0036, which took living_dining_kitchen's az_area to null: 15 -> 13 entries, 12 -> 11 rows, part 3 -> 1. Its two `part` limbs were the only entailed reads on this file that composed a second cell, so `compose_with` is now non-empty on no row at all -- ADR 0034 decision 4's licence stands and currently licenses nothing, which is the correct state for a rule whose only qualifying type (kitchen_dining) has one AZ-floored zone."
-            }
+            },
+            "licence": "THE CLAUSE WHOSE TYPE DEFINITION LICENSES AN ENTAILED READ. REQUIRED on every `part` guard entry and null on every `room` and `undetermined` one, where the cell's own `ref` is the whole of its authority. ADR 0036 widened ADR 0034 decision 4: the licence governs the `part` READ itself and not only its compose_with sum, because a law entails a bound on a room by naming a KIND of room and constraining it, and where a norm defines no such kind nothing about a room of that description is entailed at all. Prose in an ADR is what let the open-plan floor ship unlicensed for a day; this field is that prose made checkable, and it is non-vacuous today where a gate over compose_with alone would not be."
           }
         }
       },
@@ -2793,6 +2812,70 @@
         "above_threshold": "bathroom",
         "measured": "At 2.4 m2, 1.5% of real bathrooms are called wc and 4.4% of real WCs are called bathroom. It prefers to over-assign to `bathroom`, by about three to one.",
         "why_that_direction_is_tolerable": "An over-large wc wastes floor and breaks nothing. A bathroom that is really a WC arrives with too little room for a bath -- but it is still a real, built Swiss room and still clears the bathroom floor of 1.7 m2, so it produces a small bathroom, not an invalid Plan. Neither error moves a published minimum, because no minimum here is fitted to the corpus."
+      }
+    },
+    "corpus_label_map": {
+      "comment": "CORPUS LABEL -> ERGONOMIC KEY, THE THIRD VOCABULARY AND THE LAST ONE UNWRITTEN. Ticket 31 published ergonomic -> AZ (profiles.AZ.rooms.mapping) on the finding that `no object stated the bridge between them`. The same defect sat one vocabulary upstream and nobody had named it: every rig in experiments/warp/ speaks the CORPUS label set, every number it needs is keyed by ERGONOMIC key, and the bridge existed only as end-of-line comments inside four Python dicts -- absolute_area.STAT_FLOOR, absolute_area.MARKET, project_join.ERG_AREA and fit_warp.MIN_SIDE. A comment is not an object and no gate reads one, which is exactly how MARKET drifted four cells behind ADR 0035 within a day of it landing. Ticket 69.",
+      "corpus": "swiss_dwellings",
+      "direction": "CORPUS -> ERGONOMIC, and never the other way. Same shape as mapping.direction: lossy, one-way and declared. The ergonomic key set is canonical (the Brief speaks it verbatim, brief.md section 3); a corpus label is an artefact of whoever annotated that dataset. A SECOND CORPUS NEEDS A SECOND BLOCK -- this one is keyed to swiss_dwellings and carries its collapse, and that is why the bridge lives beside corpus_label_split and corpus_medians under `ergonomic` rather than inside a region profile: it is a CORPUS fact meeting the canonical vocabulary, and it carries no region at all.",
+      "collapse": {
+        "comment": "Applied BEFORE the lookup, and it is the corpus's own loss, not ours. swiss_dwellings distinguishes ROOM / BEDROOM / STUDIO and none of the three tells single from double, so all three collapse to PRIVATE and the single/double question is answered by `lenient` below rather than by the label. fit_warp.COLLAPSE is the shipped implementation of this map and reads it from here.",
+        "ROOM": "PRIVATE",
+        "BEDROOM": "PRIVATE",
+        "STUDIO": "PRIVATE"
+      },
+      "lenient_means": "WHICH LIMB OF A COLLAPSED LABEL A READ TAKES. Exactly one label carries a split -- PRIVATE, whose corpus form cannot say a single bedroom from a double -- and the two limbs resolve to different AZ statutory floors (bedroom_double 10,0 / bedroom_single 8,0). Every other label maps to one ergonomic key and `erg_lenient` is null, meaning `lenient changes nothing here`. A gate asserts the split stays at exactly one label, so a second one cannot appear silently.",
+      "labels": {
+        "PRIVATE": {
+          "erg": "bedroom_double",
+          "erg_lenient": "bedroom_single",
+          "note": "105,425 rooms, the corpus's largest class and the collapse target for ROOM / BEDROOM / STUDIO. `bedroom_principal` is NOT reachable from the corpus: it is a Brief-nameable ergonomic type with no corpus label of its own, so a retrieval never produces one."
+        },
+        "LIVING_ROOM": {
+          "erg": "living",
+          "erg_lenient": null,
+          "note": "8,453 rooms."
+        },
+        "LIVING_DINING": {
+          "erg": "living_dining",
+          "erg_lenient": null,
+          "note": "24,122 rooms. Its AZ read is `referent: undetermined` -- AzDTN never defines `umumi otaq` -- which is a marker and changes nothing here."
+        },
+        "DINING": {
+          "erg": "dining",
+          "erg_lenient": null,
+          "note": "1,315 rooms. COUNTS AS OTAQ (`counts_as_otaq: true`), which is the flag absolute_area.HABITABLE omitted -- see findings.corpus_label_map_ticket_69."
+        },
+        "KITCHEN": {
+          "erg": "kitchen",
+          "erg_lenient": null,
+          "note": "43,991 rooms."
+        },
+        "KITCHEN_DINING": {
+          "erg": "kitchen_dining",
+          "erg_lenient": null,
+          "note": "41 rooms, and the label is DISQUALIFIED as a measurement of this type -- 39 of the 41 sit in dwellings that also carry a separate KITCHEN, so it is a dining room (ADR 0034 consequence 1). The MAP still holds: a corpus room carrying this label is still the engine's `kitchen_dining` for the purpose of resolving its floor and its minimum side. What is disqualified is the label's AREA DISTRIBUTION, not its identity."
+        },
+        "BATHROOM": {
+          "erg": "bathroom",
+          "erg_lenient": null,
+          "note": "68,292 rooms BEFORE the fixture split. corpus_label_split fits a 2,4 m2 threshold that sends the smaller rooms to `wc`; a consumer that has run the splitter looks up WC below, and one that has not looks up BATHROOM. Both are defined, deliberately."
+        },
+        "WC": {
+          "erg": "wc",
+          "erg_lenient": null,
+          "note": "NOT A RAW CORPUS LABEL -- it exists only downstream of corpus_label_split. Defined here because three shipped rigs key on it and a lookup that raises on a label the pipeline can produce is a worse failure than one that resolves it."
+        },
+        "CORRIDOR": {
+          "erg": "corridor",
+          "erg_lenient": null,
+          "note": "53,289 rooms. The corpus has ONE circulation label and the ergonomic layer keeps `hall`, `entrance_lobby` and `corridor` apart (ticket 31), so this map is lossy in the direction that matters and corpus_medians.hall_entrance_lobby_corridor is explicitly null for exactly this reason. `corridor` is the honest target: it is the type the label names."
+        },
+        "STOREROOM": {
+          "erg": "storage",
+          "erg_lenient": null,
+          "note": "14,294 rooms."
+        }
       }
     },
     "validated_against_corpus": {
