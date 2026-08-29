@@ -33,6 +33,7 @@ Outputs go to `out/`, gitignored. Seed 20260819 throughout, the same one
 | `best_of_m_fit.py` | fits and extrapolates that curve to production depth, with a bootstrap | ~2 min |
 | `constrained_warp.py [n]` | what ADR 0020's notch invariant and ADR 0028's void charge cost when **posted in the solve** rather than arrived at | ~6 min at `n=200` |
 | `stretch_terms.py` | **what the two dimensional gate terms are a proxy for**, computed directly and joined to `gate_effect.py`'s warps. No new warps | seconds |
+| `floor_warp.py [n]` | **what `dim.statutory_min_area` costs when the WARP posts it**, not the solve. Four paired arms; `--pool=m` runs the Brief-level arm instead, `--lenient` swaps the `PRIVATE` limb to `bedroom_single`, `--raw` drops the `market_default` raise | ~8 min at `n=400`, ~25 min at `--pool=8 n=200` |
 
 Order: `room_area_spread.py` first (it builds `out/dwelling_rooms.json`, which
 every other script reads).
@@ -420,3 +421,81 @@ point relabelled.
 breach needs a room at `got/target - 1 > 1,02`, and `worst_room_dev` is the max of
 that over rooms — `dev > 1,02` is a *necessary* condition and the count is an
 exact upper bound. 1,96 % under the incumbent, 2,08 % under `req <= 1` alone.
+
+## What ticket 64 added, and the four traps in it
+
+`floor_warp.py` prices posting `dim.statutory_min_area` **inside the warp's own
+CP-SAT model**. ADR 0033. Four arms on one draw of 381 paired (Brief, donor)
+cases, plus a Brief-level arm at `--pool=8`.
+
+**The constraint is one line and it is linear.** `sum(part areas) >= floor`, per
+Room. The part areas are already `AddMultiplicationEquality` products and the
+floor is a constant, so unlike ADR 0020's notch invariant — one product per notch
+cell — this adds **no product at all**. `constrained_warp.warp_model_constrained`
+gains one optional `area_floor_cells` parameter defaulting to `None`; with it
+unset the four published arms build a bit-identical model, and no call site in
+that file passes it.
+
+| | `both`, as `proposer.md` §2.2.2 specifies it | floor posted |
+|---|---:|---:|
+| served candidates | 335 | 302 |
+| **carrying a Room below a statutory floor** | **106 = 31,6 %** | **14 = 4,6 %** |
+| shortfall depth p50 · max | **1,356 m² · 8,444 m²** | 0,038 m² · 0,438 m² |
+| INFEASIBLE | 46 = 12,1 % | 79 = 20,7 % |
+| net paired candidate cost | — | **33 = 8,66 %** |
+
+⚠️ **TRAP 1 — the baseline is `both`, not `free`.** `proposer.md` §2.2.2 point 6
+already puts the void in the programme and ADR 0020's notch invariant is decided,
+so the *spec's* warp is `constrained_warp.py`'s `both` arm. Pricing the floor
+against `free` reports it cheaper than production will ever see it. `free` and
+`floor` are kept only as the historical pair.
+
+⚠️ **TRAP 2 — `worst_dev` read across arms is survivorship, not fidelity.**
+Unpaired, the arms appear to show fidelity *improving* under the floor
+(0,1710 → 0,1352). That is the floor refusing high-deviation candidates. Paired
+on the 302 candidates both arms serve, the honest figure is p50
+**0,1318 → 0,1352** — delta p50 **+0,0000**, 231 of 302 unchanged, 59 worse, 12
+better — and p90 0,5359 → 0,6065. Quote the paired one. `worst_dev_unbound` is
+reported for the same reason and is inert here: see trap 3.
+
+⚠️ **TRAP 3 — the floor never fights a target in this rig, and that is a
+property of the regime, not of the constraint.** `moved_rooms = 0` on every arm,
+because `absolute_area` raises every target onto `dim.market_default_area`
+(kitchen 9,0 against a floor of 8,0; `PRIVATE` 12,0 against 10,0; living 16,0
+against 15/16) — which is `acceptance-bar.md` §11.1 ground 2's own stated
+condition. The constraint binds against what the warp *achieves*, never against
+what the Brief *asks*. `--raw` drops the raise and is the arm to run for the case
+`brief.md` §9.4 still permits, a stated target below its own statutory floor.
+
+⚠️ **TRAP 4 — a per-candidate rate is not this number, and §11.1 says so in its
+own text.** The candidate cost is 8,66 %; the pool absorbs it. At `--pool=8` over
+199 Briefs:
+
+| | `both` | floor posted |
+|---|---:|---:|
+| Briefs served at all | 96,48 % | 94,97 % |
+| **Briefs served *cleanly*** | **90,95 %** | **94,97 %** |
+| clean share of those served | 94,27 % | **100 %** |
+| pool depth p50 | 7 | 6 |
+
+The floor costs **1,51** points of service and buys **4,02** points of *legal*
+service. Run at m = 8; the production median pool is 86,6 at 4–6 rooms and 58,7
+at 7–10, so this is an **upper bound** on the loss.
+
+**A two-pass warp was measured and refused.** Re-warping without the floor on
+INFEASIBLE recovers every lost candidate and takes violations to 14,0 % with
+nothing lost, which reads as strictly dominant. Every second-pass candidate
+violates *by construction* — it is exactly the one the floor refused — so it buys
+a rate and **no invariant**. The end states are in the ticket.
+
+**The posted floor is a seed-shape estimate**, which is where the 4,6 % residual
+comes from: `part_targets_cells` reads each Room's erosion overhead off
+`seed_rects` and the shape moves under the warp. Residuals are grid dust (p50
+0,038 m²) and vanish at Brief level, but the invariant is *nearly* true rather
+than true until ticket 67 lands.
+
+**`_check_floor_transcription` runs on import** and asserts all six values of
+`absolute_area.STAT_FLOOR` against `room-constraints.json`. The table is a hand
+copy; it was tolerable while it only measured and is not now that it constrains
+geometry. That is a guard, not the fix — ticket 69 owns the read-from-JSON
+refactor.
