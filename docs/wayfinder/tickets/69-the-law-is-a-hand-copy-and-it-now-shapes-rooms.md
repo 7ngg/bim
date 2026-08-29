@@ -71,8 +71,8 @@ removes a way for the map's own numbers to become quietly untrue.
 of the gates load-bearing rather than tidy.**
 
 `data/standards/room-constraints.json` now carries `mapping.referent_model` and a
-`referent` + `compose_with` pair on all twelve `az_area` guard entries — 9 `room`,
-2 `part`, 1 `undetermined`. Four gates are owed, and `gate_check.py` is yours:
+`referent` + `compose_with` pair on all **fifteen** `az_area` guard entries across twelve
+rows — 10 `room`, 3 `part`, 2 `undetermined`. Four gates are owed, and `gate_check.py` is yours:
 
 1. **Every `az_area` guard entry carries a `referent`**, and it is one of the
    three published values.

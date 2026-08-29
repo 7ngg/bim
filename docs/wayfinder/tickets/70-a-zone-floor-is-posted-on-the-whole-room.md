@@ -194,8 +194,9 @@ already made for cl. 5.10 at `bathroom_combined`.
 ### Written
 
 - `data/standards/room-constraints.json` — `mapping.referent_model`; `referent`
-  + `compose_with` on all 12 `az_area` guard entries (**9 room, 2 part, 1
-  undetermined**); rung-2 medians for both compound types; the `kitchen_dining`
+  + `compose_with` on all **15** `az_area` guard entries across 12 rows (**10 room,
+  3 part, 2 undetermined** — an otaq-guarded row has two limbs and each is a
+  separate read); rung-2 medians for both compound types; the `kitchen_dining`
   bridge rewritten; the LDK `gas_note`; **six** `clear_widths_mm` cells corrected
   from `cl. 5.4` to `cl. 5.1` (values unchanged — cl. 5.4 is foundations).
 - `CONTEXT.md` — **Statutory floor** gains the part-referent clause and two

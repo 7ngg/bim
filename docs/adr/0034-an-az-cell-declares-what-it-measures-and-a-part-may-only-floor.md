@@ -86,8 +86,9 @@ Five parts.
    read by three rows with three different answers (`living` room,
    `living_dining` undetermined, `living_dining_kitchen` part), so the referent
    is a property of the *read*. It sits beside the `when_otaq_count` it is
-   conditioned with, and each guard limb carries its own. At authoring: **9
-   `room`, 2 `part`, 1 `undetermined`.**
+   conditioned with, and each guard limb carries its own. At authoring: **15 guard entries
+   across 12 rows — 10 `room`, 3 `part`, 2 `undetermined`.** Entries and rows differ
+   because an otaq-guarded row has two limbs and each limb is a separate read.
 
 2. **A `part` read may feed the hard tier and may never feed the soft tier.**
    Sound because the room contains the part; refused as a target because a

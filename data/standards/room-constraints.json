@@ -1421,9 +1421,12 @@
             "soundness_rule": "An entailed bound never rejects a room the law admits, because the room contains the part. It refuses a STRICT SUBSET of what the law refuses. That is why `part` may feed the hard tier at all, and it is why option 1 -- emptying the limb -- was refused: it would discard information the law entails and drop kitchen_dining to the ergonomic 4,6, BELOW even the zone figure.",
             "gate_owed": "gate_check.py must assert (a) every az_area guard entry carries a referent, (b) every compose_with key exists in areas_m2 and its statutory_floor is non-null and conf `verified`, (c) no `part` read is reachable from a soft-tier resolution, and (d) EVERY `part` READ HAS A TARGET from some rung of brief.md 9.2's ladder. (d) is the one that is easy to miss and it is load-bearing: ADR 0034 leaves the norm's own ordering to be carried by the target, so a `part` row with no target has nothing carrying it. Handed to ticket 69, which holds experiments/region-profile/.",
             "counts_at_authoring": {
-              "room": 9,
-              "part": 2,
-              "undetermined": 1
+              "guard_entries": 15,
+              "rows_with_az_area": 12,
+              "room": 10,
+              "part": 3,
+              "undetermined": 2,
+              "note": "ENTRIES, NOT ROWS, and the two differ because an otaq-guarded row has two limbs and each limb is a separate read. 12 rows carry an az_area and they hold 15 guard entries. `living` is 2 room entries, `living_dining` 2 undetermined, `living_dining_kitchen` 2 part, `kitchen_dining` 1 part."
             }
           }
         }
