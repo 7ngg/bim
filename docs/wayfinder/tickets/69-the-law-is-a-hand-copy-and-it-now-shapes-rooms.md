@@ -64,3 +64,57 @@ removes a way for the map's own numbers to become quietly untrue.
 ## Raised by
 
 *Should the warp post the statutory floor* (2026-08-29), ADR 0033 consequence 5.
+
+## Handed on by *A zone floor is posted on the whole room* (2026-08-30)
+
+**ADR 0034 landed the referent schema this ticket has to gate, and it made one
+of the gates load-bearing rather than tidy.**
+
+`data/standards/room-constraints.json` now carries `mapping.referent_model` and a
+`referent` + `compose_with` pair on all twelve `az_area` guard entries — 9 `room`,
+2 `part`, 1 `undetermined`. Four gates are owed, and `gate_check.py` is yours:
+
+1. **Every `az_area` guard entry carries a `referent`**, and it is one of the
+   three published values.
+2. **Every `compose_with` key exists in `areas_m2`**, and its `statutory_floor`
+   is non-null and `conf: verified`. An entailed bound may never sum a `derived`
+   or `fitted` cell.
+3. **No `part` read is reachable from a soft-tier resolution.** This is the rule
+   ADR 0034 exists to enforce and it is currently enforced by prose.
+4. ⚠️ **Every `part` read has a target** from some rung of `brief.md` §9.2's
+   ladder. **This is the one that is easy to miss and it is the one that
+   matters.** ADR 0034 deliberately leaves `kitchen_dining`'s hard floor at 6,0 —
+   below the 8,0 a plain `mətbəx` gets — and has the *target* carry the norm's
+   ordering. A `part` row with no target has nothing carrying it, and the ADR's
+   reversal trigger names exactly this.
+
+**This is item 3 of your own question, arriving with a second instance.** You
+already own *the profile matches its own source*; this is *a consumer matches the
+profile*, same file, same class.
+
+### Two constants, handed with their derivations
+
+**`absolute_area.MARKET["KITCHEN_DINING"]` 6,0 → 18,8.** The 6,0 was the kitchen
+**zone** figure read as a room target. 18,8 is `ergonomic.corpus_medians.kitchen_dining`
+— Swiss `KITCHEN + DINING` summed per dwelling over 1 308 dwellings — corroborated
+by MİDA's `Mətbəx-studio` p50 of 17,37 over 5 Baku plans.
+⚠️ **Do not use the direct Swiss `KITCHEN_DINING` median of 23,67.** It is
+disqualified: 39 of its 41 rooms sit in dwellings that *also* carry a separate
+`KITCHEN`, so the label is a **dining room**. It is also 21 layouts, not 41 rooms
+— one site is 4 layouts × 6 floors and the per-unit key hashes differ, so a
+key-based dedup cannot see it.
+
+**`STAT_FLOOR` does not move.** 6,0 stays, so nothing in `experiments/warp/`
+re-measures on its account and tickets 62, 65 and 67 are undisturbed.
+
+### An eighth hand copy, and this one is also wrong
+
+Your own note counts six values, and the transcription research found a seventh
+(`HABITABLE`, omitting `DINING`). There is an **eighth**:
+
+`fit_warp.MIN_SIDE` has **no `KITCHEN_DINING` entry**, so it falls to
+`MIN_SIDE_DEFAULT = 5` (1 250 mm centreline). The ergonomic
+`kitchen_dining.min_clear_short` is **1 300 mm**, which by `MIN_SIDE`'s own stated
+rule — `ceil((min_clear_short + 150) / 250)` — gives **6**. The warp under-posts
+the minimum side for this type by one grid cell. Same class as the seventh: a
+table copied beside the data that publishes it, with nothing binding the two.

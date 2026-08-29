@@ -959,6 +959,25 @@ are silent in `AZ` — and **silence is not an error**: where there is no statut
 floor the ergonomic minimum stands alone. It always sits *below* the same
 profile's preferred area, and it binds only where the solve failed to reach that
 target.
+
+**A law may floor a *part* of a room rather than the room, and then the profile
+carries what that entails.** AzDTN floors the *kitchen zone* inside a
+kitchen-diner, never the kitchen-diner. The room contains the zone, so the zone's
+figure is a **sound lower bound** on the room — it refuses a strict subset of
+what the law refuses, and there are no false refusals. Such a read is marked
+`referent: part` and it **may floor, and may never target**: a bound that is
+merely entailed is not what anyone builds, and reading it as a target
+under-targets the room by the unmeasured remainder. An entailed bound may sum
+cells whose disjointness the norm's *own type definition* establishes, and
+nothing else. It stays **transcribed** in the sense that matters — every addend
+is a number a regulator wrote — and this is the only way a figure enters this
+term without being one. ADR 0034.
+_Avoid_: reading an entailed bound as the smallest area the law permits that
+room. It is the smallest area the law's *part* forces, and the true floor is
+higher by an amount the norm may leave unstated. Where it does — and for the
+kitchen-diner AzDTN does, exhaustively — the distance is the designer's
+discretion and **the engine may not quantify it into this term**: every
+candidate number is an `engine_choice` and belongs to the target, not here.
 _Avoid_: “a Plan that reaches its target clears it by construction” — **measured
 and false**. The premise holds and the conclusion does not, because a warp
 delivers a *proportion* of a target rather than the target: 25,5 % of warped

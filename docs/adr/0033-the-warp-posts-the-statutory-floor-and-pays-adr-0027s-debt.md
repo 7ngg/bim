@@ -183,6 +183,18 @@ unadvertised.
    does **not** re-open the deferral; it re-prices it, and the price is
    ticketed.
 
+⚠️ **Amended 2026-08-30 by [ADR 0034](0034-an-az-cell-declares-what-it-measures-and-a-part-may-only-floor.md).**
+The `KITCHEN_DINING` limb this ADR posts is **entailed, not transcribed**: AzDTN
+cl. 5.7 floors the kitchen *zone* inside the room at 6 m² and publishes no
+whole-room figure at all — searched exhaustively, `az-kitchen-diner-whole-room.md`.
+6,0 stays, because the room contains the zone and the bound is sound. Two claims
+above are narrowed by it. **"The floor never fights a target" held for this limb
+only at equality** — floor 6,0 against target 6,0, zero headroom — and the target
+is now 18,8, so it has real headroom for the first time. And `moved_rooms = 0`
+was measured with `MARKET["KITCHEN_DINING"] = 6.0`; that constant is handed on,
+which **raises** the margin and cannot invert the result. The decision, the
+severity, the site and the other limbs are untouched.
+
 5. **The floor table is a hand transcription and is now load-bearing.**
    `absolute_area.STAT_FLOOR` was copied from `room-constraints.json` with
    nothing binding the two. That was tolerable while it only measured; it

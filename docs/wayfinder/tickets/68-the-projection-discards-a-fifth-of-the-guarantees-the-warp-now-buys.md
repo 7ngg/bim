@@ -73,3 +73,28 @@ re-opening of ADR 0033. Not the warp-side encoding residual, which is
 ## Raised by
 
 *Should the warp post the statutory floor* (2026-08-29), ADR 0033 consequence 4.
+
+## Handed on by *A zone floor is posted on the whole room* (2026-08-30)
+
+**One sentence of `acceptance-bar.md` §11.1 is now narrower than it reads, and
+this ticket is the only one that may touch that file.**
+
+ADR 0034 reclassifies `dim.statutory_min_area`'s `KITCHEN_DINING` limb: the 6,0
+is **entailed, not transcribed** — AzDTN cl. 5.7 floors the kitchen *zone* inside
+the room and publishes no whole-room figure at all, established exhaustively in
+`docs/research/az-kitchen-diner-whole-room.md`. The value does not move, and
+neither does the severity, the site or the enforcement order.
+
+What §11.1 should carry when you rewrite it:
+
+- **The rule no longer has one kind of limb.** Four limbs are transcriptions of
+  a whole-room figure; one is a sound lower bound entailed from a part. Both are
+  hard and both are enforced identically, but a reader reasoning about *what a
+  clearing Plan guarantees* now gets a weaker guarantee on one limb — the room
+  clears the part's floor, not the room's, and the room's is unpublished.
+- ⚠️ **This does not touch your own question.** The plane defect is per-Room over
+  all warped Rooms and is orthogonal to which limb a Room reads. The 19,5 % you
+  are re-pricing is unaffected: `KITCHEN_DINING` is 41 rooms of 319 222, and
+  `STAT_FLOOR` does not move, so no figure in your ticket changes.
+- **`experiments/warp/` stayed untouched by ticket 70**, deliberately, so
+  nothing you or 62/65/67 depend on has shifted underneath.
