@@ -118,3 +118,40 @@ Your own note counts six values, and the transcription research found a seventh
 rule — `ceil((min_clear_short + 150) / 250)` — gives **6**. The warp under-posts
 the minimum side for this type by one grid cell. Same class as the seventh: a
 table copied beside the data that publishes it, with nothing binding the two.
+
+## Handed on by *A gas hob decides whether the open-plan type is buildable in AZ* (2026-08-30)
+
+**Two items, and the first is a hole in a shipped invariant rather than a drift
+risk.**
+
+1. **`floors_for` has no `living_dining_kitchen` limb, and the bar has one.**
+   `absolute_area.py`'s `LIVING_FAMILY = ("LIVING_ROOM", "LIVING_DINING")` and
+   `STAT_FLOOR` carries three keys, so `floors_for` returns **`None`** for an
+   open-plan Room while `dim.statutory_min_area` binds at site **both**. Until
+   ADR 0036 the bar demanded **22,0 m²** on a type the warp posted nothing for —
+   **ADR 0033's invariant did not cover it**. ADR 0036 takes that cell's
+   `az_area` to `null`, so the two now agree at *no AZ floor* — but they agree
+   **coincidentally**, through two unrelated omissions. Item 1 of this ticket
+   (read the floors from the JSON rather than copying them) makes the agreement
+   deliberate, and it is the case that shows why the fix is not cosmetic: a hand
+   copy can be wrong by **omission** as well as by drift, and
+   `floor_warp._check_floor_transcription` asserts the six values that **are**
+   copied, so it is structurally blind to a seventh that is missing.
+
+2. **ADR 0034's owed gates need a FIFTH, and it is the one that would have caught
+   ADR 0036's defect.** The four on this ticket check that a `referent` exists,
+   that `compose_with` keys resolve to verified non-null cells, that no `part`
+   read is soft-reachable, and that every `part` read has a target. **None of them
+   checks the licence itself.** ADR 0034 decision 4 grants a sum only for *"cells
+   whose disjointness the norm's own type definition establishes"*, and the
+   defect was a `compose_with` on a type the norm **does not define** — every one
+   of the four gates would have passed it. The fifth: **every `compose_with` names
+   the clause whose type definition licenses it**, which means the licence has to
+   become a field rather than prose in an ADR. That is ADR 0034 consequence 6's own
+   lesson — *"a number copied away from the qualifier that gives it meaning"* —
+   applied one level up, to the composition rather than the value.
+
+⚠️ **`experiments/warp/` was at four claimants and this ticket is one of them.**
+ADR 0036 wrote no code and claimed nothing there; both items above are stated so
+they are transcribed rather than re-derived.
+

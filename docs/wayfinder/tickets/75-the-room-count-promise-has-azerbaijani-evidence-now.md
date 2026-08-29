@@ -65,3 +65,50 @@ two-units shape, which nothing here disputes.
 
 *The market tier has an Azerbaijani source now* (2026-08-30), item 6, which
 declined to take it because it writes neither artefact.
+
+## Handed on by *A gas hob decides whether the open-plan type is buildable in AZ* (2026-08-30)
+
+**Item 3 — the studio case — now has a named population and a concrete
+disagreement, and it is not the one the item expected.**
+
+MİDA's five `nrooms: 0` plans are **not studios**. Read from
+`experiments/baku-market-areas/mida_plans_318.json`, every one of the five carries
+a separate bedroom:
+
+| internal m² | schedule |
+|---|---|
+| 34,97 | `Dəhliz` 4,60 · `Mətbəx-studio` 15,14 · `Yataq otağı` 8,06 · `Sanitar qovşağı` 3,26 · `Eyvan` 3,91 |
+| 34,97 | `Dəhliz` 4,60 · `Mətbəx-studio` 15,14 · `Yataq otağı` 8,06 · `Sanitar qovşağı` 3,26 · `Sanitar qovşağı` 3,91 |
+| 35,57 | `Dəhliz` 3,28 · `Mətbəx-studio` 17,37 · `Yataq otağı` 8,00 · `Sanitar qovşağı` 3,01 · `Eyvan` 3,91 |
+| 40,10 | `Dəhliz` 2,70 · `Mətbəx-studio` 17,70 · `Yataq otağı` 13,70 · `Sanitar qovşağı` 2,60 · `Eyvan` 3,40 |
+| 40,10 | `Dəhliz` 2,73 · `Mətbəx-studio` 17,74 · `Yataq otağı` 13,65 · `Sanitar qovşağı` 2,57 · `Eyvan` 3,41 |
+
+So they are **one-bedroom flats with an open-plan kitchen-living room**, and
+`nrooms: 0` is a **sales label, not a room count**.
+
+**The disagreement is in the promise's own unit.** The engine would count these at
+**2 otaq** — `living_dining_kitchen` and `bedroom_*` both carry
+`counts_as_otaq: true` — against MİDA's **0**. That is a two-otaq gap on the axis
+C13's copy is stated in, on real published Baku stock, and it is **not** the
+"is a studio 1 otaq?" question item 3 poses: it is *"does an open-plan room count
+as an otaq at all, and does the seller agree?"*
+
+**Three things this hands you, and one thing it does not.**
+
+1. **The engine's own count is defensible and the label is not the engine's
+   problem.** AzDTN 2.7-2 cl. 5.5 enumerates `yaşayış otaqları`, and an open-plan
+   room holds a living function; MİDA's `0` is a marketing convention. But C13's
+   promise is read by a Homeowner who shops on `bina.az`, where the same dwelling
+   is advertised as a studio — so *whose* unit the promise speaks is the decision,
+   and it is the same shape as item 1's corpus-share-versus-occupancy-share
+   question.
+2. **In engine rooms these are 4**, inside C13's 3–10 band. Nothing here touches
+   the hard refusal, exactly as this ticket's "What this is not" says.
+3. **The population is five plans, 1,57 % of 318.** Thin, and worth stating as
+   thin — but it is the *only* AZ evidence for the open-plan case that exists.
+
+**Not decided here, deliberately.** `counts_as_otaq` is ADR 0013's unit and this
+ticket writes ADR 0013; ticket 74 held `room-constraints.json` open in front of it
+and did not touch that flag. `docs/research/az-market-default-against-practice.md`
+§6.4 carries the corrected table and the withdrawn sentence.
+
