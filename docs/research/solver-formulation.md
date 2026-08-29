@@ -288,6 +288,11 @@ interval variable per axis and an area variable `a = w·h`.
 | H10 | Circulation without traversing a bedroom | single-commodity flow, private rooms forbidden to forward | reuses H6 literals |
 | — | Orthogonal, grid-snapped | integer variables | free, cannot be violated |
 
+✅ **This list is closed at H10** — Part VI, ticket 43. The one candidate H11
+(an *ordered* entry sequence, wanting a per-Room hop-count integer against H8's
+*"no auxiliary integers"*) was refused on the corpus. A proposal to add one is
+re-opening a decision with a published corpus cost.
+
 Two encoding tricks are worth carrying into the real implementation because they
 remove a large number of auxiliary integer variables:
 
@@ -2204,3 +2209,97 @@ against the true outline they fail H1 *and* H3 — seven of the first eight slot
 `real_envelope.refit_to_true_mask` substitutes the domain at `fit_rects`' call
 boundary rather than editing it. Reading that failure as a coordinate bug is the
 trap here; it is a statement about which Envelope the fit was solved on.
+
+---
+
+# Part VI — the H-list closes at H10 (ticket 43)
+
+**No hard constraint is added and none is owed.** The one property the zoning
+decomposition left needing machinery this formulation does not have — an
+*ordered* entry sequence — was refused on the corpus, and the refusal is
+recorded in full at `docs/research/zoning.md` §6. This Part records only what it
+means for the formulation, plus one harness fact that would otherwise close with
+the ticket.
+
+## VI.1 Why no H11
+
+`Is reachability expressible as a constraint? Yes.` gives **reachability**: room
+*r* receives its unit, therefore you can get there. It says nothing about *how
+far along* the walk *r* sits. The natural repair is a per-Room hop-count integer
+`d_r` with `d_entry = 0` and `d_r = min over neighbours(d_v + 1)` posted as a
+disjunction over the `door_ij` literals — a new integer per Room and a new
+disjunction per pair, on a formulation whose H8 note specifically records needing
+**"no auxiliary integers"**.
+
+It is not added, and the reason is that **the rules it would carry are refuted
+before the encoding is reached**:
+
+| candidate rule | needs `d_r`? | holds on real dwellings |
+|---|---|---:|
+| no habitable Room adjacent to the entry | no — one existing literal | **1.8 %** |
+| every habitable Room at hop ≥ 2 | no | **1.6 %** |
+| every private Room at hop ≥ 2 | no | **25.1 %** |
+| nearest private ≥ nearest social | **yes** | **82.6 %**, and a **tie in 51.0 %** |
+| strict entry < social < private | **yes** | **26.9 %** |
+
+Two things follow that are worth carrying rather than re-deriving:
+
+1. **"Hop ≥ 2 from a fixed node" is not a hop count.** `d_r ≥ 2` where the source
+   is the single entry Room is exactly `door_{entry,r} == 0` — one H6 literal,
+   already reified. Any future ordering proposal should be checked against this
+   first: if the property only ever references distance from *one* fixed node,
+   it costs nothing and needs no Part VI.
+2. **The first hop is a construction, not a constraint.** `openings.md` §7 hosts
+   the primary entrance on the invented `hall`, and a candidate whose hall misses
+   an `entrance_side` edge dies at `entry.exists`. The engine satisfies
+   *entry → hall* at 100 % without a solver variable, against 93.2 % in the
+   corpus. There was never a constraint to write here.
+
+**The H-list closes at H10.** A later ticket that wants an ordering constraint is
+re-opening a decision with a published corpus cost, not filling a gap.
+
+## VI.2 The cost of an auxiliary integer is still unmeasured, on purpose
+
+Part II fitted 15 s and τ = 4 without these variables, and *Solver timing
+variance sweep* found v1 sits **on the edge of the feasibility cliff, not below
+it**. So "what does one auxiliary integer per Room cost this model" is a fair
+question — it is simply not this ticket's, and no figure was produced.
+
+It was not measured because pricing an encoding nothing will post measures the
+rig rather than the encoding, and because the rig cannot answer it where the
+answer matters. See VI.3.
+
+## VI.3 The fixture defect that would otherwise have closed with the ticket
+
+⚠️ **`experiments/solver-toy/`'s `AREA_PER_ROOM_M2` = 9.65 is below what the
+placeholder table needs at 7 and 8 rooms in *either* cut structure** — both need
+**11.58** — and below 7 rooms this Envelope family has no non-guillotine tiling
+at all. Recorded by ticket 29 and restated on ticket 43; neither owns it, and
+43 closes without running the sweep, so it is written here instead of dying on a
+closed ticket.
+
+The consequence is specific and it bounds any future pricing work: **the bottom
+half of C13's own 3–10 band is where this fixture is least trustworthy**, and it
+is also the half no solver measurement on this map covers. A sweep of a new
+encoding across room counts would return a number with its hole exactly where the
+gap is. Fix the fixture first, in its own ticket, or measure only 8+.
+
+This sits beside the two harness limits already recorded — Part V's
+`ground_truth` cannot dissect a per-dwelling Envelope (70 of 120 slots lost) and
+`assign_kinds` refuses a real dwelling a Brief — and the map carries the
+replacement as fog under *Whether the harness needs a Brief generator that works
+on a real boundary*, with a stated graduation trigger. **This ticket did not
+create that trigger** and deliberately did not graduate it.
+
+## VI.4 What Part VI does not establish
+
+- **Nothing about `AddCircuit`.** Part I's `[UNVERIFIED]` on whether it would be
+  faster than the flow encoding is untouched.
+- **No timing, no feasibility rate, no variable count** for a hop-count encoding.
+  There is no number here to quote, and one should not be inferred from ADR
+  0014's 1.2–1.7× — that is a *box-count* multiplier for two-part Rooms and has
+  nothing to say about auxiliary integers.
+- **The refutation is corpus-level, not solver-level.** If a future Brief ever
+  *states* an ordering as a requirement rather than the engine asserting it as a
+  quality rule, this Part does not price it — the corpus is silent on what a
+  Homeowner asks for, and every rate above describes what real housing *is*.

@@ -101,12 +101,23 @@ Within one dwelling, mean private hop against mean social hop: private further
 further from the door than the living room rejects one real home in six. The
 gradient is real and it is not a predicate.
 
+✅ **Refined by §6.5, and the refinement is the number a rule would cost.** The
+16.1 % above is *mean* against *mean*. On the **minimum** each side — what a rule
+binds, since it binds the nearest offender — it is **17.4 %**, and the fact this
+section missed is that **51.0 %** of dwellings are a **tie**. The gradient is not
+only unassertable, it is *absent* in half the population.
+
 ### 2.3 What the front door opens onto
 
 **93.2 %** circulation, 3.6 % social, 2.0 % private, 1.1 % kitchen, 0.2 % wet.
 
 This is the first hop of the sequence property, and it needs none of the
 machinery the rest of the sequence needs — it is a statement about one Space.
+
+✅ **And in the engine it is not even that** — §6.4. `openings.md` §7 hosts the
+primary entrance on the invented `hall` by construction, so the engine's rate is
+**100 %**, not 93.2 %, and no predicate is owed. D6's *warn* stands for a Brief
+that overrides the default, not for the default.
 
 ### 2.4 Facade: the pass-1 measurement was the confound
 
@@ -290,6 +301,16 @@ needs *"no auxiliary integers"* (H8's note). Its cost is unmeasured and the rig
 that would measure it is `experiments/solver-toy/`, which ticket 29 claims and is
 about to change. Ticketed, blocked on 29.
 
+✅ **Settled, and the cost was never the deciding question** — §6, ticket 43.
+The rig was freed (ADR 0019 moved nothing) and the encoding was then **refused on
+the corpus before it was priced**: of the three readings this decision left open,
+two are the *negation* of the slogan they encode, the third is a construction
+`openings.md` §7 already ships, and the only reading that needs the integers is a
+**tie in 51.0 %** of real dwellings and inverted in **17.4 %**. **No hop-count
+integer is owed and the H-list closes at H10.** D7's verdict stands; its stated
+reason — *cost unmeasured* — does not, and should not be quoted, because the cost
+was never reached.
+
 ### D8 — **The Proposal contract gains no field, and that is the decision**
 
 ADR 0014 put *shape* in the Proposal on a measured argument: told which Room is
@@ -314,6 +335,31 @@ Sleeping-group count, longest-run allocation and social transit are all
 **computable on a corpus dwelling and on a generated Plan by the same code** —
 which is exactly what a held-out evaluation term needs and what corner
 displacement is not. `proposer.md` §6 takes them.
+
+### D10 — The day/night gradient is an **evaluation term**, and §2.2's *directional, not assertable* was only half the finding
+
+§2.2 stopped at *the gradient is real and it is not a predicate*, and D7 read
+that as *therefore out of v1*. §6.6 measures the step that was skipped: the
+gradient is not merely unassertable, it is **invisible to the three terms D9
+shipped**. Entry-depth inversion against social transit over the same 2 500
+dwellings is χ² = 34.55, p ≈ 4.2 × 10⁻⁹, odds ratio **0.354** — *negatively*
+associated, 38 dwellings carrying both where 78.9 are expected under
+independence. **15.2 %** of dwellings invert the gradient with no transit defect
+at all.
+
+So the property has a home, and it is neither a constraint nor nothing: a
+**fifth `proposer.md` §6.1 plan-quality term**, scored against the corpus
+**rate** rather than a threshold, in the shape the other four already take.
+The quantity is the **inversion rate** — the fraction of dwellings whose nearest
+private Room sits strictly nearer the entrance than its nearest social Room —
+real **17.4 %**. Not the strict-order rate: a model that ties everything and a
+model that reverses everything both score 0 % strict, and the corpus is 51.0 %
+ties, so a strict rate cannot tell the two apart.
+
+It qualifies on D9's own property — computable on a corpus dwelling and on a
+generated Plan by the same code, off the hop distance §2.2 already publishes.
+**This file specifies it and does not write it**: `proposer.md` is claimed, so
+the term is handed over as its own ticket rather than as a sentence here.
 
 ---
 
@@ -361,7 +407,174 @@ must not be given English-only messages that deepen it.
 
 ---
 
-## 6. Reproducing this
+## 6. The entry sequence, measured — and refused before it was priced (ticket 43)
+
+D7 ticketed *entry → hall → living* as the one property of the four that needed
+technology this formulation does not have. The ticket asked three things in
+order: **what the property is**, **what it costs**, and **whether the corpus
+supports it**. Answering the third made the second moot.
+
+**The outcome is the one the ticket named itself as genuinely open to — no new
+solver machinery is owed — but it collapses a *third* way.** Not into a cheap
+predicate over the existing graph, which is what the ticket predicted. Into a
+construction that is already shipped, plus a distribution no constraint may
+assert.
+
+### 6.1 The plane, and why a refutation here is a refutation where it counts
+
+`dist` is BFS from the located entry over `measure_swiss.contact_graph`
+(τ 0.30 m, door run 1.00 m). `solver-formulation.md` reifies `door_ij` as *"true
+exactly when the two rooms share a wall segment at least a door's width long"* —
+**the same layer**. A rule refuted on this graph is refuted on the graph it would
+have been posted on.
+
+⚠️ One residual, and its direction is stated because it does not rescue anything.
+Contact ⊇ realised doors, so a contact hop **understates** how far a person
+actually walks. That matters if you read these numbers as *walking distance*; it
+does not matter for the decision, because the constraint would be posted over the
+contact literals, where the match is exact — and a rule forbidding *contact*
+between the entry and a habitable Room is strictly harsher than one forbidding a
+*door*.
+
+### 6.2 The three readings, over the same 2 500 dwellings
+
+| candidate | holds | needs `d_r`? |
+|---|---:|---|
+| **R1** no otaq at hop 1 | **9.6 %** | no — one existing literal |
+| **R1h** no habitable Room at hop 1 | **1.8 %** | no |
+| **R2** every otaq at hop ≥ 2 | **7.7 %** | no |
+| **R2h** every habitable Room at hop ≥ 2 | **1.6 %** | no |
+| **R5** every private Room at hop ≥ 2 | **25.1 %** | no |
+| **R3** circulation nearer than any social Room | 96.8 %† | no — ≡ §6.4 |
+| **R4** nearest private ≥ nearest social | **82.6 %**† | **yes** |
+| **R6** strict entry < social < private | **26.9 %**† | **yes** |
+
+† on the population where both class sets are present (68–70 % of dwellings).
+
+"hop ≥ 2 from a **fixed** node" is not a hop count: it is exactly
+`door_{entry,r} == 0`, one literal H6 already reifies. Only R4 and R6 need a
+per-Room integer.
+
+### 6.3 R1 and R2 are the negation of the slogan they were written to encode
+
+The nearest social Room sits at hop **1** in **73.4 %** of dwellings — the modal
+case by a factor of four.
+
+| nearest social Room at | share |
+|---|---:|
+| hop 0 (it *is* the entry) | 5.1 % |
+| **hop 1** | **73.4 %** |
+| hop 2 | 18.8 % |
+| hop 3+ | 2.7 % |
+
+*Entry → hall → living* **means the living room is at hop 1**. R1 and R2 forbid
+precisely that. Stated positively, the slogan already holds on **72.9 %** of
+dwellings with a social Room, with no rule posted by anyone.
+
+And there is no buffer to assert even if you wanted one — what actually sits at
+hop 1 from the entrance is dominated by the rooms a buffer rule exists to push
+away:
+
+| class at hop 1 | share of all hop-1 Rooms |
+|---|---:|
+| private | 33.9 % |
+| wet | 28.1 % |
+| kitchen | 16.8 % |
+| social | 15.2 % |
+
+### 6.4 The first hop is not a predicate — it is a construction, and it is shipped
+
+§2.3 measured 93.2 % of real front doors opening onto circulation and called it
+*"a statement about one Space"*. It is less than that in the engine, and better.
+`openings.md` §7: **"The hall exists to be the room the front door opens into."**
+`resolve` invents exactly one `hall`, the primary entrance is hosted on its
+segment on an `entrance_side` edge, and a candidate whose hall does not touch one
+*"is already dead at `entry.exists`, before this rule is consulted"*.
+
+The engine's rate is **100 % by construction** against the corpus's 93.2 %. R3 is
+that fact restated and carries no information beyond it.
+
+### 6.5 The one reading that needs integers is a tie half the time
+
+`d(nearest private) − d(nearest social)`, over the 1 756 dwellings holding both:
+
+| gap | share | |
+|---|---:|---|
+| − (private **nearer**) | **17.4 %** | violation |
+| 0 | **51.0 %** | tie |
+| + (private further) | **31.6 %** | strict order |
+
+**Half of real dwellings say nothing at all.** A per-Room hop-count integer would
+buy a relation the population is silent on in 51.0 % of cases and contradicts in
+17.4 % — one in **5.8**, against the ticket's own stated bar of *"a rule real
+dwellings break one time in six is not worth new integers"*.
+
+⚠️ **This refines §2.2 and does not restate it.** §2.2's 16.1 % compares the
+dwelling's *mean* private hop to its *mean* social hop. This is the **minimum**
+on each side — the quantity a rule would actually be posted on, since a rule
+binds the nearest offender. Same signal, 16.1 % → **17.4 %**; quote the mean-based
+figure for the gradient's *shape* and this one for any rule's cost.
+
+### 6.6 The three shipped terms do not capture it, and they are *anti*-correlated with it
+
+The judgement D7 deferred — *whether the three cheap properties already shipped
+capture most of what "reads as designed" means* — is **false**, and now measured
+false. Entry-depth inversion against **social transit** (D9's term 3), joined on
+key over the same 2 500 dwellings:
+
+| | transit 0 | transit 1 | total |
+|---|---:|---:|---:|
+| **inversion 0** | 1 035 | 416 | 1 451 |
+| **inversion 1** | **267** | **38** | 305 |
+| total | 1 302 | 454 | 1 756 |
+
+χ² = **34.55** (Yates 33.71), df 1, **p ≈ 4.2 × 10⁻⁹**, odds ratio **0.354**.
+Expected under independence in the both-cell: **78.9**; observed **38**.
+
+They are not merely different properties — they are **negatively** associated,
+and **15.2 %** of all dwellings invert the gradient while showing no transit
+defect whatever. Term 3 is structurally blind to them: social transit is a
+*routing* property (is this bedroom reachable only through a social Space) and
+inversion is a *distance* one (is this bedroom nearer the door than the living
+room). A bedroom opening straight off the entry hall is an inversion and is not
+transit.
+
+⚠️ **Two rates, two denominators.** §2.5 and `proposer.md` §6.1 quote social
+transit as **11.1 %**, which is *per sleeping Room* (666 / 5 990). The 454 above
+is *per dwelling*, and 454 / 1 756 = 25.9 % because the table is restricted to
+dwellings holding both a private and a social Room. `report2.txt`'s 18.2 % is the
+same 454 over all 2 500. Do not put any two of these three in one sentence.
+
+That is D10.
+
+### 6.7 What the market does, re-checked for this question
+
+Nothing in the reviewed stack posts an ordering constraint, and the reason is
+structural rather than an omission: Graph2Plan and HouseDiffusion are
+**conditioned on a supplied access graph** — the user hands them the bubble
+diagram, so privacy depth is an *input*, never solved for and never scored.
+§4's finding for adjacency holds unchanged for order: *user-authored, and soft*.
+Nobody is measuring this, which is consistent with D9's premise and is not an
+argument against D10.
+
+### 6.8 What §6 does not establish
+
+- **The cost of a per-Room hop-count integer is still unmeasured**, deliberately.
+  It was refused on the corpus before it was priced, so no figure exists and none
+  should be invented. A general *"what an auxiliary integer costs this
+  formulation"* number is a fair question and belongs to its own ticket against a
+  fixture that is fixed first — not to this one.
+- **The corpus is Swiss** (C5). The gradient's direction is not plausibly
+  region-specific, and a 17.4 % inversion rate would need an implausible regional
+  shift to become assertable, but the AZ rate is unmeasured like every other
+  corpus rate on this map.
+- **The disconnection skip stands** (§3, §7): 1 206 dwellings dropped, biasing
+  toward well-connected homes. It cannot plausibly move R1/R2 from 9.6 %/7.7 % to
+  anything shippable, and its effect on the tie mass is unmeasured.
+
+---
+
+## 7. Reproducing this
 
 ```
 ./venv/Scripts/python.exe experiments/zoning/measure_zoning.py 2500
@@ -369,6 +582,11 @@ must not be given English-only messages that deepen it.
 ./venv/Scripts/python.exe experiments/zoning/measure_zoning2.py 2500
 ./venv/Scripts/python.exe experiments/zoning/report2.py
 ./venv/Scripts/python.exe experiments/zoning/sensitivity.py
+
+# §6 (ticket 43) -- all three read the JSON above, no corpus pass, seconds each
+./venv/Scripts/python.exe experiments/zoning/entry_order.py
+./venv/Scripts/python.exe experiments/zoning/entry_order2.py
+./venv/Scripts/python.exe experiments/zoning/entry_depth_vs_transit.py
 ```
 
 Outputs in `experiments/zoning/out/`. Sample is the first 2 500 measurable
