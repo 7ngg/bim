@@ -3034,6 +3034,130 @@
         "conf": "derived",
         "note": "COMPOSED BECAUSE NO CORPUS LABEL EXISTS. Swiss Dwellings has no open-plan living-dining-kitchen label at all, so an LDK never arrives from retrieval and this binds only on a Brief-named Room. The donor labels are clean, checked the way KITCHEN_DINING's was not: only 0,1 % of LIVING_DINING dwellings also carry a LIVING_ROOM and 0,7 % a DINING, so LIVING_DINING really is a combined living-and-dining room. || AZ CORROBORATION EXISTS, IT IS THIN, AND IT DISAGREES BY A FACTOR OF 2 -- CORRECTED BY TICKET 74 / ADR 0036. This note previously read `NO AZ CORROBORATION EXISTS ... MIDA publishes 318 Baku plan geometries and ZERO multi-room open-plan apartments`, and both halves were wrong. MIDA builds five open-plan rooms in 318 distinct plan geometries, measuring 15,14 / 15,14 / 17,37 / 17,70 / 17,74 m2 -- p50 17,37 -- on the verified net-internal plane, and all five sit in dwellings that also carry a separate Yataq otagi, so they are one-bedroom flats and not one-room studios (experiments/baku-market-areas/mida_plans_318.json). THE 36,5 ABOVE RUNS 2,1x THAT MEDIAN. || NOT FIXED HERE, ON PURPOSE: 36,5 is rung 2 of brief.md 9.2 and rung 2 is a CORPUS MEDIAN, whose provenance is CH by construction -- CorpusProvenance and RegionProfile are two fields and their disagreement is the normal case (C14). Replacing it with an AZ number is a market-tier act and the market tier is ADR 0035's, which requires a published cost and may only move a cell UP. n = 5 is also thin. What ticket 74 does instead is record the disagreement where the number lives, so the next holder of the tier is not measuring it again from scratch. || See mapping.rooms.living_dining_kitchen.gas_note for the mandatory-code reason the AZ population is small, and az_area_note for why this row now has NO AZ statutory floor at all. || DO NOT quote a `composition under-predicts by 22 %` correction against this. That calibration was computed against the disqualified 23,67 KITCHEN_DINING figure and is void."
       }
+    },
+    "area_band_classes": {
+      "comment": "ROOM TYPE -> AREA-BAND CLASS, THE FOURTH PROJECTION AND THE ONE dim.max_area COULD NOT EVALUATE. rules.json area_bands.classes holds the fitted k / absolute_cap / soft_w table and its keys are CORPUS LABELS; brief.md section 3 fixes NINETEEN Room types. Nothing stated which type reads which class, so NINE of the nineteen resolved to no class at all and dim.max_area -- HARD, site both -- silently did not fire on them. The worst is `hall`: resolve invents one wherever the Brief names none (brief.md 3.1), so a Room with no upper bound was in 100 % of Plans, ceilinged only by circ.fraction_hard at 30 % of Sum(Space) -- 27 m2 of hall on a 90 m2 dwelling. Same defect as the 40 m2 WC brief.md 9.3 closed, reached through a different door. dim.market_default_area reads the same nine classes for soft_w[type] and had the same hole on bedroom_principal, bathroom_combined and living_dining_kitchen, which carry a target and had no soft term. Ticket 71, ADR 0038.",
+      "direction": "ROOM TYPE -> CLASS, and it is NOT the inverse of corpus_label_map. That block maps a corpus label to the ergonomic key it IS (identity); this one maps a Room type to the class whose measured POPULATION CONTAINS IT (membership). The two relations differ, and conflating them is the defect CONTEXT.md's `Room type` entry exists to prevent: PRIVATE's identity is bedroom_double, while its population additionally contains bedroom_principal and study. A SECOND CORPUS NEEDS A SECOND BLOCK, exactly as corpus_label_map says -- the classes are fitted on swiss_dwellings and carry no region.",
+      "authoritative": "THIS BLOCK IS THE ONE COPY. rules.json area_bands.classes.*.members points here rather than restating it. ADR 0037 published the third vocabulary after finding it in the comments of four Python dicts; ticket 71 found two MORE private copies in experiments/acceptance-thresholds/ -- reject.py ERG / ABS_CAP / classify_parts and census.py COLLAPSE -- whose class keys disagree with the shipped table, `living` and `storage` against `living_room` and `storeroom`. A projection that lives in a comment is a projection no gate can read.",
+      "ladder": "HOW A TYPE GETS ITS CLASS, in order. Every row declares which rung it used, so the weak links are auditable instead of uniform-looking.  1. contains(label) -- the class was fitted on a corpus label whose population contains this type. NOT a borrow: it names the class's real membership, and the losses are the corpus's own and already declared in corpus_label_map.  2. contains(fixture) -- the same, where the population was cut by fixture presence rather than by label (wc and bathroom). See corpus_label_split's truncation warning: this is why the wc cap is 6,20 from fixture truth and not 2,40 from the splitter.  3. composed -- no usable label, but the type's TARGET is already a per-dwelling sum of clean donor classes, so the same composition yields the band. Measured, not borrowed. A compound's k is always BELOW its donors' because summing partly decorrelates, so borrowing a donor's k is biased lenient -- by +39 % on kitchen_dining from `dining`, and +7 % on living_dining_kitchen from `living_dining`.  4. analogy -- no population contains the type and none can be composed. ONE row uses this rung and says so. An analogy is a debt, so it names the corpus feature that retires it.  TOTALITY IS THE POINT. All nineteen resolve or gate_check fails. A type with no class is a hard rule that silently does not fire, which is worse than a wrong bound because nothing reports it.",
+      "gate_owed": "experiments/region-profile/gate_check.py, NOT WRITTEN HERE -- ticket 71 does not hold that file. Two assertions, both cheap.  (1) TOTALITY: every key of ergonomic.rooms resolves to a class present in rules.json area_bands.classes.  (2) CAP HEADROOM: for every profile cell feeding dim.market_default_area, market_default <= absolute_cap of the class its ergonomic key resolves to. This is what makes it SAFE that a profile raising a target raises a hard cap -- see rules.json dim.max_area's TWO LIMBS note, which answers the lever az-market-default-against-practice.md left unowned. RUN, NOT ESTIMATED -- 11 profile cells, all pass, and the tightest is AZ kitchen at 9,0 / 20,59 = 2,29x, then bedroom_principal and bedroom_double at 13,2 / 31,09 = 2,36x and bathroom_combined at 3,8 / 9,15 = 2,41x. bedroom_principal only becomes checkable at all because this block resolves it; before the map it had no class to look a cap up in.",
+      "resolution": {
+        "living": {
+          "class": "living_room",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "LIVING_ROOM, n=8,453."
+        },
+        "dining": {
+          "class": "dining",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "DINING, n=1,315."
+        },
+        "living_dining": {
+          "class": "living_dining",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "LIVING_DINING, n=24,122."
+        },
+        "kitchen": {
+          "class": "kitchen",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "KITCHEN, n=43,991."
+        },
+        "kitchen_dining": {
+          "class": "kitchen_dining",
+          "rung": "composed",
+          "conf": "measured",
+          "why": "No usable label. KITCHEN_DINING exists (n=41) and ADR 0034 c1 DISQUALIFIED its distribution: 39 of the 41 sit in dwellings that also carry a separate KITCHEN, and it is 21 layouts rather than 41. Composed instead as KITCHEN + DINING summed per dwelling over the 1,308 dwellings holding both -- the SAME composition that already produced this type's rung-2 target, and it reproduces it exactly (class p50 18,82, corpus_medians.kitchen_dining 18,8). Ticket 71."
+        },
+        "living_dining_kitchen": {
+          "class": "living_dining_kitchen",
+          "rung": "composed",
+          "conf": "measured",
+          "why": "NO corpus label exists at all. Composed as LIVING_DINING + KITCHEN summed per dwelling over the 24,046 dwellings holding both. The class p50 is 37,11 -- the median of the SUM -- while corpus_medians.living_dining_kitchen is 36,5, the sum of two INDEPENDENT medians. Two different statistics 1,7 % apart, both correct: the class p50 exists only to define k, and the corpus median is brief.md 9.2 rung 2. Do not reconcile them; they answer different questions. Ticket 71."
+        },
+        "bedroom_principal": {
+          "class": "room*",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "PRIVATE. corpus_label_map says bedroom_principal is not REACHABLE from the corpus -- no retrieval produces one -- which is a statement about identity, not about membership. A principal bedroom in a Swiss plan is labelled ROOM or BEDROOM and is inside this population."
+        },
+        "bedroom_double": {
+          "class": "room*",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "PRIVATE, the collapse target of ROOM / BEDROOM / STUDIO, n=105,425."
+        },
+        "bedroom_single": {
+          "class": "room*",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "PRIVATE, the same population. The label cannot say single from double, which is corpus_label_map.lenient_means, and a band does not need it to."
+        },
+        "study": {
+          "class": "room*",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "PRIVATE. Swiss ROOM is the GENERIC label -- 76,052 of the class against 21,717 BEDROOM -- so a study is inside it, and room-area-bands.md 10 already says what the class measures is `habitable non-living rooms` rather than bedrooms. CONTEXT.md puts a bedroom, study or nursery in one Private room class and proposer.md 4.1 collapses the same three labels on the same reasoning."
+        },
+        "bathroom": {
+          "class": "bathroom",
+          "rung": "contains(fixture)",
+          "conf": "measured",
+          "why": "Swiss fixture truth, bath or shower present. Not the 2,4 m2 splitter, whose tail is truncated by construction."
+        },
+        "bathroom_combined": {
+          "class": "bathroom",
+          "rung": "contains(fixture)",
+          "conf": "measured",
+          "why": "The same fixture cut, and this type is the MAJORITY of it: 67,24 % of 44,372 real dwellings put every toilet in a room with a bath or a shower (ergonomic.rooms.bathroom_combined.reachable_in_v1). A combined unit carries a bath or a shower, so it is inside the cut."
+        },
+        "shower_room": {
+          "class": "bathroom",
+          "rung": "contains(fixture)",
+          "conf": "measured",
+          "why": "The same cut: a shower_room composes a tray, so it carries a shower."
+        },
+        "wc": {
+          "class": "wc",
+          "rung": "contains(fixture)",
+          "conf": "measured",
+          "why": "Swiss fixture truth, toilet present and no bath or shower; 13,436 in-band rooms. The cap is 6,20 from that measurement and NOT 2,40 from the splitter."
+        },
+        "utility": {
+          "class": "bathroom",
+          "rung": "analogy",
+          "conf": "derived",
+          "why": "THE ONE ANALOGY ROW, AND IT IS FLAGGED SO. No population contains it and none can be composed: swiss_dwellings has no laundry label -- its room label set is ten and this is not among them -- and MIDA publishes no utility room in any Baku schedule, the AZ market name set being eight and containing none. AzDTN 2.7-2 keeps the type reachable regardless, because `camasirxana` sits in the mandatory yardimci sahalar list, so refusing it in v1 was considered and rejected.  WHY bathroom AND NOT storeroom: containment onto STOREROOM is the tempting read and it is WRONG ON THE MECHANISM. STOREROOM is dry residual space -- CV 1,04, k 8,15, the loosest class in the table -- while a utility is is_wet true, a PLUMBED APPLIANCE ROOM whose size is set by a machine plus a body zone. That is the construction the ergonomic layer already uses for both: utility.min_area is 900 x 1500 (washer + body zone) exactly as bathroom.min_area is 1000 x 1700 (bath + body zone). Structural, not convenient. It also decides the number: storeroom would cap a utility at 18,23 m2 against bathroom's 9,15, and 18 m2 is not a bound an architect would recognise on a laundry.  RETIRED BY any corpus carrying a laundry or utility label. Re-fit then; do not re-argue."
+        },
+        "hall": {
+          "class": "corridor",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "CORRIDOR, n=53,289, and this is the whole reason the class resolves. The corpus has ONE circulation label and the ergonomic layer keeps three types apart, so CORRIDOR IS hall union entrance_lobby union corridor, merged. corpus_medians.hall_entrance_lobby_corridor is explicitly null because a merged median cannot default a TARGET -- it would hand a corridor's median to a hall. A BAND IS NOT A TARGET: it is a dispersion statistic over a population, and the population it was fitted on IS the merge. Nothing is borrowed and nothing is invented."
+        },
+        "entrance_lobby": {
+          "class": "corridor",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "The same merged CORRIDOR population. reachable_in_v1 false, and the row exists so the resolution is TOTAL rather than conditional on reachability."
+        },
+        "corridor": {
+          "class": "corridor",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "The same merged CORRIDOR population; the label names this type. reachable_in_v1 false."
+        },
+        "storage": {
+          "class": "storeroom",
+          "rung": "contains(label)",
+          "conf": "measured",
+          "why": "STOREROOM, n=14,294. Dry storage, is_wet false, which is exactly what separates it from utility above."
+        }
+      },
+      "unresolved": "none. All nineteen ergonomic.rooms keys resolve; see gate_owed assertion 1."
     }
   }
 }

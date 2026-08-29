@@ -52,6 +52,15 @@ bound on a variable that already exists — and an upper bound on a product
 *tightens* propagation on `w` and `h` rather than weakening it. So `site: both`
 costs nothing, and there is no reason to make this validator-only.
 
+⚠️ **The table below is keyed by `class` and the rule it feeds is keyed by
+`type`, and for eight months nothing said which read which.** *Nineteen room
+types and nine area-band classes* found that **nine of the nineteen Room types
+resolved to no class at all**, so `dim.max_area` — hard, site `both` — silently
+did not fire on them, and `hall` is one: `resolve` invents a hall wherever the
+Brief names none, so **every Plan carried a Room with no upper bound**. The map
+is now published, the class list is **eleven**, and §12 holds the whole of it.
+None of the nine values below moved.
+
 **And `dim.market_default_area` is a cause, not a bystander.** It is soft and
 prefers Spaces *at or above* market default, so the objective **actively rewards
 bloat** while `model.no_unassigned_area` makes the surplus compulsory. A maximum
@@ -358,6 +367,13 @@ the single-aspect flat*. This ticket writes none of it.
 | `corridor` | 7.58 | 24.84 | **3.28** | polygon |
 | `dining` | 9.79 | 35.91 | **3.67** | polygon |
 | `storeroom` | 2.24 | 18.23 | **8.15** | polygon |
+| `kitchen_dining` | 18.82 | 49.77 | **2.64** | **composed** ⬅ §12 |
+| `living_dining_kitchen` | 37.11 | 69.00 | **1.86** | **composed** ⬅ §12 |
+
+⚠️ **The last two rows are ticket 71's, not this ticket's**, and they are the
+only rows here fitted on a population no corpus label names. Everything above
+them is unchanged. See §12.4 for how they were measured and why borrowing a
+donor's `k` would have been wrong by −3 % to +39 % with an unguessable sign.
 
 **`k` is not one constant** — 2.02 to 8.15 — and the spread is not noise. The
 habitable rooms `AZ` actually sizes cluster at **2.0–2.6**; the outliers are
@@ -436,6 +452,9 @@ silence.
 | `fit_rects.py`'s 1.23 % label misalignment (§1.2) | *Look at the converted corpus* |
 | the fixture-truth `wc` / `bathroom` tail (§4) — `corpus_label_split` records medians and no upper tail | *Two room vocabularies in one file* |
 | the bedroom-count → total-area joint distribution (§10) | *Homeowner product surface*, *The room-count envelope v1 promises* |
+| **the two `gate_check.py` assertions — class totality, and `market_default ≤ absolute_cap` (§12.2, §12.6)** | whoever next holds `experiments/region-profile/` |
+| **`reject.py` / `census.py`'s private class copies, their key disagreement, and the `kitchen_dining`-exempt re-run of `corpus_cost` (§12.7)** | whoever next holds `experiments/acceptance-thresholds/` |
+| **the `k × target` cross-provenance inversion (§12.5)** | *A cap fitted in one country and a target set in another* |
 
 ---
 
@@ -529,3 +548,235 @@ which read its JSON.
 97,000-element array inside a 43,000-dwelling loop is what made the first run of
 `expressibility.py` time out at two minutes. The caps are memoised now; keep them
 that way.
+
+---
+
+## 12. The type-to-class map, and what it was hiding
+
+**Added by *Nineteen room types and nine area-band classes* (ticket 71), 2026-08-30.**
+Everything in §§1–11 is ticket 37's and none of its values moved. This section
+adds the bridge that was missing between them and the rule they feed, and reports
+what the bridge exposed.
+
+### 12.1 Nine of nineteen types had no bound at all
+
+`dim.max_area` states `k[type] × Room.target_area`, and `absolute_cap[type]`
+where no target exists. §6.1's table is keyed by **class**, and the classes are
+**corpus labels**. Nothing published the correspondence, so the rule resolved
+against a key that did not exist for nine of `brief.md` §3's nineteen types:
+
+| bound before ticket 71 | types |
+|---|---|
+| `k × target` | `living`, `living_dining`, `kitchen`, `bedroom_double`, `bedroom_single`, `bathroom`, `wc` |
+| `absolute_cap` | `dining`, `corridor`, `storage` |
+| **none — a hard rule that silently did not fire** | `hall`, `bedroom_principal`, `study`, `shower_room`, `utility`, `bathroom_combined`, `kitchen_dining`, `living_dining_kitchen`, `entrance_lobby` |
+
+Eight of the nine are reachable in v1 and **all eight are Brief-nameable**.
+
+**`hall` is the one that matters.** `brief.md` §3.1 invents a `hall` wherever the
+Brief names none, so the circulation Room count is always exactly one and **100 %
+of Plans carried a Room with no upper bound**. Its only ceiling was
+`circ.fraction_hard` at 30 % of Σ Space — **27 m² of hall on a 90 m² dwelling
+passes every rule in the file**. That is §7's 40 m² WC, reached through a
+different door, in every plan rather than in a worked example. It is also the
+worst possible case for it: `hall` has no target at either rung of §9.2's ladder
+(`AZ` is silent, and `corpus_medians.hall_entrance_lobby_corridor` is explicitly
+null), so `dim.market_default_area` had nothing to pull against either — a floor
+of 1.0 m², no ceiling, and no preference anywhere between.
+
+**The same map breaks the soft term.** `soft_w[type]` reads the same nine
+classes, so `bedroom_principal`, `bathroom_combined` and `living_dining_kitchen`
+each carried a target and **no soft term to apply it with**.
+
+⚠️ **Correction to the ticket that raised this.** Ticket 71 states that every
+class carries `"members": null`. The field did not exist at all — absent rather
+than null, which is the weaker of the two states, because a null at least
+declares the slot a reader should fill.
+
+### 12.2 The resolution ladder
+
+Published as data at
+`data/standards/room-constraints.json#/ergonomic/area_band_classes`, beside
+`corpus_label_map` rather than beside the table it feeds, because it is a
+**vocabulary projection** and ADR 0037 put every other projection there. Four
+rungs, and every row declares which it used:
+
+| rung | meaning | rows |
+|---|---|---:|
+| `contains(label)` | the class was fitted on a corpus label whose population **contains** this type | 11 |
+| `contains(fixture)` | the same, where the population was cut by fixture presence rather than by label | 4 |
+| `composed` | no usable label, but the type's **target** is already a per-dwelling sum of clean donor classes, so the same composition yields the band | 2 |
+| `analogy` | no population contains it and none can be composed | **1** |
+
+**Containment is not borrowing, and that distinction is the whole section.** The
+ticket framed the choice as *borrow a neighbour's class, or earn your own*, and
+warned correctly that borrowing is a smaller version of the invented number the
+rule exists to avoid. There is a third reading it did not name. A **target** must
+be type-specific — it says *a hall should be about this big* — and a merged
+population cannot supply one, which is exactly why rung 2 of §9.2's ladder is
+null for `hall`. A **band** is a dispersion statistic over a population, and the
+population `corridor` was fitted on **is** `hall ∪ entrance_lobby ∪ corridor`,
+merged by the corpus itself and declared as such in `corpus_label_map`. Assigning
+all three types to it is not borrowing a neighbour's number; it is naming the
+class's real membership. The same reading resolves `bedroom_principal` and
+`study` onto `room*` (Swiss `ROOM` is the generic label — 76,052 of the class
+against 21,717 `BEDROOM` — which §10 already says), and `bathroom_combined` and
+`shower_room` onto `bathroom`, of which combined units are in fact the majority.
+
+**Totality is gated, not assumed.** All nineteen resolve or `gate_check.py`
+fails. A type with no class is worse than a wrong bound, because a wrong bound
+reports itself and a missing one does not.
+
+### 12.3 `utility` — the one analogy, and it is flagged as one
+
+No population contains it and none can be composed. Swiss Dwellings has **no
+laundry label** — its room label set is ten and this is not among them. Neither
+does the shipping market: over MIDA's published Baku schedules the room-name
+vocabulary is **eight names** — `Eyvan`, `Yataq otağı`, `Sanitar qovşağı`,
+`Mətbəx`, `Dəhliz`, `Qonaq otağı`, `Qarderob`, `Mətbəx-studio` — and **there is
+no utility room and no storeroom in Azerbaijani market practice at all**.
+
+Refusing the type in v1 was considered and rejected: AzDTN 2.7-2 puts
+`camaşırxana` in the mandatory `yardımçı sahələr` list, so the norm keeps it
+reachable whatever the market builds.
+
+**It takes `bathroom`, and not `storeroom`.** Containment onto `STOREROOM` is the
+tempting read and it is **wrong on the mechanism**. `STOREROOM` is dry residual
+space — CV 1.04, `k` 8.15, the loosest class in the table — while a utility is
+`is_wet: true`, a **plumbed appliance room** whose size is set by a machine plus
+a body zone. That is the construction the ergonomic layer already uses for both:
+`utility.min_area` is 900 × 1500 (washer + body zone) exactly as
+`bathroom.min_area` is 1000 × 1700 (bath + body zone). It also decides the
+number, and the production difference is not marginal: `storeroom` would cap a
+utility at **18.23 m²** against `bathroom`'s **9.15 m²**, and 18 m² is not a
+bound an architect would recognise on a laundry.
+
+Recorded as `conf: derived` and as the table's only non-containment row, with its
+retirement condition named: **any corpus carrying a laundry label**. Re-fit then;
+do not re-argue.
+
+### 12.4 The two compound types were measured, not borrowed
+
+`kitchen_dining` and `living_dining_kitchen` are the two the ticket called *no
+plausible class at all* — one label disqualified, one nonexistent. They are now
+the **best**-evidenced rows in the table, because both **targets are already
+per-dwelling sums of clean donor classes**, so the same composition yields the
+band. Measured on ticket 70's own population,
+`experiments/warp/out/dwelling_rooms.json`, dwellings holding both donors:
+
+| class | n | p50 | p99.5 = `absolute_cap` | `k` | CV | `soft_w` |
+|---|---:|---:|---:|---:|---:|---:|
+| `kitchen_dining` | 1,308 | 18.82 | **49.77** | **2.64** | 0.37 | 0.63 |
+| `living_dining_kitchen` | 24,046 | 37.11 | **69.00** | **1.86** | 0.23 | 1.00 |
+
+`kitchen_dining`'s p50 reproduces the shipped `corpus_medians.kitchen_dining`
+(18.8) exactly, which is the check that the composition is the same one.
+
+**Borrowing would have been wrong, and the sign is not guessable.**
+
+| type | borrow from | gives | against measured |
+|---|---|---:|---:|
+| `kitchen_dining` | `kitchen` (`k` 2.56) | 48.1 | **−3 %** |
+| `kitchen_dining` | `dining` (`k` 3.67) | 69.0 | **+39 %** |
+| `living_dining_kitchen` | `living_dining` (`k` 2.02) | 73.7 | **+7 %** |
+
+And the bias has a mechanism: **a compound's `k` is always below its donors'**,
+because summing partly decorrelates and a compound room is more predictable in
+size than its parts (2.64 < 3.67; 1.86 < 2.02). So borrowing is systematically
+**lenient** — it loosens a hard rule — while looking conservative.
+
+⚠️ **Site clustering was checked, because `kitchen_dining`'s n is small and one
+site is 12.2 % of it.** `k` re-read two further ways holds: **2.49** on site
+medians (n = 160) and **2.58** with the heaviest site dropped, against 2.64 on
+all dwellings. `living_dining_kitchen` is not exposed (top site 1.1 %; `k` 1.93
+on site medians). The published arm is all-dwellings, matching how the nine
+shipped classes were fitted.
+
+⚠️ **Two different statistics carry the name `living_dining_kitchen` and both are
+right.** The class `target` here is **37.11**, the median of the per-dwelling
+**sum**. `corpus_medians.living_dining_kitchen` is **36.5**, the sum of two
+**independent** medians. They are 1.7 % apart, they answer different questions —
+the first exists only to define `k`, the second is §9.2 rung 2 — and they must
+not be reconciled into one number.
+
+⚠️ **`soft_w` for `living_dining_kitchen` is published at 1.00, not 1.01.** Its
+CV of 0.2277 lands marginally below the normalisation anchor, but the anchor
+back-solved from the nine shipped cells spans 0.2275–0.2320, so it **ties** the
+tightest class rather than displacing it. Re-normalising nine ADR 0023 values on
+a 0.8 % difference would be a re-fit, and this ticket does not do those.
+
+### 12.5 `k × target` is a cross-provenance product, and it inverts
+
+⚠️ **Named here, not fixed here.** `k` is a ratio fitted about a **CH** class
+median; `target` is an **AZ** number. Their product is the class's p99.5 only
+where the two agree, and across the seven types taking this limb it runs **62 %
+to 114 %** of the class's own `absolute_cap`. The visible symptom is an
+inversion:
+
+| type | bound | class `absolute_cap` |
+|---|---:|---:|
+| `living` | 2.35 × 17.6 = **41.4 m²** | 48.12 |
+| `living_dining` | 2.02 × 17.6 = **35.6 m²** | 57.12 |
+
+**The room that contains a dining area caps smaller than the one that does not.**
+Both read the same AZ target (`living_room_2plus`, 17.6) because
+`living_dining`'s `az_area` guard resolves there with `referent: undetermined`,
+while their `k` were fitted about Swiss medians of 20.51 and 28.32.
+
+Neither limb is ticket 71's to move — the target belongs to ADR 0035's market
+tier and `k` to ADR 0023's fitted set — so it is measured, named and ticketed.
+
+### 12.6 The C14 lever, closed
+
+`az-market-default-against-practice.md` §14 recorded an unowned lever and handed
+it here: **raising a profile `market_default` raises a hard cap**, and C14
+authorises a profile to raise a *floor* while saying nothing about loosening a
+*cap*. Settled without amending C14, because the rule has **two limbs of
+different character**:
+
+- **`k × target_area`** is a *proportionality band around a requested size*. It
+  moves with the request **by design**, identically whether the request came from
+  a Homeowner (C4, sovereign — §6.1's own *a stated target is sovereign*) or from
+  the profile's measured practice (ADR 0035, may only move up, floored by
+  regulator recommendation). C14's guarantee never attached to a band around a
+  number the Brief itself supplies.
+- **`absolute_cap`** is the region-free outer bound, and **no profile touches
+  it**. This is where C14's *no profile may weaken a predicate* lives.
+
+What makes that safe rather than merely asserted is a **build-time gate**, owed
+to `experiments/region-profile/gate_check.py` and not written here: for every
+profile cell feeding `dim.market_default_area`, `market_default ≤ absolute_cap`
+of the class its ergonomic key resolves to. **Run over the 11 profile cells, all pass**, and the
+tightest is `kitchen` at 9.0 / 20.59 = **2.29×**, then `bedroom_principal` and
+`bedroom_double` at 13.2 / 31.09 (2.36×) and `bathroom_combined` at 3.8 / 9.15
+(2.41×). ⚠️ `bedroom_principal` is only checkable because §12.2 resolves it; before
+the map it had no class to look a cap up in, which is the defect one layer down.
+
+`dim.stated_target_implausible` is widened from *a **stated** target* to **any
+target, whichever rung of §9.2's ladder supplied it** — the check is about the
+number, not its provenance, and the narrow reading left uncovered the one
+provenance a Homeowner cannot correct. Severity stays `warn` and scope stays
+`brief`. Scope correction, not a new rule: `rule_count` stays **43**.
+
+### 12.7 ADR 0037 was under-scoped, and the corpus cost has a footnote
+
+⚠️ ADR 0037 published the third vocabulary after finding it living in the
+comments of four Python dicts in `experiments/warp/`. **Two more private copies
+sit in `experiments/acceptance-thresholds/`** — `reject.py`'s `ERG`, `ABS_CAP`
+and `classify_parts`, and `census.py`'s `COLLAPSE` — and their class keys
+**disagree with the shipped table**: `living` and `storage` against `living_room`
+and `storeroom`. `reject.py` also carries `EXEMPT_ASPECT = {corridor, hall,
+storage}`, naming a `hall` the corpus cannot produce.
+
+⚠️ **`dim.max_area`'s published `corpus_cost: 0.0311` was measured with
+`kitchen_dining` silently exempt.** `ABS_CAP` has no entry for it and the guard
+is `if cap is not None`, so the branch never ran on those rooms — the same
+silent-pass this section is about, inside the rig that priced the rule. The
+population is **40 rooms in 40 dwellings, 0.093 %** of the in-band census, so
+**the number survives and its provenance does not**. Re-run when someone next
+holds that directory; do not re-quote 3.11 % as though the eleven-class table
+produced it.
+
+⚠️ Neither file is edited here. Ticket 71 holds `rules.json` and this document,
+declares `room-constraints.json` on resolution, and hands the rigs on as prose —
+the same discipline 69, 73 and 74 used.
