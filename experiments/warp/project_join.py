@@ -92,7 +92,7 @@ sys.path.insert(0, str(HERE.parent / "room-rectangles"))
 from fit_warp import (COLLAPSE, GRID_MM, MIN_SIDE, MIN_SIDE_DEFAULT,      # noqa: E402
                       AREA_TOL, ASPECT_TOL, ASPECT_HARD, SEED,
                       W_STATED, W_INVENTED, STATED_SHARE,
-                      coord_frame, uniform, warp_model)
+                      coord_frame, uniform, warp_model, profile)
 from absolute_area import (F_PARTITION, MARKET, T_INT_MM,                 # noqa: E402
                            admissible_pool, floors_for, joins, notch_share,
                            outside_of, pair_targets, part_targets_cells, pct,
@@ -157,14 +157,16 @@ KIND = {"PRIVATE": "bedroom", "LIVING_ROOM": "living", "LIVING_DINING": "living"
         "BATHROOM": "bathroom", "WC": "wc", "CORRIDOR": "corridor",
         "STOREROOM": "storage"}
 
-# `ergonomic.rooms[*].min_area.v`, data/standards/room-constraints.json. Used
-# only where `floors_for` returns None -- the six limbs AzDTN publishes no floor
-# for. The three that carry one never take a max against these (living 3,7
+# `ergonomic.rooms[*].min_area.v`, READ through `corpus_label_map`. Used only
+# where `floors_for` returns None -- the limbs AzDTN publishes no floor for. The
+# ones that carry a statutory floor never take a max against these (living 3,7
 # against 15/16, kitchen 1,8 against 8, bedroom_double 3,1 against 10).
-ERG_AREA = {"PRIVATE": 3.1, "LIVING_ROOM": 3.7, "LIVING_DINING": 6.1,
-            "DINING": 1.9, "KITCHEN": 1.8, "KITCHEN_DINING": 4.6,
-            "BATHROOM": 1.7, "WC": 0.8, "CORRIDOR": 0.8, "STOREROOM": 0.5}
-HALL_AREA = 1.0                 # `hall`, the invented circulation Room
+#
+# It was ten literals, correct on every cell when ticket 69 checked them -- which
+# is the point: it is the same class of object as `MARKET`, which had drifted on
+# four of six within a day of ADR 0035. This one had not drifted YET.
+ERG_AREA = profile.ergonomic_area_table()
+HALL_AREA = profile.ergonomic_min_area_m2("hall")   # the invented circulation Room
 
 
 def _check_min_side_identity() -> None:

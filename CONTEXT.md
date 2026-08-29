@@ -427,12 +427,35 @@ measured, so a type nothing measures differently is a [[Room name]] or a label.
 
 Everything else that names a room is a **projection of it, never a peer**. A
 region profile keys its own soft targets differently and is reached through a
-mapping; retrieval collapses several types into one class; a corpus label is a
-third scheme again. All three are lossy and one-way. Two of them were once written
-into the same file as if they were alternatives, which is the defect this term
-exists to prevent.
+mapping; retrieval collapses several types into one class; a
+[[Corpus label]] is a third scheme again. All three are lossy and one-way. Two of
+them were once written into the same file as if they were alternatives, which is
+the defect this term exists to prevent.
+**Every projection is now a published object, and the last one was not.** A
+projection that lives only in the comments of whoever last wrote it is a
+projection no check can read, and each of the four tables that carried the corpus
+one privately was free to disagree with the profile and with the others. ADR 0037.
 _Avoid_: "room category", "room kind" — and any sentence where a profile key or a
 corpus label stands where a type belongs.
+
+**Corpus label** — the room vocabulary a [[Corpus]] annotates in, and the third
+scheme after the [[Room type]] and the region profile's own keys. Belongs to
+whoever built the dataset, so it is neither region-invariant nor ours, and it
+reaches the engine only through a published one-way map onto the type.
+
+It is **lossy in whichever direction the dataset was careless**, and where it is,
+that is a fact about the corpus and never a licence to invent. One label may
+collapse several types — Swiss Dwellings distinguishes none of `ROOM` /
+`BEDROOM` / `STUDIO` from a single bedroom versus a double, so the read declares
+which limb it takes rather than guessing. One label may straddle two types and
+need a fitted splitter. And one may be **disqualified as a measurement while
+staying valid as an identity**: a corpus room labelled a kitchen-diner is still
+that type for the purpose of resolving its floor, even where its area
+*distribution* is refused because 39 of its 41 rooms sit in dwellings that also
+carry a separate kitchen.
+_Avoid_: reading a label as evidence about the type it maps to without asking
+what the annotator meant by it. And do not let a [[Room type]] with no label —
+`bedroom_principal` has none — read as a type retrieval can produce.
 
 **Room name** — what a [[Room type]] is *called*, in the language the drawing is
 issued in. One name per type, printed by the room tag, the room schedule and the
@@ -1001,6 +1024,15 @@ _Avoid_: treating a `part` read as the cautious option. An entailed bound is onl
 withdrawn 21,0 / 22,0 open-plan floor sat above **all five** real Baku rooms of
 that kind. Where the licence fails the cell is `null`, and the
 [[Ergonomic minimum]] stands alone in the ordinary way.
+
+**The licence is carried by the read, as data, and the clause is named.** It was
+prose in an ADR for one day, which is long enough: the rule was stated and broken
+in the same decision, and no check could see it because no check reads prose. Now
+every entailed read names the clause whose *type definition* grants it, and the
+sum a read composes is gated separately — the sum was the narrower half all
+along, and it is currently empty on every row. ADR 0037.
+_Avoid_: reading the presence of a floor as evidence the read was granted. The
+number and its licence are two facts, and the withdrawn one had the first.
 
 **A Region profile may raise a hard floor and may never lower one.** That is the
 one direction in which region reaches the reject set, and it is monotone by
