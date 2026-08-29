@@ -12,7 +12,8 @@ csv.field_size_limit(10**9)
 
 ROOT = r"C:\Users\tng\g2p\bim-engine\data\corpora\swiss-dwellings\swiss-dwellings-v3.0.0"
 SRC = os.path.join(ROOT, "geometries.csv")
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "swiss_room_areas.json")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "swiss_room_areas.json")
+os.makedirs(os.path.dirname(OUT), exist_ok=True)
 
 # subtype -> list of (area, site_id, apartment_id)
 areas = defaultdict(list)

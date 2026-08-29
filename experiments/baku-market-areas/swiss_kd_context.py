@@ -7,7 +7,8 @@ import numpy as np, shapely
 csv.field_size_limit(10**9)
 ROOT = r"C:\Users\tng\g2p\bim-engine\data\corpora\swiss-dwellings\swiss-dwellings-v3.0.0"
 SRC = os.path.join(ROOT, "geometries.csv")
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "swiss_kd_context.json")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "swiss_kd_context.json")
+os.makedirs(os.path.dirname(OUT), exist_ok=True)
 
 apt = defaultdict(list)   # apartment_id -> [(subtype, area)]
 apt_site = {}

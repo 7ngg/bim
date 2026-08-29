@@ -6,7 +6,8 @@ import numpy as np, shapely
 csv.field_size_limit(10**9)
 ROOT = r"C:\Users\tng\g2p\bim-engine\data\corpora\swiss-dwellings\swiss-dwellings-v3.0.0"
 SRC = os.path.join(ROOT, "geometries.csv")
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "swiss_vs_az.json")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out", "swiss_vs_az.json")
+os.makedirs(os.path.dirname(OUT), exist_ok=True)
 KEEP = {"ROOM","BEDROOM","LIVING_ROOM","LIVING_DINING","DINING","KITCHEN",
         "KITCHEN_DINING","BATHROOM","STUDIO"}
 vals = defaultdict(list)

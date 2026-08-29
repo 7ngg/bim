@@ -57,17 +57,21 @@ wrong in two specific places, one of which nobody was checking.
 | **4** | **`mətbəx-yemək otağı` does not occur in MİDA's vocabulary at all** — zero times in 5,954 type records; the whole residential vocabulary is **eight room names**. MİDA's open-plan room is `Mətbəx-studio`, it is in **5 of 318 plans (1,57 %)**, and it is in **0 multi-room apartments**. Every 2-, 3- and 4-otaq MİDA plan has a separate kitchen and a separate living room. §6.4. |
 | **5** | ⭐ **Two independent measurements of what an open-plan cooking room costs agree at ≈18 m².** MİDA's `Mətbəx-studio` p50 **17,37** (n = 5 plans) and the Swiss `KITCHEN`+`DINING` sum p50 **18,83** (n = 1,308 dwellings). The shipped target is **6,0** — a factor of **2,9**. §4.4, §6.3. |
 | **6** | ⭐ **A gas rule decides the open-plan question, and it splits the two open-plan types.** AzDTN 2.13-1 cl. 8.31 (mandatory) requires a gas hob to sit in a **`mətbəx otağı`**. AzDTN 2.7-3 cl. 4.7 files `mətbəx-yemək otağı` *inside* the word kitchen — so a **kitchen-diner is compliant with gas**, while a **kitchen-LIVING room is not**, absent an electric hob. MİDA fits gas hobs. §6.5. |
-| **7** | **The whole `market_default` tier is a set of RECOMMENDED MINIMA, and the tier model calls it "what is actually built".** AzDTN 2.7-3 cl. 5.1's register is *«aşağıdakılardan **az olmamaqla** qəbul edilməsi tövsiyə edilir»* — "recommended to be adopted **not less than**". A not-less-than floor read as a target under-sizes; `soft_objective_target` reads it as a target. That the cells land near practice anyway (finding 2) is luck of a well-chosen minimum, not the tier being what it says it is. §2.1. |
-| **8** | **All nine `market_default` values transcribe their clause correctly. Every one is confirmed verbatim, first-hand.** 16,0 / 9,0 / 12,0 / 9,0 / 6,0 / 3,2 / 3,8 and 3000 / 2600 mm. No numeric drift. §2. |
-| **9** | ⚠️ **All six `clear_widths_mm` cells cite the wrong clause.** They carry `ref: "cl. 5.4"`. The width list is inside **cl. 5.1**, immediately after the area list; AzDTN 2.7-3 cl. 5.4 is about ground bearing and load-bearing structure and contains no room dimension at all. Same failure class as ticket 70 — the value is right and its referent is wrong. §2.2. |
-| **10** | **AzDTN 2.7-3 constrains the kitchen ZONE too, so the referent defect is not a mis-transcription of one document — both instruments say zone.** cl. 5.1: *«mətbəx-yemək otağında **mətbəx zonası** - 6 m²»*. **No Azerbaijani instrument publishes a whole-room area for a `mətbəx-yemək otağı`, at any tier.** §3. |
-| **11** | ⚠️ **The Swiss 23,67 m² that would replace it does not measure a kitchen-diner.** Re-measured first-hand: of the 41 `KITCHEN_DINING` rooms, **40 sit in a dwelling that also contains a separate `KITCHEN`**. The label is a dining room beside a kitchen, not a kitchen and dining in one room. It is not the same object as `mətbəx-yemək otağı`. §4.1. |
-| **12** | ⚠️ **And 23,67 is an artefact of replication.** The 41 rooms are **21 distinct plans**; one site contributes 24 rooms that are 4 plans × 6 identical copies. Median over distinct plans is **35,68 m²**, not 23,67 — the replicated plans all sit at the bottom of the range, so duplication drags the median down **12,0 m²**. §4.2. |
-| **13** | **The type is vanishingly rare on the retrieval side: 41 of 44,894 residential dwellings, 0,091 %.** Whatever is decided for `kitchen_dining` is decided for one dwelling in eleven hundred *of the corpus*. Low exposure is now measured on the supply side, not assumed. §4.3. |
-| **14** | **A comparator that does match the object gives ≈18,8 m², on 32× the sample.** In dwellings holding both a `KITCHEN` and a `DINING` room, the two sum to p50 **18,83 m²** (p25 15,53, p75 22,51) over **1,308 dwellings in 160 sites** — against 41 rooms in 10 sites for the label. Still Swiss, still `fitted`, still not promotable — but it bounds the argument, and the shipped 6,0 is a third of it. §4.4. |
-| **15** | **Against the Swiss pool the tier is not uniformly low — it is low on habitable rooms, HIGH on kitchens, and exactly on the median for sanitary units.** The AZ target sits at pool percentile **p1,6** for a single bedroom, **p9** for a living room, **p63** for a kitchen and **p51** for a combined sanitary unit. The pattern is real and cultural, not noise. §5. |
-| **16** | ⚠️ **`rules.json` `dim.aspect_ratio_hard` says *"No surveyed source states an aspect rule"*, and that is now false.** AzDTN 2.7-3 cl. 5.1's last sentence recommends a habitable room's length not exceed **2× its width**. It is `tövsiyə olunur` (recommended) and detached-house scope — but it exists, and it lands beside the fitted soft threshold of 2,2. §2.3. |
-| **17** | **AzDTN declines to speak about the housing this engine's Homeowner buys.** cl. 5.1's recommended totals are scoped to the **state and municipal** fund; for the **private** fund the same clause says area, room count and composition are *«sifarişçi tərəfindən müəyyən edilir»* — determined by the client. Baku new-build is overwhelmingly private. §7.1. |
+| **7** | ⭐ **C13's 1–4 otaq promise covers 93,7 % of Baku's occupied dwellings** — 5,4 + 27,4 + 44,4 + 16,5 %, from the 2024 household survey. The first Azerbaijani number on this map that speaks to the product promise in the promise's own unit. §6.8. |
+| **8** | **Habitable rooms are ≈73 % of Azerbaijani `ümumi sahə`; kitchen, sanitary, circulation and coefficiented balcony are the other ≈27 %.** 12,5 ÷ 17,1 m² per capita, urban, 2024. The engine has no AZ overhead figure at all — `circ.fraction_hard`'s 30 % is Swiss-fitted. §6.8. |
+| **9** | ⚠️ **Three different Azerbaijani quantities are called `ümumi sahə`**: the 2012 Rules' coefficiented total (balcony 0,3 / loggia 0,5 / eyvan 1,0), AzDTN cl. 5.1's table which excludes all of them, and a portal's advertised figure which obeys neither. One listing in the sample marketed a **79,26 m² title-deed flat as 110 m²** "with the eyvan mixed in" — a **39 % gap**. Nothing in this note chains the three. §6.1, §6.7, §6.8. |
+| **10** | **Azerbaijani portals are a clean negative, established at the schema level.** Fourteen checked; `bina.az`'s GraphQL `Item` has exactly two area fields and an integer room count. Per-room areas exist on Azerbaijani portals **only as pixels inside plan images**. §6.7. |
+| **11** | **The whole `market_default` tier is a set of RECOMMENDED MINIMA, and the tier model calls it "what is actually built".** AzDTN 2.7-3 cl. 5.1's register is *«aşağıdakılardan **az olmamaqla** qəbul edilməsi tövsiyə edilir»* — "recommended to be adopted **not less than**". A not-less-than floor read as a target under-sizes; `soft_objective_target` reads it as a target. That the cells land near practice anyway (finding 2) is luck of a well-chosen minimum, not the tier being what it says it is. §2.1. |
+| **12** | **All nine `market_default` values transcribe their clause correctly. Every one is confirmed verbatim, first-hand.** 16,0 / 9,0 / 12,0 / 9,0 / 6,0 / 3,2 / 3,8 and 3000 / 2600 mm. No numeric drift. §2. |
+| **13** | ⚠️ **All six `clear_widths_mm` cells cite the wrong clause.** They carry `ref: "cl. 5.4"`. The width list is inside **cl. 5.1**, immediately after the area list; AzDTN 2.7-3 cl. 5.4 is about ground bearing and load-bearing structure and contains no room dimension at all. Same failure class as ticket 70 — the value is right and its referent is wrong. §2.2. |
+| **14** | **AzDTN 2.7-3 constrains the kitchen ZONE too, so the referent defect is not a mis-transcription of one document — both instruments say zone.** cl. 5.1: *«mətbəx-yemək otağında **mətbəx zonası** - 6 m²»*. **No Azerbaijani instrument publishes a whole-room area for a `mətbəx-yemək otağı`, at any tier.** §3. |
+| **15** | ⚠️ **The Swiss 23,67 m² that would replace it does not measure a kitchen-diner.** Re-measured first-hand: of the 41 `KITCHEN_DINING` rooms, **40 sit in a dwelling that also contains a separate `KITCHEN`**. The label is a dining room beside a kitchen, not a kitchen and dining in one room. It is not the same object as `mətbəx-yemək otağı`. §4.1. |
+| **16** | ⚠️ **And 23,67 is an artefact of replication.** The 41 rooms are **21 distinct plans**; one site contributes 24 rooms that are 4 plans × 6 identical copies. Median over distinct plans is **35,68 m²**, not 23,67 — the replicated plans all sit at the bottom of the range, so duplication drags the median down **12,0 m²**. §4.2. |
+| **17** | **The type is vanishingly rare on the retrieval side: 41 of 44,894 residential dwellings, 0,091 %.** Whatever is decided for `kitchen_dining` is decided for one dwelling in eleven hundred *of the corpus*. Low exposure is now measured on the supply side, not assumed. §4.3. |
+| **18** | **A comparator that does match the object gives ≈18,8 m², on 32× the sample.** In dwellings holding both a `KITCHEN` and a `DINING` room, the two sum to p50 **18,83 m²** (p25 15,53, p75 22,51) over **1,308 dwellings in 160 sites** — against 41 rooms in 10 sites for the label. Still Swiss, still `fitted`, still not promotable — but it bounds the argument, and the shipped 6,0 is a third of it. §4.4. |
+| **19** | **Against the Swiss pool the tier is not uniformly low — it is low on habitable rooms, HIGH on kitchens, and exactly on the median for sanitary units.** The AZ target sits at pool percentile **p1,6** for a single bedroom, **p9** for a living room, **p63** for a kitchen and **p51** for a combined sanitary unit. The pattern is real and cultural, not noise. §5. |
+| **20** | ⚠️ **`rules.json` `dim.aspect_ratio_hard` says *"No surveyed source states an aspect rule"*, and that is now false.** AzDTN 2.7-3 cl. 5.1's last sentence recommends a habitable room's length not exceed **2× its width**. It is `tövsiyə olunur` (recommended) and detached-house scope — but it exists, and it lands beside the fitted soft threshold of 2,2. §2.3. |
+| **21** | **AzDTN declines to speak about the housing this engine's Homeowner buys.** cl. 5.1's recommended totals are scoped to the **state and municipal** fund; for the **private** fund the same clause says area, room count and composition are *«sifarişçi tərəfindən müəyyən edilir»* — determined by the client. Baku new-build is overwhelmingly private. §7.1. |
 
 ---
 
@@ -463,8 +467,29 @@ during this session and checked against the harvest:
 plane — the schedule is a **net internal** breakdown, the same quantity ADR 0010
 makes the Space polygon. `external_size` runs a median **1,21×** larger, and
 MİDA's own price list names the two columns *Xarici perimetr üzrə sahə* and
-*Daxili perimetr üzrə sahə* (area by external / by internal perimeter). **There is
-no balcony coefficient**: `Eyvan` is carried inside `internal_size` at full area.
+*Daxili perimetr üzrə sahə* (area by external / by internal perimeter).
+
+⭐ **`Eyvan` is carried inside `internal_size` at FULL area, and that is a
+cross-validation rather than a quirk.** `daylight.md` §4.2 verified the AZ area
+convention first-hand — *Tikinti obyektlərinin sahəsinin və həcminin hesablanması
+qaydaları*, ARXKOM decision No. 07 of 2012-12-04, cl. 3.8 — which assigns
+**`balkon`/`terras` 0,3**, **`şüşəbənd`/`lociya` 0,5** and **`eyvan`/veranda
+1,0**. MİDA uses the name `Eyvan` and counts it at 1,0. **The schedules obey the
+Azerbaijani area convention the repo already carries**, which is independent
+evidence that they are real quantity-surveying output and not marketing rounding.
+It also means a MİDA area is not comparable with a `balkon`-bearing one without
+the coefficient, and `mida_room_schedules.py` reports a balcony-excluded column
+for exactly that reason.
+
+⚠️ **AzDTN 2.7-2 cl. 5.1's table is stated on a third basis again** — it excludes
+balconies, terraces, **eyvans**, loggias and glazed enclosures *entirely*. So
+three Azerbaijani quantities are in play (2012 Rules with coefficients; cl. 5.1
+with everything excluded; MİDA with eyvan at 1,0), and `minima.md` §7.1's reading
+that the AZ convention is *"closer to a binary GIA-style count … than to German
+Wohnfläche's fractional balcony weighting"* is right **about cl. 5.1's table** and
+wrong as a statement about Azerbaijan, which does weight fractionally in its
+general rule. Both instruments are already in the repo; only the generalisation
+needs narrowing.
 
 ### 6.2 What it says
 
@@ -630,6 +655,93 @@ publishes.** That is `derived` — each verified room area tested against the
 verified clause — and it is the single strongest caution in this note against
 reading any published schedule as ground truth.
 
+### 6.7 The private market, from listings — and why it cannot replace MİDA
+
+Fourteen Azerbaijani property portals were checked for a per-room area field.
+**None has one**, and on the dominant portal this was established at the schema
+level rather than by looking: `bina.az`'s GraphQL `Item` type carries exactly two
+area fields, `area {value, units}` and `landArea`, and `rooms` is a bare integer.
+`korter.az` is the near-miss — its international data model *has* the slots
+(`livingArea`, `terraceArea`, `totalUsableArea`) and on Azerbaijani layouts they
+read `0`/`null` with `hasLayoutSchema:false`. Free text is not a workaround: of 60
+complete `bina.az` descriptions read, **one** carried any sub-area at all.
+
+Portals checked with no per-room field: bina.az, tap.az, yeniemlak.az, arenda.az,
+lalafo.az, kub.az, birev.az, vipemlak.az, binalar.az, homdom.az, ucuzemlak.az,
+adelhome.az, korter.az. Unresolved: emlak.az (403), evbaz.az (dead domain),
+birja.com (404).
+
+**What portals do give is the total, and it is worth having.** Two convenience
+samples drawn 2026-08-29 — `bina.az` via its `itemsConnection` API (n = 200 per
+cell, 1,600 total) and `yeniemlak.az` from HTML results (n = 150 per cell, 1,200
+total). Medians of `ümumi sahə`, m²:
+
+| otaq | yeni tikili (new) | köhnə tikili (old) | MİDA, balcony excl. |
+|---|---|---|---|
+| 1 | **50,8** | 35,0 | 32,55 |
+| 2 | **70,0** | 56,0 | 52,40 |
+| 3 | **109,3** | 80,0 | 67,19 |
+| 4 | **171,8** | 102,0 | 85,60 |
+
+`yeniemlak.az` replicates every cell within ~5 m² (new 51,1 / 65,0 / 105,0 /
+162,5; old 36,0 / 55,0 / 80,0 / 100,0), and re-pulling results 201–750 for the
+largest cell returned an identical median, so there is no detectable promotion
+bias. `fitted`, and the sample draw is stated because it is a limitation: this is
+**unsold stock in default sort order**, which over-represents large lingering
+units.
+
+⚠️ **These are LISTING CLAIMS and they are inflated, demonstrably.** Two cases
+from the sample itself:
+
+- a studio sold as 45,02 m² whose own text splits it 39,42 internal **+ 5,6
+  balcony at full weight** — under cl. 3.8's 0,3 coefficient that balcony
+  contributes 1,7, so the lawful `ümumi sahə` is ≈41,1. **A 10 % inflation in an
+  unusually honest listing.**
+- a listing whose seller writes *«Kupcada yazılan kvm 79.26 kvm ümumi sahesi ise
+  110 kvm Eyvan qarışıq»* — **title-deed 79,26 m², marketed 110 m²** "with the
+  eyvan mixed in". A **39 % gap**, and it entered the sample as a 110 m² 3-otaq.
+
+**So the new-build listing medians are an upper bound, and the gap to MİDA is
+partly real and partly inflation.** The honest statement: at 3–4 otaq the private
+new-build market advertises **1,6–2,0×** MİDA's areas, of which an unknown but
+demonstrably non-zero share is balcony accounting. **No per-room data exists on
+either side of that gap**, so it cannot be apportioned to rooms, and nothing in
+§6.3 may be re-scaled by it.
+
+### 6.8 Official statistics, which bound the whole picture
+
+From `stat.gov.az`, `verified` from the published spreadsheets:
+
+| indicator | value | year | file |
+|---|---|---|---|
+| **Baku occupied dwellings by otaq count** | 1 → 5,4 %, 2 → 27,4 %, 3 → **44,4 %**, 4 → 16,5 %, 5+ → 6,3 % | 2024 | `budget_households/az/086_87.xls` Table 87 |
+| per-capita `ümumi sahə` | 19,5 country / **17,1 urban** / 22,4 rural m² | 2024 | same, Table 86 |
+| per-capita `otaqların sahəsi` (habitable rooms only) | 14,1 / **12,5 urban** / 15,9 m² | 2024 | same, Table 86 |
+| avg size of dwelling commissioned | 111,7 m² (25,9 k dwellings) | 2024 | `construction/az/16.1.xls` |
+| …of which self-financed (individual houses) | 146,9 m² (11,5 k) | 2024 | same |
+
+Two things fall out.
+
+**C13's 1–4 otaq promise covers 93,7 % of Baku's occupied dwellings.** 5,4 + 27,4
++ 44,4 + 16,5. `derived`, by summation. That is the first Azerbaijani number on
+this map that speaks to the product promise in the unit the promise is stated in,
+and it is a good result for the promise.
+
+**Habitable rooms are ≈73 % of `ümumi sahə`; everything else — kitchen, sanitary,
+corridor, storage, coefficiented balcony — is ≈27 %.** 12,5 ÷ 17,1 = 0,731 urban,
+14,1 ÷ 19,5 = 0,723 nationally. `derived`, by ratio of two published rows. This is
+a national circulation-and-service overhead figure for Azerbaijan, and the engine
+currently has no AZ number of that kind at all — `circ.fraction_hard`'s 30 % is
+fitted to the Swiss corpus.
+
+⚠️ **A definitional trap, and it has already caught one published Azerbaijani
+analysis.** `stat.gov.az`'s FAQ Q17 says the commissioned-dwelling area includes
+auxiliary areas *«(balkon və ya eyvanlar istisna olmaqla)»* — **excluding**
+balconies and eyvans. So the statistical `ümumi sahə`, the 2012 Rules'
+coefficiented `ümumi sahə`, and a portal's advertised `ümumi sahə` are **three
+different quantities wearing one name**, and the spread between them is the ~39 %
+seen above. Nothing in this note chains them.
+
 ---
 
 ## 7. Apartment totals by otaq count
@@ -766,13 +878,15 @@ AzDTN's exclusion list.
 Stated plainly, and the first two are the ones that bound how far §6 may be
 pushed.
 
-1. **The Baku PRIVATE market.** §6 is the **state** housing fund. MİDA is exactly
-   the segment AzDTN cl. 5.1 addresses, sold at administered prices, and cl. 5.1
-   hands the private fund to the client. Sea Breeze (HTTP 403), Baku White City
-   (buildings listed, no plans, no per-room areas) and PASHA / Crescent
-   Residences (HTTP 403) were all attempted and none yielded a per-room schedule.
-   **Where the premium private market differs from MİDA it will differ upward**,
-   so §6's figures should be read as a floor on the market, not its centre.
+1. **PER-ROOM data for the Baku PRIVATE market.** §6 is the **state** housing
+   fund — the segment AzDTN cl. 5.1 addresses, sold at administered prices, while
+   cl. 5.1 hands the private fund to the client. Private per-room schedules were
+   attempted and refused: Sea Breeze (HTTP 403), PASHA / Crescent Residences
+   (HTTP 403), Baku White City (80+ buildings listed, no plans, no areas). §6.7
+   measures the private market's **totals** and finds it advertising 1,6–2,0×
+   MİDA at 3–4 otaq, partly inflation — but **that gap cannot be apportioned to
+   rooms**, so §6.3's per-room comparison stands on MİDA alone. Read §6's figures
+   as the regulated end of Baku, not its centre.
 2. **A per-room figure for a room actually called `mətbəx-yemək otağı`, anywhere
    in Azerbaijan.** MİDA has none — the term is absent from its eight-name
    vocabulary. No developer plan set and no portal listing using the label was
@@ -790,8 +904,13 @@ pushed.
    27 November and 5 December 2019, and **whether the 16 m² is `ümumi sahə` or
    `yaşayış sahəsi` is unresolved**. It is a welfare-entitlement norm in any
    case, not an architectural standard, and it constrains no geometry.
-4. **Portal per-room data.** Azerbaijani property portals expose otaq count and a
-   single total area. No per-room breakdown field was found on any of them.
+4. **Portal per-room data — a clean, schema-level negative.** Fourteen portals
+   carry otaq count and one total area. `bina.az`'s GraphQL `Item` type has
+   exactly `area` and `landArea`; `korter.az` has the per-room slots and they are
+   `0`/`null` on Azerbaijani stock. Of 60 full listing descriptions read, one
+   carried a sub-area. **Room areas on Azerbaijani portals exist only as pixels
+   inside plan images** (`bakievleri.az`, `korter.az` layout JPEGs), and reading
+   them means OCR on drawings, which was not attempted. §6.7.
 5. **Whether MİDA's `internal_size` convention matches ADR 0010's finished-face
    plane exactly.** The rooms sum to `internal_size` to the cent, which proves the
    schedule is *internally consistent and net*, and MİDA's own price list names
@@ -857,5 +976,8 @@ Nothing here is fixed. Each item names its owner.
 | *"No surveyed source states an aspect rule"* is false — AzDTN 2.7-3 cl. 5.1 recommends length ≤ 2× width | `rules.json` `dim.aspect_ratio_hard` | `rules.json`'s holder |
 | `kitchen_dining`'s 6,0 target against ≈18 m² of measured practice | ticket 70 | ticket 70 |
 | `living_dining_kitchen` may be **non-compliant with a gas hob** in AZ (§6.5) | ticket 70 / the profile | not currently owned by anything on the map |
-| an advertised Azerbaijani apartment area is the **external** figure; net internal is ≈82 % of it | `brief.md` parsing | `brief.md`'s holder |
+| an advertised Azerbaijani apartment area is the **external** figure; net internal is ≈82 % of it, and a portal figure may be inflated a further 10–39 % by balcony accounting | `brief.md` parsing | `brief.md`'s holder |
+| **93,7 % of Baku occupied dwellings are 1–4 otaq** — evidence FOR C13's promise, in the promise's own unit, and the map has none | ADR 0013 / `homeowner-surface.md` | ADR 0013's holder |
+| ≈27 % of Azerbaijani `ümumi sahə` is non-habitable; `circ.fraction_hard` is 30 % **Swiss-fitted** and now has an AZ comparator | `rules.json` | `rules.json`'s holder |
+| `minima.md` §7.1's *"closer to a binary GIA-style count"* generalisation needs narrowing to cl. 5.1's table — Azerbaijan **does** weight balconies fractionally, and `daylight.md` §4.2 already verified the coefficients | `minima.md` | the profile's research holder |
 | `counts_as_otaq: false` for `kitchen_dining` is now **corroborated by AzDTN 2.7-3 cl. 4.7**, which files the type inside `mətbəx` — the flag can move from `derived` toward `verified` | `room-constraints.json` | the profile's holder |
