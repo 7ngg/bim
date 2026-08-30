@@ -244,7 +244,9 @@ apart, and two documents on this map have already read one for the other.
 **Private room** — a Room you do not walk *through*: the sleeping rooms and the
 wet rooms together, and the class `circ.no_private_transit` is written over. It
 is the `is_private` flag in `room-constraints.json`, true on `bathroom`,
-`shower_room` and `wc` as well as the four sleeping types.
+`bathroom_combined`, `shower_room` and `wc` as well as the four sleeping types —
+**four** wet types, not three. `zoning.md` §5b names three because it was written
+before ADR 0022 added `bathroom_combined` as the nineteenth type.
 
 ⚠️ **This entry used to describe the narrower sleeping set** — "a Brief's
 bedroom, study or nursery, as one class" — which is a *retrieval-matching* class
@@ -254,12 +256,42 @@ its rule and the glossary was describing something else. The sleeping set is now
 for "the bedrooms" and finding `is_private` silently acquires the bathrooms.
 
 **Sleeping room** — a bedroom or a study, as one class: `is_sleeping` in
-`room-constraints.json`. It exists twice over. For **retrieval**, because the
+`room-constraints.json`, **which now exists** — ADR 0044. It exists twice over. For **retrieval**, because the
 corpora cannot tell a bedroom from a study — the commonest label in Swiss
 Dwellings is an unlabelled room with a bedroom's proportions, so the Brief keeps
 the finer word for the Homeowner and for conditioning while retrieval matches only
 the class. For **[[Sleeping group]]**, because it is the node set that grouping is
 computed over, and it must exclude the wet rooms a [[Private room]] includes.
+
+⚠️ **The flag is a definition and the conjunction is a coincidence.** `is_sleeping`
+is today exactly `is_habitable ∧ is_private` across all nineteen types, and
+`gate_check.py` asserts that **agreement** rather than deriving from it. The
+conjunction is a property of the current type set, not the meaning of the word: a
+habitable private room that is not for sleeping — a library, a home office that is
+not a study — breaks it, and the gate is where that gets decided rather than
+silently rezoning every Plan. Read the flag; never re-derive it.
+
+⚠️ **What a corpus can and cannot tell you about one.** The commonest Swiss label
+is `ROOM`, the unlabelled bedroom-proportioned room, and it is **79,5 %** of the
+corpus sleeping set against `BEDROOM`'s 20,5 %. A `study` is therefore not
+*absent* from the measurement, it is **indistinguishable inside it** — a weaker
+and different claim from `bedroom_principal`, which has no corpus label at all.
+Area cannot separate them either: the corpus sleeping set's p5 is 9,97 m² against
+`study`'s ergonomic minimum of 0,8 m², so **no threshold identifies a study**.
+Every corpus rate quoted for a sleeping-set term counts studies as bedrooms.
+
+**Circulation room** — a Room whose purpose is movement between other Rooms:
+`hall`, `entrance_lobby`, `corridor`. It is the `is_circulation` flag in
+`room-constraints.json`, and it is the one class distinction the other flags
+cannot supply: `hall` and `storage` carry **identical** vectors over all six of
+them and belong in different classes. That collision is why the zoning rig
+carried a private corpus-label table until ADR 0044, and it is why the fix was a
+new bit rather than a cleverer rule.
+
+_Avoid_: reading it as *"not habitable and not wet"* — `storage` satisfies that
+and is not circulation. Also distinct from `circ.fraction_hard`, which bounds
+circulation **area**; this flag names the **types**. They agree today and are two
+statements.
 
 **Sleeping group** — a maximal set of [[Sleeping room]] Spaces that touch, or
 share a circulation neighbour. Bedrooms rarely touch, so "off the same hall" is

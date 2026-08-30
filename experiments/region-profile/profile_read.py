@@ -119,6 +119,70 @@ def counts_as_otaq(key):
     return bool(_ERG[key]["counts_as_otaq"])
 
 
+def is_habitable(key):
+    return bool(_ERG[key]["is_habitable"])
+
+
+def is_sleeping(key):
+    """CONTEXT.md's Sleeping room -- a bedroom or a study, as one class.
+
+    Read the FLAG, never `is_habitable and is_private`. The two agree on today's
+    nineteen types and gate_check.py Z5 asserts that agreement, but the flag is
+    the definition and the conjunction is a property of the current type set: a
+    habitable private room that is not for sleeping breaks it, and a consumer
+    that derived would silently rezone rather than trip the gate.
+
+    NEVER `is_private`, which is true on the wet types too -- zoning.md D2."""
+    return bool(_ERG[key]["is_sleeping"])
+
+
+def is_social(key):
+    """`is_habitable and not is_sleeping` -- ADR 0042 decision 3, verbatim, and
+    the construction `zone.no_social_transit` and `zone.facade_to_living`
+    already use. NO FLAG BACKS THIS and none is added: plain `kitchen` stays
+    out because it is not habitable, and `kitchen_dining` and
+    `living_dining_kitchen` are IN because they are."""
+    return is_habitable(key) and not is_sleeping(key)
+
+
+def is_circulation(key):
+    """hall, entrance_lobby, corridor. The one distinction the older flags
+    cannot supply: `hall` and `storage` are identical over all six of them.
+
+    It is also exactly the three-name literal list in the owed rule
+    `entry.opens_onto_circulation`, which reads this instead of naming types."""
+    return bool(_ERG[key]["is_circulation"])
+
+
+def zone_class(key):
+    """The six-way class the zoning rig reports in, DERIVED and held nowhere.
+
+    Order matters and each limb cites what fixes it:
+      sleeping  is_sleeping                       CONTEXT.md, zoning.md D2
+      social    is_habitable and not is_sleeping  ADR 0042 decision 3
+      kitchen   the key itself                    ADR 0042 d3, "its own class
+                                                  there, in neither set"
+      wet       is_wet                            flag_semantics
+      circ      is_circulation                    ticket 80
+      other     everything left (storage)
+
+    This is a REPORTING vocabulary, not a published field. It is deliberately
+    NOT data: a six-valued enum beside these flags would duplicate `is_wet`,
+    and it would restate ADR 0042 d3's social set in a second place where the
+    two could drift. The function is the single statement."""
+    if is_sleeping(key):
+        return "sleeping"
+    if is_habitable(key):
+        return "social"
+    if key == "kitchen":
+        return "kitchen"
+    if bool(_ERG[key]["is_wet"]):
+        return "wet"
+    if is_circulation(key):
+        return "circ"
+    return "other"
+
+
 def otaq_count(keys):
     return sum(1 for k in keys if counts_as_otaq(k))
 
@@ -213,6 +277,23 @@ def ergonomic_min_area_for_label(label, lenient=False):
 
 def min_side_units_for_label(label, t_int_mm=None, grid_mm=None, lenient=False):
     return min_side_units(erg_key(label, lenient), t_int_mm, grid_mm)
+
+
+def is_sleeping_for_label(label, lenient=False):
+    return is_sleeping(erg_key(label, lenient))
+
+
+def is_circulation_for_label(label, lenient=False):
+    return is_circulation(erg_key(label, lenient))
+
+
+def zone_class_for_label(label, lenient=False):
+    """CORPUS LABEL -> the zoning class, through the published bridge. This is
+    what retired `measure_zoning.CLASS`, the fifth private copy of the
+    corpus-label projection ADR 0037 swept. Raises on a label the bridge does
+    not carry, deliberately: a silent fall to "other" is how STUDIO went
+    unmapped and KITCHEN_DINING with it."""
+    return zone_class(erg_key(label, lenient))
 
 
 def otaq_count_for_labels(labs, lenient=False):

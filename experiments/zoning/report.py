@@ -20,17 +20,17 @@ for r in R:
         byc[k].append(r["dist"][i])
 print("{:<10}{:>7}{:>8}{:>8}{:>8}{:>8}".format(
     "class", "n", "mean", "median", "p10", "p90"))
-for k in ("circ", "kitchen", "social", "wet", "private", "other"):
+for k in ("circ", "kitchen", "social", "wet", "sleeping", "other"):
     v = sorted(byc[k])
     if not v:
         continue
     print("{:<10}{:>7}{:>8.2f}{:>8}{:>8}{:>8}".format(
         k, len(v), st.mean(v), v[len(v) // 2], v[len(v) // 10], v[9 * len(v) // 10]))
 
-# within-dwelling: is private further than social in the SAME dwelling?
+# within-dwelling: is sleeping further than social in the SAME dwelling?
 gt = lt = eq = 0
 for r in R:
-    p = [r["dist"][i] for i, k in enumerate(r["classes"]) if k == "private"]
+    p = [r["dist"][i] for i, k in enumerate(r["classes"]) if k == "sleeping"]
     s = [r["dist"][i] for i, k in enumerate(r["classes"]) if k == "social"]
     if not p or not s:
         continue
@@ -39,10 +39,10 @@ for r in R:
     lt += a < b
     eq += a == b
 tot = gt + lt + eq
-print("\nwithin one dwelling, mean private hop vs mean social hop:")
-print("  private FURTHER : {:5d}  {:5.1f}%".format(gt, 100 * gt / tot))
+print("\nwithin one dwelling, mean sleeping hop vs mean social hop:")
+print("  sleeping FURTHER : {:5d}  {:5.1f}%".format(gt, 100 * gt / tot))
 print("  equal           : {:5d}  {:5.1f}%".format(eq, 100 * eq / tot))
-print("  private NEARER  : {:5d}  {:5.1f}%".format(lt, 100 * lt / tot))
+print("  sleeping NEARER  : {:5d}  {:5.1f}%".format(lt, 100 * lt / tot))
 
 # ------------------------------------------------------- 2. the candidate rule
 print()
@@ -51,9 +51,9 @@ print("2. IS A PRIVATE ROOM ENTERED FROM CIRCULATION?")
 print("   the candidate hard rule, at the potential-circulation layer")
 print("=" * 68)
 rooms_tc = sum(sum(r["touch_circ"]) for r in R)
-rooms_p = sum(len(r["priv"]) for r in R)
+rooms_p = sum(len(r["sleeping_rooms"]) for r in R)
 rooms_so = sum(sum(r["social_only"]) for r in R)
-print("private rooms                      : {}".format(rooms_p))
+print("sleeping rooms                      : {}".format(rooms_p))
 print("  touching circulation             : {:6d}  {:5.1f}%".format(
     rooms_tc, 100 * rooms_tc / rooms_p))
 print("  touching a social room           : {:6d}  {:5.1f}%".format(
@@ -66,9 +66,9 @@ print("  NO circ, only social             : {:6d}  {:5.1f}%".format(
 
 alltc = sum(1 for r in R if all(r["touch_circ"]))
 anyso = sum(1 for r in R if any(r["social_only"]))
-print("\ndwellings where EVERY private room touches circulation:"
+print("\ndwellings where EVERY sleeping room touches circulation:"
       " {:5d}  {:5.1f}%".format(alltc, 100 * alltc / len(R)))
-print("dwellings with at least one social-only private room  :"
+print("dwellings with at least one social-only sleeping room  :"
       " {:5d}  {:5.1f}%".format(anyso, 100 * anyso / len(R)))
 
 # by room count, because C13's band is 3-10
@@ -87,19 +87,19 @@ for n in sorted(bn):
 print()
 print("=" * 68)
 print("3. ARE THE PRIVATE ROOMS GROUPED?")
-print("   components of the private set: touching, or off a shared circ node")
+print("   components of the sleeping set: touching, or off a shared circ node")
 print("=" * 68)
-c = Counter(r["priv_components"] for r in R)
-cn = Counter(len(r["priv"]) for r in R)
-print("private rooms per dwelling: {}".format(dict(sorted(cn.items()))))
+c = Counter(r["sleeping_groups"] for r in R)
+cn = Counter(len(r["sleeping_rooms"]) for r in R)
+print("sleeping rooms per dwelling: {}".format(dict(sorted(cn.items()))))
 tot = len(R)
 for k in sorted(c):
     print("  {} component(s): {:5d}  {:5.1f}%".format(k, c[k], 100 * c[k] / tot))
-multi = [r for r in R if len(r["priv"]) >= 2]
-one = sum(1 for r in multi if r["priv_components"] == 1)
-print("\nof the {} dwellings with 2+ private rooms, {} ({:.1f}%) hold them in ONE"
+multi = [r for r in R if len(r["sleeping_rooms"]) >= 2]
+one = sum(1 for r in multi if r["sleeping_groups"] == 1)
+print("\nof the {} dwellings with 2+ sleeping rooms, {} ({:.1f}%) hold them in ONE"
       " group".format(len(multi), one, 100 * one / len(multi)))
-c2 = Counter(r["priv_components"] for r in multi)
+c2 = Counter(r["sleeping_groups"] for r in multi)
 for k in sorted(c2):
     print("  {} component(s): {:5d}  {:5.1f}%".format(k, c2[k], 100 * c2[k] / len(multi)))
 
@@ -118,7 +118,7 @@ for r in R:
         ab[k].append(r["area"][i] / tot_a if tot_a else 0)
 print("{:<10}{:>7}{:>12}{:>12}{:>10}".format(
     "class", "n", "facade share", "area share", "ratio"))
-for k in ("social", "private", "kitchen", "wet", "circ", "other"):
+for k in ("social", "sleeping", "kitchen", "wet", "circ", "other"):
     if not fb[k]:
         continue
     f, a = st.mean(fb[k]), st.mean(ab[k])
@@ -130,13 +130,13 @@ for r in R:
     s = [r["facade"][i] for i, k in enumerate(r["classes"])
          if k == "social" and r["facade"][i] is not None]
     p = [r["facade"][i] for i, k in enumerate(r["classes"])
-         if k == "private" and r["facade"][i] is not None]
+         if k == "sleeping" and r["facade"][i] is not None]
     if not s or not p:
         continue
     gt += max(s) > max(p)
     lt += max(s) <= max(p)
 print("\nper dwelling, does the best-facade social room beat the best-facade"
-      " private room?")
+      " sleeping room?")
 print("  yes: {:5d}  {:5.1f}%".format(gt, 100 * gt / (gt + lt)))
 print("  no : {:5d}  {:5.1f}%".format(lt, 100 * lt / (gt + lt)))
 

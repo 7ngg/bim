@@ -1,10 +1,10 @@
 """Is entry depth a different property from social transit?  (ticket 43)
 
 proposer.md 6.1 term 3 is social transit: sleeping Rooms reachable ONLY through
-a social Space, real 11.1%.  If the entry-depth inversion (private nearer the
+a social Space, real 11.1%.  If the entry-depth inversion (sleeping nearer the
 door than social, 17.4%) is the same dwellings, a fifth term buys nothing.
 
-zoning.json (pass 1, has `dist`) and zoning2.json (pass 2, has `priv_via_social`)
+zoning.json (pass 1, has `dist`) and zoning2.json (pass 2, has `sleeping_via_social`)
 are the same 2500 keys, joined on `k`.
 """
 import json
@@ -26,12 +26,12 @@ cells = {(a, b): 0 for a in (0, 1) for b in (0, 1)}
 n = 0
 for k in keys:
     a, b = p1[k], p2[k]
-    pr, so = md(a, {"private"}), md(a, {"social"})
+    pr, so = md(a, {"sleeping"}), md(a, {"social"})
     if pr is None or so is None:
         continue
     n += 1
     inv = 1 if pr < so else 0                      # entry-depth inversion
-    tr = 1 if any(b["priv_via_social"]) else 0     # social transit, dwelling level
+    tr = 1 if any(b["sleeping_via_social"]) else 0     # social transit, dwelling level
     cells[(inv, tr)] += 1
 
 print()

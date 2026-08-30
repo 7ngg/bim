@@ -26,25 +26,40 @@ GEOM = MS.GEOM
 OUT = Path(__file__).resolve().parent / "out"
 OUT.mkdir(parents=True, exist_ok=True)
 
-# Swiss subtype -> the class this system reasons in.
-# PRIVATE follows CONTEXT.md's Private room and proposer.md 4.1's collapse of
-# {ROOM, BEDROOM, STUDIO} to one class -- Swiss ROOM is the unlabelled
-# bedroom-proportioned room, the corpus's commonest label.
-CLASS = {}
-for _t in ("BEDROOM", "ROOM"):
-    CLASS[_t] = "private"
-for _t in ("LIVING_ROOM", "LIVING_DINING", "DINING"):
-    CLASS[_t] = "social"
-for _t in ("KITCHEN",):
-    CLASS[_t] = "kitchen"
-for _t in ("BATHROOM",):
-    CLASS[_t] = "wet"
-for _t in ("CORRIDOR", "CORRIDORS_AND_HALLS", "LOBBY"):
-    CLASS[_t] = "circ"
+# Swiss subtype -> the class this system reasons in.  DERIVED, and this rig
+# holds no table (ticket 80, ADR 0044).
+#
+# It used to hold one, and it was the FIFTH sleeping copy of the corpus-label
+# projection ADR 0037 published -- the sweep that retired the other four never
+# reached here, because ticket 69's write scope was `experiments/warp/`.  What
+# the copy got wrong, measured against the full corpus:
+#
+#   * it named a {ROOM, BEDROOM, STUDIO} collapse in its own comment and mapped
+#     only two of the three, so STUDIO fell to "other".  7 RESIDENTIAL rooms in
+#     7 apartments -- none of which reached the measured 2 500, so the defect
+#     was latent rather than benign;
+#   * it did not map KITCHEN_DINING at all: 41 RESIDENTIAL rooms, of which 3
+#     are in the measured set and were scored "other" instead of social;
+#   * three of its entries CANNOT OCCUR.  OFFICE, LOBBY and CORRIDORS_AND_HALLS
+#     have zero RESIDENTIAL rooms between them -- 376 / 118 / 42 rooms, all
+#     COMMERCIAL, PUBLIC or JANITOR -- and load() filters RESIDENTIAL.  So the
+#     ticket's "decide what OFFICE maps to" was a question about a label the
+#     residential pipeline cannot see.
+#
+# The class is now `profile_read.zone_class_for_label`, which reads the
+# published bridge (`ergonomic.corpus_label_map`) and the flags.  The bridge
+# carries the three-way collapse, so STUDIO is handled by the data.
+sys.path.insert(0, str(ROOT / "experiments" / "region-profile"))
+import profile_read as PR
 
 
 def cls(t):
-    return CLASS.get(t, "other")
+    """Corpus label -> zoning class.  Unknown labels are "other", as before --
+    but the KNOWN ones now come from the bridge rather than from a dict here."""
+    try:
+        return PR.zone_class_for_label(t)
+    except KeyError:
+        return "other"
 
 
 def load():
@@ -113,31 +128,31 @@ def measure_one(items, door_wkts):
         return "disconnected"            # a conversion artefact
 
     K = [cls(t) for t in types]
-    priv = [i for i in range(n) if K[i] == "private"]
-    if not priv:
-        return "no_private_room"
+    sleep_idx = [i for i in range(n) if K[i] == "sleeping"]
+    if not sleep_idx:
+        return "no_sleeping_room"
     circ_nodes = {v for v in range(n) if K[v] == "circ"}
 
-    # 1. does each private room touch circulation?  touch a social room?
-    touch_circ = [any(K[v] == "circ" for v in adj[i]) for i in priv]
-    touch_soc = [any(K[v] == "social" for v in adj[i]) for i in priv]
+    # 1. does each sleeping room touch circulation?  touch a social room?
+    touch_circ = [any(K[v] == "circ" for v in adj[i]) for i in sleep_idx]
+    touch_soc = [any(K[v] == "social" for v in adj[i]) for i in sleep_idx]
     # entered ONLY through social space: no circ neighbour, but a social one
     social_only = [(not c) and s for c, s in zip(touch_circ, touch_soc)]
 
-    # 2. are the private rooms grouped?  components of the private set in a
-    #    graph where two private rooms are joined by touching, or by sharing a
+    # 2. are the sleeping rooms grouped?  components of the sleeping set in a
+    #    graph where two sleeping rooms are joined by touching, or by sharing a
     #    circulation node -- "off the same hall" is grouped; touching is not
     #    required, and real bedrooms rarely touch.
     link = defaultdict(set)
-    for i in priv:
-        for j in priv:
+    for i in sleep_idx:
+        for j in sleep_idx:
             if i >= j:
                 continue
             if j in adj[i] or (adj[i] & adj[j] & circ_nodes):
                 link[i].add(j)
                 link[j].add(i)
     seen, comps = set(), 0
-    for i in priv:
+    for i in sleep_idx:
         if i in seen:
             continue
         comps += 1
@@ -167,10 +182,10 @@ def measure_one(items, door_wkts):
         "dist": [dist[i] for i in range(n)],
         "area": [g.area for g in geoms],
         "facade": [facade.get(i) for i in range(n)],
-        "priv": priv,
+        "sleeping_rooms": sleep_idx,
         "touch_circ": touch_circ, "touch_social": touch_soc,
         "social_only": social_only,
-        "priv_components": comps,
+        "sleeping_groups": comps,
         "deg": [len(adj[i]) for i in range(n)],
     }
 

@@ -58,6 +58,32 @@ not, and §6 prices it.
 
 ## 2. What the corpus shows
 
+> ⚠️ **RE-MEASURED 2026-08-31, and one published figure moved.** *Land the
+> sleeping flag and retire the private corpus-label copies* (ADR 0044) replaced
+> `measure_zoning.CLASS` — a private copy of the corpus-label projection that
+> **did not map `KITCHEN_DINING`** — with a read of the published bridge. Three
+> rooms in three dwellings of the 2 500 move `other → social`. The rig is
+> deterministic (md5-keyed ordering, no `hash()`, no solver), and the re-run
+> reproduces the skip counts exactly: 1 206 / 126 / 144 / 144 / 6.
+>
+> | figure | was | is | moved? |
+> |---|---:|---:|:--|
+> | §2.1 sleeping groups, 1 / 2 / 3 | 69.8 / 27.7 / 2.5 % | **69.8 / 27.7 / 2.5 %** | no |
+> | §2.2 mean hop, further / equal / nearer | 65.4 / 18.5 / 16.1 % | **65.3 / 18.5 / 16.3 %** | yes, n 1 756 → 1 759 |
+> | §2.4 longest exterior run to social | 73.7 % | **73.7 %** | no (1 294/1 756 → 1 297/1 759) |
+> | §2.5 social transit, per sleeping Room | 11.1 % (666/5 990) | **11.1 %** | no |
+> | §6.5 min hop, tie / inverted | 51.0 / 17.4 % | **50.9 / 17.5 %** | yes |
+>
+> **The one that matters downstream is the inversion rate**, because `proposer.md`
+> §6.1 term 5 and ADR 0042 quote it as a **ceiling**: **17.4 % → 17.5 %**
+> (305/1 756 → 308/1 759). Stratified by habitable-room count, 12.3 → **12.5** at
+> 3 and 15.0 → **15.3** at 5; 21.9 % at 4 is unmoved. The move *loosens* the
+> ceiling by a tenth of a point, and its cause is three dwellings acquiring a
+> social Room they always had. ⚠️ `proposer.md` has two claimants (67, 81) and is
+> not this ticket's to edit — the correction is recorded here, where §6.1 already
+> cites its provenance, and on the map's conflict-table row.
+
+
 `experiments/zoning/measure_zoning.py`, `measure_zoning2.py`. Room classes follow
 `CONTEXT.md`'s **Private room** and `proposer.md` §4.1's collapse of
 `{ROOM, BEDROOM, STUDIO}`: *private* is the sleeping set, *social* is
@@ -96,15 +122,16 @@ Mean hop distance from the entrance:
 | wet | 1.54 | 1 |
 | **private** | **1.66** | **2** |
 
-Within one dwelling, mean private hop against mean social hop: private further
-**65.4 %**, equal 18.5 %, **private nearer 16.1 %**. A rule saying bedrooms sit
+Within one dwelling, mean sleeping hop against mean social hop: sleeping further
+**65.3 %**, equal 18.5 %, **sleeping nearer 16.3 %** (n = 1 759; was 65.4 / 18.5 /
+16.1 over 1 756 before ADR 0044's `KITCHEN_DINING` repair). A rule saying bedrooms sit
 further from the door than the living room rejects one real home in six. The
 gradient is real and it is not a predicate.
 
 ✅ **Refined by §6.5, and the refinement is the number a rule would cost.** The
-16.1 % above is *mean* against *mean*. On the **minimum** each side — what a rule
-binds, since it binds the nearest offender — it is **17.4 %**, and the fact this
-section missed is that **51.0 %** of dwellings are a **tie**. The gradient is not
+16.3 % above is *mean* against *mean*. On the **minimum** each side — what a rule
+binds, since it binds the nearest offender — it is **17.5 %**, and the fact this
+section missed is that **50.9 %** of dwellings are a **tie**. The gradient is not
 only unassertable, it is *absent* in half the population.
 
 ### 2.3 What the front door opens onto
@@ -306,7 +333,7 @@ The rig was freed (ADR 0019 moved nothing) and the encoding was then **refused o
 the corpus before it was priced**: of the three readings this decision left open,
 two are the *negation* of the slogan they encode, the third is a construction
 `openings.md` §7 already ships, and the only reading that needs the integers is a
-**tie in 51.0 %** of real dwellings and inverted in **17.4 %**. **No hop-count
+**tie in 50.9 %** of real dwellings and inverted in **17.5 %**. **No hop-count
 integer is owed and the H-list closes at H10.** D7's verdict stands; its stated
 reason — *cost unmeasured* — does not, and should not be quoted, because the cost
 was never reached.
@@ -351,9 +378,9 @@ So the property has a home, and it is neither a constraint nor nothing: a
 **fifth `proposer.md` §6.1 plan-quality term**, scored against the corpus
 **rate** rather than a threshold, in the shape the other four already take.
 The quantity is the **inversion rate** — the fraction of dwellings whose nearest
-private Room sits strictly nearer the entrance than its nearest social Room —
-real **17.4 %**. Not the strict-order rate: a model that ties everything and a
-model that reverses everything both score 0 % strict, and the corpus is 51.0 %
+sleeping Room sits strictly nearer the entrance than its nearest social Room —
+real **17.5 %**. Not the strict-order rate: a model that ties everything and a
+model that reverses everything both score 0 % strict, and the corpus is 50.9 %
 ties, so a strict rate cannot tell the two apart.
 
 It qualifies on D9's own property — computable on a corpus dwelling and on a
@@ -412,9 +439,23 @@ in one file*.
 **To `room-constraints.json`'s holder — one flag.** `is_sleeping`, beside the four
 that ship. True on `bedroom_principal`, `bedroom_double`, `bedroom_single`,
 `study`. False on everything else, **including every wet type** — that is the
-whole point of D2. `gate_check.py` should gate the divergence from `is_private`
-the way it already gates `counts_as_otaq` against `is_habitable`: the sets differ
-on exactly `bathroom`, `shower_room`, `wc`.
+whole point of D2. `gate_check.py` should gate the divergence from `is_private` the way it already gates
+`counts_as_otaq` against `is_habitable`: the sets differ on exactly
+~~`bathroom`, `shower_room`, `wc`~~ — **four types, not three**.
+
+✅ **LANDED, and this paragraph was one type stale when it landed** — ADR 0044.
+`bathroom_combined` is `is_private: true` and is not a sleeping room, so the
+divergence is `bathroom`, `bathroom_combined`, `shower_room`, `wc`. It did not
+exist when this was written: ADR 0022 added it as the nineteenth type afterwards.
+A holder transcribing this paragraph verbatim would have shipped a gate that
+fails. `gate_check.py` Z6 asserts the four.
+
+⚠️ **And one flag was not enough.** Retiring `measure_zoning.py`'s private label
+table needed a *second* new bit, `is_circulation`: `hall` and `storage` carry
+identical vectors over all six older flags and belong in different classes, so no
+precedence over those six separates them. It is also exactly this section's own
+three-name literal list in `entry.opens_onto_circulation`, which reads the flag
+instead. ADR 0044.
 
 **To `rules.json`'s holder — four rules.** `item` numbers are for the holder to
 assign against `acceptance-bar.md`'s own sectioning.
@@ -543,13 +584,13 @@ that fact restated and carries no information beyond it.
 
 **Half of real dwellings say nothing at all.** A per-Room hop-count integer would
 buy a relation the population is silent on in 51.0 % of cases and contradicts in
-17.4 % — one in **5.8**, against the ticket's own stated bar of *"a rule real
+17.5 % — one in **5.7**, against the ticket's own stated bar of *"a rule real
 dwellings break one time in six is not worth new integers"*.
 
-⚠️ **This refines §2.2 and does not restate it.** §2.2's 16.1 % compares the
-dwelling's *mean* private hop to its *mean* social hop. This is the **minimum**
+⚠️ **This refines §2.2 and does not restate it.** §2.2's 16.3 % compares the
+dwelling's *mean* sleeping hop to its *mean* social hop. This is the **minimum**
 on each side — the quantity a rule would actually be posted on, since a rule
-binds the nearest offender. Same signal, 16.1 % → **17.4 %**; quote the mean-based
+binds the nearest offender. Same signal, 16.3 % → **17.5 %**; quote the mean-based
 figure for the gradient's *shape* and this one for any rule's cost.
 
 ### 6.6 The three shipped terms do not capture it, and they are *anti*-correlated with it
@@ -578,8 +619,8 @@ transit.
 
 ⚠️ **Two rates, two denominators.** §2.5 and `proposer.md` §6.1 quote social
 transit as **11.1 %**, which is *per sleeping Room* (666 / 5 990). The 454 above
-is *per dwelling*, and 454 / 1 756 = 25.9 % because the table is restricted to
-dwellings holding both a private and a social Room. `report2.txt`'s 18.2 % is the
+is *per dwelling*, and 454 / 1 759 = 25.8 % because the table is restricted to
+dwellings holding both a sleeping and a social Room. `report2.txt`'s 18.2 % is the
 same 454 over all 2 500. Do not put any two of these three in one sentence.
 
 That is D10.

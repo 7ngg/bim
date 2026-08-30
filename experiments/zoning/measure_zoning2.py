@@ -1,13 +1,13 @@
 """Two properties the first pass judged on proxies too weak to decide on.
 
 (a) FACADE.  Pass 1 measured each room's *share* of the outer boundary and found
-    social rooms hold less of it per square metre than private rooms.  Share is
+    social rooms hold less of it per square metre than sleeping rooms.  Share is
     the wrong quantity: an architect allocates *aspect* -- a corner, two
     elevations, one long unbroken window wall -- not boundary length.  Both are
     topological and neither needs the site, so both are measurable here.
 
 (b) LIVING-ROOM TRANSIT.  `circ.no_private_transit` blocks routing *through* a
-    private room.  Nothing blocks routing through the living room, which is the
+    sleeping room.  Nothing blocks routing through the living room, which is the
     classic amateur-plan signature.  Measured as a cut-set: does every path from
     the entrance to this bedroom pass through a social room?
 """
@@ -116,9 +116,9 @@ def measure_one(items, door_wkts):
         return "disconnected"
 
     K = [Z.cls(t) for t in types]
-    priv = [i for i in range(n) if K[i] == "private"]
-    if not priv:
-        return "no_private_room"
+    sleep_idx = [i for i in range(n) if K[i] == "sleeping"]
+    if not sleep_idx:
+        return "no_sleeping_room"
 
     env = MS._op(unary_union, [MS._poly(g.buffer(MS.TAU / 2, join_style=2,
                                                  mitre_limit=2.0)) for g in geoms])
@@ -132,15 +132,15 @@ def measure_one(items, door_wkts):
 
     social = {i for i in range(n) if K[i] == "social"}
     circ = {i for i in range(n) if K[i] == "circ"}
-    via_social = [not _cut(adj, n, best, i, social) for i in priv]
-    via_circ = [not _cut(adj, n, best, i, circ) for i in priv]
+    via_social = [not _cut(adj, n, best, i, social) for i in sleep_idx]
+    via_circ = [not _cut(adj, n, best, i, circ) for i in sleep_idx]
 
     return {
         "n": n, "classes": K, "entry": best, "entry_class": K[best],
         "area": [g.area for g in geoms],
         "aspects": aspects, "longest_run": longest,
-        "priv": priv,
-        "priv_via_social": via_social,
+        "sleeping_rooms": sleep_idx,
+        "sleeping_via_social": via_social,
         "priv_via_circ": via_circ,
     }
 
