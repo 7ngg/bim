@@ -1559,7 +1559,7 @@ scoped so it never depends on this metric: coverage (§2.1) and the arrangement
 metric (§5) decide it. The beat-retrieval ablation waits for *Ergonomic minima*
 and *Fit the ENGINE_CHOICE acceptance thresholds*.
 
-#### Four plan-quality terms that are available now
+#### Five plan-quality terms that are available now
 
 Everything above measures whether a Proposal reaches a **valid** Plan.
 *Validate the arrangement metric against the solver* established that §5 predicts
@@ -1570,8 +1570,18 @@ only"*; nothing in this spec has ever measured whether a Plan is any **good**.
 qualifying property is that each is **computable on a corpus dwelling and on a
 generated Plan by the same code** — which corner displacement is not, because a
 real dwelling has no Proposal to be displaced from. Measured distributions over
-2 500 Swiss dwellings are in `docs/research/zoning.md` §2; the held-out target is
-the corpus distribution, not a threshold.
+2 500 Swiss dwellings are in `docs/research/zoning.md` §2.
+
+⚠️ **A term's target is not always its corpus rate, and this section used to imply
+it was.** *"The held-out target is the corpus distribution, not a threshold"* held
+while every term was read as a population to reproduce. Term 5 is a **defect
+rate**, where the corpus rate is a **ceiling** — worse than real housing scores
+worse, better scores better, and zero scores best. Term 4 is the opposite by
+design: §4.5 rules that *"a landlocked room is not a defect in the donor, it is a
+fact about real housing"*, so a source producing 0 % has failed to **learn** and
+matching is correct. **The two readings are not interchangeable and only term 5's
+is settled.** Terms 1–4 are audited by *What each §6.1 term is scored for*; until
+that lands, read each term's own line for which it is. ADR 0042.
 
 1. **Sleeping-group count** — components of the sleeping set, where two are one
    group if they touch or share a circulation neighbour. Real: **69.8 %** one
@@ -1587,15 +1597,43 @@ the corpus distribution, not a threshold.
    the same field the index already carries, computed by the same code on either
    side. It is the term that says whether a **trained** source has learned the
    interior kitchen the corpus is full of.
+5. **Entry-depth inversion** — the fraction of dwellings whose nearest Room with
+   `is_sleeping` sits **strictly nearer the entrance** than its nearest social
+   Room, where social is `is_habitable ∧ ¬is_sleeping`. Real: **17.4 %**, over the
+   1 756 dwellings holding both. It is a **defect rate scored against a ceiling**,
+   not a distribution to match: 17.4 % is the "no worse than real housing" line,
+   lower scores better, 0 % is best. `src: engine_choice`, `conf: derived`.
+   Stratify by habitable-room count — **12.3 / 21.9 / 15.0 %** at 3 / 4 / 5
+   (n = 367 / 723 / 560), pooling 6+ (n = 98) — and never quote the pooled scalar
+   alone. Added by *What the entry-depth gradient is worth as a fifth evaluation
+   term*; ADR 0042, `zoning.md` D10 and §6.
+
+⚠️ **Term 5 has no statutory backing in either shipping region, and that is stated
+rather than hidden.** СП 54.13330.2022 cl. 5.6 and AzDTN 2.7-2 cl. 5.9 both forbid
+a bedroom being **on the path** to another room — which is term 3 — and neither
+says anything about being **nearer the door**. WBS 2015, the Swiss instrument for
+the corpus's own country, declines to score zoning at all: `Zonierung`,
+`Durchgangszimmer`, `Tag/Nacht` and `Intimität` appear **zero** times in it, rooms
+are declared `nutzungsneutral`, and its whole bedroom-privacy provision is that the
+room be `abschliessbar`. **A bedroom off the hall passes WBS completely.** That is
+the argument *for* the ceiling and against the target: the corpus's 17.4 % is what
+a stock produces when its own evaluation system never looks at this, so matching it
+would import that silence. `docs/research/housing-quality-standards-as-bars.md`.
 
 ⚠️ These are **evaluation** terms and are not stop conditions. §6.2 stays as it
 is: a source that zones well and reaches no valid Plan has not earned its place,
-and none of the four has been measured on a generated Plan by anyone, because no
+and none of the five has been measured on a generated Plan by anyone, because no
 Proposer has been run.
+
+⚠️ **Every rate in this section is Swiss (C5), for all five terms.** It has never
+been said per-term and is said once here instead. The AZ rates are unmeasured, and
+*A cap fitted in one country and a target set in another* owns the general form of
+this exposure. Term 5's ceiling is the least exposed of the five, because a ceiling
+only has to be *not worse*, where a target has to be *right*.
 
 **The corpus distributions above are held out on `frame_residual`, and this is
 the only place on the map where an off-frame dwelling is excluded rather than
-demoted.** ADR 0031. Each of the four terms is computed *on a corpus dwelling* as
+demoted.** ADR 0031. Each of the five terms is computed *on a corpus dwelling* as
 the target a generated Plan is scored against, so a dwelling the conversion
 sheared onto one angle — 2.89 % of the index survives every fidelity gate while
 being ≥ 10° off frame — scores the model against **our own conversion error**
@@ -1610,9 +1648,29 @@ not maximal. Read across from §4.5 carefully: it kept windowless kitchens becau
 housing"* — the **splay** is such a fact, and the **shear** is not. Only §4.5's
 thinness argument transfers.
 
-⚠️ **The four rates above are quoted on the unfiltered corpus** — `zoning.md` §2's
+⚠️ **The five rates above are quoted on the unfiltered corpus** — `zoning.md` §2's
 2,500 dwellings and §4.5's 5.88 %, neither held out on a field that does not exist
 yet. They move when the §2.2.1 pass lands and must be re-read then, not before.
+
+⚠️ **Terms 1, 2, 3 and 5 all read `is_sleeping`, and it does not exist in the
+data.** `data/standards/room-constraints.json` ships `is_private`, `is_wet` and
+`is_habitable` and no fourth flag; the term is defined in `CONTEXT.md`, specified
+in `zoning.md` §5b, and depended on by `rules.json`'s own note, which says so. It
+has been handed over as prose twice and landed neither time. **Four of the five
+terms here are therefore uncomputable today**, which this section previously read
+as though it were not the case. *Land `is_sleeping` and retire the private corpus
+label copies* owns it.
+
+⚠️ **Term 5's population excludes 744 of 2 500 dwellings, and the reason is a
+corpus-model mismatch rather than a corpus defect.** They hold no Room the
+conversion labels social, because Swiss practice is `nutzungsneutral` — WBS 2015
+declares it — so 70.1 % of the private set is the unlabelled `ROOM` and the living
+room is often simply not designated. Their largest private Room runs a median
+**20.2 m²** against **15.3 m²** where a social Room *is* labelled, and under a
+kitchen-as-social reading they invert at **32.4 %** against **7.3 %** — an artefact
+of the label, not of the plan. **Widening the social set to admit them imports the
+artefact**, which is why term 5 does not, and why a heuristic relabel is refused:
+it would impose a typology the source deliberately withholds. C5.
 
 ### 6.2 Stop conditions for training
 

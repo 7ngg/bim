@@ -361,6 +361,43 @@ generated Plan by the same code, off the hop distance §2.2 already publishes.
 **This file specifies it and does not write it**: `proposer.md` is claimed, so
 the term is handed over as its own ticket rather than as a sentence here.
 
+✅ **Taken, as `proposer.md` §6.1 term 5 — and three things D10 proposed were
+wrong.** ADR 0042, *What the entry-depth gradient is worth as a fifth evaluation
+term*. What it got right is the part that mattered: the property is real, it is
+unowned, and term 3 cannot see it. What it got wrong:
+
+- ⚠️ **"Scored against the corpus rate" is refused; the rate is a CEILING.**
+  D10 asked to *match* 17.4 % while §6.5 calls the − bucket a **violation**, and
+  those cannot both stand — matching rewards producing as many bad plans as real
+  housing. Neither standards lineage supports matching. СП 54's Table 5.1 note and
+  ЖК РФ art. 50 §2 do index a threshold to observed stock, but as a **one-sided
+  minimum on a quantity where more is better**, which *rises* as practice improves;
+  transplanted onto a defect rate that is a ceiling and never a target. WBS 2015
+  went further and added a **maximum** net floor area in its 2015 revision because
+  Swiss areas were rising — **the bar moved against the stock**, which a
+  distribution-matching instrument cannot do.
+- ⚠️ **The private/social sets are `is_sleeping` and `is_habitable ∧ ¬is_sleeping`,
+  and the second needs no new flag.** D10's item 3 feared the term "quietly adds a
+  second one". It does not: that construction is the one `zone.no_social_transit`
+  and `zone.facade_to_living` already use. Plain `kitchen` stays out, which the
+  measurement in §2.2 already assumed — `KITCHEN` is its own class there, in
+  neither set.
+- ⚠️ **The pooled 17.4 % must never be quoted alone.** By habitable-room count it
+  is **12.3 / 21.9 / 15.0 %** at 3 / 4 / 5 and the tie mass runs **30.8 → 67.3 %**,
+  monotone — a large dwelling is hall-centred and everything sits at equal depth.
+  §6.5's three-bucket split is therefore a **mixture over the corpus's size mix**,
+  and a generated population with a different Brief mix would score as deviating
+  while being perfectly zoned. This is Hillier's own acceptance test, failed.
+  House-GAN++ publishes the fix and it is the one taken: stratify, never pool.
+
+✅ **And one thing D10 could not have known, which argues *for* it.** The benign
+reading — that a shallow private Room is a front-office or guest room, a
+*desirable* pattern Alexander's Patterns 141 and 157 place at both ends of his own
+gradient — is testable and **fails**: the shallow Room in an inversion is a
+terminal cell in **4.9 %** of cases against **26.5 %** when ordered, the opposite
+of the front-office signature. The corpus's inversions are bedrooms off the hall.
+`docs/research/plan-quality-metrics-in-practice.md`.
+
 ---
 
 ## 5b. Handoff — what this ticket specifies and does not write
@@ -557,6 +594,17 @@ diagram, so privacy depth is an *input*, never solved for and never scored.
 Nobody is measuring this, which is consistent with D9's premise and is not an
 argument against D10.
 
+✅ **Re-checked a third time, against the human standards rather than the tools,
+and the finding widens rather than moves.** Not only does no generator score this
+— no *regulator* does either, in either shipping lineage. СП 54.13330.2022 cl. 5.6
+and AzDTN 2.7-2 cl. 5.9 forbid a bedroom being **on the path**; neither constrains
+**depth from the entrance**. WBS 2015 does not score zoning at all. So the
+statutory half of the gradient is term 3 and is already a hard rule; **the ordering
+half has no backing anywhere**, which is exactly why it is a term and not a rule —
+and why it ships `conf: derived`, never `verified`.
+`docs/research/plan-quality-metrics-in-practice.md` and
+`docs/research/housing-quality-standards-as-bars.md`.
+
 ### 6.8 What §6 does not establish
 
 - **The cost of a per-Room hop-count integer is still unmeasured**, deliberately.
@@ -568,6 +616,14 @@ argument against D10.
   region-specific, and a 17.4 % inversion rate would need an implausible regional
   shift to become assertable, but the AZ rate is unmeasured like every other
   corpus rate on this map.
+  ⚠️ **That argument was made for a RULE and must not be read across to the term
+  as written.** A rate can be wrong for AZ without the direction shifting at all,
+  and assertability is not the question a scored term asks. What actually limits
+  the exposure is the **ceiling**: a ceiling only has to be *not worse*, where a
+  matched target has to be *right*. ⚠️ And the 17.4 % is measured over
+  **mixed-tenure** stock, where cl. 5.6 is the one standard that makes tenure
+  decisive for this exact quantity — under a ceiling that is harmless, under
+  matching Swiss tenure structure would have become part of the target.
 - **The disconnection skip stands** (§3, §7): 1 206 dwellings dropped, biasing
   toward well-connected homes. It cannot plausibly move R1/R2 from 9.6 %/7.7 % to
   anything shippable, and its effect on the tie mass is unmeasured.
