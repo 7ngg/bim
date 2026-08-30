@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import json
 import random
+import zlib
 import sys
 import time
 from collections import defaultdict
@@ -208,7 +209,13 @@ def main():
         if len(admitted) < K or len(refused) < K:
             dropped["thin_admitted" if len(admitted) < K else "thin_refused"] += 1
             continue
-        prng = random.Random(SEED ^ (hash(brief["k"]) & 0xFFFFFFFF))
+        # zlib.crc32, not hash(): PYTHONHASHSEED randomises str hashing per
+        # process, so this draw was a DIFFERENT sample on every run and the
+        # README's "seed 20260819 throughout" never held for it. Same fix, and
+        # the same reason, as `experiments/solver-toy/probe6.py`. Ticket 65.
+        # The pre-fix `out/gate_effect_briefs.json` is therefore one
+        # unreproducible draw, and ADR 0032 rests on it.
+        prng = random.Random(SEED ^ zlib.crc32(brief["k"].encode()))
         a_draw = prng.sample(admitted, K)
         r_draw = prng.sample(refused, K)
         rec = {"k": brief["k"], "n": brief["n"],

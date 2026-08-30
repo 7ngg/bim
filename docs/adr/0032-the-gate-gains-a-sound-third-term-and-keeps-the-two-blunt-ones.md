@@ -1,5 +1,15 @@
 # The gate gains a sound third term, and keeps the two blunt ones
 
+> ⚠️ **AMENDED by ticket 65 — read the amendment at the foot before quoting
+> anything here.** Everything below is correct **at `m = 3`** and was verified as
+> such. The shipped `m` is 8, and at realised depth the decision below changes:
+> the scalar pair is kept but becomes **depth-conditional**. Consequence 5's owed
+> measurement is discharged there, and the probe it names is shown to be the wrong
+> instrument. ⚠️ **Every figure on this page predates ADR 0037 and is computed
+> with a `with-replacement` estimator that makes `m = 3` a best-of-2.11**; the
+> amendment quantifies both. Do not quote this page's absolutes against any
+> post-0037 number.
+
 *The rig gate is not the shipped gate* (ticket 60) measured that total area
 ±10 % and envelope aspect ±15 % are worth **8.6 points of decline** — 27.6 %
 against 36.2 %, paired within one Brief — and named the mechanism: ADR 0020 sizes
@@ -140,3 +150,131 @@ stays exactly as it is.**
 6. **`experiments/warp/README.md` carries the three traps**: quote §4e and never
    §4b, never quote the `m = 8` block, and `ext` is a control and not a
    candidate.
+
+---
+
+# Amendment (ticket 65): at the shipped depth the pair becomes conditional
+
+*What the fourth gate term is worth at the shipped pool depth* discharged
+consequence 5. **The decision above is right at `m = 3` and does not survive
+`m = 8` unchanged.** `experiments/warp/gate_depth.py`; two seeds, 6 421 warps.
+
+## The amended decision
+
+**The `req ≤ 1` bound stays. The ±10 % / ±15 % pair stays, but stops being an
+unconditional gate: apply the pair, count what it admits, and where it admits
+fewer than `m`, top the pool up from `req ≤ 1` until it holds `m`.**
+
+Where the pair admits `m` or more this **is** the gate above, member for member.
+Only where it would otherwise hand the engine a short pool does the sound bound
+fill the draw.
+
+## Why the original decision does not transfer
+
+**The argument above is stated "at equal `m`", and at the shipped `m` the arms
+are not at equal `m`.** The pair admits a median pool of **8** and fills `m = 8`
+on **51.7 %** of Briefs; `req ≤ 1` admits a median **52** and fills it on 85.4 %.
+The joined gate of the decision above is the **shallowest of the three** — a
+conjunction only removes members — and leaves an empty pool on **12.5 %** of
+Briefs against the pair's 9.7 % and the bound's 0.0 %.
+
+At realised depth, over 288 Briefs, seed 20260819:
+
+| gate | Briefs served | 95 % CI | p90 |
+|---|---:|---|---:|
+| incumbent pair | 83.0 % | [78.8–87.2] | 0.1369 |
+| **as decided above (join)** | **83.0 %** | [78.8–87.2] | 0.1285 |
+| `req ≤ 1` alone | 97.9 % | [96.2–99.7] | 0.1196 |
+| **amended (depth-conditional)** | **97.6 %** | [95.8–99.3] | 0.1234 |
+
+**The whole of the effect is in the Briefs the pair starves, and it is absent
+where it does not.** Splitting on whether the pair fills `m`:
+
+| | pair | `req ≤ 1` | join | **amended** |
+|---|---:|---:|---:|---:|
+| **pair short of `m`** (n = 139) | 64.7 % / p90 0.2124 | 95.7 % / 0.1820 | 64.7 % / 0.2124 | **95.0 % / 0.1554** |
+| **pair fills `m`** (n = 149) | 100 % / **0.0673** | 100 % / 0.0744 | 100 % / **0.0671** | 100 % / **0.0673** |
+
+In the lower half the pair costs **31.0 points of served Briefs**, CIs disjoint
+([56.8–72.7] against [92.1–98.6]). In the upper half every rule serves every
+Brief and the pair holds the **best** p90 — the decision above, reproduced
+exactly. Repeated at seed 20260830 (194 Briefs) every one of those claims holds.
+
+**Why conditional rather than replacement.** `req ≤ 1` alone buys the same served
+rate and is **worse on p90 in both halves separately** — 0.1820 against 0.1554
+where the pair is short, 0.0744 against 0.0673 where it is not, on seed 1, and
+the same ordering on seed 2. The pair is buying proportion, exactly as the
+decision above found; it is only failing to buy *depth*. Making it conditional
+keeps the first and stops paying for the second.
+
+⚠️ **And the practical argument is the strongest one: this amendment needs
+nothing from `proposer.md` §2.2.** Replacement would strand §2.2's *"stretch a
+plan 40 % in proportion and the claim is false"* on the rank alone. The
+conditional gate leaves that sentence true wherever the pair is not starving —
+**51.7 %** of Briefs — and changes no text in that file. §6.1 gained a fifth term
+and ADR 0042 under ticket 66 while this was measured; neither is touched.
+
+## What this amendment does NOT claim
+
+⚠️ **Read this section before quoting a number above.**
+
+- ⚠️ **No pooled dominance over `req ≤ 1` is claimed, and none was found.** The
+  per-half p90 advantage is stable on both seeds; **the pooled p90 changes sign
+  between them** — seed 1 has the replacement ahead 0.1196 to 0.1234, seed 2 has
+  the amendment ahead 0.1096 to 0.1179. That comparison is a mix effect over
+  differently-served Brief sets and is **not resolvable at this sample size. Do
+  not quote a pooled p90 in either direction.**
+- ⚠️ **The 0.3-point served gap between the amendment and the replacement is not
+  real.** It sits below the noise floor below. The two arms are level on served.
+- ⚠️ **This is not a re-opening of `req ≤ 1`.** The bound is sound, its cut is
+  unfitted, and it is unchanged.
+- ⚠️ **It is not a threshold change.** ±10 %, ±15 % and 1.0 all keep their values;
+  only *when the pair is consulted alone* changes.
+- ⚠️ **`m` itself is not re-decided.** Whether 8 is the right budget is a separate
+  question this measurement does not answer.
+
+## The precision floor every figure here is subject to
+
+⚠️ **CP-SAT at a time cap is not deterministic, and no figure from these rigs may
+be quoted to tenths of a point without reproduction.** Two sweeps warped 1 489
+identical `(brief, donor)` pairs — same seed, same targets, same `--time=3.0`.
+Status agreed every time; **2.82 % disagreed on `served`** and **14.71 % on
+`dev`**. Which claims here survive that floor:
+
+- **Survives**: the 14.9-point served gap between the pair and the amendment; the
+  31.0-point gap in the lower half; the 100 %/64.7 % split; the pool-depth
+  medians. All are an order of magnitude clear of it.
+- **Does not survive**: the 0.3-point served gap to `req ≤ 1`; the pooled p90
+  comparison; any comparison of two arms differing by under ~3 points of served.
+
+This floor is not specific to this ADR — it sits under every timed figure
+`experiments/warp/` has published, several of which are quoted to tenths
+elsewhere. **Ticket 82** carries it.
+
+## Amended consequences
+
+6. **The gate's fourth term is conditional, not unconditional.** `proposer.md`
+   §2.2.4 step 1 gains the pool-size test — *apply the pair; if it admits fewer
+   than `m`, extend from `req ≤ 1`*. **Owed to that file's next holder as prose;
+   ticket 65 did not hold it.**
+7. **Serving cost is unchanged.** The top-up reads terms already computed for
+   every bucket member and draws from a set already ranked; it adds no solve, no
+   index field, and no warp. Measured: the arm costs **zero** additional warps,
+   because every member it can draw is inside `req ≤ 1`'s own first-`m` draw.
+8. ⚠️ **Consequence 5's named probe was the wrong instrument, and this is the
+   part most worth carrying forward.** `gate_effect.py --k=8` drops any Brief
+   without `K` members in **both** strata, so it keeps a Brief **iff the pair
+   already admits 8** — 229 of 500, median admitted pool **17** against **2**
+   among the dropped. It therefore retains **none** of the 54.2 % of Briefs where
+   the effect lives, and on the population it does retain the decision above is
+   confirmed. The ~2 h run it prescribes would have returned "confirmed" and been
+   wrong at population level.
+9. ⚠️ **This page's own estimator understates depth.** §4e draws `m` **with
+   replacement**, so its `m = 3` is best-of-**2.11** and its `m = 8` is shallower
+   still. Re-scoring ticket 65's data under that estimator reproduces **77 % of
+   the served gap and 69 % of the p90 gap** to this page's figures — the
+   difference between the two pages is mostly the estimator, not the corpus.
+10. ⚠️ **`gate_effect.py`'s draw was never reproducible.** It seeded per Brief
+   with `hash()`, salted per process, so this page rests on a sample no rerun can
+   reconstruct. Fixed to `crc32` under ticket 65; the run-to-run variance of the
+   figures above has never been measured and now cannot be.

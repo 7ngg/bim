@@ -499,3 +499,237 @@ than true until ticket 67 lands.
 copy; it was tolerable while it only measured and is not now that it constrains
 geometry. That is a guard, not the fix — ticket 69 owns the read-from-JSON
 refactor.
+
+## What ticket 65 added, and the four traps in it
+
+`gate_depth.py` measures the gate at the depth the gate can actually **fill**.
+ADR 0032 is decided at `m = 3`; the shipped `m` is 8. Ticket 65 was raised to run
+the probe ADR 0032 consequence 5 names — `gate_effect.py --k=8` — and the first
+finding is that **that probe cannot answer the question it was named for.**
+
+⚠️ **`gate_effect.py --k=8` keeps a Brief if and only if its incumbent pool holds
+8.** `strata` drops a Brief unless BOTH strata hold `K`, so at `K = 8` it keeps
+**229 of 500** Briefs and the split is exact: every Brief with `n_admitted ≥ 8` is
+kept, every Brief below it is dropped. Median admitted pool among the kept is
+**17**; among the dropped, **2**. The ticket's own mechanism is that at `m = 8`
+the incumbent gate binds *below the depth the engine asks for*, so conditioning on
+`n_admitted ≥ 8` removes **every Brief where the effect can occur**. Measured
+below: on exactly that retained population ADR 0032 is confirmed. The ~2 h run
+would have returned "confirmed" and been wrong at population level.
+
+**The pools are not the same size, and that is the whole finding.** Over 288
+Briefs, pool p50 and the share of Briefs holding 8:
+
+| rule | pool p50 | ≥ 8 on | empty pool |
+|---|---:|---:|---:|
+| incumbent ±10 %/±15 % | 8 | 51.7 % | 9.7 % |
+| `req ≤ 1` alone | **52** | **85.4 %** | **0.0 %** |
+| both (ADR 0032's join) | 8 | **50.0 %** | **12.5 %** |
+| `logd ≤ 0.30` + `req ≤ 1` | 24 | 71.2 % | 4.2 % |
+
+A conjunction can only remove members, so **the joined gate leaves the Homeowner
+with no candidate at all more often than either term alone** — 12.5 % against
+9.7 % and 0.0 %.
+
+**3 834 warps, 288 Briefs, seed 20260819, `--time=3.0`, shipped configuration.**
+Each rule draws its own pool over the whole bucket, truncated at `m`, **without
+replacement**; only the union of the four draws is warped. No reweighting is
+needed and none is done: 4e reweights a 50/50 draw to recover the bucket's
+composition, and this design never makes a 50/50 draw.
+
+**`m = 3`, equal-K subset — ADR 0032 reproduced on the post-ADR-0037 rig.**
+
+| rule | Briefs served | p50 | p90 |
+|---|---:|---:|---:|
+| incumbent | 95.1 % | 0.0464 | **0.1515** |
+| **both (join)** | **97.1 %** | 0.0465 | 0.1526 |
+| `req ≤ 1` alone | 94.6 % | 0.0500 | **0.1998** ← worst |
+| `logd` + `req` | 96.6 % | 0.0493 | 0.1846 |
+
+⚠️ **"Reproduced" here means the ORDERING, and it cannot mean more than that.**
+ADR 0032's sample is not recoverable — its per-Brief draw was salted by `hash()`
+(below), so no rerun can reconstruct the rows it was computed on. What is
+reproduced is the *ranking* of the four rules on both axes: the join is best on
+served Briefs, and dropping the scalar pair moves the **p90 the wrong way**. The
+absolute values differ substantially and are not comparable — 95.1 % against the
+ADR's 88.1 % served, p90 0.1515 against 0.2303 — because the draw is
+without-replacement, the sample differs, and `MARKET` has since been re-read.
+Aggregates converged on the same ordering; nothing here matches row for row.
+
+⚠️ **This is NOT the `market`-arm re-run MAP.md owes, and that debt is still
+open.** These figures are *computed on* the post-ADR-0037 rig, which makes them
+current, but MAP.md's debt is a re-run measuring **what moved** — and no arm here
+was run under the pre-0037 literals, so no delta was measured. ADR 0037 deleted
+those literals from the rig, so recovering the before-side is a real piece of
+work and not a by-product of this ticket. **The debt passes to 62 and 67
+unchanged.**
+
+**`m = 8`, realised depth — the ordering inverts.** The incumbent falls to
+**83.0 %** of Briefs served and `req ≤ 1` alone rises to **97.9 %**, with disjoint
+CIs and a better p90; ADR 0032's join sits with the incumbent at 83.0 %. Full
+five-arm table below, once the fifth arm is introduced.
+
+⚠️ **Two denominators, and the conclusion survives both.** Above counts an empty
+pool as not served. `pool_depth.py` calls an empty pool *"a Brief retrieval cannot
+serve at all, which falls to source B and is **not** a starvation"* — so excluding
+those Briefs instead gives incumbent **91.9 %** [88.8–95.4], `req ≤ 1` **97.9 %**
+[96.2–99.3], join **94.8 %** [92.5–97.6]. The gap narrows from 14.9 points to 6.0
+and **the served CIs stay disjoint either way**. Quote whichever, state which.
+
+**The falsifiable prediction is confirmed, and it is the whole mechanism.**
+
+| | incumbent | `req ≤ 1` | join | **depth-conditional** |
+|---|---:|---:|---:|---:|
+| **thin** (incumbent pool < 8), n = 139 | 64.7 % / p90 0.2124 | 95.7 % / 0.1820 | 64.7 % / 0.2124 | **95.0 % / 0.1554** |
+| **deep** (incumbent pool ≥ 8), n = 149 | 100.0 % / 0.0673 | 100.0 % / 0.0758 | 100.0 % / **0.0657** | 100.0 % / 0.0673 |
+
+In the deep half every rule serves every Brief and the incumbent and the join hold
+the **best** p90 — ADR 0032, exactly. In the thin half the incumbent and the join
+are **identical and both cost 31.0 points of served Briefs**, with disjoint CIs
+([56.8–72.7] against [92.1–98.6]) and a worse p90 as well. The two scalars are not
+buying proportion there; they are buying an empty pool.
+
+**And the fifth arm is the answer: apply the incumbent, count what it admits, and
+top up from `req ≤ 1` only when it holds fewer than `m`.** It costs no new warps
+— every member it can draw is already inside `req ≤ 1`'s own first-`m` draw — and
+it **dominates the replacement in both halves at once**:
+
+| arm | served | 95 % CI | p90 | p90 95 % CI |
+|---|---:|---|---:|---|
+| incumbent | 83.0 % | [78.8–87.2] | 0.1369 | [0.0913–0.1727] |
+| `req ≤ 1` alone | **97.9 %** | [96.2–99.7] | **0.1196** | [0.0974–0.1658] |
+| both (join) | 83.0 % | [78.8–87.2] | 0.1285 | [0.0875–0.1727] |
+| `logd` + `req` | 92.7 % | [89.9–95.5] | 0.1285 | [0.0932–0.1727] |
+| **depth-conditional** | **97.6 %** | [95.8–99.3] | 0.1234 | **[0.0913–0.1412]** |
+
+⚠️ **It wins in each half and does not win overall, and the difference is a mix
+effect rather than a contradiction.** Per half it is better than the replacement
+on p90 **twice** — 0.1554 against 0.1820 thin, 0.0673 against 0.0744 deep — and
+level on served. Pooled, its p90 point estimate is marginally *worse* (0.1234
+against 0.1196), because the two arms serve slightly different Brief sets and the
+replacement's extra members land in the easy half. The per-half comparison is the
+like-for-like one. Its p90 interval is also **materially tighter** (upper bound
+0.1412 against 0.1658), which is the tail the acceptance bar reads.
+
+⚠️ **The served gap between these two arms is BELOW this rig's noise floor.**
+97.6 % against 97.9 % is 0.3 points, and re-warping the same candidate flips
+`served` **2.82 %** of the time (below). Nothing here separates the two arms on
+served, and no amendment should claim it does. What separates them is the per-half
+p90 and what they cost the §2.2 argument.
+
+⚠️ **What that buys is a decision that strands nothing.** In the deep half the
+depth-conditional arm **is** the incumbent, member for member, so the proportion
+argument the scalar pair carries in `proposer.md` §2.2 stands wherever the pool is
+deep — and the pool is deep on 51.7 % of Briefs. Only where the incumbent would
+otherwise hand back fewer than `m` candidates does the sound bound fill the draw.
+The replacement wins the same served rate by discarding that argument everywhere.
+
+⚠️ **Trap: `gate_effect.py`'s per-Brief draw was never reproducible.** It seeded
+with `hash(brief["k"])`, and `hash` on `str` is salted per process unless
+`PYTHONHASHSEED` is set, so every run drew a **different** sample and the
+README's "seed 20260819 throughout" never held for it. The Brief *sample* was
+always fine; the per-Brief *candidate* draw was not. Fixed to `zlib.crc32`, the
+same fix and reason as `experiments/solver-toy/probe6.py`. **`out/gate_effect_briefs.json`
+is one unreproducible draw and ADR 0032 rests on it**; its run-to-run variance has
+never been measured.
+
+⚠️ **Trap: the incumbent is evaluated on ROUNDED terms in the existing rig.**
+`gate_effect.term_distances` rounds to 4 dp before storing and
+`stretch_terms.incumbent` compares the rounded value to 1.0, so a donor at
+`d_aspect = 1.0000164` passes `incumbent()` while `gated_pool` refuses it.
+Contamination measured at **1 candidate in 7 827, 1 Brief in 115** — immaterial
+there, and `gate_depth.py` compares unrounded.
+
+⚠️ **Trap: this run is resumable and the sweep must be run with `python -u`.**
+The first attempt was killed at ~31 % after 58 minutes and left **nothing** —
+results were in memory and stdout was block buffered, so a 0-byte log. Every warp
+is now appended to `out/gate_depth_warps.jsonl` and flushed as it lands; a re-run
+skips what the file holds, and a Brief whose draws are not all present is dropped
+from the analysis rather than crashing it. Do not pipe the sweep through `tail`:
+the pipe re-buffers what `-u` unbuffered.
+
+⚠️ **Trap: CP-SAT at a time cap is NOT deterministic, and this is the noise floor
+for every timed figure in this directory.** Two sweeps ran concurrently by
+accident and warped 1 489 of the same `(brief, donor)` pairs twice, with the same
+seed, the same targets and the same `--time=3.0`. Status agreed every time, but
+**2.82 % disagreed on `served`** and **14.71 % on `dev`** — the solver returns
+whatever it reached when the cap fired, and under different CPU load that is a
+different solution. Consequences: a `last wins` dedupe made the same analysis move
+between two reads of one file (`req ≤ 1` p90 0.1196 → 0.1217), so
+`gate_depth.py` now keeps the **first** occurrence per key; and **no difference of
+a few tenths of a point on `served` is real** in any of these rigs unless it is
+reproduced. The 14.9-point and 31.0-point gaps above are far outside it; the
+0.3-point gap between the replacement and the depth-conditional arm is far inside.
+
+### The second seed, and what it does and does not settle
+
+ADR 0032 rests on a draw nobody can reproduce, which is precisely the reason not
+to overturn it on one sample. Repeated at **seed 20260830**, `n = 200` (194
+Briefs with a non-empty bucket, 2 587 warps), against seed 20260819's 288:
+
+| | incumbent | `req ≤ 1` | join | **depth-conditional** |
+|---|---:|---:|---:|---:|
+| served, seed 1 | 83.0 % | 97.9 % | 83.0 % | 97.6 % |
+| served, seed 2 | 79.9 % | 99.0 % | 79.9 % | 98.5 % |
+| **thin** p90, seed 1 | 0.2124 | 0.1820 | 0.2124 | **0.1554** |
+| **thin** p90, seed 2 | 0.1922 | 0.1922 | 0.1922 | **0.1369** |
+| **deep** p90, seed 1 | 0.0673 | 0.0744 | 0.0671 | 0.0673 |
+| **deep** p90, seed 2 | 0.0646 | 0.0797 | 0.0646 | 0.0646 |
+
+**Every qualitative claim survives.** The incumbent and the join collapse together
+at realised depth and are indistinguishable from each other on both seeds; the
+replacement's gain is concentrated in the thin half and is ~1 point in the deep
+half; in the deep half the incumbent keeps the better p90 (0.0646 against 0.0797);
+and the depth-conditional arm holds the best thin-half p90 on both seeds while
+being, by construction, exactly the incumbent in the deep half.
+
+⚠️ **Seed 2 strengthens the fifth arm specifically.** In the thin half the
+replacement buys **nothing** on p90 there — 0.1922, identical to the incumbent —
+while the depth-conditional arm reaches **0.1369**. So the replacement's whole
+thin-half advantage on seed 2 is served rate, not tail quality, and the fifth arm
+takes both.
+
+⚠️ **What the two seeds do NOT settle: the pooled p90 between the replacement and
+the fifth arm, which changes sign.** Seed 1 has the replacement ahead
+(0.1196 against 0.1234); seed 2 has the fifth arm ahead (0.1179 against 0.1096).
+That comparison is a mix effect over differently-served Brief sets and it is not
+resolvable at this sample size — do not quote it in either direction. The
+per-half comparison is stable across both seeds and is the one to quote.
+
+### Why ADR 0032's m = 3 absolutes are so far from these, and what it is NOT
+
+The published m = 3 row is 88.1 % served / p90 0.2303; the same rule here is
+95.1 % / 0.1515. Seven points and ~52 % is far too large to be the lost sample,
+and the obvious suspect is ADR 0037 — it moved **43,24 % of rooms by a mean
++0,561 m²** and raised 59 dwellings' living floor, a systematic shift that would
+move absolutes while preserving ordering. **It is not that.** Two things rule it
+out.
+
+**The draw semantics account for most of the gap on their own.** 4e draws `m`
+**with replacement** from the warped rows, so at `m = 3` over 3 distinct rows it
+is best-of-`3·(1−(2/3)³)` = **best-of-2.11**, not best-of-3. Re-scoring *this*
+data under 4e's urn and changing nothing else:
+
+| rule | best-of-3, no replacement | **best-of-3, WITH replacement** | ADR 0032 |
+|---|---:|---:|---:|
+| incumbent | 95.1 % / 0.1515 | **89.7 % / 0.2061** | 88.1 % / 0.2303 |
+| both (join) | 97.1 % / 0.1526 | **92.2 % / 0.2061** | 89.4 % / 0.2294 |
+| `req ≤ 1` alone | 94.6 % / 0.1998 | **88.2 % / 0.2414** | 89.4 % / 0.2543 |
+| `logd` + `req` | 96.6 % / 0.1846 | **91.7 % / 0.2216** | 89.1 % / 0.2333 |
+
+That is **77 % of the served gap and 69 % of the p90 gap** from the estimator
+alone. ⚠️ **4e's `m` is not the engine's `m`** — a rig quoting best-of-*m* with
+replacement is quoting a shallower draw than the name says, and the shortfall
+grows with `m`. This is a second, independent reason the existing `m = 8` block
+was never quotable.
+
+**The residual is not consistently signed, which is what rules 0037 out.** After
+the estimator is matched, three rules sit *above* ADR 0032 (+1.6, +2.8, +2.6
+points) and `req ≤ 1` sits **1.2 points below** it. A systematic target shift
+signs its residuals alike; sampling and the 2.82 % solver floor do not. And the
+direction is wrong anyway: 0037 **raised** a floor on 59 dwellings, which makes
+`served` harder, so its effect runs opposite to the observed gap.
+
+⚠️ **So the market arm's "before" side is NOT visible here and the debt is not
+even partly discharged.** The gap is an estimator artefact plus noise, and it
+carries no usable information about what 0037 moved. **62 and 67 still owe it.**
