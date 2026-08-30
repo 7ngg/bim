@@ -120,7 +120,8 @@ def programmes(u: int) -> dict[str, tuple[int, int, str]]:
     }
 
 
-# (is_habitable, is_wet, is_private, needs_window). Definitions, not
+# (is_habitable, is_wet, is_private, needs_window, is_sleeping,
+# is_circulation). Definitions, not
 # measurements -- see flag_semantics. needs_window follows is_habitable except
 # for kitchen, which needs one WITHOUT being habitable: AzDTN 2.7-2 cl. 9.12 is
 # `verified` and mandatory for living rooms AND kitchens, so the shipping region
@@ -136,25 +137,26 @@ def programmes(u: int) -> dict[str, tuple[int, int, str]]:
 # depend on it: win.habitable_has_window's 43.3 % corpus cost, the retirement of
 # win.kitchen_windowless as unreachable, and the Envelope frontage budget.
 FLAGS = {
-    "living":                (True,  False, False, True),
-    "dining":                (True,  False, False, True),
-    "living_dining":         (True,  False, False, True),
-    "kitchen":               (False, True,  False, True),
-    "kitchen_dining":        (True,  True,  False, True),
-    "living_dining_kitchen": (True,  True,  False, True),
-    "bedroom_principal":     (True,  False, True,  True),
-    "bedroom_double":        (True,  False, True,  True),
-    "bedroom_single":        (True,  False, True,  True),
-    "study":                 (True,  False, True,  True),
-    "bathroom":              (False, True,  True,  False),
-    "bathroom_combined":     (False, True,  True,  False),
-    "shower_room":           (False, True,  True,  False),
-    "wc":                    (False, True,  True,  False),
-    "utility":               (False, True,  False, False),
-    "hall":                  (False, False, False, False),
-    "entrance_lobby":        (False, False, False, False),
-    "corridor":              (False, False, False, False),
-    "storage":               (False, False, False, False),
+    #                         hab    wet    priv   win    sleep  circ
+    "living":                (True,  False, False, True,  False, False),
+    "dining":                (True,  False, False, True,  False, False),
+    "living_dining":         (True,  False, False, True,  False, False),
+    "kitchen":               (False, True,  False, True,  False, False),
+    "kitchen_dining":        (True,  True,  False, True,  False, False),
+    "living_dining_kitchen": (True,  True,  False, True,  False, False),
+    "bedroom_principal":     (True,  False, True,  True,  True,  False),
+    "bedroom_double":        (True,  False, True,  True,  True,  False),
+    "bedroom_single":        (True,  False, True,  True,  True,  False),
+    "study":                 (True,  False, True,  True,  True,  False),
+    "bathroom":              (False, True,  True,  False, False, False),
+    "bathroom_combined":     (False, True,  True,  False, False, False),
+    "shower_room":           (False, True,  True,  False, False, False),
+    "wc":                    (False, True,  True,  False, False, False),
+    "utility":               (False, True,  False, False, False, False),
+    "hall":                  (False, False, False, False, False, True),
+    "entrance_lobby":        (False, False, False, False, False, True),
+    "corridor":              (False, False, False, False, False, True),
+    "storage":               (False, False, False, False, False, False),
 }
 
 # Fields a LATER ticket owns but a NEWLY ADDED room type has no prior row to
@@ -250,7 +252,8 @@ def main() -> None:
                     "validated_against_corpus"}
     AUTHORED_ROOM = {"min_clear_short", "min_clear_long", "min_area",
                      "packings_mm", "packings_note", "is_habitable", "is_wet",
-                     "is_private", "needs_window"}
+                     "is_private", "needs_window", "is_sleeping",
+                     "is_circulation"}
     carried_top = {k: v for k, v in prior.items() if k not in AUTHORED_TOP}
     carried_room = {r: {k: v for k, v in row.items() if k not in AUTHORED_ROOM}
                     for r, row in prior_rooms.items()}
@@ -351,12 +354,14 @@ def main() -> None:
                 "is_wet": FLAGS[k][1],
                 "is_private": FLAGS[k][2],
                 "needs_window": FLAGS[k][3],
+                "is_sleeping": FLAGS[k][4],
+                "is_circulation": FLAGS[k][5],
                 **carried_room.get(k, {}),
                 **NEW_ROOM_FIELDS.get(k, {}),
             } for k, v in rooms.items()
         },
         "flags_note": (
-            "The four booleans are DEFINITIONS, stated operationally in "
+            "The six booleans are DEFINITIONS, stated operationally in "
             "flag_semantics, and no reference work supplies them. They are "
             "published here per room type because data/acceptance/rules.json "
             "consumes them -- circ.no_private_transit, win.habitable_has_window, "
@@ -369,7 +374,31 @@ def main() -> None:
             "nursery, as one class' and the Proposer spec collapses {ROOM, "
             "BEDROOM, STUDIO} to PRIVATE on the same reasoning. A study that is a "
             "thoroughfare to another room is not a study. Set true here; section 8 "
-            "predates the glossary entry."),
+            "predates the glossary entry."
+            "  ||  is_sleeping AND is_circulation ARE THE FIFTH AND SIXTH, and "
+            "they are authored HERE rather than hand-edited into the JSON so a "
+            "re-run cannot revert them the way kitchen.needs_window reverted. "
+            "is_sleeping is CONTEXT.md's Sleeping room -- the node set "
+            "zone.sleeping_group_count, zone.no_social_transit and "
+            "zone.facade_to_living are computed over, and which four of "
+            "proposer.md section 6.1's five plan-quality terms read. It may NOT "
+            "be folded into is_private, which is true on the wet types too; that "
+            "is the whole of zoning.md D2. It IS, today, exactly "
+            "is_habitable AND is_private, and gate_check.py asserts that "
+            "AGREEMENT rather than deriving from it -- the flag is a definition "
+            "and the conjunction is a coincidence of the current type set. A "
+            "habitable private room that is not for sleeping (a library, a "
+            "non-sleeping home office) breaks the identity, and the gate is "
+            "where that gets decided rather than silently rezoned. "
+            "  ||  is_circulation is the ONE bit the other five cannot supply. "
+            "Measured: `hall` and `storage` carry IDENTICAL vectors over "
+            "(is_habitable, is_wet, is_private, needs_window, counts_as_otaq, "
+            "brief_nameable) and must land in different classes, so no "
+            "precedence over those six separates them -- which is why "
+            "experiments/zoning/measure_zoning.py held a private label table at "
+            "all. It is also exactly the three-name literal list in the owed "
+            "rule entry.opens_onto_circulation (hall, entrance_lobby, "
+            "corridor), which reads the flag instead now."),
         "corpus_label_split": {
             "comment": ("*What the model proposes* handed this ticket the "
                         "BATHROOM split, on the reasoning that the threshold is "

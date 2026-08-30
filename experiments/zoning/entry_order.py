@@ -27,8 +27,8 @@ from pathlib import Path
 
 OUT = Path(__file__).resolve().parent / "out"
 
-OTAQ = {"private", "social"}
-HABITABLE = {"private", "social", "kitchen"}
+OTAQ = {"sleeping", "social"}
+HABITABLE = {"sleeping", "social", "kitchen"}
 
 
 def load():
@@ -47,7 +47,7 @@ def rules(rec):
     ec = rec["entry_class"]
 
     md_soc = _min_dist(rec, {"social"})
-    md_pri = _min_dist(rec, {"private"})
+    md_sleep = _min_dist(rec, {"sleeping"})
     md_cir = _min_dist(rec, {"circ"})
 
     r = {
@@ -59,16 +59,16 @@ def rules(rec):
         "R1h no habitable at hop 1": not (hop1 & HABITABLE),
         "R2  every otaq at hop >= 2": not (hop01 & OTAQ),
         "R2h every habitable at hop >= 2": not (hop01 & HABITABLE),
-        "R5  every private room at hop >= 2": not (hop01 & {"private"}),
+        "R5  every sleeping room at hop >= 2": not (hop01 & {"sleeping"}),
 
         # genuine orders -- these are the ones that need d_r
         "R3  circulation strictly nearer than any social room":
             (md_cir is not None and md_soc is not None and md_cir < md_soc),
-        "R4  nearest private no nearer than nearest social":
-            (md_pri is not None and md_soc is not None and md_pri >= md_soc),
-        "R6  strict entry < social < private":
-            (md_cir is not None and md_soc is not None and md_pri is not None
-             and md_cir < md_soc < md_pri),
+        "R4  nearest sleeping no nearer than nearest social":
+            (md_sleep is not None and md_soc is not None and md_sleep >= md_soc),
+        "R6  strict entry < social < sleeping":
+            (md_cir is not None and md_soc is not None and md_sleep is not None
+             and md_cir < md_soc < md_sleep),
     }
     return r
 
@@ -91,14 +91,14 @@ def main():
                 hits[k] += 1
                 by_n[n][k] += 1
         for k in ("R3  circulation strictly nearer than any social room",
-                  "R4  nearest private no nearer than nearest social",
-                  "R6  strict entry < social < private"):
+                  "R4  nearest sleeping no nearer than nearest social",
+                  "R6  strict entry < social < sleeping"):
             need = {"R3": ({"circ"}, {"social"}),
-                    "R4": ({"private"}, {"social"}),
+                    "R4": ({"sleeping"}, {"social"}),
                     "R6": ({"circ"}, {"social"})}[k[:2]]
             ok = all(_min_dist(rec, s) is not None for s in need)
             if k.startswith("R6"):
-                ok = ok and _min_dist(rec, {"private"}) is not None
+                ok = ok and _min_dist(rec, {"sleeping"}) is not None
             if ok:
                 appl[k] += 1
 
@@ -123,8 +123,8 @@ def main():
     print()
     print("conditional rate on the applicable population:")
     for rec_name, key in (("R3", "R3  circulation strictly nearer than any social room"),
-                          ("R4", "R4  nearest private no nearer than nearest social"),
-                          ("R6", "R6  strict entry < social < private")):
+                          ("R4", "R4  nearest sleeping no nearer than nearest social"),
+                          ("R6", "R6  strict entry < social < sleeping")):
         a = appl[key]
         if a:
             print("  {:<50} {:>7.1f}%".format(key, 100.0 * hits[key] / a))

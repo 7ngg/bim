@@ -52,27 +52,27 @@ for k, v in at1.most_common():
 print()
 
 print("=" * 72)
-print("C. R4 (nearest private >= nearest social) -- how soft is the breach?")
+print("C. R4 (nearest sleeping >= nearest social) -- how soft is the breach?")
 print("=" * 72)
 gap = Counter()
 appl = 0
 for r in recs:
-    p, s = md(r, {"private"}), md(r, {"social"})
+    p, s = md(r, {"sleeping"}), md(r, {"social"})
     if p is None or s is None:
         continue
     appl += 1
     gap[p - s] += 1
 print("applicable: {} dwellings".format(appl))
-print("  d(nearest private) - d(nearest social):")
+print("  d(nearest sleeping) - d(nearest social):")
 for k in sorted(gap):
     tag = "  <- VIOLATION" if k < 0 else ("  <- tie" if k == 0 else "")
     print("   {:>+3}: {:>5}  {:>5.1f}%{}".format(k, gap[k], 100.0 * gap[k] / appl, tag))
 viol = sum(v for k, v in gap.items() if k < 0)
 strict = sum(v for k, v in gap.items() if k > 0)
 print()
-print("  strict (private FURTHER):  {:>5}  {:.1f}%".format(strict, 100.0 * strict / appl))
+print("  strict (sleeping FURTHER):  {:>5}  {:.1f}%".format(strict, 100.0 * strict / appl))
 print("  tie:                       {:>5}  {:.1f}%".format(gap[0], 100.0 * gap[0] / appl))
-print("  violation (private NEARER): {:>4}  {:.1f}%  = 1 in {:.1f}".format(
+print("  violation (sleeping NEARER): {:>4}  {:.1f}%  = 1 in {:.1f}".format(
     viol, 100.0 * viol / appl, appl / viol))
 print()
 print("  every violation is by exactly one hop: {}".format(

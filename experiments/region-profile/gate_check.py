@@ -24,6 +24,19 @@ import sys
 
 GRID = 250
 PROFILE = "AZ"
+
+# THE RATCHET.  `all N gates pass` is true of a file with every gate deleted, so
+# the count is asserted rather than printed.  It lives HERE, next to the runner,
+# because the number was previously carried in prose -- map C15, three ADRs and
+# two tickets -- and went 146 behind (238 against 384) across four tickets that
+# each moved it and none of which updated C15.  A count four documents have to
+# remember is a count that goes stale; a count the runner asserts cannot.
+#
+# RAISE IT when you add gates.  Lowering it is a deliberate act and needs a line
+# saying which gates went and why -- ADR 0036 removed three guard entries and
+# took the total 238 -> 235 without losing a named gate, which is the shape of a
+# legitimate decrease.
+GATE_FLOOR = 446
 DATA = pathlib.Path(__file__).resolve().parents[2] / "data/standards/room-constraints.json"
 
 fails, notes = [], []
@@ -369,6 +382,117 @@ def resolver_gates(doc, check):
               f"re-copied: {sorted(set(hits))} -- read it from profile_read instead")
 
 
+# Ticket 80 -- the sleeping flag lands, and the one bit the others cannot supply.
+#
+# SLEEPING is zoning.md D2's node set and CONTEXT.md's Sleeping room; four of
+# proposer.md section 6.1's five plan-quality terms and four of the five owed
+# zone.* rules read it.  CIRCULATION exists because MEASUREMENT said it had to:
+# `hall` and `storage` carry identical vectors over the six older flags and must
+# land in different classes, so no precedence over those six separates them.
+# That collision is why experiments/zoning/measure_zoning.py held a private
+# corpus-label table, and Z9 below is the gate that stops the bit being
+# "simplified" back out.
+SLEEPING = {"bedroom_principal", "bedroom_double", "bedroom_single", "study"}
+CIRCULATION = {"hall", "entrance_lobby", "corridor"}
+# zoning.md section 5b says three.  It predates ADR 0022's nineteenth type.
+PRIVATE_NOT_SLEEPING = {"bathroom", "bathroom_combined", "shower_room", "wc"}
+OLD_FLAGS = ("is_habitable", "is_wet", "is_private", "needs_window",
+             "counts_as_otaq", "brief_nameable")
+
+
+def zoning_gates(doc, check):
+    """Ticket 80 -- is_sleeping and is_circulation, and the identity that is NOT
+    a derivation.
+
+    Z5 is the load-bearing one and it is an AGREEMENT gate, the mirror of V6's
+    divergence gate.  is_sleeping is exactly `is_habitable AND is_private` over
+    the nineteen types that ship, and the flag is published anyway because
+    flag_semantics calls these DEFINITIONS: the conjunction is a property of
+    today's type set, not the meaning of the word.  A habitable private room
+    that is not for sleeping -- a library, a home office that is not a study --
+    breaks it, and this gate is where that gets decided rather than silently
+    rezoning every plan.
+    """
+    rooms = doc["ergonomic"]["rooms"]
+
+    # -- Z1/Z2  both flags present and boolean on every type ------------------
+    for k, node in rooms.items():
+        check(isinstance(node.get("is_sleeping"), bool),
+              f"T80 {k}.is_sleeping present and boolean")
+        check(isinstance(node.get("is_circulation"), bool),
+              f"T80 {k}.is_circulation present and boolean")
+
+    sleep = {k for k, n in rooms.items() if n.get("is_sleeping") is True}
+    circ = {k for k, n in rooms.items() if n.get("is_circulation") is True}
+
+    def flag(k, f):
+        v = rooms[k][f]
+        return bool(v["v"] if isinstance(v, dict) else v)
+
+    # -- Z3/Z4  the two sets are exactly what CONTEXT.md and zoning.md name ---
+    check(sleep == SLEEPING, "T80 is_sleeping is exactly the four sleeping types",
+          f"got {sorted(sleep)}")
+    check(circ == CIRCULATION,
+          "T80 is_circulation is exactly hall, entrance_lobby, corridor",
+          f"got {sorted(circ)}")
+
+    # -- Z5  AGREEMENT, not derivation ---------------------------------------
+    conj = {k for k in rooms if flag(k, "is_habitable") and flag(k, "is_private")}
+    check(sleep == conj,
+          "T80 is_sleeping AGREES with is_habitable AND is_private -- break this "
+          "deliberately, never silently",
+          f"sleeping-not-conjunction {sorted(sleep - conj)}, "
+          f"conjunction-not-sleeping {sorted(conj - sleep)}")
+
+    # -- Z6  the divergence from is_private is FOUR types, not section 5b's 3 -
+    priv = {k for k in rooms if flag(k, "is_private")}
+    check(priv - sleep == PRIVATE_NOT_SLEEPING,
+          "T80 is_private diverges from is_sleeping on exactly the four wet "
+          "private types (zoning.md 5b says three; it predates ADR 0022)",
+          f"diverging: {sorted(priv - sleep)}")
+
+    # -- Z7  a room is not both, and no sleeping room is wet (zoning.md D2) ---
+    check(not (sleep & circ), "T80 no type is both sleeping and circulation",
+          f"both: {sorted(sleep & circ)}")
+    wet_sleep = {k for k in sleep if flag(k, "is_wet")}
+    check(not wet_sleep,
+          "T80 no sleeping type is wet -- the whole of zoning.md D2",
+          f"wet and sleeping: {sorted(wet_sleep)}")
+
+    # -- Z8  invariants a rule may rely on ------------------------------------
+    for k in sorted(sleep):
+        check(flag(k, "counts_as_otaq") and flag(k, "needs_window"),
+              f"T80 {k} counts as otaq and needs a window")
+    for k in sorted(circ):
+        check(not flag(k, "is_habitable") and not flag(k, "counts_as_otaq"),
+              f"T80 {k} is neither habitable nor an otaq")
+
+    # -- Z9  is_circulation is LOAD-BEARING, and this is the proof ------------
+    # If a later ticket "simplifies" the flag away, hall and storage merge and
+    # the private table comes back.  Assert the collision exists and that only
+    # the new bit resolves it.
+    def vec(k):
+        return tuple(flag(k, f) for f in OLD_FLAGS)
+    check(vec("hall") == vec("storage"),
+          "T80 hall and storage are IDENTICAL over the six older flags -- the "
+          "measurement that made is_circulation necessary")
+    check(flag("hall", "is_circulation") is not flag("storage", "is_circulation"),
+          "T80 is_circulation is the only bit separating hall from storage")
+
+    # -- Z10  no two types sharing an old-flag vector disagree on the new bits -
+    # (i.e. the derived class partition is well defined on every collision set)
+    groups = {}
+    for k in rooms:
+        groups.setdefault(vec(k), []).append(k)
+    for v, ks in sorted(groups.items()):
+        if len(ks) < 2:
+            continue
+        new = {(k in sleep, k in circ) for k in ks}
+        check(len(new) == 1 or sorted(ks) == sorted(["hall", "storage"]),
+              f"T80 collision set {sorted(ks)} is resolved by the new flags or "
+              f"is the documented hall/storage split")
+
+
 def main():
     doc = json.loads(DATA.read_text(encoding="utf-8"))
     az = doc["profiles"][PROFILE]
@@ -541,12 +665,21 @@ def main():
     bridge_gates(doc, check)
     referent_gates(doc, check)
     resolver_gates(doc, check)
+    zoning_gates(doc, check)
 
     if fails:
         print("\n".join(fails))
         print(f"\n{len(fails)} gate failure(s)")
         return 1
-    print(f"all {len(notes)} gates pass")
+    if len(notes) < GATE_FLOOR:
+        print(f"all {len(notes)} gates pass -- but GATE_FLOOR is {GATE_FLOOR}.")
+        print(f"  {GATE_FLOOR - len(notes)} gate(s) have gone missing since the "
+              f"floor was last set. `all N pass` is true of an empty file; that "
+              f"is what this ratchet exists to catch.")
+        print("  If the removal was deliberate, lower GATE_FLOOR and say which "
+              "gates went and why.")
+        return 1
+    print(f"all {len(notes)} gates pass  (floor {GATE_FLOOR})")
     return 0
 
 

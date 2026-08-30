@@ -28,10 +28,12 @@
     }
   },
   "flag_semantics": {
-    "comment": "These six booleans are consumed by the acceptance validator (ticket 07) and the brief defaulting rules (ticket 10). They are DEFINITIONS, not measurements — no reference work supplies them as such. Getting them wrong silently breaks predicates, so each is defined operationally here.",
+    "comment": "These EIGHT booleans are consumed by the acceptance validator (ticket 07) and the brief defaulting rules (ticket 10). They are DEFINITIONS, not measurements -- no reference work supplies them as such. Getting them wrong silently breaks predicates, so each is defined operationally here. is_sleeping and is_circulation were added by *Land the sleeping flag and retire the private corpus-label copies*; six is what this comment said while the file carried six, and the count is stated here rather than in prose elsewhere for the reason gate_check.py's own total now ratchets.",
     "is_habitable": "A room intended for sustained occupation: sleeping, living, dining, working. Drives the window requirement and the exterior-wall requirement (C6 item 4). NOT the same as any national legal definition of 'habitable room' — see the findings doc, section on the kitchen disagreement.",
     "is_wet": "A room containing a plumbed fixture (WC, basin, bath, shower, sink, washing machine). Drives wet-room clustering (C6 item 5).",
     "is_private": "A room that must not lie on the circulation path to any other room. Drives the reachability predicate (C6 item 1): the entry-to-room graph may not route through a room where is_private is true. CORROBORATED, NOT SOURCED, FOR BEDROOMS: AzDTN 2.7-2 cl. 5.9 makes this statutory in AZ -- «Mənzillərdə yataq otaqları digər otağa keçid kimi layihələndirilməməlidir» (bedrooms shall not be designed as a passage to another room), register -məlidir = məcburi. The flag stays region-invariant and engine-defined per C14; this records only that one shipping region independently makes it law. A profile may never move it, because a profile can never change which Plans are rejected. Recorded by ticket 31, which found the clause while harvesting room names.",
+    "is_sleeping": "A room for sleeping: a bedroom or a study, as one class. CONTEXT.md's Sleeping room. It is the node set Sleeping group is computed over (zone.sleeping_group_count, zone.prefer_one_sleeping_group), the set zone.no_social_transit protects and zone.facade_to_living excludes, and the set four of proposer.md section 6.1's five plan-quality terms read. IT MAY NOT BE FOLDED INTO is_private, which is true on the wet types as well -- a rule reaching for `the bedrooms` and finding is_private silently acquires the bathrooms, which is the whole of zoning.md D2. THE DIVERGENCE IS FOUR TYPES, NOT THREE: bathroom, bathroom_combined, shower_room, wc. zoning.md section 5b specifies three because bathroom_combined did not exist when it was written (ADR 0022 added the nineteenth type afterwards); gate_check.py asserts the four. It is TODAY exactly is_habitable AND is_private, and that is gated as an AGREEMENT rather than used as a derivation: the flag is a definition and the conjunction is a property of the current type set. A habitable private room that is not for sleeping -- a library, a home office that is not a study -- breaks the identity, and the gate is where that is decided.",
+    "is_circulation": "A room whose purpose is movement between other rooms: hall, entrance_lobby, corridor. It is the one distinction the other flags cannot supply. MEASURED: `hall` and `storage` carry identical vectors over is_habitable, is_wet, is_private, needs_window, counts_as_otaq and brief_nameable, and belong in different classes, so no precedence over those six separates them -- which is why experiments/zoning/measure_zoning.py carried a private corpus-label table at all, and why retiring that table needed a new bit rather than a cleverer rule. It is also exactly the three-name literal list in the owed rule entry.opens_onto_circulation, which reads this flag instead of naming the types. NOT the same as `not habitable and not wet`: storage satisfies that and is not circulation. NOT the same as circ.fraction_hard's subject either -- that rule bounds circulation AREA and this flag names the TYPES; they agree today and are separate statements.",
     "needs_window": "The room must have at least one window on an exterior wall. Set true wherever is_habitable is true. This is an ENGINE DECISION, not a universal rule — England's Building Regulations impose no daylight requirement at all (see findings). We impose one because a Homeowner judges by 'would I live here'.",
     "counts_as_otaq": "Whether a Room of this type contributes 1 to the otaq count -- the unit C13's PRODUCT PROMISE is stated in, and the number a Baku listing prints. NOT is_habitable, and the two are deliberately separate fields: is_habitable drives the window and exterior-wall requirement (C6 item 4), counts_as_otaq drives what the copy claims. They agree on seventeen of eighteen types and disagree on `kitchen_dining`. Sourced where AzDTN 2.7-2 cl. 5.5 enumerates yaşayış otaqları and cl. 5.2 enumerates yardımçı sahələr; derived only where a type falls under cl. 5.5's unqualified `otaq`. See [[Otaq]] in CONTEXT.md, and ADR 0013, which asked for a flag named `habitable` -- renamed here because a field called `habitable` sitting beside `is_habitable` and meaning something else is a defect, not a schema.",
     "brief_nameable": "Whether a Homeowner may name this room type in a Brief. False only for types `resolve` invents. Requested by docs/spec/brief.md section 3, which gives the Brief the ergonomic key set verbatim and names this flag as the exception mechanism; the JSON Schema generator (brief.md section 10) reads it.",
@@ -2222,6 +2224,8 @@
         "is_wet": false,
         "is_private": false,
         "needs_window": true,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       },
@@ -2251,6 +2255,8 @@
         "is_wet": false,
         "is_private": false,
         "needs_window": true,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       },
@@ -2280,6 +2286,8 @@
         "is_wet": true,
         "is_private": false,
         "needs_window": true,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2309,6 +2317,8 @@
         "is_wet": false,
         "is_private": true,
         "needs_window": true,
+        "is_sleeping": true,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       },
@@ -2338,6 +2348,8 @@
         "is_wet": false,
         "is_private": true,
         "needs_window": true,
+        "is_sleeping": true,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       },
@@ -2367,6 +2379,8 @@
         "is_wet": false,
         "is_private": true,
         "needs_window": true,
+        "is_sleeping": true,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       },
@@ -2396,6 +2410,8 @@
         "is_wet": false,
         "is_private": true,
         "needs_window": true,
+        "is_sleeping": true,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       },
@@ -2425,6 +2441,8 @@
         "is_wet": true,
         "is_private": true,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2454,6 +2472,8 @@
         "is_wet": true,
         "is_private": true,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true,
         "reachable_in_v1": {
@@ -2487,6 +2507,8 @@
         "is_wet": true,
         "is_private": true,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2516,6 +2538,8 @@
         "is_wet": true,
         "is_private": true,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2545,6 +2569,8 @@
         "is_wet": true,
         "is_private": false,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2574,6 +2600,8 @@
         "is_wet": false,
         "is_private": false,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": true,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2603,6 +2631,8 @@
         "is_wet": false,
         "is_private": false,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": true,
         "counts_as_otaq": false,
         "brief_nameable": false,
         "reachable_in_v1": false
@@ -2633,6 +2663,8 @@
         "is_wet": false,
         "is_private": false,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": true,
         "counts_as_otaq": false,
         "brief_nameable": false,
         "reachable_in_v1": false
@@ -2663,6 +2695,8 @@
         "is_wet": false,
         "is_private": false,
         "needs_window": false,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2703,6 +2737,8 @@
         "is_wet": false,
         "is_private": false,
         "needs_window": true,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       },
@@ -2747,6 +2783,8 @@
         "is_wet": true,
         "is_private": false,
         "needs_window": true,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": false,
         "brief_nameable": true
       },
@@ -2791,11 +2829,13 @@
         "is_wet": true,
         "is_private": false,
         "needs_window": true,
+        "is_sleeping": false,
+        "is_circulation": false,
         "counts_as_otaq": true,
         "brief_nameable": true
       }
     },
-    "flags_note": "The four booleans are DEFINITIONS, stated operationally in flag_semantics, and no reference work supplies them. They are published here per room type because data/acceptance/rules.json consumes them -- circ.no_private_transit, win.habitable_has_window, win.exterior_wall and wet.plumbing_group_count all read one -- and before this they existed only as prose in findings section 8. A flag the registry cannot read is a predicate that silently does not fire, which is the same failure as a missing minimum. ONE CORRECTION to findings section 8: it sets study is_private false, while CONTEXT.md defines the Private room class as 'a Brief's bedroom, study or nursery, as one class' and the Proposer spec collapses {ROOM, BEDROOM, STUDIO} to PRIVATE on the same reasoning. A study that is a thoroughfare to another room is not a study. Set true here; section 8 predates the glossary entry.",
+    "flags_note": "The six booleans are DEFINITIONS, stated operationally in flag_semantics, and no reference work supplies them. They are published here per room type because data/acceptance/rules.json consumes them -- circ.no_private_transit, win.habitable_has_window, win.exterior_wall and wet.plumbing_group_count all read one -- and before this they existed only as prose in findings section 8. A flag the registry cannot read is a predicate that silently does not fire, which is the same failure as a missing minimum. ONE CORRECTION to findings section 8: it sets study is_private false, while CONTEXT.md defines the Private room class as 'a Brief's bedroom, study or nursery, as one class' and the Proposer spec collapses {ROOM, BEDROOM, STUDIO} to PRIVATE on the same reasoning. A study that is a thoroughfare to another room is not a study. Set true here; section 8 predates the glossary entry.  ||  is_sleeping AND is_circulation ARE THE FIFTH AND SIXTH, and they are authored HERE rather than hand-edited into the JSON so a re-run cannot revert them the way kitchen.needs_window reverted. is_sleeping is CONTEXT.md's Sleeping room -- the node set zone.sleeping_group_count, zone.no_social_transit and zone.facade_to_living are computed over, and which four of proposer.md section 6.1's five plan-quality terms read. It may NOT be folded into is_private, which is true on the wet types too; that is the whole of zoning.md D2. It IS, today, exactly is_habitable AND is_private, and gate_check.py asserts that AGREEMENT rather than deriving from it -- the flag is a definition and the conjunction is a coincidence of the current type set. A habitable private room that is not for sleeping (a library, a non-sleeping home office) breaks the identity, and the gate is where that gets decided rather than silently rezoned.   ||  is_circulation is the ONE bit the other five cannot supply. Measured: `hall` and `storage` carry IDENTICAL vectors over (is_habitable, is_wet, is_private, needs_window, counts_as_otaq, brief_nameable) and must land in different classes, so no precedence over those six separates them -- which is why experiments/zoning/measure_zoning.py held a private label table at all. It is also exactly the three-name literal list in the owed rule entry.opens_onto_circulation (hall, entrance_lobby, corridor), which reads the flag instead now.",
     "corpus_label_split": {
       "comment": "*What the model proposes* handed this ticket the BATHROOM split, on the reasoning that the threshold is the boundary between two rooms' minima and so falls out of this table. MEASURED, THAT IS WRONG. Two floors are both floors: wc is 0.8 m2 and shower_room 1.4 m2, and a threshold there misclassifies 19% of the corpus. The classes differ in their DISTRIBUTIONS, not their minima -- real WCs sit at a median 1.85 m2 and real bathrooms at 4.17 -- so the splitter has to be fitted, and it is fitted against fixture ground truth rather than invented: Swiss Dwellings carries BATHTUB, SHOWER and TOILET features, so which rooms really are bathrooms is known.",
       "label": "BATHROOM",
@@ -2813,6 +2853,27 @@
         "measured": "At 2.4 m2, 1.5% of real bathrooms are called wc and 4.4% of real WCs are called bathroom. It prefers to over-assign to `bathroom`, by about three to one.",
         "why_that_direction_is_tolerable": "An over-large wc wastes floor and breaks nothing. A bathroom that is really a WC arrives with too little room for a bath -- but it is still a real, built Swiss room and still clears the bathroom floor of 1.7 m2, so it produces a small bathroom, not an invalid Plan. Neither error moves a published minimum, because no minimum here is fitted to the corpus."
       }
+    },
+    "validated_against_corpus": {
+      "comment": "*Rectangularising real rooms* set the principle: every corpus dwelling is a real, built, QA'd home, so a hard rule that rejects them measures what our model cannot express. A derived floor is therefore not self-justifying and every value above was checked against Swiss Dwellings. The low tail is REAL, not annotation debris: 0% of wc rooms fail to hold a pan, 0.8% of bathroom rooms fail to hold a 1700 mm bath.",
+      "harness": "experiments/region-profile/ergonomic_floor_probe.py",
+      "reject_rate_of_the_published_floor": {
+        "bathroom": 0.0,
+        "living": 0.0,
+        "private": 0.0,
+        "dining": 0.006,
+        "kitchen": 0.012,
+        "shower_room": 0.037,
+        "wc": 0.046,
+        "storage": 0.078
+      },
+      "weakest_cells": [
+        "study",
+        "utility",
+        "hall",
+        "entrance_lobby"
+      ],
+      "weakest_cells_note": "Swiss Dwellings carries no label for these, so they are derived and UNFALSIFIED. study is the weakest number in the file: a one-desk programme with no corpus to check it against and no source that states a study minimum."
     },
     "corpus_label_map": {
       "comment": "CORPUS LABEL -> ERGONOMIC KEY, THE THIRD VOCABULARY AND THE LAST ONE UNWRITTEN. Ticket 31 published ergonomic -> AZ (profiles.AZ.rooms.mapping) on the finding that `no object stated the bridge between them`. The same defect sat one vocabulary upstream and nobody had named it: every rig in experiments/warp/ speaks the CORPUS label set, every number it needs is keyed by ERGONOMIC key, and the bridge existed only as end-of-line comments inside four Python dicts -- absolute_area.STAT_FLOOR, absolute_area.MARKET, project_join.ERG_AREA and fit_warp.MIN_SIDE. A comment is not an object and no gate reads one, which is exactly how MARKET drifted four cells behind ADR 0035 within a day of it landing. Ticket 69.",
@@ -2877,27 +2938,6 @@
           "note": "14,294 rooms."
         }
       }
-    },
-    "validated_against_corpus": {
-      "comment": "*Rectangularising real rooms* set the principle: every corpus dwelling is a real, built, QA'd home, so a hard rule that rejects them measures what our model cannot express. A derived floor is therefore not self-justifying and every value above was checked against Swiss Dwellings. The low tail is REAL, not annotation debris: 0% of wc rooms fail to hold a pan, 0.8% of bathroom rooms fail to hold a 1700 mm bath.",
-      "harness": "experiments/region-profile/ergonomic_floor_probe.py",
-      "reject_rate_of_the_published_floor": {
-        "bathroom": 0.0,
-        "living": 0.0,
-        "private": 0.0,
-        "dining": 0.006,
-        "kitchen": 0.012,
-        "shower_room": 0.037,
-        "wc": 0.046,
-        "storage": 0.078
-      },
-      "weakest_cells": [
-        "study",
-        "utility",
-        "hall",
-        "entrance_lobby"
-      ],
-      "weakest_cells_note": "Swiss Dwellings carries no label for these, so they are derived and UNFALSIFIED. study is the weakest number in the file: a one-desk programme with no corpus to check it against and no source that states a study minimum."
     },
     "counts_as_otaq_sourcing": {
       "comment": "Provenance for the counts_as_otaq flag, which is SOURCED rather than chosen. AzDTN 2.7-2 cl. 5.5 enumerates habitable rooms statutorily -- «yaşayış otaqlarının (otaq, qonaq otağı və yataq otağı)» -- and cl. 5.2 puts kitchen, hall, bath-or-shower, wc-or-combined-unit and storage in `yardımçı sahələr`, auxiliary spaces. Together those two clauses decide sixteen of eighteen keys outright.",

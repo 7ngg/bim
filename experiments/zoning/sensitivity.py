@@ -28,9 +28,9 @@ for run in (1.00, 0.80, 0.60):
             continue
         n += 1
         tc += sum(r["touch_circ"])
-        p += len(r["priv"])
+        p += len(r["sleeping_rooms"])
         allc += all(r["touch_circ"])
-    print("min_run {:.2f} m: dwellings {}, skipped {}, private rooms touching "
+    print("min_run {:.2f} m: dwellings {}, skipped {}, sleeping rooms touching "
           "circ {:.1f}%, dwellings all-circ {:.1f}%".format(
               run, n, skip, 100 * tc / p, 100 * allc / n), flush=True)
     MS.contact_graph = orig
