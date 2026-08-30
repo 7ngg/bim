@@ -2414,3 +2414,288 @@ side. That ticket owns both.
 - **Anything about `dim.statutory_min_area`'s value, severity, site or limbs.**
   Settled by ADR 0027, ADR 0033 and `acceptance-bar.md` §3.2. No threshold moves
   here.
+
+# Part VIII — the encoding is built, and it costs what an auxiliary integer costs (ticket 77)
+
+**Part VII was a derivation and two hand-checks. This is the measurement.** ADR
+0039's encoding is implemented in `experiments/plane-accounting/` as a
+`LayoutProjector` subclass overriding **one** method, so the A arm and the B arm
+differ in `_add_dimensions` and share every other line of the build.
+`solver-toy/` and `warp/` are imported read-only and neither is edited.
+
+**The verdict, in one line: it fits, and the cost is measurable — which is the
+opposite of what II.1 found for the arithmetic, and the right result.** ADR 0039
+decision 3 is true — no second `AddMultiplicationEquality` — and was the wrong
+thing to be reassured by; the ADR says so itself. The spend is auxiliary integers
+and reified literals, and that spend shows up.
+
+## VIII.0 The rig, and why the incumbent had to be re-run rather than quoted
+
+340 (Brief, candidate) pairs off 120 Briefs, `--parts=1`, 1 057 one-part donors
+of 2 292 — `project_join.main()`'s sampling verbatim, same `SEED`, same pool
+rule. Shipped configuration throughout: `mm_affine`, `erode_minima`, `t_int` 150,
+τ = 4, σ = 0,5 m, **15 s**, **4 workers**, `corpus_median` exposure. Warp limit
+3,0 s.
+
+**Two changes from the run that produced 14 of 273**, and each on its own is
+enough to stop that figure being the comparator:
+
+1. **The warp posts the statutory floor.** `project_join.py` calls
+   `fit_warp.warp_model`, which does not; ADR 0033 shipped the floor *after* that
+   run. The swap here is `constrained_warp.warp_model_constrained(
+   area_floor_cells=…)`, `floor_warp.py`'s `floor` limb, inside `project_join`'s
+   own `hold_ring` iteration so LIMIT 1's witness guarantee survives.
+   `arms.py --selftest` asserts the swap is a **no-op** with the floor off —
+   identical cut vectors and identical per-Room Space on every candidate tried.
+2. ⚠️ **The candidate population moved underneath it.** `project_join`'s LIMIT 3
+   records *1 076 of 2 317*; `load()` now returns **1 057 of 2 292**, because
+   *The profile is read rather than copied* changed what `COLLAPSE` and the
+   minima tables resolve to. **14 of 273** was measured on a different
+   denominator as well as on a different warp.
+
+**The warp runs once per candidate and every arm consumes the same geometry.** An
+A/B on the projection may not re-warp between arms: the warp is itself a CP-SAT
+solve under a wall-clock limit and is not reproducible between runs.
+
+Five arms. `A` = the incumbent, `(250w − t)(250h − t)`. `B` = ADR 0039 decisions
+1–2. `Bc` = `B` plus the corner term decision 5 drops. `Acap` / `Bcap` = the same
+two planes with `dim.max_area` posted — **new model on both**, because
+`solver.py` posts no cap at all.
+
+⚠️ **One inherited limit, stated because it bounds VIII.1's check and nothing
+else.** `project_join.SOFT` contains `coverage`, so H3 is soft here and **55 of
+307** returned Plans leave interior cells unassigned (`cov_slack` p90 5 cells,
+max 28). Where they do, `outside_of(plan_rects)` reads a boundary-touching **gap**
+as outside and a Room's edge on it stops eroding, so Plan-relative Space and
+Envelope-relative Space diverge — by up to 0,32 m². The solver cannot know where
+slack will land, so the encoding is Envelope-relative by construction, and the
+two coincide exactly when H3 holds, which is the shipped state
+(`model.no_unassigned_area`). It bites both arms identically.
+
+## VIII.1 The encoding is exact — and `all_faces()` is not the set ADR 0039 named
+
+**11 892 Rooms, worst `|integer identity − space_m2|` = 0,0 mm².** Shapely on the
+real solved geometry against the closed form, measured against the Envelope's own
+outside so H3's slack is excluded. Part VII's two hand-checks reproduce to the
+unit, and the CP-SAT model's `amm_i` — read out with the Rooms pinned to a known
+tiling — equals the oracle on every Room tried.
+
+⚠️ **ADR 0039 decision 2 names `Envelope.all_faces()` and that set is one
+notch-class too wide.** `all_faces()` walks the boundary of the *interior*, and an
+**enclosed void** bounds the interior exactly as the outside does. On the
+measurement plane they are not the same: `absolute_area.outside_of` deliberately
+excludes enclosed components — *"a void is bounded by wall on every side, so its
+edges cost erosion exactly as an interior edge does"* — so a Room's edge on a void
+**erodes**. Crediting it as boundary contact would read that Room LARGER than the
+bar plane, which is the one direction `dim.max_area` cannot afford.
+
+`bar_plane.no_erode_faces()` is the corrected set: boundary unit edges whose other
+side is the exterior or a **boundary-touching** notch, 4-connected, merged into
+maximal runs. It equals `all_faces()` on a rectangle, an L and a U, and drops
+exactly the hole's perimeter on an Envelope with a void. Rare in this corpus — 8
+of 273 candidates carry any enclosed void, max share 0,5 % — and **not** rare in
+the shipped contract, where ADR 0028 puts `voids` on the Proposal as a
+first-class field.
+
+**One feasible-set consequence worth stating.** Decision 2's
+`clear_w = 250w − 75 × (interior x-sides)` **relaxes** the width floor by one grid
+unit for a Room with both x-sides on the Envelope: the bound becomes
+`250w ≥ 250(min_w − 1)`. That is correct — such a Room spans the Envelope and
+loses no partition on either side — and `project_join`'s LIMIT 2 identity survives
+unchanged at one and two interior sides. The area term uses the exact interior
+*length* per side while the clear width uses a *binary* per side; that asymmetry
+is ADR 0039's and it is right, because an area is a sum over the boundary and a
+clear width is one scalar for the whole Room.
+
+## VIII.2 The cost — measurable, and it fits
+
+Model size, p50 over the 307 candidates that reached the solve:
+
+| arm | variables | constraints | contact literals | contact aux ints | build p50 |
+|---|---:|---:|---:|---:|---:|
+| `A` | 454 | 1 035 | 0 | 0 | 24,1 ms |
+| `B` | 1 114 | 1 980 | 112 | 504 | 46,5 ms |
+| `Bc` | 2 376 | 4 687 | 336 | 1 464 | 102,2 ms |
+
+Paired ratios, p50: `B` is **2,36×** the variables and **1,85×** the constraints;
+`Bc` is **4,98×** and **4,43×**.
+
+Wall clock, and the 15 s cap:
+
+| arm | p50 | p90 | p99 | at the cap | total over 307 |
+|---|---:|---:|---:|---:|---:|
+| `A` | 0,193 s | 1,873 s | 15,02 s | **17** | 419,0 s |
+| `B` | 0,447 s | 3,015 s | 15,03 s | **16** | 487,7 s |
+| `Bc` | 0,523 s | 2,450 s | 15,02 s | **15** | 501,0 s |
+
+**Paired `B − A`: p50 +0,198 s, mean +0,224 s, 284 slower against 23 faster, sign
+test p < 10⁻⁶.** Total solve time rises **16,4 %**.
+
+**Against the bar II.1 states its own finding on** — six CP-SAT seeds per arm, 35
+candidates:
+
+| | `A` | `B` | `Bc` |
+|---|---:|---:|---:|
+| median wall | 0,164 s | 0,514 s | 0,488 s |
+| **seed-to-seed wall spread**, p50 | 0,0159 s | 0,0626 s | 0,0296 s |
+| median **time to first Plan** | 0,110 s | 0,284 s | 0,355 s |
+| first-Plan seed spread, p50 | 0,0022 s | 0,0048 s | 0,0059 s |
+
+**Only 6 of 35 candidates (17,1 %) have a `B − A` difference inside their own seed
+spread**, and the paired median difference is +0,211 s at 32 slower against 3
+faster. **This is measurable where II.1's was not**, and that is the honest
+reading of ADR 0039 decision 3: the identity that removed the second
+multiplication is real, and the multiplication was never the cost. Auxiliary
+integers and reified literals are.
+
+**It fits anyway, and the reason is that none of it lands where the budget is.**
+Time to first Plan goes 0,110 s → 0,284 s against a **15 s** cap. The count of
+candidates that exhaust the cap goes **down**, 17 → 16. No candidate is pushed
+from a returned Plan to `UNKNOWN`. τ = 4, 15 s and ADR 0007 all stand at their
+published values, and **ADR 0039 decision 6's fallback is not selected.**
+
+## VIII.3 The INFEASIBLE delta — **1,30 %**, and the plane is all of it
+
+With ADR 0033's floor in the warp, **33 of 340** candidates (9,71 %) are refused
+before the projection ever runs, and **307** reach it.
+
+| | `A` — solver plane | `B` — bar plane |
+|---|---:|---:|
+| INFEASIBLE | **4 / 307 = 1,30 %** | **0 / 307** |
+| attributed to the floor by ablation | 4 (2 → OPTIMAL, 2 → FEASIBLE) | — |
+| rescued by the corrected plane | — | **4 of 4** |
+| Plans starved on the bar plane | 0 | 0 |
+
+**Every Plan-level refusal on this sample is a plane victim.** The 5,1 % in
+`acceptance-bar.md` §11.1 is retired, and not merely lowered: it was an upper
+bound *"containing genuine starvation as well as plane victims"*, and at the
+shipped configuration with the floor posted upstream the genuine-starvation
+component of the **Plan-level** figure is **zero**. It has not vanished — it has
+moved to the 9,71 % the warp now pays, which is ADR 0033's cost and is measured
+there.
+
+## VIII.4 `dim.max_area` binds, it is nearly free, and it is a bathroom
+
+**No arm on this map had ever posted the cap.** H4 posts `min_w`, `min_h`,
+`min_area` and aspect and nothing else, so the false pass ADR 0039 describes was a
+property of the *spec*. Posted here as `k[class] × target`, read from
+`rules.json#/area_bands` and `room-constraints.json#/ergonomic/area_band_classes`,
+never transcribed.
+
+**It binds.** On the uncapped bar-plane arm, **10 Rooms of 1 993** (0,50 %, across
+9 candidates) sit above their band. **Every one is a `BATHROOM`**, and the worst is
+**10,2 m² over** its cap — `brief.md` §9.3's 40 m² WC reached through a third
+door, made compulsory by `model.no_unassigned_area` and stopped by nothing in the
+solver. 19 Rooms sit within 1 m² of the cap: 18 bathrooms and one corridor.
+
+**It is nearly free.** +6 constraints per candidate at p50, no new variables, wall
+delta p50 **−0,002 s** on the bar plane and **+0,0002 s** on the solver plane,
+**0** new INFEASIBLE on either. The objective moves on 9 candidates of 307.
+
+**And the plane matters, in the direction ADR 0039 predicted.**
+
+| where the cap is posted | Rooms left above the bar-plane cap |
+|---|---:|
+| nowhere (`B`) | 10 |
+| on the solver plane (`Acap`) | **2** |
+| on the bar plane (`Bcap`) | **0** |
+
+The solver plane reads a perimeter Room ~3,9 % smaller, so a cap posted on it lets
+two Rooms through — worst excess 0,057 m², small because the cap still bites, just
+3,9 % late. **ADR 0039 decision 4's biconditional contact literals are therefore
+bought for something**, not for nothing: with forward-only literals a Room could
+leave every literal false, read itself smaller still, and slip further. The
+ticket's own ⚠️ — *"if it turns out never to bind at production geometry, decision
+4's biconditional requirement is bought for nothing"* — is answered. It binds.
+
+## VIII.5 The corner residual is two-signed, and the correction ADR 0039 declined would have made it worse
+
+ADR 0039 decision 5 accepts a residual *"of at most 0,0225 m² per Room"*,
+*"conservative on every floor"*. **The magnitude survives at this geometry. The
+sign claim does not.**
+
+The residual has a second term the ADR does not have. Exactly, and verified to the
+mm² against `space_m2`:
+
+```
+truth = [B] + 5 625 × (interior corners − reflex vertices on the Room's sides)
+```
+
+Where one of a Room's sides crosses from Envelope to partition, three of the four
+cells round that vertex are interior — a 270° corner of the interior. The erosion
+wraps around it and takes a **further** 75 × 75 square out of the Room, at a
+**point** that lies on no side's end, which a band subtracted over a **length**
+cannot see. It is the exact mirror of the corner term and it carries the opposite
+sign.
+
+Realised over 1 993 Rooms on the solved bar-plane Plans:
+
+| | value |
+|---|---|
+| residual p50 / p90 | **+0,00562 m²** / +0,01125 m² |
+| range | **−0,01125 … +0,0225 m²** |
+| Rooms where `[B]` **over**-states the Space | **109 = 5,47 %** |
+| Rooms with a zero residual | 455 |
+| interior corners, 0 / 1 / 2 / 3 / 4 | 145 / 1 064 / 652 / 76 / 56 |
+| reflex vertices, 0 / 1 / 2 / 3 | 1 267 / 614 / 102 / 10 |
+| **floor verdicts changed by the residual** | **0** |
+| **cap verdicts changed by the residual** | **0** |
+
+⚠️ **`0,0225 m²` is an observed maximum, not a derived bound.** ADR 0039 derives it
+from four corners. Nothing bounds the reflex count except a Room's own perimeter
+in grid units; it reached **3** here, and the bound held only because it did.
+
+⚠️ **Adding the corner term alone — the shape of the correction ADR 0039 considered
+and dropped — makes the lenient direction 6,7× more common.** `Bc` posts
+`[B] + 5 625 × corners`, so `Bc − truth = +5 625 × reflex ≥ 0`: it is **never**
+conservative. Measured:
+
+| posted quantity | Rooms read LARGER than the bar plane | worst over-statement |
+|---|---:|---:|
+| `[B]` — ADR 0039, shipped | 109 / 1 993 = **5,47 %** | 0,01125 m² |
+| `[B]` + corner term — `Bc` | 726 / 1 993 = **36,43 %** | 0,01688 m² |
+
+Neither crosses a floor. **Dropping the corner term was the right call and the
+ADR's reason for it is not the reason it was right**: the objection is not that
+"both sides wholly interior" under-counts, it is that half the correction is
+missing and adding the other half alone inverts the sign on a third of Rooms.
+Exact recovery needs *both* point terms, at O(perimeter) reified literals per Room
+against `Bc`'s O(4) — and it buys **0 verdict changes** on 1 993 Rooms.
+
+**For scale, beside all of it**: the plane gap this ADR exists to close is p50
+**3,91 %** of a Room's area, p90 7,07 %, max 17,2 %. The dust is two orders
+smaller and it stays dust. *The posted floor is a seed-shape estimate* owns the
+warp-side twin at p50 0,038 m², which is **6,8×** the median residual here.
+
+## VIII.6 What Part VIII does not establish
+
+- **Anything about two-part Rooms.** `--parts=1` only. `solver-toy/solver.py`
+  gives a Room one rectangle; ADR 0014 gives it one or two, and the shared-edge
+  strip across a join is a term neither `[A]` nor `[B]` carries. That is
+  `room-rectangles/`'s Design A and it was not run here.
+- **Anything about H3 held hard.** `coverage` is soft in this rig and 55 of 307
+  Plans leave slack. The encoding is Envelope-relative and the shipped H3 makes
+  the two planes coincide, but that composition is asserted from ADR 0001 rather
+  than measured.
+- **A hardware claim.** One 4-core machine, `WORKERS = 4`. II.6 is the standing
+  statement of what this axis can and cannot answer.
+- **That the cap's *value* is right.** `dim.max_area` is Swiss and the profile is
+  AZ; the provenance question is `rules.json`'s and belongs to *A cap fitted in one
+  country and a target set in another*. This measured whether the predicate binds
+  and what posting it costs, not whether 2,23 is the number.
+- **Anything about `dim.statutory_min_area`'s value, severity, site or limbs.**
+  Settled three times over by ADR 0027, ADR 0033 and `acceptance-bar.md` §3.2. No
+  threshold moves here.
+
+## Reproducing Part VIII
+
+```
+python experiments/plane-accounting/selftest.py                # 9 assertions, seconds
+python experiments/plane-accounting/arms.py --selftest         # the warp swap is a no-op
+python experiments/plane-accounting/arms.py --tag=main         # 340 pairs x 5 arms, ~50 min
+python experiments/plane-accounting/seeds.py 36 --tag=seeds    # 648 solves, ~23 min
+python experiments/plane-accounting/report.py --tag=main
+```
+
+Rows at `experiments/plane-accounting/out/arms_rows_main.json` and
+`seeds_rows_seeds.json`; the four measurements at `report_main.json`.
