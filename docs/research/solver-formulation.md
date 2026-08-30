@@ -2699,3 +2699,428 @@ python experiments/plane-accounting/report.py --tag=main
 
 Rows at `experiments/plane-accounting/out/arms_rows_main.json` and
 `seeds_rows_seeds.json`; the four measurements at `report_main.json`.
+
+# Part IX — a Room is one or two rectangles, and the plane owes the join (ticket 78)
+
+**Part VIII measured the encoding for a Room that is one rectangle. ADR 0014
+gives a Room one or two, and 53,9 % of the converted index has at least one that
+is.** ADR 0040 consequence 3 states the debt: `erode(A ∪ B, t/2)` exceeds
+`erode(A) ∪ erode(B)` by exactly the shared-edge band, and the per-side form
+subtracts a band along an edge the union does not have — twice.
+
+`experiments/plane-accounting/parts_plane.py` pays it, as
+`room-rectangles/solver_parts.py`'s Design A with **one** method replaced and
+`bar_plane.py`'s reified-contact helpers bound in unmodified. `solver-toy/`,
+`warp/` and `room-rectangles/` are imported read-only and none is edited; the arm
+that is the incumbent **is** `solver_parts.project_parts`, asserted rather than
+rebuilt (`selftest_parts.py` P6).
+
+**The verdict, in three lines.** The encoding is exact and it is cheap — **13
+variables per two-part Room**, O(1) where the boundary term is O(sides × faces).
+The plane costs **1,82×** the variables and **13,2 %** more total solve time and
+still fits. And the Plan-level false refusals at `--parts=2` turn out **not to be
+the plane's at all**: all five are the *binding site*, `solver_parts` posting the
+area floor on the primary part where ADR 0014 and `acceptance-bar.md` §9.1 both
+bind it on the Room.
+
+## IX.0 The rig, and the three changes it separates
+
+332 (Brief, candidate) pairs off 120 Briefs, `--parts=2`, **1 235 two-part donors
+of 2 292**. `project_join.main()`'s sampling verbatim, same `SEED`, same pool
+rule, same shipped configuration as Part VIII: `mm_affine`, `erode_minima`,
+`t_int` 150, τ = 4, σ = 0,5 m, **15 s**, **4 workers**, `corpus_median` exposure,
+warp limit 3,0 s with ADR 0033's floor posted. **47 pairs (14,16 %) are refused
+by the warp** and **284 reach the projection**, carrying **1 961 Rooms**.
+
+Five arms, and the middle three are **one change apart each**, so the deltas
+attribute:
+
+| arm | plane | area floor binds | cap | what it is |
+|---|---|---|---|---|
+| `A` | solver, per part | **primary part** | — | the incumbent, `solver_parts` |
+| `Ar` | solver, summed | **Room** | — | ADR 0014's binding site |
+| `Bn` | bar, per part summed | Room | — | the naive generalisation, no join term |
+| `B` | bar **+ join band** | Room | — | ADR 0039 generalised |
+| `Bcap` | bar + join band | Room | `dim.max_area` | the cap, at Room level |
+
+`Bn` is not a straw man: it is what ADR 0039's encoding does if it is applied to a
+two-part Room without being re-derived. `Bn → B` adds the shared-edge band and
+**nothing else differs between those two models**.
+
+⚠️ **The inherited limits are Part VIII's, unchanged**: `coverage` is soft, so a
+returned Plan may leave interior cells unassigned and Plan-relative Space diverges
+from Envelope-relative Space where it does; the encoding is Envelope-relative by
+construction and the two coincide when H3 holds, which is the shipped state. It
+bites every arm. One 4-core machine, `WORKERS = 4`; II.6 stands.
+
+⚠️ **And one that is new: at `--parts=2` the incumbent already spends the time
+budget on a third of candidates.** 90 of 284 (31,7 %) reach the 15 s cap under
+`A`, against **17 of 307 (5,5 %)** at `--parts=1`. That is Design A's search
+space, measured by ADR 0014 at 1,2–1,7× the variables, and it is the headroom
+every number below is spent out of.
+
+## IX.1 The join band, and why it is O(1) in the Room
+
+Sum the per-part form over the parts and add the join band back, twice, because
+both parts subtracted it:
+
+```
+[B](U) = Σ_p [B](p)  +  2 · 75 · 250 · J
+       = 62 500 · Σ_p a_p  −  18 750 · ( Σ_p int_units(p)  −  2 J )
+```
+
+`int_units(p)` is Part VIII's per-part quantity, unchanged. `J` is the join length
+in grid units.
+
+**The ticket asked whether a two-part Room needs contact literals between its own
+parts. It does not.** `AddNoOverlap2D` covers every part pair including a Room's
+own, and two interior-disjoint rectangles meet in **at most one** maximal segment,
+so the whole term is one length: four flush literals, two direction literals, and
+three integers per axis for `max(0, min(hi) − max(lo))`. Measured, it is **exactly
+13 variables per two-part Room** — p10, p50, p99 and max all 13 over 284
+candidates — against the boundary term's O(sides × faces). No second
+`AddMultiplicationEquality`, for ADR 0039 decision 3's reason: the form stays
+affine in `a_p` and linear in the lengths.
+
+**Two hand-checks** (`selftest_parts.py` P1). Two 4 × 3-cell Rooms stacked,
+sharing their full 4-unit edge, in a wholly interior Envelope:
+
+| quantity | mm² |
+|---|---:|
+| `[B](A) + [B](B)`, per part | 975 000 |
+| `+ 2 · 75 · 250 · 4` | **+150 000** |
+| `[B]` on the 4 × 6 union, directly | 1 125 000 |
+| truth, `(1000 − 150)(1500 − 150)` | 1 147 500 |
+
+The union is a plain rectangle with all four sides interior, so its truth is the
+*incumbent's* own expression — a value the join term has to be right about that
+owes nothing to this file. It is, and the remaining 22 500 is the four corners
+Part VIII already accounts for.
+
+**What the term is worth at production geometry.** The ticket estimated
+`2 × 75 × 1 100 = 0,165 m²` from ADR 0014's join floor. The floor is not what the
+corpus delivers: over **345 two-part Rooms** the join runs **p50 8 grid units =
+2 000 mm**, min 5, p90 16, max 27. So the omitted band is
+
+| | p10 | p50 | p90 | max |
+|---|---:|---:|---:|---:|
+| join, grid units | 5 | **8** | 16 | 27 |
+| `2 · 75 · 250 · J`, m² | 0,188 | **0,300** | 0,600 | **1,013** |
+| as a share of the Room's own bar-plane area | 0,99 % | **1,82 %** | 3,01 % | 6,90 % |
+
+**0,300 m² is 53× the p50 corner residual ADR 0039 dropped** (0,00562 m²) and
+**7,9× the grid dust** *The posted floor is a seed-shape estimate* is deciding
+about (0,038 m²). Whatever argument retires the corner term does not reach this
+one.
+
+⚠️ **One feasible-set consequence that is ADR 0014's number rather than ADR 0039's.**
+VIII.1 records that `clear_w = 250w − 75 × (interior x-sides)` relaxes the width floor
+by one grid unit for a Room with both x-sides on the Envelope. At two parts that
+reaches the **leg floor**: `build_part_brief` gives a secondary part `min_w = 4`
+grid units, so the incumbent's `250w − 150 ≥ 1 000` forces w = 5 and lands at ADR
+0014's realisable **1 100 mm**, while the bar plane admits w = 4 at **1 000 mm** for a
+leg that spans the Envelope. Both clear ADR 0014's published **900 mm**, and the gap
+between a published floor and the bound it posts is ADR 0009's own subject — but the
+realisable value of the leg floor is not the same number on the two planes, and this
+Part is where that is first true.
+
+## IX.2 One vertex rule, and Part VIII's two terms are its one-rectangle case
+
+Part VIII's residual is `5 625 × (interior corners − reflex vertices on the Room's
+sides)`. That pair is stated on a **rectangle**: "corners" are its four, "reflex on
+the sides" are flips strictly inside one of them. A union of two rectangles has
+neither — it has six or eight vertices, some of which are a part's corner and not
+the union's, and some of which are the union's and no part's.
+
+**The pair does not extend. It is replaced, and the replacement contains it:**
+
+```
+truth(U) = 62 500 |U|  −  18 750 E_int(U)  +  5 625 · Σ_v w(v)
+
+w(v) = I(v)  −  nU(v) · [ nO(v) ≥ 1 ]
+```
+
+At a lattice vertex `v`, label each of the four cells round it `U` (this Room),
+`F` (free — the exterior or a boundary-touching notch) or `O` (any other interior:
+another Room, an enclosed void, an unassigned cell). `I(v)` counts the four
+half-edges at `v` with one side `U` and the other `O` — the eroding ones.
+`E_int(U)` counts the unit edges of `∂U` facing `O`.
+
+**Why that is the whole rule.** Near `v` the eroded set is `erode(S, d) ∩ U` for
+`S` the union of the `U` and `F` quadrants, and `S` is a **cone**. Unless `S` is
+the whole plane, `erode(S, d)` misses the `d`-box at `v` entirely — a quadrant, a
+half-plane, a bowtie and a three-quadrant cone all retreat past it — so the Room
+loses `nU · d²` there. The per-side band form subtracts `d²` once per (`U`
+quadrant, eroding half-edge) incidence, which is `I`. The correction is the
+difference; and where no quadrant is `O`, nothing erodes and `I` is already zero.
+
+| what it is | `I` | `nU` | `w` |
+|---|---:|---:|---:|
+| interior corner of a rectangle — Part VIII's `+` term | 2 | 1 | **+1** |
+| mid-side flip, Envelope to partition — Part VIII's `−` term | 1 | 2 | **−1** |
+| rectangle corner with one adjoining edge on the Envelope | 1 | 1 | 0 |
+| rectangle corner with both on the Envelope (`nO = 0`) | 0 | — | 0 |
+| **an L's own reflex corner** | 2 | 3 | **−1** |
+| **a flush join end, both flanks interior** | 2 | 2 | **0** |
+| **a Room meeting an enclosed void at a point, diagonally** | 0 | 1 | **−1** |
+
+**The ticket's "third sign" is not a third sign.** An L's reflex corner carries the
+same `−5 625` a mid-side flip does; what a two-part Room adds is more *places* a
+reflex can sit, not a new term. The three bold rows are the ones the old pair could
+not reach — and the flush join end is the one it would have got **wrong** rather
+than missed: naive per-part counting reports two interior corners there,
+`+11 250 mm²`, at a point where the union has no vertex at all.
+
+**Verified rather than argued.** P2 reproduces Part VIII's pair on 192
+one-rectangle Rooms — Part IX generalises Part VIII, it does not compete with it.
+P3 checks the rule against `absolute_area.space_m2` on 134 Rooms over a rectangle,
+an L, a U and an Envelope with an enclosed void, in shapes **L, T, Z and
+rectangle**; P5 checks the CP-SAT model against it with the parts pinned. And
+`arms_parts.py` re-checks it on every Room of every arm: **11 740 Rooms, worst
+`|integer identity − space_m2|` = 0,0 mm².**
+
+⚠️ **ADR 0039's `0,0225 m²` was withdrawn as a bound by ADR 0040 and this is why.**
+`nU` reaches 3, an L has a reflex the pair never counted, and nothing bounds the
+vertex count except the union's own perimeter. It is an observed range here and
+nothing else — and it did hold: see IX.4.
+
+## IX.3 The cost — 1,82× the variables, and the join term is 1,5 % of the solve
+
+Model size, p50 over the 284 candidates that reached the solve:
+
+| arm | variables | constraints | contact literals | contact aux ints | join ints | build p50 |
+|---|---:|---:|---:|---:|---:|---:|
+| `A` | 1 153 | 2 555 | 0 | 0 | 0 | 52,8 ms |
+| `Ar` | 1 155 | 2 555 | 0 | 0 | 0 | 56,5 ms |
+| `Bn` | 2 042 | 3 786 | 160 | 680 | 0 | 86,6 ms |
+| `B` | 2 055 | 3 809 | 166 | 680 | 7 | 86,9 ms |
+| `Bcap` | 2 055 | 3 816 | 166 | 680 | 7 | 87,2 ms |
+
+Paired ratios, p50: `Ar` is **1,001×** `A`'s variables — the binding-site move is
+**+2 variables**, one Room-level integer per two-part Room. `Bn` is **1,808×**
+`Ar` and 1,501× its constraints. **`B` is 1,008× `Bn`** — the join term, whole.
+`B` against the incumbent is **1,823×** the variables and **1,512×** the
+constraints.
+
+Wall clock, and the 15 s cap:
+
+| arm | p50 | p90 | at the cap | total over 284 | first Plan p50 |
+|---|---:|---:|---:|---:|---:|
+| `A` | 1,390 s | 15,02 s | **90** | 1 674,3 s | 0,257 s |
+| `Ar` | 1,660 s | 15,02 s | 100 | 1 792,1 s | 0,266 s |
+| `Bn` | 2,155 s | 15,03 s | 99 | 1 868,8 s | 0,591 s |
+| `B` | 2,424 s | 15,03 s | **102** | 1 896,1 s | 0,623 s |
+| `Bcap` | 2,336 s | 15,03 s | 104 | 1 926,2 s | 0,629 s |
+
+Paired differences, p50, with an exact two-sided sign test:
+
+| | wall p50 | slower / faster | p |
+|---|---:|---:|---:|
+| `Ar − A` — the binding site | +0,0038 s | 173 / 111 | 0,00028 |
+| `Bn − Ar` — the plane | **+0,1837 s** | 229 / 54 | < 10⁻⁶ |
+| **`B − Bn` — the join term** | **+0,0084 s** | 184 / 99 | < 10⁻⁶ |
+| `B − A` — all of it | +0,2256 s | 227 / 57 | < 10⁻⁶ |
+| `Bcap − B` — the cap | −0,0003 s | 139 / 143 | **0,86** |
+
+Total solve time rises **13,2 %** from `A` to `B`, and **the join term is 1,5
+points of that** — 1 868,8 → 1 896,1 s. The cap is the one difference here that a
+sign test cannot separate from zero.
+
+**Against the bar ADR 0040 states its own finding at** — six CP-SAT seeds per arm,
+19 candidates stratified by room count, warped geometry produced once:
+
+| | `A` | `Bn` | `B` |
+|---|---:|---:|---:|
+| median wall | 0,482 s | 0,977 s | 0,817 s |
+| **seed-to-seed wall spread**, p50 | 0,0300 s | 0,0637 s | 0,0976 s |
+| median **time to first Plan** | 0,198 s | 0,476 s | 0,518 s |
+| first-Plan seed spread, p50 | 0,0166 s | 0,0365 s | 0,0376 s |
+
+**The plane's cost clears that bar and the join term's does not**, and both halves
+matter. `B − A` sits **outside** the candidate's own six-seed spread on **15 of 19**
+— median +0,336 s, 17 slower against 2, p = 0,00073 — the same verdict Part VIII
+reached at one rectangle. **`B − Bn` sits inside it on 18 of 19 (94,7 %)**, median
++0,0046 s, 13 against 6, **p = 0,167**.
+
+So the join term is a **systematic** +0,0084 s over 284 paired candidates and is
+**not detectable on any single candidate**. Both statements are true and the second
+is the one an engineer feels: at the resolution II.1 and ADR 0040 argue at, the
+term is free.
+
+**It fits, and by a smaller margin than at `--parts=1`.** Time to first Plan goes
+**0,257 → 0,623 s** against a **15 s** cap, and no candidate is pushed to
+`UNKNOWN` — every arm returns OPTIMAL, FEASIBLE or INFEASIBLE. ⚠️ **But the count
+of candidates that exhaust the cap goes UP, 90 → 102 of 284**, where Part VIII saw
+it go *down*, 17 → 16. τ = 4, 15 s and ADR 0007 stand at their published values,
+and the fallback is not selected — but the statement *"none of it lands where the
+budget is"* is Part VIII's and does not transfer unaltered to a two-part Room.
+
+**What the plane buys instead of speed.** H3's slack falls with it: mean unassigned
+cells **7,4** under `A`, 3,9 under `Ar`, **2,6** under `B`; and the objective improves
+on **140 of the 279** candidates both arms returned a Plan for, against 4 worse. ⚠️ **Those 4, and the 8
+where `B` is worse than `Bn`, are time-limit artefacts rather than real**: `B` is a
+strict relaxation of `Bn`, so its optimum cannot be worse, and `B` proves
+optimality on 182 candidates where `Bn` proves 185.
+
+## IX.4 The residual at two parts — dust with the join term, 0,94 m² without it
+
+Per Room, on the solved `B` Plans, `truth − [B]`:
+
+| | with the join term | without it (`Bn`'s quantity) |
+|---|---:|---:|
+| p50 | **+0,00562 m²** | +0,00562 m² |
+| p90 | +0,01125 m² | **+0,23625 m²** |
+| max | +0,0225 m² | **+0,9375 m²** |
+| min | −0,0225 m² | −0,01125 m² |
+| Rooms read LARGER than the bar plane | 123 / 1 961 = **6,27 %** | 57 |
+| every value a multiple of 5 625 mm² | **yes** | no |
+
+With the term, a two-part Room's residual is indistinguishable from a one-part
+Room's, and **all 1 961 Rooms fall inside ADR 0039's `0,0225 m²`** — which stays an
+observed range, not a bound. By shape, p50 in m²: **L** (n = 212) +0,00000,
+**T** (48) +0,00562, **Z** (76) +0,00562, **rectangle** (9) +0,00562, **single**
+(1 616) +0,00562.
+
+**Verdicts, over 1 961 Rooms:**
+
+| | Rooms whose verdict moves |
+|---|---:|
+| floor, from the residual `B` still drops | **0** |
+| floor, if the join term is omitted | **1** |
+| cap, from the residual | **0** |
+
+⚠️ **One verdict in 1 961 is the whole realised cost of omitting the term, and the
+reason is worth stating rather than hiding.** `dim.statutory_min_area` is
+`site: both`, so the solver **re-sizes** rather than refuses — a Room read 0,30 m²
+short is simply grown, provided there is anywhere to grow. And there is: a two-part
+Room's headroom over its own statutory floor runs **p50 9,37 m²**, against a join
+term of p50 0,300 m². **Only 1 of 345 two-part Rooms has less headroom than its own
+join term.** A Room gets a second rectangle because it is large and awkward, not
+because it is tight.
+
+So the term is bought for **correctness of the posted quantity**, not for yield at
+this geometry — and the honest form of that is: it costs 13 variables and 1,5 % of
+the solve, it makes the posted area exact, and on this sample it converts to one
+Room. The floor is where it does not bite; IX.5 is where it does.
+
+## IX.5 `dim.max_area` at Room level, and a two-part Room is over it
+
+`solver.py` posts no cap and `solver_parts.py` posts no cap; `acceptance-bar.md`
+§9.1 binds every area rule **per Room, over the union**, so `Bcap` is the first arm
+on this map to post one on a Room that is two rectangles.
+
+**It binds.** On the uncapped bar-plane arm, **10 Rooms of 1 961 (0,51 %)** sit
+above their band, across 9 candidates, worst **8,19 m² over**. Types: **7
+`BATHROOM`**, 1 `KITCHEN`, 1 `CORRIDOR`, 1 `STOREROOM` — Part VIII's finding
+survives the population change, and widens: at `--parts=1` all ten were bathrooms.
+Nine of the ten are one rectangle and **one is a `Z`**.
+
+**It is nearly free, and here "nearly" is indistinguishable from free.** +7
+constraints per candidate at p50, **no new variables**, wall delta p50 −0,0003 s at
+139 slower against 143 faster (**p = 0,86**), **0** new INFEASIBLE. The objective
+moves on 21 of 284.
+
+**And it leaves nothing above the cap**: 0 Rooms of 1 961 under `Bcap`, against 10
+under `B` and **12** under `Ar` — the solver plane summed over the parts, which
+reads a two-part Room smaller still and lets two more through.
+
+## IX.6 The false refusals are the binding site, not the plane
+
+| arm | OPTIMAL | FEASIBLE | INFEASIBLE |
+|---|---:|---:|---:|
+| `A` | 189 | 90 | **5 = 1,76 %** |
+| `Ar` | 186 | 98 | **0** |
+| `Bn` | 185 | 99 | 0 |
+| `B` | 182 | 102 | 0 |
+| `Bcap` | 183 | 101 | 0 |
+
+**All five are attributed to the statutory floor by ablation** — drop the limb,
+keep the ergonomic floor, and four return OPTIMAL and one FEASIBLE — and **all five
+are rescued by `Ar` alone**, which changes the *binding site* and not the plane.
+`Bn` and `B` rescue nothing further because there is nothing left to rescue.
+
+That is `project_join.py` LIMIT 3's caveat, priced: *"that rig binds a Room's
+`min_area` on the PRIMARY part where ADR 0014 binds it on the Room, so it is
+strictly stricter."* Strictly stricter costs **1,76 %** of candidates at
+`--parts=2`. `selftest_parts.py` P8 exhibits the mechanism on a pinned two-part
+Room whose union clears the floor and whose primary part does not: FEASIBLE per
+Room, INFEASIBLE per part.
+
+⚠️ **The plane's own Plan-level contribution at `--parts=2` is zero, and that is
+not a contradiction of Part VIII.** There, 4 of 307 refusals were plane victims and
+the bar plane rescued 4 of 4. Here every refusal is spent before the plane is
+reached, because a strictly stricter binding site sits in front of it. What the
+plane buys at `--parts=2` is coverage and objective (IX.3), and an exact posted
+quantity (IX.4).
+
+## IX.7 ⚠️ Two rectangles are an L 55 % of the time, and three artifacts say always
+
+The k ≤ 2 cap does not say **L**. Two rectangles sharing an edge make an L, a **T**,
+a **Z** or a plain rectangle, and over the **1 535** two-part Rooms of the converted
+index:
+
+| shape | rooms | share | vertices | reflex corners |
+|---|---:|---:|---:|---:|
+| L | 847 | **55,2 %** | 6 | 1 |
+| T | 332 | 21,6 % | 8 | 2 |
+| Z | 329 | 21,4 % | 8 | 2 |
+| rectangle | 27 | 1,8 % | 4 | 0 |
+
+**44,8 % do not have exactly one reflex corner.** On the warped Proposals this run
+solved the split is the same shape: of 345 two-part Rooms, 206 L, 73 Z, 63 T, 3
+rectangle — **40,3 % not an L**.
+
+Three artifacts state otherwise. `room-rectangles/erosion_check.py` closes with
+`assert n == 6 and reflex == 1`. ADR 0014 says the erosion result is *"still
+rectilinear on integer millimetres with exactly one reflex corner"*.
+`acceptance-bar.md` §9.1 says *"the Space is a rectilinear polygon with one reflex
+corner, not a rectangle"*.
+
+**The identity survives; the prose does not.** `selftest_parts.py` P9 re-runs
+`erosion_check.py`'s three properties at **two** reflex corners, on a T and on a Z:
+`erode(A ∪ B, t/2)` strictly contains `erode(A) ∪ erode(B)`; the result equals the
+hand-built inner-face polygon **pointwise**, not merely in area; and it is
+rectilinear on integer millimetres with **8 vertices and 2 reflex corners**. So
+ADR 0001 is untouched and the encoding above is sound on all four shapes — what is
+wrong is a shape claim three files make and one of them asserts.
+
+⚠️ **It also touches ADR 0014's own argument, and this Part does not settle that.**
+The k ≤ 2 cap is defended partly on *"an L is a shape an architect draws; a T, U, S
+or Z room is a shape a plan is left with"* — while the cap admits the T and the Z,
+at 43 % of the corpus's two-part Rooms. Whether the *contract* should restrict to
+an L is a decision with a conversion-yield price and it belongs to ADR 0014's
+holder, not here.
+
+## IX.8 What Part IX does not establish
+
+- **Anything about three or more parts.** ADR 0014 caps at two and the vertex rule
+  of IX.2 is stated for a general rectilinear union, but nothing above ran at k ≥ 3.
+- **That the shape census should change the contract.** IX.7 measures and hands on.
+- **A hardware claim.** One 4-core machine, `WORKERS = 4`. II.6 stands.
+- **Anything about H3 held hard.** `coverage` is soft here, exactly as in Part VIII,
+  and the composition with `model.no_unassigned_area` is asserted from ADR 0001
+  rather than measured.
+- **That the cap's *value* is right.** `dim.max_area` is Swiss and the profile is
+  AZ; that is `rules.json`'s question and *A cap fitted in one country and a target
+  set in another*'s.
+- **Anything about `dim.statutory_min_area`'s value, severity, site or limbs.**
+  Settled three times over by ADR 0027, ADR 0033 and `acceptance-bar.md` §3.2. What
+  moves here is which *object* the solver posts it on, which §9.1 already specified.
+- **That the join term earns its place on yield.** It does not, at this geometry:
+  one Room in 1 961. It earns it on the posted quantity being the quantity the rule
+  is stated on, and on costing 13 variables to say so.
+
+## Reproducing Part IX
+
+```
+python experiments/plane-accounting/selftest_parts.py          # 10 assertions, seconds
+python experiments/plane-accounting/arms_parts.py --selftest   # the oracle on real warped Rooms
+python experiments/plane-accounting/arms_parts.py --tag=parts  # 332 pairs x 5 arms, ~2 h
+python experiments/plane-accounting/seeds_parts.py 24 --tag=seedsp   # 19 rows, ~29 min
+python experiments/plane-accounting/report_parts.py --tag=parts
+```
+
+Rows at `experiments/plane-accounting/out/armsp_rows_parts.jsonl` and
+`seedsp_rows_seedsp.jsonl` — one JSON object per line, appended and flushed, because a whole-list dump per pair loses everything
+back to the last complete write if the process dies mid-dump, which it did here at
+pair 174 of 332. `--skip` resumes. The measurements are at `report_parts.json`.

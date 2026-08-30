@@ -1004,6 +1004,40 @@ delta p50 −0,002 s and **0** new INFEASIBLE. And the plane decides whether it
 works: on this bar's plane it leaves **0** Rooms above the cap, on the solver's
 smaller one it leaves **2**. The biconditional literals are bought for something.
 
+✅ **All of that is a Room that is ONE rectangle, and ADR 0014 gives a Room one or
+two — ADR 0041.** **53,9 %** of the converted index holds a two-part Room. This
+bar's plane generalises to it by exactly one term: the band across the shared edge,
+which a per-part form subtracts **twice** along an edge the Room does not have, and
+which comes back as `2 · 75 · 250 · J`. It costs **13 variables per two-part
+Room** and **no contact literals between a Room's own parts** — two
+interior-disjoint rectangles meet in at most one segment. Measured over 332 pairs
+and 284 solves: **1,82×** the variables, **+13,2 %** total solve time, time to
+first Plan 0,257 → 0,623 s against the 15 s cap.
+
+⚠️ **At two parts the Plan-level refusals are not this seam's, and this
+section must not read them as though they were.** **5 of 284 candidates (1,76 %)**
+are INFEASIBLE on the incumbent, all five the statutory floor's by ablation —
+and **all five are rescued by binding the area floor on the ROOM rather than on the
+primary part**, which is §9.1's own rule and what `room-rectangles/solver_parts.py`
+does not do. The plane rescues none beyond that, because a strictly stricter site
+sits in front of it and spends the refusals first. What the plane buys at two parts
+is coverage — mean unassigned cells **7,4 → 2,6** — and the objective, better
+on 140 of 279.
+
+⚠️ **The cap paragraph above is a `--parts=1` population and its twin is a
+different shape.** At two parts, **10 Rooms of 1 961** sit above their band
+uncapped, worst **8,19 m² over**, and they are no longer all bathrooms: 7
+`BATHROOM`, 1 `KITCHEN`, 1 `CORRIDOR`, 1 `STOREROOM` — and **one of the ten is a
+two-part `Z`**. Posting it still leaves **0**, at +7 constraints and no new
+variables, and its wall delta is the one difference in that run a sign test cannot
+separate from zero (p = 0,86).
+
+⚠️ **The 15 s headroom is materially smaller at two parts, for a reason that
+is not this seam's**: the *incumbent* already exhausts the cap on **90 of 284
+candidates (31,7 %)** against 17 of 307 at one part. That is ADR 0014's Design A
+search space, not the plane's. Any future pricing of the projection at two parts
+starts there and not at Part II's percentiles.
+
 ⚠️ **19,5 % is not this section's number and must not be quoted as one.** ADR 0033
 consequence 4 read it off `project_join.planes()`, which compares two planes on
 warped rectangles and runs **no solver**. This rule is `site: both`: the
