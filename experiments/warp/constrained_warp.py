@@ -47,6 +47,7 @@ import json
 import random
 import sys
 import time
+import zlib
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -232,7 +233,7 @@ def run_arm(cand, aspect, targets_m2, tlim, arm, key="", notch_tol=NOTCH_TOL):
     seed_rects = rects_mm(spans, *seed)
     tgt_cells = part_targets_cells(targets_m2, seed_rects, outside_of(seed_rects))
     jx, jy = joins(spans)
-    rng = random.Random(SEED ^ (hash(key) & 0xFFFF))
+    rng = random.Random(SEED ^ (zlib.crc32(key.encode()) & 0xFFFF))
     weights = [W_STATED if rng.random() < STATED_SHARE else W_INVENTED
                for _ in types]
     mins = [MIN_SIDE.get(t, MIN_SIDE_DEFAULT) for t in types]

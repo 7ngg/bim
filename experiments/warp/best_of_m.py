@@ -37,6 +37,7 @@ import json
 import random
 import sys
 import time
+import zlib
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -249,7 +250,7 @@ def main():
             # A full permutation, seeded per Brief: its first m is a valid uniform
             # draw of size m for EVERY m, which is what makes the curve nested
             # rather than a series of independent draws.
-            prng = random.Random(SEED ^ (hash(brief["k"]) & 0xFFFFFFFF))
+            prng = random.Random(SEED ^ (zlib.crc32(brief["k"].encode()) & 0xFFFFFFFF))
             order = prng.sample(pool, len(pool))
             oc = walk_pool(brief, order, tlim, hold_ring, max_m)
             fs = next((j for j, o in enumerate(oc) if o["served"]), None)

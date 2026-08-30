@@ -34,6 +34,9 @@ Outputs go to `out/`, gitignored. Seed 20260819 throughout, the same one
 | `constrained_warp.py [n]` | what ADR 0020's notch invariant and ADR 0028's void charge cost when **posted in the solve** rather than arrived at | ~6 min at `n=200` |
 | `stretch_terms.py` | **what the two dimensional gate terms are a proxy for**, computed directly and joined to `gate_effect.py`'s warps. No new warps | seconds |
 | `floor_warp.py [n]` | **what `dim.statutory_min_area` costs when the WARP posts it**, not the solve. Four paired arms; `--pool=m` runs the Brief-level arm instead, `--lenient` swaps the `PRIVATE` limb to `bedroom_single`, `--raw` drops the `market_default` raise | ~8 min at `n=400`, ~25 min at `--pool=8 n=200` |
+| `repro_floor.py [pairs]` | **how much of the noise floor is the wall clock and how much is a salted `hash()`**: a 2x2 over the objective-weight draw (fixed / varied) and the stopping rule (wall cap / `max_deterministic_time`), `k` re-solves a pair. `--load=N` runs N spinning processes so the clock is measured under contention, `--only=disagree` restricts to the pairs 65's accident caught | ~40 min at 25 pairs `--k=3 --load=3` |
+| `agg_floor.py [pairs]` | **the floor under a published FIGURE, not under a pair**: holds the stopping rule deterministic, varies only the objective-weight draw `k` times over one set of pairs, and reports the spread of the served rate and the `dev` percentiles. This is the number a margin like ADR 0032's 1,3 points is compared against | ~25 min at 150 pairs `--k=6` |
+| `salt_check.py` | **assertion**: no rig anywhere in the repo seeds a PRNG from a per-process-salted `hash()`. Read-only, scans every `.py` outside `venv/`, blanks string literals so it does not report its own prose. Exit 1 on any unowned site | seconds |
 
 Order: `room_area_spread.py` first (it builds `out/dwelling_rooms.json`, which
 every other script reads).
@@ -733,3 +736,230 @@ direction is wrong anyway: 0037 **raised** a floor on 59 dwellings, which makes
 ⚠️ **So the market arm's "before" side is NOT visible here and the debt is not
 even partly discharged.** The gap is an estimator artefact plus noise, and it
 carries no usable information about what 0037 moved. **62 and 67 still owe it.**
+
+## What ticket 82 measured: the floor is two mechanisms, and the cap is the small one
+
+Ticket 65 measured a reproducibility floor by accident -- two sweeps ran
+concurrently and warped 1 489 identical `(brief, donor)` pairs, disagreeing on
+`served` **2.82 %** of the time and on `dev` **14.71 %**. The mechanism it named
+was the wall clock: CP-SAT returns whatever incumbent it has reached when the cap
+fires, and under different CPU load that is a different one.
+
+**That mechanism is real, it is the minor term, and the accident could not have
+told them apart.** Two concurrent sweeps are two PROCESSES, and every warp in this
+directory drew its objective weights through
+
+    rng = random.Random(SEED ^ (hash(key) & 0xFFFF))
+    weights = [W_STATED if rng.random() < STATED_SHARE else W_INVENTED ...]
+
+`hash` on a `str` is salted per process unless `PYTHONHASHSEED` is set. So the two
+sweeps did not solve one model twice under different load. **They solved different
+objective functions** -- `W_STATED` 8 against `W_INVENTED` 1, per room, re-drawn in
+every process. Same key, three processes:
+
+    h=38024  weights=[1, 8, 1, 1, 8, 8]
+    h= 7292  weights=[1, 1, 8, 1, 1, 1]
+    h=45387  weights=[8, 8, 8, 1, 8, 1]
+
+This is the same defect ticket 65 fixed in `gate_effect.py`'s Brief draw and in
+`solver-toy/probe6.py`. It survived because those fixes were applied to the
+SAMPLING and this one is in the OBJECTIVE. Six live sites carried it:
+`absolute_area.py` (`run_one`, which every other script calls), `constrained_warp.py`,
+`floor_warp.py`, `project_join.py`, `best_of_m.py` (a draw ORDER, the same class as
+the bug 65 fixed) and `plane-accounting/arms.py`.
+
+`repro_floor.py` does deliberately what the accident did by chance. Each
+`(brief, donor)` pair is solved `k` times under a 2x2 -- the objective weight draw
+held fixed or varied, crossed with a wall-clock cap or `max_deterministic_time`:
+
+|  | wall-clock cap | deterministic cap |
+|---|---|---|
+| **salt varied** | TOTAL (= 65's condition) | the salt alone |
+| **salt fixed** | the time cap alone | control: must be 0 |
+
+Run under `--load=3`, three spinning processes against four cores, because a wall
+clock only misbehaves under contention and an idle machine under-reports it: the
+first smoke run at `--load=0` put the time-cap cell at **0.00 %** and would have
+been read as exonerating the clock.
+
+**Population rates -- 25 pairs drawn at random from the 3 834 the gate figures were
+computed on, k = 3, `--time=3.0`.**
+
+| cell | `served` | `dev` | solves hitting the cap |
+|---|---:|---:|---:|
+| `wall/varied` -- 65's condition | 4.00 % | 36.00 % | 2.9 % |
+| `wall/fixed` -- the time cap alone | **0.00 %** | **4.00 %** | 2.9 % |
+| `det/varied` -- the salt alone | 4.00 % | 32.00 % | 0.0 % |
+| `det/fixed` -- control | **0.00 %** | **0.00 %** | 0.0 % |
+
+**The salted objective is the floor.** 32 of the 36 points of `dev`, and 4 of the
+4 points of `served`. The wall clock contributes 4 points of `dev` and, at
+population level, nothing at all to `served`.
+
+**The salt moves answers that were PROVED OPTIMAL.** `det/varied` disagrees on
+46.7 % of the enriched sample with **0 of 90** solves reaching a cap. No stopping
+rule fixes this, because nothing about it is a stopping rule.
+
+**The cap's effect is conditional and sharp, not diffuse.** Enriched sample: it
+binds on 18.9 % of solves, and on the pairs where it bound, `dev` disagreed on 6
+of 7 -- **85.7 %**. Marginal 20 %, conditional 86 %.
+
+**It scales with the cap, and at the shipped cap it is zero.** Same 25 pairs, three
+caps:
+
+| cap | solves hitting it | `wall/fixed` `dev` (cap alone) | `det/varied` `dev` (salt alone) |
+|---:|---:|---:|---:|
+| 0.5 s | 34.8 % | 8.00 % | 32.00 % |
+| 3.0 s | 2.9 % | 4.00 % | 32.00 % |
+| **15.0 s** | **0.0 %** | **0.00 %** | 32.00 % |
+
+At 15 s no solve reaches the cap and `wall/fixed` is bit-identical to the control.
+The salt column is invariant at 32.00 %, with identical p90 and max at all three
+caps -- which is both the invariance it must show and a check that the three runs
+drew the same sample.
+
+**Exact reproducibility is available and costs about nothing.** `det/fixed` is
+0.00 % on both fields in every run. Median solve 1.34 s against the wall cap's
+1.35 s on the random sample, 2.12 s against 2.05 s on the enriched one.
+
+### What this does and does not invalidate
+
+⚠️ **Do not read this as "the published figures are wrong."** Two structural facts
+carry most of them:
+
+1. **Arm comparisons are paired and therefore protected.** The salt is a function
+   of `key` alone, so within one analysis every arm reads the same warp row for the
+   same key -- `gate_effect.warp_candidates` and `gate_depth.py` both warp the union
+   once and let the rules filter it. An arm ORDERING is computed on identical
+   solutions and the salt cancels.
+2. **The published CIs already carry this variance.** `gate_depth.boot_ci`
+   resamples BRIEFS, and each Brief carries its own realised draw, so the
+   bootstrap propagates the weight-draw variation rather than understating it.
+   For a paired arm comparison it is conservative.
+
+⚠️ **What is NOT protected, in order of how much it matters here:**
+
+- **Any cross-run "what moved" delta.** A re-run in a new process re-draws every
+  weight vector, so the measured difference mixes the change under test with a
+  re-drawn objective. **The `market`-arm re-run debt that 62 and 67 carry is
+  exactly this shape and cannot be measured until the draw is keyed.**
+- **A matched-pair design across DIFFERENT keys.** 62 pairs an off-frame donor
+  against an on-frame one at matched `worst_room_iou`; different donors are
+  different keys, so the pair never matched on the objective, and the pairing's
+  variance reduction is partly illusory. `run_one` now takes `wseed`, which is the
+  handle that makes that pairing real -- pass the same value to both members.
+- **Re-derivability of any single published number.** Nobody can reproduce one.
+- **Per-pair figures.** Ticket 65's `req <= 1` p90 moving 0.1196 -> 0.1217 between
+  two reads of one file is this, and it is why `gate_depth.py` keeps first-wins.
+
+⚠️ **A per-pair rate is NOT the floor under a published figure, and reading it as
+one is the error `agg_floor.py` exists to prevent.** Nothing on this map is
+published per pair; what is published is a served RATE and a `dev` PERCENTILE over
+hundreds of Briefs, and an aggregate is far more stable than its members. Quoting
+the 4-point per-pair `served` rate against ADR 0032's **1,3-point** served margin
+compares two different quantities. `agg_floor.py` measures the aggregate directly:
+it holds the stopping rule deterministic and varies only the weight draw, `k`
+times over the same pairs, and reports the spread of the published-shape statistic.
+
+**150 pairs, 6 draws, deterministic cap, so the wall clock contributes nothing:**
+
+| statistic | min | max | range | sd |
+|---|---:|---:|---:|---:|
+| served rate | 70,67 % | 72,00 % | **1,33 pts** | **0,54 pts** |
+| `dev` p50 | 0,1378 | 0,1389 | 0,0011 | 0,0004 |
+| `dev` p90 | 0,5722 | 0,5854 | 0,0132 | 0,0054 |
+
+⚠️ **ADR 0032's served margin is 1,3 points and the range here is 1,33 -- the
+margin sits AT this floor, not clear of it, and only the pairing saves it.** The
+arms share warp rows per key, so the draw cancels between them; this is the
+number that says how much that sharing is worth. Measured against an UNPAIRED
+comparison, a 1,3-point served difference is ~2,4 sd from pure objective-draw
+noise. **So any comparison that does not share rows -- every cross-run "what
+moved" measurement, the `market`-arm re-run 62 and 67 owe above all -- must clear
+about half a point of served before it means anything, and may not be quoted to
+tenths.**
+
+✅ **The shipped draw is unremarkable, which is the specific thing to check
+before standing on it.** Draw 0 is the `crc32` value `run_one` now uses by
+default; it lands at 70,67 %, tied with two others at the bottom of a 1,33-point
+band. Fixing the seed does not ship an outlying realisation.
+
+✅ **It also vindicates ticket 65's own refusal with a number.** 65 declined to
+call the pooled p90 between `req <= 1` (0,1196) and the depth-conditional arm
+(0,1234) -- a gap of **0,0038**, which is below the **0,0054** sd measured here,
+so it was genuinely unresolvable rather than merely close. Its thin-half gap
+(0,1554 against 0,1820 = 0,0266) is ~5 sd and clears.
+
+⚠️ **The units are not ADR 0032's.** This is 150 `(brief, donor)` PAIRS; ADR 0032
+aggregates ~288 BRIEFS, each a best-of-`m` over up to 8 warps, which averages
+further. A floor scales as 1/sqrt(n), so 0,54 pts here maps to roughly 0,39 at
+288 -- but the unit differs as well as the count, so treat the mapping as an
+order of magnitude and not a conversion.
+
+⚠️ **The debt this ticket was raised over was already on the record in another
+rig, unpaid.** `docs/research/solver-formulation.md` II.6: *"Every timing is a
+single run at seed 20260817. There is no variance estimate. CP-SAT's portfolio
+search is stochastic across workers; these numbers could move materially on a
+re-run and must be repeated over >= 10 seeds before any of them is quoted as a
+specification."* That is the same finding, written down before ticket 82 existed
+and never discharged.
+
+⚠️ **`project_join.py` is the one place this understates the exposure, and it is
+not measured here.** It solves the projection at `WORKERS = 4`. Every cell above
+ran at `num_workers = 1`, the warp's setting, so **none of this transfers to the
+projection** -- and it cannot be made to, because `solver-formulation.md` II.6
+finds *"two workers is the floor. A single-worker deployment is not a slower
+product, it is a broken one at the top of the room range."* **And it is now established that the projection has no
+route to reproducibility while it is wall-capped** -- `docs/research/solver-reproducibility.md`,
+from OR-Tools' own source:
+
+- `max_deterministic_time` is **not sufficient** for a parallel solve. The
+  dispatch in `LaunchSubsolvers` (`cp_model_solver.cc:823-836`) branches on
+  `interleave_search` and on **nothing else**: false selects `NonDeterministicLoop`
+  whatever the time limit says. The widely-held belief that a deterministic cap
+  buys parallel determinism is false as stated.
+- `interleave_search` is the flag whose own comment says *"The search is
+  deterministic (independently of num_workers!)"*. It is also marked
+  **"Experimental."** and defaults to **false**.
+- `DeterministicLoop` **takes no time-limit argument at all**
+  (`subsolver.cc:130-131`). Its machine-independent caps are
+  `max_deterministic_time` and `max_num_deterministic_batches`. **A
+  `max_time_in_seconds` that fires first destroys determinism again regardless
+  of `interleave_search`.**
+
+So a 15 s wall cap and a reproducible projection are **mutually exclusive**, and
+the 15 s is a product constraint rather than a rig setting. The engine's
+non-determinism is *entailed by a decision already taken*, not a defect awaiting
+repair -- and `homeowner-surface.md` already discloses exactly that: *"the link
+carries the request, not the results: generation is not reproducible from a
+Brief alone, and the surface says so."* Nothing here asks for that to change.
+
+⚠️ **What it does forbid is promoting any of those timings into a threshold.**
+`solver-formulation.md` II.6 records `num_workers = 4` for every run and no
+`interleave_search`, so by the dispatch above every one of them ran under
+`NonDeterministicLoop`. They are valid single-machine observations and **must not
+become regression gates**. A gate that has to be stable needs
+`interleave_search=true` + `max_deterministic_time` + pinned `random_seed` and
+`num_workers`, and must assert **status and objective, never seconds**.
+
+⚠️ **Do not over-read this directory's own control cell either.** `det/fixed` at
+0,00 % is a **same-machine, single-worker** result. OR-Tools documents no
+cross-machine bit-identity -- the word "reproducible" appears **nowhere** in
+`sat_parameters.proto`'s 1 925 lines -- and single-worker determinism has failed
+in practice before: google/or-tools issue **#3948**, fixed seed, different
+optimal fingerprints, maintainer reply *"Reproduced."*, closed with no fix
+identified. The claim this rig can make is *"reproducible on this machine,
+verified by repeat"*, and not a word more. §2.2.9's per-candidate paired deltas -- `Sum(Space)`
+Plan against Proposal at p50 0,0000 -- are read off that solve and have never been
+repeated. Ticket 82 deliberately claimed neither `experiments/solver-toy/` nor
+`experiments/plane-accounting/`; both still owe a repeat, and `arms.py:175` still
+carries the salt.
+
+⚠️ **Trap: `--load=0` exonerates the wall clock and it is wrong to run it that
+way.** The time-cap cell reads 0.00 % on an idle machine at 3 s and 4.00 % under
+contention. Any re-measurement of a timed floor must state its load.
+
+⚠️ **Trap: the enriched sample is not the population.** `--only=disagree`
+restricts to the 219 pairs whose duplicates already disagreed on `dev`, so its
+rates (60 % / 20 % / 46.7 %) are conditional and roughly an order of magnitude
+above the population ones. Never quote the two side by side without saying which.

@@ -58,6 +58,7 @@ from __future__ import annotations
 import json
 import random
 import sys
+import zlib
 import time
 from collections import Counter
 from pathlib import Path
@@ -143,7 +144,7 @@ def run_arm(cand, aspect, targets_m2, tlim, arm, key="", lenient=False):
     fl_cells = [c if f > 0 else 0 for c, f in zip(fl_cells_all, fl_m2)]
 
     jx, jy = joins(spans)
-    rng = random.Random(SEED ^ (hash(key) & 0xFFFF))
+    rng = random.Random(SEED ^ (zlib.crc32(key.encode()) & 0xFFFF))
     weights = [W_STATED if rng.random() < STATED_SHARE else W_INVENTED
                for _ in types]
     mins = [MIN_SIDE.get(t, MIN_SIDE_DEFAULT) for t in types]

@@ -60,6 +60,7 @@ from __future__ import annotations
 import json
 import random
 import sys
+import zlib
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -350,7 +351,7 @@ def pct(xs, p):
 
 
 def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key="",
-            hold_ring=False):
+            hold_ring=False, wseed=None, dtime=None):
     """One warp. Returns per-room delivered Space area in m2, or a status.
 
     `hold_ring` (ticket 56) makes the rig agree with the engine about what is
@@ -376,6 +377,12 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key="",
     target_area = sum(targets_m2)
     want_interior = target_area * (1.0 + F_PARTITION)
     scale, got = 1.0, None
+    # Ticket 82. Whether the CAP actually bound is the mechanism behind every
+    # timed figure here: a solve that reaches OPTIMAL cannot vary with machine
+    # load, and one stopped by the clock can. `hold_ring` runs this loop up to
+    # six times and the pair is only cap-free if EVERY iteration proved
+    # optimality, so the flag is an AND over the fixed point.
+    all_opt = True
     for _ in range(6 if (calibrate or hold_ring) else 1):
         interior = want_interior * scale
         box_m2 = interior / (1.0 - s)
@@ -388,15 +395,24 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key="",
         tgt_cells = part_targets_cells(targets_m2, seed_rects,
                                        outside_of(seed_rects))
         jx, jy = joins(spans)
-        rng = random.Random(SEED ^ (hash(key) & 0xFFFF))
+        # Ticket 82. `hash()` on a str is salted per process unless
+        # PYTHONHASHSEED is set, so this line drew a DIFFERENT objective weight
+        # vector in every process -- W_STATED 8 against W_INVENTED 1, at a 30 %
+        # coin flip, per room. `wseed` makes the draw explicit: None keeps the
+        # shipped (salted) path byte-for-byte so nothing published moves under
+        # a measurement, and an int fixes it. Measured by `repro_floor.py`.
+        rng = random.Random(SEED ^ ((zlib.crc32(key.encode()) if wseed is None else wseed)
+                                    & 0xFFFF))
         weights = [W_STATED if rng.random() < STATED_SHARE else W_INVENTED
                    for _ in types]
         mins = [MIN_SIDE.get(t, MIN_SIDE_DEFAULT) for t in types]
         res, name = warp_model(spans, len(xs) - 1, len(ys) - 1, tgt_cells, W, H,
-                               weights, mins, jx, jy, tlim, seed=seed)
+                               weights, mins, jx, jy, tlim, seed=seed,
+                               dtime=dtime)
         if res is None:
             return {"status": name}
         gx, gy, _opt = res
+        all_opt = all_opt and bool(_opt)
         solved = rects_mm(spans, gx, gy)
         outside = outside_of(solved)
         got = [space_m2(r, outside) for r in solved]
@@ -449,6 +465,7 @@ def run_one(cand, aspect, targets_m2, tlim, calibrate=False, key="",
     s_real = notch_a / bbox_m2 if bbox_m2 else 0.0
     void_real = void_a / bbox_m2 if bbox_m2 else 0.0
     return {"status": "OK", "got": got, "types": types, "s": s, "void": void,
+            "all_optimal": all_opt,
             "target_area": target_area, "targets": targets_m2,
             "cov_over_int": cov_over_int, "space_over_cov": space_over_cov,
             "n_rooms": len(types),

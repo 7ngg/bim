@@ -91,7 +91,7 @@ STATED_SHARE = 0.30             # probe only: how many of a Brief's targets are 
 
 
 def warp_model(spans, nx, ny, targets, W, H, weights, min_side,
-               joins_x, joins_y, tlim, aspect=True, seed=None):
+               joins_x, joins_y, tlim, aspect=True, seed=None, dtime=None):
     """The whole warp, as one CP-SAT model over both cut-line vectors.
 
     Not an alternation. A Room's area is bilinear in the two gap vectors, and
@@ -159,8 +159,18 @@ def warp_model(spans, nx, ny, targets, W, H, weights, min_side,
             m.AddHint(v, val)
 
     s = cp_model.CpSolver()
-    s.parameters.max_time_in_seconds = tlim
     s.parameters.num_workers = 1
+    if dtime is None:
+        s.parameters.max_time_in_seconds = tlim
+    else:
+        # Ticket 82. A wall-clock cap makes the RESULT a function of machine
+        # load: single-worker CP-SAT explores a fixed sequence, but which
+        # incumbent it has reached when the cap fires is whatever the CPU
+        # allowed. `max_deterministic_time` counts the solver's own work units
+        # instead, so the same model returns the same solution on any load.
+        # Additive and off by default: `dtime=None` is the shipped path,
+        # byte-for-byte.
+        s.parameters.max_deterministic_time = dtime
     st_ = s.Solve(m)
     name = s.StatusName(st_)
     if st_ not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
