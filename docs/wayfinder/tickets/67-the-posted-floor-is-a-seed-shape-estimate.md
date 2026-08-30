@@ -63,3 +63,42 @@ is a correction to ADR 0033's numbers, not a reopening of its decision.
 ## Raised by
 
 *Should the warp post the statutory floor* (2026-08-29), ADR 0033 consequence 3.
+
+## Handed on by *The projection discards a fifth of the guarantees the warp now buys* (2026-08-30)
+
+**You now own grid dust at two sites, not one, and they should be decided
+together because the three fixes above map onto both.**
+
+ADR 0039 makes `solver.py` read the bar plane by subtracting the erosion band
+**per side** rather than on all four. That form double-subtracts the 75 × 75 mm
+square wherever two *interior* sides meet, so it understates a Room by
+`5 625 mm²` per interior-interior corner — at most **0,0225 m²**. Hand-verified:
+a 4 × 3-cell Room with all four sides interior computes 487 500 mm² against a true
+510 000 (four corners); with its left side on the boundary, 543 750 against
+555 000 (two).
+
+**It is the same size and the same class as your 4,6 % residual.** Yours is p50
+**0,038 m²**, max 0,438, and it is an *estimate* error — the erosion overhead read
+at the affine seed, on a shape that then moves. This one is an *exactness* error —
+a correct band subtraction with a known missing corner term. Both are dust; both
+are the distance between a constraint being true and being nearly true.
+
+**Three things this changes for your ticket:**
+
+1. **Your option 3 — "post the erosion exactly rather than as an overhead" — now
+   has a second consumer.** ADR 0039's decision 2 is the projection-side twin of
+   it, and it stopped one term short for exactly the reason your option 3 names as
+   its own cost: exactness needs contact at a **point** rather than over a length.
+   If you take option 3, price the corner term for both sites at once.
+
+2. ⚠️ **The two residuals do not compose in one direction.** Dropping a corner is
+   conservative on every **floor** and *lenient* on `dim.max_area`, which ADR 0039
+   found is the one rule of seven where the solver's plane is already the lenient
+   one. So a corner term that is decorative for your floor question may not be for
+   the cap. It is not yours to decide, but it is why the bound is recorded rather
+   than waved.
+
+3. **Nothing under you moved.** ADR 0039 wrote no code and touched neither
+   `experiments/warp/` nor `docs/spec/proposer.md`, so §2.2.2 decision 7's
+   unasterisked invariant is still exactly the sentence your ticket is about, and
+   `experiments/warp/` still stands at three claimants — 62, 65 and you.

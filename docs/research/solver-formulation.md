@@ -2303,3 +2303,114 @@ create that trigger** and deliberately did not graduate it.
   *states* an ordering as a requirement rather than the engine asserting it as a
   quality rule, this Part does not price it — the corpus is silent on what a
   Homeowner asks for, and every rate above describes what real housing *is*.
+
+---
+
+# Part VII — the boundary is accounted once, and the plane stops being two (ticket 68)
+
+**No measurement here.** Part VII is a derivation and two hand-checks; the
+encoding it settles is ADR 0039's and is unimplemented. It sits beside II.1
+because it is the same identity — an area that looks like it needs a second
+multiplication turns out to be affine in the one H4 already builds — applied one
+term further out.
+
+## VII.1 What the two planes actually were
+
+II.1 established `mm_affine`: the eroded area `(250w − t)(250h − t)` is affine in
+the grid-unit product, so ADR 0001's clear reading costs no second
+`AddMultiplicationEquality`. What it did not ask is whether that expression is the
+area ADR 0001 publishes. It is not, on any Room touching the outside.
+
+ADR 0001's Space is `erode(⋃ parts, t_int/2)` with a **boundary rule**: an edge on
+the Envelope is not eroded, because the tiling edge there already sits at
+exterior-inner-face + `t_int/2`. `experiments/warp/absolute_area.py::space_m2`
+implements it by eroding `parts ∪ outside` and trimming back — under which a
+boundary edge is *interior to that union and survives*. `solver.py::_add_dimensions`
+implements `(250w − t)(250h − t)`, which erodes all four sides of every Room.
+
+Two clear areas, named in `CONTEXT.md` as the **bar plane** and the **solver
+plane**, differing by a median **3,9 %** of a perimeter Room's area, and **1,51 %**
+of 1 786 warped Rooms clear their floor on one and fail on the other.
+
+**The trap this Part exists to remove:** `brief.md` §5.3 describes the solve frame
+as `dilate(Envelope, t_int/2)`, and `acceptance-bar.md` §11.1 concluded the gap
+"cannot be fixed inside the model" because 75 mm is below the 250 mm grid's own
+quantisation. Read together those invite a dilated domain, or a shifted lattice on
+which `W_env + t_int ≡ 0 (mod 250)` so the dilation tiles exactly. **Both solve a
+problem that does not exist.** `space_m2` shows the domain boundary already *is*
+the exterior inner face; §5.3's dilation and the union-with-outside are two
+descriptions of one geometry. There is no missing ring to represent. There is a
+subtraction the solver performs and should not.
+
+## VII.2 The encoding
+
+Subtract the erosion band per **side**, over the sides that face another Room:
+
+```
+amm_i = 62 500 · a_i  −  75 · Σ_{s ∈ 4 sides} interior_len_mm(i, s)
+
+interior_len(i, s) = side_len(i, s) − boundary_contact_len(i, s)
+```
+
+- `a_i = w_i · h_i` is H4's existing product. Unchanged, and still the only one.
+- `boundary_contact_len(i, s)` is the overlap between Room *i*'s side *s* and the
+  maximal runs `Envelope.all_faces()` returns — the same boundary decomposition
+  `_add_exterior` consumes for H8, and the one Part IV's fixture work removed the
+  phantom faces from. Per face, `max(0, min(hi, p_hi) − max(lo, p_lo))` under a
+  reified flush-contact literal: `AddMaxEquality` / `AddMinEquality`, no products.
+- Clear dimensions follow linearly on the same literals:
+  `clear_w_i = 250·w_i − 75·(number of interior x-sides)`.
+
+**The form is affine in `a_i` and linear in the segment lengths**, so it spends no
+second `AddMultiplicationEquality`. II.1 measured that doubling the multiplication
+count and moving operands to 10⁸ is not detectable against seed-to-seed spread;
+this does not even spend that. What it does spend is auxiliary integers and
+reified literals — bounded by rooms × 4 sides × faces — and that is the cost the
+task ticket must measure, not the arithmetic.
+
+**Direction matters and it is why H8's literals cannot be reused.** `_add_exterior`
+is forward-only by design — *"we force the OR, and a true face literal entails a
+real flush contact"*. For a **floor** that is exactly right: a Room must prove
+contact to claim the correction, so an unclaimed correction leaves the solver
+conservative and no false pass is reachable. For a **cap** it inverts: leaving
+every literal false is free and understates the area, which is the lenient
+direction. The area accounting therefore builds its own **biconditional** literal
+set and `_add_exterior` is untouched.
+
+## VII.3 The corner residual, and the two hand-checks
+
+Subtracting a band per side double-subtracts the 75 × 75 square wherever two
+*interior* sides meet, so the form understates by `5 625 mm²` per interior-interior
+corner — at most **22 500 mm² = 0,0225 m²** per Room.
+
+| Room | sides interior | formula | true | difference |
+|---|---|---:|---:|---|
+| 4 × 3 cells (1000 × 750 mm) | all four | 487 500 | 510 000 | 22 500 = 4 × 5 625 |
+| same, left side on boundary | three | 543 750 | 555 000 | 11 250 = 2 × 5 625 |
+
+True values are `(1000 − 150)(750 − 150)` and `(1000 − 75)(750 − 150)`.
+
+Recovering it exactly needs contact at a **point** rather than over a length — a
+corner is eroded iff both of its adjacent unit edges are interior, which "both
+sides wholly interior" only approximates, and under-counts. ADR 0039 drops it:
+bounded, conservative on every floor, and smaller than the **0,038 m²** grid dust
+*The posted floor is a seed-shape estimate* is already deciding about on the warp
+side. That ticket owns both.
+
+## VII.4 What Part VII does not establish
+
+- **That the encoding fits the budget.** Build time, solve time against the 15 s
+  cap and τ = 4, and the INFEASIBLE delta are all unmeasured. ADR 0039 decision 6
+  carries the fallback if they refuse it: floors only, forward-only literals,
+  `dim.max_area` left to the validator.
+- **That 19,5 % was the cost.** It was not: `project_join.planes()` runs no solver,
+  and the rule is `site: both`, so the projection re-sizes rather than refuses.
+  The Plan-level figure is **14 of 273** candidates INFEASIBLE with all fourteen
+  attributed to the statutory limb by ablation — **5,1 %**, an upper bound that
+  also contains genuine starvation. See `acceptance-bar.md` §11.1.
+- **That the floor is the only rule affected.** Seven are `site: both` and read a
+  clear dimension; `dim.max_area` is the one where the solver's plane is the
+  lenient one.
+- **Anything about `dim.statutory_min_area`'s value, severity, site or limbs.**
+  Settled by ADR 0027, ADR 0033 and `acceptance-bar.md` §3.2. No threshold moves
+  here.

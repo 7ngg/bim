@@ -942,31 +942,77 @@ exactly the one the floor refused. It buys a rate and buys **no invariant**, so
 this section would still have to reason about starved Proposals and nothing here
 would simplify. A guarantee that holds except when it doesn't is not one.
 
-⚠️ **The solver reads a perimeter Room smaller than this bar does, by a median
-3,9 % of its area.** `solver.py` binds H4 on `(250w − t_int)(250h − t_int)`,
-eroding all four sides; ADR 0001 does not erode at the Envelope boundary, because
-the tiling edge there already sits at exterior-inner-face + `t_int/2`. It cannot
-be fixed inside the model — 75 mm is below the 250 mm grid's own quantisation and
-`brief.md` §5.3 makes the solve domain a third quantity — so **the projection is
-strictly stricter than the rule it posts**, on the Rooms that touch the outside.
-Measured over 1 786 warped Rooms: **1,51 %** clear their floor on this bar's plane
-and fail on the solver's. It is the same 75 mm ring ticket 56 removed from the
-measuring rig, re-found where it cannot be removed, and it is why a candidate can
-be Proposal-clear and still be refused. It costs yield and never admits a Plan
-that should have been refused, so it is recorded rather than treated as a defect
-to fix before v1.
+✅ **The solver reads this bar's plane, and the defect was arithmetic rather than
+geometry.** `solver.py` bound H4 on `(250w − t_int)(250h − t_int)`, eroding all
+four sides of every Room; ADR 0001 does not erode at the Envelope, because the
+tiling edge there already sits at exterior-inner-face + `t_int/2`. That made the
+projection **strictly stricter** than the rule it posts, by a median **3,9 %** of
+a perimeter Room's area — measured over 1 786 warped Rooms, **1,51 %** clear their
+floor on this bar's plane and fail on the solver's. It is closed by **ADR 0039**:
+the solver subtracts the erosion band per *side*, over the sides that face another
+Room, and claims nothing at the boundary.
 
-⚠️ **ADR 0033 re-prices that deferral without re-opening it.** The two quantities
-now have a name — `CONTEXT.md`'s [[Space plane]], the **bar plane** against the
-**solver plane** — and the warp posts the floor on this bar's, deliberately, so
-that a legal quantity is constrained on the plane the law is measured on rather
-than on a plane one component happens to be able to express. The consequence is
-that **59 of 302** floor-clean candidates — **19,5 %** — fail their floor on the
-solver's plane after the warp has paid to clear it on this one. ⚠️ That is a
-*per-candidate* share of a *floor-bound* population and is **not** comparable
-with the 1,51 % above, which is per-Room over all warped Rooms; they are two
-denominators, not a contradiction. What is new is only the cost basis: the
-deferral was priced when no stage was paying for the guarantee, and one now is.
+```
+amm_i = 62 500·a_i − 75·Σ_{s ∈ 4 sides} interior_len_mm(i, s)
+```
+
+`a_i = w_i·h_i` is the multiplication H4 already builds, and the boundary contact
+comes off `Envelope.all_faces()`, the decomposition H8 already consumes. The form
+is **affine in `a_i` and linear in the segment lengths**, so it costs no second
+`AddMultiplicationEquality` — the same identity `mm_affine` used to make ADR
+0001's clear reading free.
+
+**There was never a dilated domain to reach for, and the ADR says so plainly**
+because it is the first thing a reader will try. `brief.md` §5.3 describes the
+solve frame as `dilate(Envelope, t_int/2)`; `absolute_area.space_m2` implements
+that by eroding `parts ∪ outside`, under which a boundary edge is *interior to
+the union and survives*. The domain boundary already **is** the exterior inner
+face. Dilating it would be a second geometry, not a correction.
+
+⚠️ **The seam was never one predicate's, and it runs in both directions.** Seven
+rules are `site: both` and read a clear dimension. Five are floors, where the
+solver's plane refuses what this bar admits. `dim.aspect_ratio_hard` reads a
+ratio of two clear dimensions and moves either way. And **`dim.max_area` is a
+cap, where the solver's plane is the *lenient* one** — it reads a perimeter Room
+~3,9 % smaller, so the cap does not bind exactly where `model.no_unassigned_area`
+sends surplus. No Plan reaches a Homeowner that way, because this bar re-checks on
+its own plane and discards it; what is lost is yield and the propagation the
+rule's own note claims the solver post buys. ADR 0039 requires the contact
+literals to be **biconditional** for that reason: H8's are forward-only, which is
+correct for a floor — a Room must prove contact to claim the correction — and
+wrong for a cap, which would leave every literal false and stay loose.
+
+⚠️ **19,5 % is not this section's number and must not be quoted as one.** ADR 0033
+consequence 4 read it off `project_join.planes()`, which compares two planes on
+warped rectangles and runs **no solver**. This rule is `site: both`: the
+projection *posts* the floor, so a Room short on the solver's plane is re-sized,
+not refused, and a refusal can only appear as INFEASIBLE. That is measured — 273
+candidates reaching the solve, **14 INFEASIBLE**, all fourteen attributed to the
+statutory limb by ablation (drop it, keep the ergonomic floor: 10 OPTIMAL, 4
+FEASIBLE). **5,1 %**, and it is an upper bound containing genuine starvation as
+well as plane victims. It is the same error this section already caught itself
+making at 3,6 % — a quantity measured at the wrong site — one stage further on.
+The two are **not** comparable with the 1,51 % above either, which is per-Room
+over all warped Rooms.
+
+⚠️ **A corner residual of at most 0,0225 m² per Room survives, deliberately.**
+Subtracting a band per side double-subtracts the 75 × 75 square where two
+interior sides meet, and adding it back exactly needs contact at a *point* rather
+than over a length. Dropped: it is conservative on every floor, it is bounded at
+`4 × 5625 mm²`, and it is smaller than the **0,038 m²** grid dust *The posted
+floor is a seed-shape estimate* is already deciding what to do with on the warp
+side. That ticket owns both.
+
+⚠️ **The rule this section escalates on no longer has one kind of limb.** ADR 0034
+reclassifies `dim.statutory_min_area`'s `KITCHEN_DINING` limb: four limbs
+transcribe a whole-room figure, and this one is a **sound lower bound entailed
+from a part** — AzDTN cl. 5.7 floors the kitchen *zone* inside the room and
+publishes no whole-room figure at all (`az-kitchen-diner-whole-room.md`). The
+value, the severity, the site and the enforcement order are all unmoved. What
+moves is what a clearing Plan *guarantees*: on that one limb the room clears the
+part's floor, not the room's, and the room's is unpublished. It is orthogonal to
+the plane — `KITCHEN_DINING` is 41 Rooms of 319 222 and `STAT_FLOOR` does not
+move — so no figure above changes.
 
 ## 12. Open, and deliberately so
 
