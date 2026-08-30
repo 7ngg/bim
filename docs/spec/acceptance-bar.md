@@ -957,10 +957,21 @@ amm_i = 62 500·a_i − 75·Σ_{s ∈ 4 sides} interior_len_mm(i, s)
 ```
 
 `a_i = w_i·h_i` is the multiplication H4 already builds, and the boundary contact
-comes off `Envelope.all_faces()`, the decomposition H8 already consumes. The form
-is **affine in `a_i` and linear in the segment lengths**, so it costs no second
-`AddMultiplicationEquality` — the same identity `mm_affine` used to make ADR
-0001's clear reading free.
+comes off the Envelope's boundary faces. The form is **affine in `a_i` and linear
+in the segment lengths**, so it costs no second `AddMultiplicationEquality` — the
+same identity `mm_affine` used to make ADR 0001's clear reading free.
+
+✅ **It is built, it is exact, and it fits — ADR 0040.** Measured at the shipped
+configuration over 340 candidates: **2,36×** the variables, **1,85×** the
+constraints, wall p50 0,193 → 0,447 s, and **16,4 %** more total solve time. That
+cost is real — only **6 of 35** candidates put it inside their own six-seed spread,
+so it is not the free change II.1's arithmetic finding was — but it lands nowhere
+near the budget: time to first Plan 0,110 → 0,284 s against a **15 s** cap, and the
+count of candidates that exhaust the cap goes **down**, 17 → 16. ADR 0039's
+fallback is not selected. ⚠️ **Two corrections came with it.** The contact set is
+the boundary **minus enclosed voids** — `all_faces()` returns a void's faces too,
+and a Room's edge on a void erodes, so crediting it would read that Room *larger*
+than this bar. And the corner residual below is **two-signed**.
 
 **There was never a dilated domain to reach for, and the ADR says so plainly**
 because it is the first thing a reader will try. `brief.md` §5.3 describes the
@@ -982,25 +993,52 @@ literals to be **biconditional** for that reason: H8's are forward-only, which i
 correct for a floor — a Room must prove contact to claim the correction — and
 wrong for a cap, which would leave every literal false and stay loose.
 
+✅ **`dim.max_area` was posted for the first time, it binds, and it is a bathroom
+— ADR 0040.** No arm on this map had ever posted the cap; H4 posts `min_w`,
+`min_h`, `min_area` and aspect and nothing else, so the false pass above was a
+property of this spec rather than of anything measured. Posted: **10 Rooms of
+1 993** sit above their band uncapped, across 9 candidates, **every one a
+`BATHROOM`**, worst **10,2 m² over** — §9.3's 40 m² WC reached through a third
+door. Posting it costs **+6 constraints** per candidate, no new variables, wall
+delta p50 −0,002 s and **0** new INFEASIBLE. And the plane decides whether it
+works: on this bar's plane it leaves **0** Rooms above the cap, on the solver's
+smaller one it leaves **2**. The biconditional literals are bought for something.
+
 ⚠️ **19,5 % is not this section's number and must not be quoted as one.** ADR 0033
 consequence 4 read it off `project_join.planes()`, which compares two planes on
 warped rectangles and runs **no solver**. This rule is `site: both`: the
 projection *posts* the floor, so a Room short on the solver's plane is re-sized,
-not refused, and a refusal can only appear as INFEASIBLE. That is measured — 273
-candidates reaching the solve, **14 INFEASIBLE**, all fourteen attributed to the
-statutory limb by ablation (drop it, keep the ergonomic floor: 10 OPTIMAL, 4
-FEASIBLE). **5,1 %**, and it is an upper bound containing genuine starvation as
-well as plane victims. It is the same error this section already caught itself
-making at 3,6 % — a quantity measured at the wrong site — one stage further on.
-The two are **not** comparable with the 1,51 % above either, which is per-Room
-over all warped Rooms.
+not refused, and a refusal can only appear as INFEASIBLE. It is the same error this section already
+caught itself making at 3,6 % — a quantity measured at the wrong site — one stage
+further on. Neither is comparable with the 1,51 % above, which is per-Room over
+all warped Rooms.
 
-⚠️ **A corner residual of at most 0,0225 m² per Room survives, deliberately.**
-Subtracting a band per side double-subtracts the 75 × 75 square where two
-interior sides meet, and adding it back exactly needs contact at a *point* rather
-than over a length. Dropped: it is conservative on every floor, it is bounded at
-`4 × 5625 mm²`, and it is smaller than the **0,038 m²** grid dust *The posted
-floor is a seed-shape estimate* is already deciding what to do with on the warp
+**The Plan-level cost is `1,30 %`, and the plane is all of it** — ADR 0040,
+`solver-formulation.md` Part VIII. ~~5,1 %~~ was measured on a warp that did not
+yet post the floor, and over a candidate population ADR 0037 has since moved, so
+it is retired rather than refined. Re-run at the shipped configuration with ADR
+0033's floor upstream: **33 of 340** candidates (9,71 %) are refused before the
+solve, **307** reach it, and the incumbent refuses **4 of 307 = 1,30 %**, all four
+the floor's by ablation (2 OPTIMAL, 2 FEASIBLE). On the corrected plane:
+**0 of 307**. So every Plan-level refusal on that sample was a plane victim, and
+the genuine-starvation component has not vanished — it moved upstream into the
+9,71 % the warp now pays, which is ADR 0033's cost and is measured there.
+
+⚠️ **A corner residual survives deliberately, and it is TWO-SIGNED.** Subtracting
+a band per side double-subtracts the 75 × 75 square where two interior sides meet
+— and where a Room's side crosses from Envelope to partition, the erosion wraps
+round a 270° corner of the interior and takes a further one, at a *point* a band
+over a *length* cannot see. Exactly:
+`truth = amm + 5 625 × (interior corners − reflex vertices on the sides)`.
+
+Measured over 1 993 Rooms (ADR 0040): p50 **+0,00562 m²**, range
+**−0,01125 … +0,0225**, and **109 Rooms — 5,47 % — read LARGER than this bar**. So
+ADR 0039's *"conservative on every floor"* is withdrawn, and its `4 × 5625 mm²` is
+an observed maximum rather than a derived bound. ⚠️ Adding the corner term **alone**
+makes it worse rather than better: that form over-states on **36,43 %** of Rooms,
+6,7× as often. **It changes no verdict** — 0 floor and 0 cap verdicts move on 1 993
+Rooms, against a plane gap of p50 3,91 % — and it stays smaller than the
+**0,038 m²** grid dust *The posted floor is a seed-shape estimate* owns on the warp
 side. That ticket owns both.
 
 ⚠️ **The rule this section escalates on no longer has one kind of limb.** ADR 0034
