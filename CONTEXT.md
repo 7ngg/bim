@@ -875,21 +875,20 @@ the failure this term exists to prevent. v1 ships `az_umumi_sahe`: the sum of
 Space areas, measured to finished faces at floor level, partitions **not**
 counted.
 
-**Space plane** — *which* clear area a number is, when two of them exist. A
-Space's area is `erode(∪ parts, t_int/2)`, and the erosion has a **boundary
-rule**: an edge on the Envelope is *not* eroded, because ADR 0001's tiling edge
-there already sits at exterior-inner-face + `t_int/2`. That is the **bar plane**,
-the one every predicate in `rules.json` is stated on and the one
-[[Hard area floor]] is read against. `solver.py` cannot express it — 75 mm is
-below the 250 mm grid's own quantisation — so it erodes all four sides of every
-Room and reads the **solver plane**, a *different quantity*, smaller by a median
-**3,9 %** on the Rooms that touch the outside.
-_Avoid_: "the clear area", unqualified, anywhere the difference can bind. The two
-planes are both clear areas, both correct on their own terms, and **1,51 %** of
-warped Rooms clear their floor on one and fail on the other. Naming the plane is
-not pedantry here: the unnamed version already shipped one component that is
-strictly stricter than the rule it posts, and a floor posted on the wrong plane
-constrains geometry to a number no regulator wrote.
+**Space plane** — the plane a Space's clear area is measured on. There is **one**,
+the **bar plane**: `erode(∪ parts, t_int/2)` with a **boundary rule** — an edge on
+the Envelope is *not* eroded, because ADR 0001's tiling edge there already sits at
+exterior-inner-face + `t_int/2`. Every predicate in `rules.json` is stated on it
+and [[Hard area floor]] is read against it.
+_Avoid_: "the clear area", unqualified, and above all the **solver plane** — the
+name this term carried for the second quantity `solver.py` read, which eroded all
+four sides of every Room and so measured a perimeter Room a median **3,9 %**
+smaller. It was a defect, not a distinction: ADR 0039 has the solver account the
+boundary per side and read the bar plane, and the second name is retired with it.
+Kept here because both were clear areas and both defensible on their own terms,
+which is why the unnamed version shipped one component strictly stricter than the
+rule it posted — and one, `dim.max_area`, strictly looser. A number stated on the
+wrong plane constrains geometry to a figure no regulator wrote.
 
 **Living area** / **Useful area** — the two quantities an Azerbaijani residential
 plan annotates, as a **fraction**, living over useful. *Living area* is the sum
