@@ -1,0 +1,46 @@
+{
+ "ortools": "9.15.6755",
+ "machine": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+ "python": "3.12.10",
+ "workers": 4,
+ "seeds": 12,
+ "replicates": 2,
+ "solver_seeds": [
+  1000,
+  1001,
+  1002,
+  1003,
+  1004,
+  1005,
+  1006,
+  1007,
+  1008,
+  1009,
+  1010,
+  1011
+ ],
+ "scenario_seed": 20260817,
+ "exposure": "corpus_median",
+ "tau": 4,
+ "sigma": 0.5,
+ "rooms": [
+  8,
+  12,
+  24
+ ],
+ "arms": [
+  "base",
+  "il",
+  "det"
+ ],
+ "wall_cap_s": 15.0,
+ "det_budget": 15.755,
+ "t_int_mm": 100,
+ "rig": "mm_affine",
+ "erode": true,
+ "soft": [
+  "coverage"
+ ],
+ "rows": 216,
+ "secs": 2737.1
+}

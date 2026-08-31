@@ -25,9 +25,14 @@ appear once a Room has TWO rectangles.
   P7  the parts rig DEGENERATES to ticket 77's: with every Room one part,
       `plane='bar'` gives `bar_plane.project_plane(plane='bar')`'s model and
       answer exactly.
-  P9  ADR 0001's erosion identity at TWO reflex corners. `erosion_check.py`
-      checks it at one and asserts `reflex == 1`; 44,8 % of the corpus's
-      two-part Rooms are a T, a Z or a rectangle, not an L.
+  P9  ADR 0001's erosion identity at TWO reflex corners, inside THIS model.
+      44,8 % of the corpus's two-part Rooms are a T, a Z or a rectangle, not
+      an L. (⚠️ ADR 0045 widened `erosion_check.py` from the single L to all
+      four shapes, asserting `(vertices, reflex)` per shape -- so its
+      `reflex == 1` survives only as the L case, and this check's claim on it
+      is now that it checks the identity in the corpus rig rather than in the
+      plane-accounting one. Ticket 79 handed the correction on; ticket 83 made
+      it. No value moved and all ten P9 checks pass unchanged.)
   P8  `dim.statutory_min_area` binds per ROOM. A two-part Room whose union
       clears the floor and whose primary part does not is FEASIBLE under
       `room_area=True` and INFEASIBLE under the primary-part binding
@@ -446,8 +451,9 @@ def p9_erosion_identity_at_two_reflex_corners():
         assert n == 8 and reflex == 2, (name, n, reflex)
     note("P9: ADR 0001's erosion identity holds pointwise at TWO reflex corners "
          "-- a T and a Z, 8 vertices each, integer millimetres, no tolerance. "
-         "`erosion_check.py` asserts `reflex == 1` and 44,8 % of the corpus's "
-         "two-part Rooms are not an L")
+         "44,8 % of the corpus's two-part Rooms are not an L; `erosion_check.py` "
+         "asserts the same identity on all four shapes since ADR 0045, and this "
+         "asserts it inside the plane-accounting model")
 
 
 if __name__ == "__main__":

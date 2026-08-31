@@ -150,6 +150,10 @@ def run_one(row: dict, brief, truth, proposal, cfg: SolveConfig) -> dict:
     row["trace"] = [[round(t, 4), o] for t, o in res.trace][:40]
     row["improvements"] = len(res.trace)
     row["objective"] = res.objective
+    # ADR 0043 decision 6.3: a cap is published by TYPE and value, so the
+    # deterministic time spent is carried beside the wall clock on every row.
+    # Additive; no published figure reads it. Ticket 83.
+    row["dtime"] = res.model_stats.get("deterministic_time")
     row["vars"] = res.model_stats.get("variables")
     row["cons"] = res.model_stats.get("constraints")
     row["mults"] = res.model_stats.get("multiplications")

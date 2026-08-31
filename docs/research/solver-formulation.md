@@ -606,10 +606,17 @@ that has them.
   nothing. Whether soft-everything, a longer limit, or more workers rescues it is
   unknown, and it is the natural next experiment.
 - **`AddCircuit` as an alternative to flow** for connectivity.
-- **Multiple seeds.** Every timing is a **single run at seed 20260817**. There is
-  no variance estimate. CP-SAT's portfolio search is stochastic across workers;
-  these numbers could move materially on a re-run and must be repeated over
-  ≥10 seeds before any of them is quoted as a specification.
+- ~~**Multiple seeds.**~~ **Discharged by Part X (ticket 83), and the answer is
+  graded by room count.** Every timing in Part I is still a single run at seed
+  20260817 and Part II's eight seeds move the *scenario* and the solver seed
+  together, so neither is a portfolio-variance estimate. Part X holds the
+  instance fixed and moves `random_seed` alone over **12 seeds × 2 replicates**:
+  at **8 rooms, inside C13's band, status, objective and validity do not move at
+  all** and only the tie-break does (4 distinct Plans of 24); at 12 the objective
+  moves 70–76; at 24 **validity itself moves, 18 of 24**. ⚠️ Part X is on a
+  **different machine** (Tiger Lake-H, 12 cores) from every number above, so it
+  re-measures the *shape* of the variance and not these values — the requirement
+  that no timing here becomes a specification (ADR 0043 decision 5) stands.
 - **MIP, and a rectangular-dual construction.** Neither was implemented. The
   arguments against them above are reasoning, not evidence.
 - **Wall thickness.** The toy places *room rectangles* that tile exactly. Real
@@ -3124,3 +3131,199 @@ Rows at `experiments/plane-accounting/out/armsp_rows_parts.jsonl` and
 `seedsp_rows_seedsp.jsonl` — one JSON object per line, appended and flushed, because a whole-list dump per pair loses everything
 back to the last complete write if the process dies mid-dump, which it did here at
 pair 174 of 332. `--skip` resumes. The measurements are at `report_parts.json`.
+
+---
+
+# Part X — the seed repeat this note has owed since Part I, and the price of determinism (ticket 83)
+
+⚠️ **READ THIS FIRST: Part X IS ON A DIFFERENT MACHINE FROM PARTS I–IX.**
+`platform.processor()` here reports `Intel64 Family 6 Model 141 Stepping 1` —
+Tiger Lake-H, **12 logical cores**. Every number in Parts I–IX came from
+`Intel64 Family 6 Model 58` — Ivy Bridge, **4 logical cores** (§"What was
+measured", II.6, III, IV). **No wall-clock figure below may be compared with any
+wall-clock figure above.** Two consequences, both load-bearing:
+
+- `num_workers = 4` meant *the whole machine, fully contended* in Parts I–IX and
+  means *four of twelve cores, uncontended* here. That is a different portfolio,
+  not merely a faster one.
+- ADR 0043 decision 6 item 5 — *"the machine, for any wall-clock figure"* — was
+  written as discipline and is now the thing that keeps this note coherent. This
+  is the first Part it actually bites on.
+
+⚠️ **II.6's item 5 is still unanswered.** A modern CPU is now present, but this
+Part does not run the S2 grid, so it produces no modern-CPU figure for II.6's
+table. What it establishes is that the axis has become answerable.
+
+## X.0 What was owed, and why eight seeds did not discharge it
+
+*"What this note does not establish"* has said since Part I:
+
+> **Multiple seeds.** Every timing is a **single run at seed 20260817**. There is
+> no variance estimate. CP-SAT's portfolio search is stochastic across workers;
+> these numbers could move materially on a re-run and must be repeated over
+> ≥10 seeds before any of them is quoted as a specification.
+
+Part II looks like it discharged this and did not. Its S2 grid is *"8 room counts
+by 5 exposures by 8 seeds"*, but `sweep.py` feeds `BASE_SEED + s` to **both** the
+scenario builder and `SolveConfig.seed` — one knob moving the Envelope, the Brief,
+the ground truth, the Proposal noise *and* CP-SAT's `random_seed` together. That
+is a spread over **instances**. The clause above is about **portfolio**
+stochasticity, and separating them needs the scenario held fixed.
+
+`sweep.py`'s own `KEY_FIELDS` comment concedes it: `solver_seed` is *"None means
+'use the scenario seed', which is what every suite"* does — every suite but **S7**,
+which holds the Proposal fixed and moves `solver_seed` alone, and which ran at
+**4** seeds per cell purely to count distinct Plans against τ (II.4: *"4 runs per
+cell cannot separate a trend from portfolio noise"*).
+
+**The nearest thing to a discharge already on this map is `plane-accounting/seeds.py`** —
+six CP-SAT seeds per arm per candidate, geometry produced once so both arms see
+one instance. That is S7's design and it is the right one; it is 6 seeds rather
+than 10, and it is scoped to ADR 0039/0040's A/B rather than to this note's tables.
+
+Part X is S7's design at S2's scale: **one instance per room count, 12 CP-SAT
+seeds, every cell solved twice.** `experiments/solver-toy/repeat_seeds.py`, which
+imports `sweep.get_scenario` and `sweep.run_one` verbatim so this is a repeat and
+not a new experiment — asserted in its selftest, `SolveConfig` field for field.
+
+Shipped configuration throughout: `mm_affine`, `erode_minima`, `t_int` 100,
+**τ = 4** (not S2's τ = 0), `corpus_median`, σ 0,5, `soft=("coverage",)`,
+`num_workers = 4`, 15 s wall. Provenance per ADR 0043 decision 6 is recorded in
+`results/repeat_seeds_meta_main.json`.
+
+## X.1 The spread — arm `base`, 12 seeds × 2 replicates per room count
+
+| n | status | distinct objectives | valid | distinct Plans | wall p50 | first Plan p50 |
+|---|---|---:|---:|---:|---:|---:|
+| **8** | OPTIMAL 24/24 | **1** of 24 | **24/24** | 4 of 24 | 0,369 s | 0,087 s |
+| 12 | FEASIBLE 24/24 | 5 of 24 (70–76) | 24/24 | 16 of 24 | 15,021 s | 0,921 s |
+| 24 | FEASIBLE 24/24 | 21 of 24 (116–4 100 159) | **18/24** | 24 of 24 | 15,030 s | 2,891 s |
+
+**The answer is graded by room count, and the grade falls on C13's band.**
+
+- **At 8 rooms — inside C13's 3–10 engine band — the seed moves nothing a gate
+  would assert.** Status, objective and validity are constant across 12 seeds.
+  What moves is the tie-break: 4 distinct Plans off one Proposal at one
+  objective. This is the regime the engine ships in.
+- **At 12 the objective moves** — 70 to 76, an 8,6 % spread — while validity holds.
+- **At 24 validity itself moves: 18 of 24.** Six seeds return a Plan paying
+  coverage slack — 1, 7, 18, 21, 27 and 41 unassigned cells — which II.3's expiry
+  rule discards. ⚠️ **This does not contradict II.6's 100 % validity at 24
+  rooms**: that row ran at a **30 s** limit and this runs at the shipped **15 s**.
+  It does mean **II.6's validity figure is a 30 s figure and does not transfer to
+  the shipped cap**. 24 rooms is far outside C13's band, so nothing the product
+  promises is touched.
+
+**The seconds are reported and asserted at nothing** (ADR 0043 decision 5). The
+spread on time-to-a-VALID-Plan is the largest quantity here — p50 2,961 s with a
+range of 7,260 s at 12 rooms, p50 10,026 s with a range of 10,049 s at 24 — and
+it is the direct measurement of why no timing in Parts I–IX may become a threshold.
+
+## X.2 Does a run repeat itself? Same seed, same model, run twice
+
+**36 cells per arm** (3 room counts × 12 seeds). Two runs agree iff status,
+objective **and** the Plan fingerprint are identical.
+
+| arm | status | objective | **Plan** | n=8 | n=12 | n=24 |
+|---|---:|---:|---:|---:|---:|---:|
+| `base` — the shipped configuration | 36/36 | 19/36 | **4/36** | 3/12 | 1/12 | 0/12 |
+| `il` — `interleave_search` at the 15 s wall cap | 32/36 | 28/36 | 26/36 | 10/12 | **12/12** | 4/12 |
+| `det` — ADR 0043 decision 5's full prescription | 36/36 | 24/36 | 12/36 | 11/12 | 1/12 | 0/12 |
+
+**The shipped projection does not repeat itself, and this is now measured rather
+than reasoned.** ADR 0043 decision 4 argued it from `LaunchSubsolvers` and
+`DeterministicLoop`; `base` reproduces its Plan **4 times in 36** at a pinned
+`random_seed`. It reproduces its *status* every time.
+
+⚠️ **ADR 0043 decision 5's prescription is necessary and not sufficient, and where
+it fails is above C13's band.** `det` is `interleave_search=true` +
+`max_deterministic_time` + pinned `random_seed` and `num_workers` — the whole
+recipe — and it reproduces the Plan **12 times in 36**. Read by room count that is
+not a failure but a boundary:
+
+- **n = 8: status 12/12, objective 12/12, Plan 11/12.** Effectively reproducible.
+- **n = 12: status 12/12, objective 12/12, Plan 1/12.** The **published plane** is
+  stable and the cover is not — and `det` returns objective **70 on all 24 runs**
+  where `base` returns five distinct values. The deterministic budget *stabilises
+  the objective* and leaves the rectangles free.
+- **n = 24: status 12/12, objective 0/12.** The prescription does not hold here.
+
+That n=12 row is ADR 0046 decision 4's finding — *"the published plane of a record
+is `status`, `objective` … the cover is not publishable"* — reproduced on the
+**projection** model by an independent rig, having been established on the
+**conversion** model. Two rigs, two models, one conclusion.
+
+## X.3 The price of `interleave_search`
+
+Paired on (n, seed, replicate), 24 pairs per cell. This is the number
+`solver-reproducibility.md` lists under *"What this note does not establish"* —
+*"solution quality per wall-second against the default portfolio … the number that
+decides whether determinism is affordable as a default or only as a CI mode"*.
+
+| n | arm | status | objective against `base` | valid | wall p50 |
+|---|---|---|---|---:|---:|
+| 8 | `il` | OPTIMAL 24/24 | **equal** — 37 on 24/24 | 24/24 | 0,369 → **3,777 s** |
+| 12 | `il` | FEASIBLE 24/24 | **worse on 24/24** — 165 against 70 | 24/24 | 15,021 → 10,872 s |
+| 24 | `il` | FEASIBLE 20, **UNKNOWN 4** | worse on 20/20 | **18/24 → 0/24** | 15,030 → 15,075 s |
+
+> ### `interleave_search` must not be a default, and the wall cap is why.
+>
+> At 8 rooms it buys nothing and costs **10,2×** the wall time to reach the same
+> proved-optimal objective. At 12 it buys total determinism — 1 distinct objective
+> and **1 distinct Plan across 24 runs** — and pays **2,36×** the objective for it,
+> 165 against 70. At 24 it **destroys the answer**: zero valid Plans of 24, four
+> runs returning no Plan at all, and the twenty that do return one pay 120–351
+> unassigned cells against `base`'s worst of 41.
+
+**The flag is not the problem; the flag *under a wall cap* is.** Give the same
+search a deterministic budget and drop the wall cap — arm `det` — and it becomes
+the **best** arm at 24 rooms: **24/24 valid** against `base`'s 18/24, zero coverage
+slack on every run, objectives 115–213 against `base`'s 116–4 100 159. It costs
+**24,735 s** p50 against a 15 s product cap, so it is a **gate** configuration and
+never a product one — which is ADR 0043 decision 4's *"a 15 s wall cap and a
+reproducible projection are mutually exclusive"*, now carrying the quality cost
+rather than only the determinism argument.
+
+⚠️ **This corroborates ADR 0046 decision 3 rather than repeating it.** That refusal
+was measured on the **conversion** rig — four workers, deterministic budget: 1,85×
+wall, three lost proofs in sixty, and different covers on records both runs proved
+OPTIMAL, google/or-tools **#3948**. Part X measures the **projection** model and
+reaches the same refusal by a different route: not *"it is non-deterministic
+anyway"* but *"under the cap the product actually runs, it is catastrophically
+worse"*.
+
+## X.4 What Part X does not establish
+
+- **No modern-CPU figure for II.6 item 5.** A modern CPU is present; the S2 grid
+  was not re-run on it. The axis is answerable, not answered.
+- **Nothing about Parts I–IX's absolute seconds.** Different machine, different
+  core count. This Part re-measures the *shape* of the variance, not the values.
+- **Only three room counts, one instance each.** 8, 12 and 24 are Part I's
+  headline counts; **only 8 is inside C13's 3–10 band**, so the reassuring result
+  rests on a single instance. A second instance inside the band would strengthen
+  it and was not run.
+- **Arms ran sequentially** — `base`, then `il`, then `det` — so thermal drift is
+  not controlled for. It threatens no conclusion here: the quality findings are
+  not time-valued, and the wall differences are 10× and 1,6×, far outside drift.
+  But every wall figure here is a single-machine, single-session observation.
+- **Not a challenge to the 15 s cap**, which is a product constraint (C6, C10)
+  re-affirmed by ADR 0019 and ADR 0029, nor to the projection's non-determinism,
+  which ADR 0043 decision 4 settled and `homeowner-surface.md` discloses.
+
+## Reproducing Part X
+
+```
+python experiments/solver-toy/repeat_seeds.py --selftest        # 3 assertions, ~10 s
+python experiments/solver-toy/repeat_seeds.py --tag=main        # 216 solves, 2 737 s
+python experiments/solver-toy/repeat_seeds_report.py --tag=main
+```
+
+Rows at `experiments/solver-toy/results/repeat_seeds_main.jsonl`, one JSON object
+per line, appended and flushed — `arms_parts.py`'s lesson, taken deliberately.
+Provenance at `repeat_seeds_meta_main.json`.
+
+⚠️ **The selftest asserts the configuration, never the output.** Its first draft
+asserted that arm `base` and `sweep.execute` return the same Plan, and **it failed
+on its first run** — identical model, identical `random_seed` = 1000, identical
+four workers, same status, same objective, different rectangles. That is not a
+defect in the rig; it is X.2 arriving before the grid did.

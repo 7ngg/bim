@@ -51,6 +51,7 @@ import io
 import random
 import sys
 import time
+import zlib
 from collections import defaultdict
 from pathlib import Path
 
@@ -172,7 +173,11 @@ def warp_floor(cand, aspect, targets_m2, tlim, key="", post_floor=True):
         fl_cells = [c if f > 0 else 0 for c, f in zip(fl_all, fl_m2)]
 
         jx, jy = joins(spans)
-        rng = random.Random(SEED ^ (hash(key) & 0xFFFF))
+        # zlib.crc32, not hash(): `hash()` on a str is salted per process, so
+        # this line drew a different OBJECTIVE in every process it ran in --
+        # `project_join.py:227`, the line this file copies verbatim, was
+        # repaired at ticket 82 and this copy did not follow. Ticket 83.
+        rng = random.Random(SEED ^ (zlib.crc32(key.encode()) & 0xFFFF))
         weights = [W_STATED if rng.random() < STATED_SHARE else W_INVENTED
                    for _ in types]
         mins = [MIN_SIDE.get(t, MIN_SIDE_DEFAULT) for t in types]

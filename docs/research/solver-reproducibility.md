@@ -265,6 +265,38 @@ before it is made the default. Also listed unread in the tracker:
 
 ---
 
+## 2.5 — the prescription, measured (ticket 83)
+
+§2.2 concluded from `LaunchSubsolvers` that `interleave_search` is the only route
+to a deterministic parallel solve, and ADR 0043 decision 5 turned that into a
+prescription: a stable gate needs `interleave_search=true` +
+`max_deterministic_time` + pinned `random_seed` and `num_workers`, asserting
+**status and objective, never seconds**. `solver-formulation.md` Part X.2 runs
+that exact configuration, twice per cell, 36 cells.
+
+**It is necessary and it is not sufficient, and the boundary falls on C13's band.**
+
+| n | status repeats | objective repeats | Plan repeats |
+|---:|---:|---:|---:|
+| 8 | 12/12 | 12/12 | 11/12 |
+| 12 | 12/12 | 12/12 | 1/12 |
+| 24 | 12/12 | **0/12** | 0/12 |
+
+Inside the shipped 3–10 band the prescription delivers a reproducible run. At 12
+it delivers exactly the plane ADR 0043 decision 5 tells a gate to assert — status
+and objective stable, cover not — which is independently what ADR 0046 decision 4
+found on the conversion model. At 24 it delivers neither.
+
+⚠️ **The unqualified reading of decision 5 — "this configuration makes a run
+reproducible" — is false above ten rooms.** The decision is not withdrawn: its
+guard, *assert status and objective and never seconds*, is what survives, and it
+survives because it was written conservatively. Read it as **band-limited**.
+This is google/or-tools [#3948](https://github.com/google/or-tools/issues/3948)
+again — §1.4 could not confirm it in this repo, ADR 0046 decision 3 confirmed it
+on the conversion model, and Part X confirms it on the projection model.
+
+---
+
 ## 3. Units of `max_deterministic_time`
 
 The proto says only "the time unit being as close as possible to a second"
@@ -494,10 +526,16 @@ competition rules beyond BenchExec, and the Mittelmann benchmarks.
 - Whether [#3948](https://github.com/google/or-tools/issues/3948) (single-worker
   non-determinism, reproduced by the maintainer) was fixed, and in which version.
   9.15 may or may not still contain it.
-- The **cost** of `interleave_search=true` on this repo's models — solution
-  quality per wall-second against the default portfolio. Unmeasured, and it is
-  the number that decides whether determinism is affordable as a default or only
-  as a CI mode.
+- ~~The **cost** of `interleave_search=true` on this repo's models.~~
+  **Measured — ticket 83, `solver-formulation.md` Part X.3.** It is not
+  affordable as a default and the wall cap is why: at 8 rooms it costs **10,2×**
+  the wall time for the same proved-optimal objective, at 12 it buys total
+  determinism at **2,36×** the objective (165 against 70), and at 24 under the
+  shipped 15 s cap it returns **0 valid Plans of 24** where the default portfolio
+  returns 18. Given a *deterministic* budget and no wall cap it is instead the
+  **best** arm at 24 rooms — 24/24 valid, zero coverage slack — at 24,7 s p50
+  against a 15 s product cap. So: a **gate** configuration, never a product one.
+  ⚠️ And a gate only inside C13's band: see §2.5.
 - Whether presolve is deterministic when a *wall-clock* cap truncates it.
   Presolve carries its own dtime limits
   (`presolve_probing_deterministic_time_limit`, `sat_parameters.proto:480`),
@@ -513,3 +551,9 @@ runs**: they are valid single-machine observations and must not be promoted into
 regression thresholds. A gate that needs to be stable belongs on
 `interleave_search=true` + `max_deterministic_time` + pinned `random_seed` and
 `num_workers`, and must assert **status and objective**, not seconds.
+
+⚠️ **Read that last sentence with §2.5.** Ticket 83 ran the prescription and it
+holds inside C13's 3–10 band and stops holding above it — status and objective
+repeat 12/12 at 8 and 12 rooms, and the objective repeats **0/12** at 24. The
+guard (*assert status and objective, never seconds*) is what makes the decision
+survive its own measurement; the promise of a reproducible run is band-limited.

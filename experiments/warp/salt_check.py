@@ -53,10 +53,11 @@ SKIP_DIRS = {"venv", ".git", "__pycache__", "node_modules", "data"}
 # while a repair is correctly waiting on its ticket -- and goes red the moment a
 # NEW one appears. An entry here without a live ticket is the thing to be
 # suspicious of.
-OWED = {
-    "experiments/plane-accounting/arms.py":
-        "ticket 83 -- The sixth salted site, and two rigs that owe a repeat",
-}
+# Ticket 83 discharged the only entry this map ever held --
+# `experiments/plane-accounting/arms.py`, the sixth site -- and the map is now
+# EMPTY, which is the state it should be read in. A non-empty OWED is a defect
+# parked behind a note, and it is only legitimate while the named ticket is open.
+OWED = {}
 
 
 def code_only(src):
