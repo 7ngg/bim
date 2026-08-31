@@ -568,6 +568,8 @@ asserted by §10.
 | `Qto_SpaceBaseQuantities.FinishFloorHeight` / `FinishCeilingHeight` | they **are** the floor build-up and the dropped ceiling, and `0` asserts the building has neither. A length has no third state, exactly as `LoadBearing`'s boolean has none. ADR 0012 keeps cl. 5.8's corridor allowance *inert* so a dropped ceiling stays a data change — §8.2b |
 | `IfcSite.RefLatitude` / `RefLongitude` / `RefElevation` | the site is out of scope — §9.3 |
 | `IfcOwnerHistory` | optional in IFC4; nothing here has an authoring history to state |
+| `IfcRelAssociatesClassification` on `IfcSpace` | **declined, not unavailable** — it is in RV1.2 scope and we could conform. 431 `IfcSpace` entities across six published models classify **zero**; Revit lands the code on a DirectShape rather than a Room. ADR 0047, and §11 for the price |
+| `IfcSpace.ObjectType` | it would restate `Name` a third time — ADR 0002's duplicated state, the same objection this register sustains against `Pset_SpaceCommon.Reference`. `PredefinedType` stays `SPACE` — ADR 0047 |
 
 ## 9. Units, precision, georeferencing, encoding
 
@@ -706,6 +708,62 @@ Nothing is lost that a reader needs: the room tag's *content* travels as
 `IfcSpace.Name`, `LongName` and `NetFloorArea`, and any viewer regenerates a tag
 from those. **The drawing lives in DXF and PDF. The model lives in IFC.**
 
+### Room use — the file names rooms and classifies none
+
+**No `IfcRelAssociatesClassification`. No `IfcClassification`. No
+`IfcClassificationReference`.** A room's use travels as `IfcSpace.Name` (the
+canonical ergonomic key) and `LongName` (the `AZ` label), and as nothing else.
+ADR 0047 decides this; the reasoning is there and only the price is here.
+
+**This is a decline, not a limitation.** Classification Association **is** in
+IFC4 RV1.2 scope — established by proving the mvdXML vendored in `ifcopenshell`
+byte-identical to buildingSMART's published file (805 551 bytes; the 12 774-byte
+delta is exactly 12 771 CRLF plus 3 NBSP). We could write it and stay conformant.
+
+**What it would take to add.** The mapping below was read verbatim off
+`uniclass.thenbs.com` at **Spaces/locations v1.36, July 2026** and covers 18 of
+19 types in **15 codes across 4 SL branches**. It is a transcription with no
+staleness detector — `env_check.py` can assert the toolchain, nothing can assert a
+web-served rolling scheme offline — so treat it as read-once and dated, never as a
+live reference.
+
+| ergonomic key | code | Uniclass title |
+|---|---|---|
+| `living` | `SL_45_10_49` | Living rooms |
+| `dining` | `SL_45_10_22` | Domestic dining rooms |
+| `kitchen` | `SL_45_10_23` | Domestic kitchens |
+| `bedroom_principal`, `bedroom_double`, `bedroom_single` | `SL_45_10_09` | Bedrooms — **3 → 1** |
+| `study` | `SL_45_10_85` | Studies |
+| `kitchen_dining` | `SL_45_10_44` | Kitchen-dining rooms |
+| `living_dining_kitchen` | `SL_45_10_45` | Kitchen-dining-living rooms |
+| `utility` | `SL_45_10_93` | Utility rooms |
+| `bathroom`, `bathroom_combined` | `SL_35_80_08` | Bathrooms — **2 → 1** |
+| `shower_room` | `SL_35_80_80` | Showers |
+| `wc` | `SL_35_80_89` | Toilets |
+| `hall` | `SL_90_10_36` | Hallways |
+| `corridor` | `SL_90_10_15` | Corridors |
+| `entrance_lobby` | `SL_90_10_27` | Entrance halls — against `_51 Lobbies`, `_94 Vestibules` |
+| `storage` | `SL_90_50_35` | General storerooms |
+| **`living_dining`** | **none** | **no entry exists** |
+
+Adding it costs **+26 STEP instances** on a 19-space plan, three new entity types,
+a Uniclass version pin, and a **second schema pin**: the dictionary-URI attribute
+is `Location` in IFC4 and **`Specification`** in IFC4.3.
+
+**The one real cost of declining, stated so it is not discovered by accident.**
+buildingSMART's own published IDS sample selects rooms by applicability `IfcSpace`
++ classification `SL_45_10_09` — *Bedrooms*, the exact code. Run against an export
+of ours it matches zero elements and **passes green**. That is a silent false
+negative, and it is the one thing shipping the codes would buy. It is registered
+here rather than in §8.5 because it is a property of the *consumer's* check, not of
+our file.
+
+**`living_dining` is the hole and it is not a tail case.** It is the corpus's
+second-largest class at **24 122 rooms — 71,2 % of all social rooms** — and Uniclass
+has no entry for it, while shipping both kitchen-dining compounds. AzDTN has no word
+for it either. If this section is ever acted on, that gap is the first thing to
+settle, not the last.
+
 ### Space boundaries — none in v1
 
 `IfcRelSpaceBoundary` is not in Reference View, and the level that would be worth
@@ -829,3 +887,4 @@ this document as much as it binds the file it describes.
 | 13 | The vertical is **two values, `h_clear` and catalogue `H`** — `h_storey` deleted, sills derived, the fall-barrier trigger refused |
 | 14 | A Space is **one extrusion over one arbitrary closed profile**, concave or not — RV-verified, no Boolean, and **no new entity type**, because the walls already use one |
 | 15 | `NetPlannedArea` carries the Brief's **programme** beside the delivered area, which is the one place in this system the two are distinguishable |
+| 16 | **No room-use vocabulary** — no classification, no `ObjectType`, and the habitable/auxiliary partition does not travel. Declined on measurement, not on availability: RV1.2 permits it and 431 published spaces carry it zero times. §11 holds the mapping and the vacuous-pass price — ADR 0047 |
