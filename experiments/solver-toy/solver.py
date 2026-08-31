@@ -96,6 +96,21 @@ class SolveConfig:
     # changes is only which millimetre number the standards table prints.
     minima_are_clear_grid: bool = False
 
+    # -- ADR 0043 decision 5: a gate that must be stable needs
+    # -- `interleave_search=true` + `max_deterministic_time` + a pinned
+    # -- `random_seed` and `num_workers`. Both knobs default OFF, so every
+    # -- published run's configuration is unchanged by their existence.
+    #
+    # `interleave_search` is the ONLY predicate `LaunchSubsolvers`
+    # (`cp_model_solver.cc:823-836`) branches on to take the deterministic
+    # path. Upstream marks it "Experimental." and defaults it false.
+    interleave_search: bool = False
+    # A *deterministic* budget, in OR-Tools' own units -- publishable across
+    # machines where `max_time_in_seconds` is not. When set, the wall cap is
+    # dropped: `DeterministicLoop` takes no time-limit argument, so a wall cap
+    # firing first destroys determinism regardless (ADR 0043 decision 4).
+    max_deterministic_time: Optional[float] = None
+
 
 @dataclass
 class SolveResult:
@@ -717,9 +732,14 @@ class LayoutProjector:
     def solve(self) -> SolveResult:
         cfg = self.cfg
         s = cp_model.CpSolver()
-        s.parameters.max_time_in_seconds = cfg.time_limit_s
+        if cfg.max_deterministic_time is None:
+            s.parameters.max_time_in_seconds = cfg.time_limit_s
+        else:
+            # Not both: a wall cap that fires first destroys determinism.
+            s.parameters.max_deterministic_time = cfg.max_deterministic_time
         s.parameters.num_workers = cfg.workers
         s.parameters.random_seed = cfg.seed
+        s.parameters.interleave_search = cfg.interleave_search
         s.parameters.log_search_progress = cfg.log
         tr = _Trace()
         t0 = time.perf_counter()
@@ -739,6 +759,9 @@ class LayoutProjector:
             "candidate_relations": self.candidate_relations,
         }
         name = s.StatusName(status)
+        # ADR 0043 decision 6.3: a cap is published BY TYPE AND VALUE, so the
+        # deterministic time actually spent is recorded beside the wall clock.
+        stats["deterministic_time"] = round(s.ResponseProto().deterministic_time, 6)
         res = SolveResult(
             status=name, wall_time_s=wall, build_time_s=self.build_time,
             model_stats=stats, trace=tr.rows,

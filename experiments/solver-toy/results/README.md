@@ -20,6 +20,34 @@ solver enforces (`scenarios.fits_kind(rect, kind, clear_t)`).
 | `S7_v2` | distinct Plans off one Proposal |
 | `S8_v2` | τ × Proposal noise |
 
+## `repeat_seeds_main.jsonl` — **quotable, on its own machine only. Part X.**
+
+216 solves, ticket 83. **A DIFFERENT MACHINE from every other file in this
+directory**: Tiger Lake-H `Model 141`, **12 logical cores**, against the 4-core
+Ivy Bridge `Model 58` every `_v2` row came from. `num_workers = 4` is four of
+twelve uncontended here and was the whole contended machine there, so **no wall
+figure may be compared across the two**. Status, objective and validity may be.
+
+One instance per room count (8, 12, 24) at the shipped configuration — `mm_affine`,
+`erode`, `t_int` 100, **τ = 4**, `corpus_median`, σ 0,5, 15 s — with only CP-SAT's
+`random_seed` moving, over **12 seeds × 2 replicates × 3 arms**. This is S7's design
+at S2's scale, and it is what discharges Part I's owed ≥10-seed repeat; `S2_v2`
+cannot, because `sweep.py` moves the scenario seed and the solver seed together.
+
+Arms: `base` (shipped), `il` (`interleave_search` at the same wall cap), `det`
+(`interleave_search` + `max_deterministic_time`, no wall cap — ADR 0043 decision
+5's prescription). Provenance in `repeat_seeds_meta_main.json` per decision 6.
+
+⚠️ **These rows predate this file's own `t_start` rule and do not carry it.**
+The run was taken with nothing else running, but the rows cannot *prove* it —
+which is exactly the gap `t_start` exists to close. `repeat_seeds.py` writes it
+now; the fix is forward-only and this grid was not re-run for it.
+
+⚠️ **The traces are dropped**, unlike every `_v2` file: three arms × 216 rows of
+40-entry trace is bulk nothing here reads. Time-to-first-Plan and time-to-VALID
+are kept as `first` and `valid_at`, so a budget below 15 s cannot be re-derived
+from these rows without re-solving.
+
 ## `S[1-7].jsonl` (no suffix) — **superseded. Do not quote.**
 
 The first pass, kept as an audit trail. In it the ground truth was built against
