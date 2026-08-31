@@ -583,15 +583,33 @@ faces of the walls around it — see [[Finish layer]]. Derived, never authored.
 **Room** and **Space** are not interchangeable, and a sentence that uses "room"
 for both is the usual way a clear dimension gets confused with a centreline one.
 
-A Space is **one or two rectangles**, never more — a rectangle or an L. Not a
-rectangle, which is what every document here assumed until it was measured: half
-of real rooms are not one. See [[Part]].
+A Space is **one or two rectangles**, never more. Not a rectangle, which is what
+every document here assumed until it was measured: half of real rooms are not one.
+See [[Part]].
+
+⚠️ **This read *"a rectangle or an L"* until ADR 0045, and the L was never the
+whole of it.** Two rectangles sharing an edge make four shapes, and **44,8 %** of
+real two-part Rooms are not an L. The glossary deliberately does **not** name
+them: the contract constrains part count and the shared edge, and says nothing
+about which shape the parts form, so naming the shapes here would imply a
+distinction the system does not make.
 
 **Part** — one of the at most two axis-aligned rectangles a [[Space]] is the
 union of. The **first** part carries the Room's own dimensional minima; any
 further part carries the **leg floor**, and the two must share an edge of at
 least that floor — below it the two legs are not one room, they are two rooms
 with no door between them.
+
+**Two Parts flush at both ends are one Part** (ADR 0045). Their union is a
+rectangle, so the two-part encoding says nothing the one-part encoding does not —
+and it is not harmless: measured per part, such a Room hard-fails the aspect rule
+on **48 %** of corpus cases against **4 %** measured merged, because the rule sees
+two slivers where the room is one rectangle.
+
+**Which shape the parts form is not a property of a Part.** The contract
+constrains part count and the shared edge — *buildability* — and leaves shape to
+the [[Proposal]], on the same ground that keeps the solver out of it: shape is an
+architectural claim, made where the arrangement is made.
 
 Which Rooms have two parts is decided by the **[[Proposal]]**, never by the
 solver. A second rectangle *improves* the objective rather than relieving it — it

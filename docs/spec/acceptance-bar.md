@@ -769,8 +769,16 @@ argument reads *"Spaces are `erode(rect, t_int/2)` — rectangles"*, and for a
 two-part Room the Space is `erode(A ∪ B, t_int/2)`, which is **strictly larger**
 than `erode(A, t_int/2) ∪ erode(B, t_int/2)`: the band across the shared edge is
 interior to the union and survives erosion. So the Space is a rectilinear polygon
-with one reflex corner, not a rectangle, and "a rectangle has no sliver" no longer
-reaches it.
+with **at most two** reflex corners, not a rectangle, and "a rectangle has no
+sliver" no longer reaches it.
+
+⚠️ **This said *one* reflex corner until ADR 0045, and one is the L case alone.**
+Two rectangles sharing an edge make an L (6 vertices, 1 reflex), a **T** or a **Z**
+(8 vertices, 2 reflex), or — before normalisation — a plain rectangle (4, 0). Over
+the converted index **44,8 % of two-part Rooms are not an L**. The general
+statement is **at most two reflex corners and at most 8 vertices**, measured over
+all 1 543 as 4 ×27, 6 ×851, 8 ×665. The rescue below is unaffected: binding the
+minima **per solved part** is conservative whatever shape the parts make.
 
 What rescues the conclusion is that binding the minima **per solved part** is
 *conservative*: it under-states the true clear leg by exactly that band, so a
@@ -783,13 +791,42 @@ polygon, still failing the day `t_int` stops being uniform. ADR 0001's erosion
 is untouched: eroding a rectilinear polygon by a `t_int/2` square gives exactly
 the region bounded by the surrounding wall inner faces, reflex corner included.
 
-**A soft rule is owed, and it is not authored here.** Under ADR 0014 the solver
-cannot invent an L, so it cannot bloat one into existence — but a *Proposer* can
-over-produce them, and nothing in the hard set would notice. A soft
-`dim.prefer_single_part` — all else equal, prefer the simpler Room — belongs with
-`rules.json`'s holder. This is the same shape of defect *What a room's area is
-allowed to be* found in `dim.market_default_area`: an objective that rewards
-something nobody asked for.
+~~**A soft rule is owed, and it is not authored here.**~~ — **withdrawn by ADR
+0045.** It read: *under ADR 0014 the solver cannot invent an L, so it cannot bloat
+one into existence — but a Proposer can over-produce them, and nothing in the hard
+set would notice; a soft `dim.prefer_single_part`, all else equal prefer the
+simpler Room, belongs with `rules.json`'s holder.*
+
+**The over-production is real and it is not the Proposer's.** Two-part Rooms are
+**17,6 %** of what the warp emits against **9,8 %** in the corpus — but the warp
+**preserves donor part count on 284/284 Proposals**, and room-count stratification
+explains none of the gap (matched expectation 9,6 %). The whole **+8,0 points** is
+the **pool ranking**, at every room count. This bar runs downstream of `Gate →
+Pre-rank → Warp → re-rank → take m` (`proposer.md` §2.2.4), so the rule could not
+influence which donors are drawn — only demote survivors that selection had
+already chosen, in a gallery §11 shows soft results in. *All else equal* never
+obtains after best-of-*m*.
+
+⚠️ **The paragraph above names the defect it then commits.** `dim.market_default_area`
+is *"an objective that rewards something nobody asked for"*, and a rule fitted to
+17,6 % > 9,8 % is fitted to a number that measures **selection, not quality**.
+Whether the gate should prefer two-part-rich donors is handed to *What each §6.1
+term is scored for* (81), which owns those terms.
+
+⚠️ **A shape-graded variant is worse, not better.** Ranking single > L > T/Z would
+penalise **47,7 %** of emitted two-part corridors and **40,3 %** of
+living_dinings — the corpus-normal shape — and would reimpose through the
+objective the shape restriction ADR 0045 refuses in the contract.
+
+**The rule count is unchanged**: 43, and 44 once `dim.leg_join` lands. The
+withdrawn rule was never among them.
+
+⚠️ **§10's per-part aspect measurement gains a correction from the same ADR.** A
+Room whose two parts are **flush at both ends** is geometrically one rectangle,
+and measuring it per part reports two slivers: over the 25 non-exempt cases in the
+corpus it hard-fails aspect at **48,0 %** per part against **4,0 %** merged —
+**11 false rejections**. ADR 0045 decision 2 removes the encoding rather than
+special-casing the rule, so §10 needs no exemption.
 
 ## 10. The rule nothing in C6 asked for
 
