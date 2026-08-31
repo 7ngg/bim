@@ -99,8 +99,10 @@ whose perimeter is more than 10 % off the dwelling axis:
 A wall two degrees off axis becomes a **staircase** at 250 mm and needs one
 rectangle per step. **No value of *k* fixes that** — it is the *Angled walls*
 problem, which is genuinely v2 — and it is the second reason not to chase *k*
-upward. The first is that an L is a shape an architect draws and a T, U, S or Z
-room is a shape a plan is left with.
+upward. ~~The first is that an L is a shape an architect draws and a T, U, S or Z
+room is a shape a plan is left with.~~ — **struck by ADR 0045; see §8.** The
+off-axis measurement above is now the *whole* of the k ≤ 2 defence together with
+the box-count trade, and neither mentions shape.
 
 ---
 
@@ -445,4 +447,124 @@ rectangle into an L.
 | *What the engine says when the Envelope is bigger than the programme* | ADR 0013's circulation-count dependency, discharged: `resolve` invents one Room per circulation type and the L covers the multi-wing case |
 | *Two room vocabularies in one file* | whether `hall` / `entrance_lobby` / `corridor` can be told apart, which is what would make the circulation-count rule measurable |
 | *Look at the converted corpus* | the `why_k.clean()` defect, and the room-tag legibility check |
-| `rules.json`'s holder | one new hard predicate `dim.leg_join`, one soft `dim.prefer_single_part`, and a **which-part-does-this-bind** column on every dimensional rule |
+| `rules.json`'s holder | one new hard predicate `dim.leg_join`, ~~one soft `dim.prefer_single_part`~~ (**withdrawn by ADR 0045** — §8.3: the over-production is the pool ranking, not the Proposer), and a **which-part-does-this-bind** column on every dimensional rule |
+| *What each §6.1 term is scored for* (81) | the pool ranking prefers two-part-rich donors by **+8,0 points** over a room-count-matched expectation, and nothing decided that it should — §8.3 |
+| `proposer.md`'s holders (67, 81) | §1's constraint gains a clause: two Parts **may not be flush at both ends** — ADR 0045 decision 2, §8.4 |
+
+---
+
+## 8. Two rectangles make four shapes, and the cap never chose between them
+
+Ticket 79, ADR 0045. Harness: `arms_parts.shape_of`, over
+`experiments/rectangularise/out/swiss_fit_k2.json`.
+
+Two axis-aligned rectangles sharing an edge make an **L** (flush at one end), a
+**T** (one span strictly contains the other), a **Z** (neither), or a plain
+**rectangle** (flush at both). ADR 0014 capped the count and argued the cap on
+shape; it never constrained the shape.
+
+| shape | rooms | share | vertices | reflex | IoU p50 |
+|---|---:|---:|---:|---:|---:|
+| L | 851 | 55,2 % | 6 | 1 | 0,944 |
+| T | 334 | 21,6 % | 8 | 2 | 0,873 |
+| Z | 331 | 21,5 % | 8 | 2 | 0,900 |
+| rectangle | 27 | 1,8 % | 4 | 0 | 0,809 |
+
+**44,8 % do not have exactly one reflex corner.**
+
+### 8.1 It is a circulation-and-social phenomenon
+
+| type | rooms | 2-part | L | T | Z | rect | not-L |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| CORRIDOR | 2 675 | 650 | 323 | 195 | 130 | 2 | **50,3 %** |
+| LIVING_DINING | 1 221 | 573 | 301 | 99 | 171 | 2 | **47,5 %** |
+| LIVING_ROOM | 447 | 83 | 54 | 7 | 18 | 4 | 34,9 % |
+| ROOM (generic) | 4 081 | 132 | 93 | 25 | 7 | 7 | 29,5 % |
+| KITCHEN | 2 249 | 59 | 45 | 3 | 2 | 9 | 23,7 % |
+| BEDROOM | 1 069 | 26 | 21 | 3 | 2 | 0 | **19,2 %** |
+| BATHROOM | 3 379 | 13 | 8 | 2 | 0 | 3 | 38,5 % |
+| STOREROOM | 561 | 3 | 2 | 0 | 1 | 0 | 33,3 % |
+
+Corridor and social carry **89,5 %** of all T and Z. At dwelling level: **26,9 %**
+hold a T or a Z, **12,4 %** in the corridor alone, **12,6 %** in corridor and
+social only, and **1,9 %** touching a private room. §2's *"a corridor is an L
+because the flat is"* is right and under-counts — a T corridor reaches two wings.
+
+### 8.2 The warp reproduces it, which is what makes it a shipping fact
+
+Over 284 warped Proposals (`experiments/plane-accounting/out/armsp_rows_parts.jsonl`):
+345 two-part Rooms — 206 L, 63 T, 73 Z, 3 rectangle, **40,3 % not an L**.
+**94,1 %** of emitted T/Z is corridor or living_dining; **1,8 %** of Proposals put
+one on a private room, against the corpus's 1,9 % of dwellings. The warp
+**preserves donor part count on 284/284**.
+
+**46,5 % of Proposals carry at least one T or Z Room**, higher than the corpus's
+26,9 % of dwellings, because the warp emits two-part Rooms at **1,21 per Proposal**
+against **0,67 per dwelling**.
+
+### 8.3 The over-production is selection, not proposal
+
+| rooms | corpus 2-part | selected 2-part |
+|---:|---:|---:|
+| 4 | 12,6 % | 25,0 % |
+| 5 | 9,1 % | 22,2 % |
+| 6 | 7,7 % | 18,1 % |
+| 7 | 10,6 % | 20,5 % |
+| 8 | 10,7 % | 15,4 % |
+| 9 | 9,9 % | 14,4 % |
+| 10 | 9,2 % | 14,0 % |
+
+Pooled: **17,6 %** emitted against **9,8 %** in the corpus. Room-count-matched
+expectation is **9,6 %**, so stratification explains **none** of it: the full
+**+8,0 points** is the pool ranking, and it holds at every room count. Combined
+with 284/284 part-count preservation, the Proposer creates nothing — best-of-*m*
+draws two-part-rich donors. This is why ADR 0045 withdrew
+`dim.prefer_single_part`, and it is handed to ticket 81.
+
+### 8.4 The shapes pass the bar they are held to
+
+Per-part aspect on clear dimensions, `corridor` and `storage` exempt, hard reject
+above 3,0 (`acceptance-bar.md` §10):
+
+| shape | rooms | hard fail | soft (> 2,2) |
+|---|---:|---:|---:|
+| L | 526 | 27,2 % | 46,8 % |
+| T | 139 | **23,7 %** | 54,7 % |
+| Z | 200 | **21,5 %** | 35,0 % |
+| rectangle | 25 | **48,0 %** | 64,0 % |
+
+**T and Z hard-fail less often than L.** The degenerate rectangle's 48,0 % is an
+artefact of the encoding: measured **merged**, the same 25 rooms hard-fail at
+**4,0 %**, so **11 of 25 are false rejections** created by slicing a rectangle in
+two. ADR 0045 decision 2 normalises the encoding rather than exempting the rule.
+
+### 8.5 Restricting to L, and the honest bound on its cost
+
+Falling back to the larger part loses a median **29,4 %** of a T's area and
+**33,8 %** of a Z's (p90 45,9 % and 46,7 %). ⚠️ **That is an upper bound and it is
+not why the restriction was refused.** A converter constrained to L would find a
+different, better L. **No arm measures it** — `swiss_fit_k1.json` refuses the
+second part outright, a different question — and one was deliberately not built:
+ADR 0045 rests on shape being *arrangement*, so a favourable cost number would
+still not license the contract to make an arrangement claim.
+
+The join is not the discriminator either: `fit_rects.py` enforces `JOIN_CELLS`, so
+the minimum shared edge is **5 cells for all four shapes** and `dim.leg_join`
+cannot tell them apart.
+
+### 8.6 Every figure above is on a non-reproducible measurement
+
+`fit_rects.py` runs CP-SAT at `num_search_workers = 4` with **no `random_seed`**,
+and **16,0 %** of dwellings return `FEASIBLE` under `TIME_LIMIT = 10.0` —
+contributing **41,2 %** of all two-part Rooms. ADR 0041 published **1 535** from an
+earlier run of this rig where the current file yields **1 543**, a difference no
+population filter reconciles.
+
+**The distribution is stable where the records are not.** Not-L is **44,8 %**
+pooled and **43,1 %** over the 907 proved-optimal Rooms alone; cap-hit dwellings
+are T/Z-richer at 47,3 %, so a longer cap drifts the headline **down**, bounded at
+43,1 %. Every conclusion in §8 survives at that floor. Ticket 85 owns the defect.
+
+⚠️ **`experiments/rectangularise/` is not touched by this ticket** — §8 reads the
+existing output and adds no probe. The shape classifier is `arms_parts.shape_of`,
+in `experiments/plane-accounting/`, which ticket 83 claims.

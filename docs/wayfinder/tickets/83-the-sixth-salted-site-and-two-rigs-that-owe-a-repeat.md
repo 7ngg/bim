@@ -83,3 +83,22 @@ the default; that needs its own evidence.
 the write-set boundary deliberately and refused to leave a one-line repair as a
 prose handoff — a one-line fix that nobody owns is how this defect survived
 ticket 65's own fix of it.
+
+## Handed on by ticket 79 (2026-08-31)
+
+⚠️ **Two clauses in `selftest_parts.py` P9 are now false, and 79 caused it.**
+ADR 0045 widened `experiments/room-rectangles/erosion_check.py` from one
+hand-built L to all four shapes two Parts make. P9's docstring reads
+
+> P9  ADR 0001's erosion identity at TWO reflex corners. `erosion_check.py`
+>     checks it at one and asserts `reflex == 1`; 44,8 % of the corpus's …
+
+and its runtime note repeats it. **`erosion_check.py` now checks all four shapes**
+— it asserts `(vertices, reflex)` per shape, so the `reflex == 1` half survives as
+the L case and *"checks it at one"* does not.
+
+79 holds `experiments/room-rectangles/erosion_check.py` but **not** this
+directory, which this ticket claims. No value moves and no assertion changes —
+all ten P9 checks pass unchanged. The 44,8 % figure is still right; ADR 0045
+restates it on both planes (**44,8 %** pooled, **43,1 %** proved-optimal only) for
+the reason ticket 85 exists.

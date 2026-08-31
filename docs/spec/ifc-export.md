@@ -246,7 +246,8 @@ the file is one slab of rooms and walls at a single height, with no `IfcSlab` an
 ### 6.1 A Space is one or two rectangles, and still one extrusion
 
 ADR 0014 makes a Space `erode(⋃ parts, t_int/2)` — a rectilinear polygon with at
-most one reflex corner, exact on integer millimetres. The `Body` stays **one**
+most **two** reflex corners and at most **8 vertices**, exact on integer
+millimetres. The `Body` stays **one**
 `IfcExtrudedAreaSolid` over **one** `IfcArbitraryClosedProfileDef`. An L is one
 closed profile swept once; no Boolean appears, which is the restriction Reference
 View actually carries (§2.1).
@@ -671,7 +672,7 @@ exception, measured rather than assumed:
 | 11 | `IfcSpace` count = Plan Space count; every `IsExternal` agrees with ADR 0003's ring | silent element loss |
 | 12 | Per `IfcSpace`: `Body` holds **exactly one** `IfcExtrudedAreaSolid`, over exactly one `IfcArbitraryClosedProfileDef` | §6.1's single-profile decision regressing to one extrusion per Part — which validates cleanly and draws a seam through the middle of a room |
 | 13 | Every Space body depth **and** every wall extrusion depth = `h_clear` | §6 and §12 contradicting each other again, which is the defect this section of the file was written to close |
-| 14 | Every Space profile is closed, rectilinear, on integer millimetres, with **at most one reflex corner** | ADR 0014's two-Part cap reaching the file. A third Part is a Proposal bug, and without this row it ships as valid geometry |
+| 14 | Every Space profile is closed, rectilinear, on integer millimetres, with **at most 8 vertices** | ADR 0014's two-Part cap reaching the file. A third Part is a Proposal bug, and without this row it ships as valid geometry. ⚠️ **This read “at most one reflex corner” until ADR 0045 and it was UNSOUND** — reflex count was a proxy for Part count, and it rejects **43 %** of legitimate two-part Rooms (a T and a Z have two) while a three-Part bug presenting one reflex corner passes. Two rectangles sharing an edge produce exactly 4, 6 or 8 vertices — measured over all 1 543 corpus two-part Rooms as 4 ×27, 6 ×851, 8 ×665, max 8, no holes — so the bound never rejects valid output, and a three-Part staircase reaches 10 and is caught. Incomplete (three collinear flush Parts also give 4) but **sound**, which the predecessor was not |
 | 15 | Per Space: `NetVolume` = `NetFloorArea` × `h_clear`; `GrossPerimeter` − `NetPerimeter` = Σ hosted opening structural widths; `GrossWallArea` − `NetWallArea` = Σ hosted opening structural `W × H` | the §8.2 quantity set drifting from the geometry it is computed from — assertion 7's argument applied to Spaces |
 | 16 | `Pset_SpaceCommon.NetPlannedArea` present on every Space and equal to its Room's `target_area`; `BimEngine_AreaConvention` and `BimEngine_VerticalConvention` both present on `IfcBuilding` | a file whose numbers are exact and whose convention is missing — §8.4 and §8.4a are only worth writing if their absence fails |
 

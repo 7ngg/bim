@@ -239,3 +239,49 @@ tolerance — which subsumes any small feature, morphology or not — moves per-
 k = 1 by **1.1 points**, from 0.5286 to 0.5400. Non-rectangularity in this corpus
 is **real architecture**. What the inflator story got right is the *other* term:
 the off-axis table above, where 35 % of k ≥ 3 rooms are not rectilinear at all.
+
+## Amendment: shape is arrangement, and the T and the Z were always admitted
+
+[A two-part Room is a T or a Z as often as it is an L](../wayfinder/tickets/79-a-two-part-room-is-a-t-or-a-z-as-often-as-it-is-an-l.md),
+**ADR 0045**. The decision — `k ≤ 2`, and the Proposal decides which Rooms are two
+— **stands unchanged**. What is struck is the sentence above that defends it on
+shape:
+
+> ~~**An L is a shape an architect draws; a T, U, S or Z room is a shape a plan is
+> left with.**~~ — **struck.** The cap does not deliver the shape. Two rectangles
+> sharing an edge make an L, a **T**, a **Z** or a plain rectangle, and over the
+> converted index **44,8 % are not an L**: 851 L, 334 T, 331 Z, 27 rectangle. The
+> ADR asserted a shape the contract never constrained.
+
+The sentence is left in place rather than deleted, because four sites quote it —
+`room-rectangles.md`, `solver-formulation.md` IX.7, `selftest_parts.py` P9 and
+this ADR — and a deleted sentence makes every quotation dangle.
+
+**The `k ≤ 2` refusal is re-based on the two legs that survive, and they were
+always the stronger half.**
+
+1. **The box-count trade.** `k = 3` buys **9,8 more points per room** — 77,8 % at
+   k ≤ 2 against 87,6 % at k ≤ 3 — and triples the box count.
+2. **The off-axis measurement.** Share of rooms whose perimeter runs more than
+   10 % off the dwelling axis: **0,63 %** at k = 1, **4,45 %** at k = 2,
+   **35,03 %** at k ≥ 3. What survives at k ≥ 3 is **not room shape** — it is the
+   *Angled walls* problem, which no value of k fixes.
+
+Neither leg mentions shape, and neither is disturbed. What the struck sentence
+was doing was making an **arrangement** claim inside a **buildability** cap: part
+count and the leg floor are what the contract constrains; which shape those parts
+form is the Proposal's, by this ADR's own rule that *"shape is an architectural
+claim, and it is made where the arrangement is made."*
+
+⚠️ **The type split above reads the same way once T and Z are separated.** *"A
+corridor is an L because the flat is"* is right and it under-counts: **50,3 %** of
+two-part corridors are not an L, and a T corridor reaches two wings. Corridor and
+open-plan living carry **89,5 %** of all T and Z; the U-shaped bedroom this
+section refuses to defend is **5 rooms in 1 069**.
+
+⚠️ **`erosion_check.py`'s result is restated.** *"Still rectilinear on integer
+millimetres with exactly one reflex corner"* holds for an L and for nothing else.
+The general statement is **at most two reflex corners and at most 8 vertices** —
+measured over all 1 543 corpus two-part Rooms as 4 ×27, 6 ×851, 8 ×665, max 8.
+ADR 0001's erosion identity itself is untouched and now checked on all four
+shapes.
