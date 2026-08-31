@@ -70,7 +70,50 @@ Flags: `--k2` raises the ceiling to two rectangles per Room, `--select=shape`
 (default) names which Rooms may take one from the real room's own shape and
 `--select=free` lets every Room have one, `--leg=` / `--join=` move ADR 0014's
 leg floor and join, `--time=` the solver budget, `--only=keys.json` restricts to
-a key list, `--every=` the checkpoint interval.
+a key list, `--every=` the checkpoint interval. Ticket 85 adds `--seed=`,
+`--workers=` and `--dettime=` (> 0 swaps the wall cap for CP-SAT's deterministic
+time and turns on `interleave_search`; measured and refused, see below).
+
+## The configuration is a decision, and it was wrong twice (ticket 85)
+
+**Defaults are now `WORKERS = 1`, `TIME_LIMIT = 30.0`, `SEED = 1` — ADR 0046.**
+Do not change one without reading `rectangularisation.md` §16.
+
+**`WORKERS = 4` cited a floor measured on another model.** Its comment said
+*"ticket 15: two workers is a floor for correctness"*, and that floor is real —
+`solver-formulation.md` II.6, on the **shipped projection at 24 rooms**. This
+corpus is filtered to the 3–10 engine-room band and tops out at **10 rooms**, so
+the justifying regime occurs in **0,000 %** of inputs. The citation is why nobody
+re-checked it: it made the number look examined. Four racing workers under a wall
+cap made the fit non-reproducible — 26,5 % of covers differed between two runs of
+identical code — and one worker costs **nothing** (3,31 s/dwelling against
+3,28–3,33) and is byte-identical at 30 s.
+
+**`random_seed` was never the problem.** CP-SAT's own default is **1**, so the rig
+was always seeded; varying it to 7 gives disagreement indistinguishable from
+running seed 1 twice. It is now set explicitly only because ADR 0043 requires the
+seed be *recorded*, and an implicit default becomes false the day the library
+changes it.
+
+**`interleave_search` + `max_deterministic_time` is refused, and it was measured
+before it was refused.** At four workers it costs 1,85× the wall time, loses
+proofs, has no wall bound at all, and *still* returns different covers — three of
+them on records both runs proved OPTIMAL at an identical objective, which is
+google/or-tools **#3948**. At one worker it is 2,6× at budget 10 and **8,4×** at
+budget 30, with a 145 s tail. ADR 0043 adopted this combination for the warp,
+where it was free; **it does not transfer**, because those models finish inside
+the budget and these do not.
+
+**Two runs, or it is not a measurement.** `repeat_check.py` asserts the published
+plane — status, objective, part count, shape class — over two solves of one
+input, and is proven in both directions. It deliberately does **not** assert the
+cover: tied optima move and that is upstream. Run it after touching anything in
+`fit()`:
+
+```
+./venv/Scripts/python.exe experiments/rectangularise/repeat_check.py
+./venv/Scripts/python.exe experiments/rectangularise/determinism.py selftest
+```
 
 ## Four things that will bite whoever runs this next
 
