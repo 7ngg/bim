@@ -183,9 +183,30 @@ from an earlier run of the same rig and the 8-Room difference is not
 reconcilable by any population filter. Cause: `fit_rects.py` runs CP-SAT at
 `num_search_workers = 4` with **no `random_seed`**, and **16,0 % of dwellings
 return `FEASIBLE`** under `TIME_LIMIT = 10.0`, contributing **41,2 %** of all
-two-part Rooms. Which mechanism dominates is unmeasured — ticket 85. **No
+two-part Rooms. ~~Which mechanism dominates is unmeasured — ticket 85.~~ **No
 conclusion here moves at the 43,1 % floor**, and consequence 3's vertex bound is a
 topological fact about two rectangles, not a corpus statistic.
+
+⚠️ **Amended by ADR 0046**, ticket 85, which measured it. Three corrections, and
+**the consequence's conclusion survives all three**.
+
+- **The mechanism is the race, and the seed was never one.** CP-SAT's own default
+  `random_seed` is **1**, so "no `random_seed`" never meant unseeded — every
+  process this rig ran was already at seed 1. Varying it to 7 produces
+  disagreement indistinguishable from running seed 1 twice (cover 103 vs 95,
+  shape 16 vs 17). What varies is which of four workers finishes first.
+- **The 8-Room difference is reconciled, and needed no filter.** It is **0,5 %**
+  against a measured run-to-run range of **2,9 %** over 400 paired dwellings —
+  a smaller-than-typical draw, not a population difference.
+- **~~Proved-optimal floor~~ — 43,1 % is not a floor.** It is the not-L rate of
+  the dwellings easy enough to prove at 10 s. At a 30 s cap the dwellings newly
+  proved carry **51,5 %** not-L against **41,8 %** for those already proved, so
+  the proved-optimal plane *rises* (41,1 % → 45,0 %) as the pooled falls
+  (47,7 % → 46,4 %) and the two converge on **~45–46 %**.
+
+The convergent value is **at least as high as the published 44,8 %**, so this
+consequence's own claim — *no conclusion here moves* — holds, and the decision it
+supports is if anything better evidenced than when it was taken.
 
 **4. The pool ranking prefers two-part-rich donors by +8,0 points and nobody
 decided that it should.** Handed to *What each §6.1 term is scored for* (81),

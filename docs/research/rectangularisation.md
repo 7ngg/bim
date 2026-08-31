@@ -1646,3 +1646,306 @@ problem bought to produce an unusable result.
 Harness: `off_frame_gate.py` (the join to the shipped gate),
 `frame_choice.py` (the two frames) and `frame_residual.py` (the published
 quantity and the cut that was refused); records in `out/`.
+
+---
+
+## 16. The conversion is not reproducible, and it is the wrong quantity that moves
+
+Ticket 85, ADR 0046. Harness: `determinism.py` (the arms and the comparison),
+`repeat_check.py` (the assertion), `run_arms*.sh` (the chains); records in
+`out/det/`.
+
+Provenance, per ADR 0043 decision 6: `ortools` **9.15.6755**; one machine; every
+arm run **serially**, because two arms at once contend for cores and the
+wall-clock cap is the thing under test. The sample is the **first 400 keys of
+`swiss_fit_k2.json`**, which is `swiss_keys()`'s md5 order and therefore a random
+draw of the corpus, and every arm runs that identical list so every comparison is
+paired.
+
+### 16.1 The premise was half right, and the wrong half changes the fix
+
+`fit_rects.py` set `max_time_in_seconds = 10.0` and `num_search_workers = 4` and
+never set `random_seed`. Ticket 85 read that as *four racing workers with no
+seed*. **CP-SAT's own default `random_seed` is 1** — asserted against the pinned
+build in `determinism.selftest`, not read off documentation — so every process
+this rig has ever run was already seeded, and `random_seed = 1` is a no-op.
+
+The seed arm confirms it. Varying the seed produces disagreement indistinguishable
+from running the same seed twice:
+
+| pair | seeds | cover ≠ | shape class ≠ | status ≠ |
+|---|---|---:|---:|---:|
+| rep1 vs rep2 | 1 vs 1 | 95 | 17 / 227 | 9 |
+| rep1 vs seed7 | 1 vs **7** | 103 | 16 / 229 | 8 |
+| rep2 vs seed7 | 1 vs **7** | 94 | 14 / 231 | 7 |
+
+**A defect caused by a race is not repaired by keying a draw.** This is why the
+ticket demanded both arms: a seed arm alone would have shown 103 disagreements and
+"confirmed" the premise, and the fix shipped would have changed nothing.
+
+### 16.2 The four workers came from a measurement that cannot apply here
+
+```python
+WORKERS = 4              # ticket 15: two workers is a floor for correctness
+```
+
+That floor is real and it is about a different model. `solver-formulation.md` II.6
+measured it on the **shipped projection at 24 rooms**, where one worker returns
+170 units of coverage slack and *"never reaches a valid Plan inside 30 s"*. The
+conversion is a tiling fit against a truth mask, and its corpus is filtered to the
+3–10 engine-room band:
+
+```
+rooms per converted dwelling: p50 7, p90 9, max 10
+share with >= 24 rooms: 0.000 %
+```
+
+**The binding condition cannot occur in this rig.** A threshold was carried across
+from another model — in a comment that names the ticket it came from, which is how
+it survived — and the regime that justified it was never checked against the
+corpus it was applied to.
+
+### 16.3 Three configurations, and the elaborate one is the worst
+
+ADR 0043 decision 4 established from OR-Tools' own source that a parallel solve is
+deterministic only under `interleave_search = true`; that the flag is marked
+"Experimental."; and that `DeterministicLoop` takes **no time-limit argument**, so
+a `max_time_in_seconds` firing first destroys determinism regardless. Its
+consequence 8 left the cost unmeasured and required it be measured *"before
+anything makes it a default."* Measured, on 60 dwellings:
+
+| | 4 workers, 10 s wall | 4 workers, `interleave` + det 8 | **1 worker, 10 s wall** |
+|---|---:|---:|---:|
+| OPTIMAL | 45 | 42 | 45–46 |
+| UNKNOWN | 2 | 6 | 1–0 |
+| mean wall | 3,56 s | 6,58–6,97 s | **3,48–3,62 s** |
+| max wall | 10,06 s | **27,1 s** | 10,07 s |
+| cover ≠ on repeat | — | **5 / 50** | **0 / 54** |
+
+`interleave_search` costs **1,85× the wall time**, loses three proofs in sixty,
+drops the wall bound entirely — a deterministic budget has none, by decision 4's
+own reasoning — and **still returns different covers**. Three of those five
+disagreements are on records both runs proved `OPTIMAL` at an identical objective:
+tied optima broken differently between two runs of one binary. That is
+google/or-tools issue **#3948**, which ADR 0043 cited from the tracker and could
+not confirm here. It is confirmed here. **Consequence 8 is discharged, negatively.**
+
+### 16.4 One worker, at 400 dwellings
+
+| pair | dec | status ≠ | cover ≠ | obj ≠ | k ≠ | **shape class ≠** |
+|---|---:|---:|---:|---:|---:|---:|
+| rep1 vs rep2 — shipped | 358 | 9 | **95** | 18 | 2 / 2419 | **17 / 227** |
+| **w1a vs w1b — one worker** | 366 | **1** | **1** | **1** | **0 / 2484** | **0 / 243** |
+
+Cover disagreement falls from 26,5 % to **0,27 %**, and the published plane
+becomes identical to every digit: both runs report **244** two-part Rooms,
+**47,1 %** not-L, **0,9244** conversion, **9,79 %** two-part per Room.
+
+It is free, and slightly better than free:
+
+| | 4 workers | 1 worker |
+|---|---:|---:|
+| mean wall | 3,28–3,33 s | 3,31 s |
+| OPTIMAL | 308–312 | 303–304 |
+| conversion rate | 0,9219–0,9239 | **0,9244** |
+
+One worker costs ~5 proofs in 400 (1,6 %) and gains on the conversion rate. The
+residual 1-in-366 is the wall clock's own boundary — ADR 0043's `wall/fixed` cell,
+0,00 % there and 0,27 % here.
+
+**And that residual goes to zero at a longer cap.** One worker at 30 s, run twice:
+
+| pair | dec | Rooms | status ≠ | cover ≠ | obj ≠ | k ≠ | shape ≠ |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| w1a vs w1b — 1 worker, 10 s | 366 | 2 484 | 1 | 1 | 1 | 0 | 0 |
+| **w1c30a vs w1c30b — 1 worker, 30 s** | **369** | **2 511** | **0** | **0** | **0** | **0** | **0** |
+
+Not one byte differs, cover included. This is entailed rather than lucky: at one
+worker the only nondeterminism left is *where the wall clock cuts*, and a longer
+cap cuts fewer records — 9,0 % against 16,8 %.
+
+| | 4w, 10 s | 1w, 10 s | 4w, 30 s | **1w, 30 s** |
+|---|---:|---:|---:|---:|
+| OPTIMAL | 308–312 | 303–304 | 349 | **333** |
+| FEASIBLE | 53–56 | 63–64 | 20 | **36** |
+| UNKNOWN | 3–6 | 3 | 0 | **0** |
+| mean wall | 3,3 s | 3,3 s | 5,15 s | **5,73 s** |
+
+⚠️ **A configuration change moves a published figure by more than the run-to-run
+band, and it is a shift, not drift.** On the 369 dwellings both decide, four
+workers and one worker at the same 30 s cap report **46,4 %** and **50,2 %**
+not-L — 3,8 points, against a within-configuration sd of 0,77. They disagree on
+123 covers and 17 shape classes with **zero** status and part-count differences
+and only four objective differences: the same dwellings, solved to the same
+quality, landing on different tied optima. **Never quote a figure computed under
+one configuration against one computed under another.**
+
+### 16.5 The instability is in the truncated records, not in the proofs
+
+The central result, and it is a decomposition rather than a verdict. **Pooled
+rates hide the mechanism, so they are split by proof status** — two runs of the
+shipped configuration over one key list:
+
+| rep1 vs rep2 | records | cover ≠ | objective ≠ | two-part Rooms | **shape class ≠** |
+|---|---:|---:|---:|---:|---:|
+| **OPTIMAL** | 307 | 63 (20,5 %) | **0** | 139 | **0** |
+| **FEASIBLE** | 51 | 32 (63 %) | 18 | 88 | **17 (19 %)** |
+
+rep1 against the baseline gives the same picture: **1** shape change in 134 proved
+Rooms, **15** in 92 unproved ones.
+
+**On a proved-optimal record the published plane is stable even at four workers.**
+The race does swap tied optima — 63 of 307 covers differ — but those optima are
+*shape-equivalent*: zero shape changes in 139 Rooms, and zero objective changes,
+which is what "proved optimal" means.
+
+**All of the instability lives in the cap-truncated population.** A FEASIBLE
+record has no proof; its objective is wherever the search had got to when the
+clock stopped (18 of 51 differ, six of the first seven improving), and its shape
+class moves **19 %** of the time. Ticket 85's own figure closes the loop: FEASIBLE
+dwellings contribute **41,2 %** of all two-part Rooms.
+
+**So the cap is what reaches the figures, and the race matters mainly because it
+moves where the cap bites.** That is the reverse of the emphasis the ticket was
+raised with, and it is why `w1c30` is byte-perfect below: one worker removes the
+race, and 30 s takes the truncated population from 56 records to 36.
+
+The pooled rates — 27 % of covers, 7 % of shape classes — are still true and are
+the wrong summary, because they average a stable population with an unstable one.
+The aggregate barely moves regardless, because the changes cancel (L 124/123,
+T 51/53, Z 60/58, rect 2/3), which is ADR 0043 consequence 7 reproducing in a
+second rig: *"the floor under a published figure is the AGGREGATE floor, not the
+per-pair rate."*
+
+⚠️ **This vindicates ADR 0045's instinct to report the proved-optimal plane
+separately, and is unrelated to the error struck in §16.6.** That plane is
+genuinely stable; it simply is not a *bound*.
+
+The band, over **five** runs of the shipped configuration on identical keys —
+`swiss_fit_k2` restricted to the sample, plus `rep1`..`rep4`:
+
+| published figure | values | range | **sd** |
+|---|---|---:|---:|
+| two-part Rooms | 237 / 237 / 242 / 240 / 240 | 5 | **2,2** |
+| **not-L** | 48,10 / 47,68 / 47,52 / 48,75 / 46,67 % | 2,08 pts | **0,77 pts** |
+| conversion rate | 0,9237 / 0,9239 / 0,9219 / 0,9217 / 0,9217 | 0,0021 | **0,0011** |
+| two-part per Room | 9,65 / 9,61 / 9,74 / 9,70 / 9,70 % | 0,13 pts | **0,049 pts** |
+| decided Rooms | 2456 / 2465 / 2484 / 2475 / 2475 | 28 | **10,8** |
+
+⚠️ **Quote the sd, not the range.** The range on not-L went 0,58 points at four
+runs to 2,08 at five, because a range is an order statistic and climbs with n
+while an sd does not. Four realisations understated the spread by ~2x, which is
+ADR 0043 decision 6 item 4's *"N runs, as a distribution"* earning its keep: a
+single pair would have reported half the true band with nothing to signal it.
+
+⚠️ **These are 400-dwelling figures and the published ones are over 2 600.**
+not-L sits at ~47 % here against the corpus-wide **44,8 %** — that gap is
+**sampling, not drift**. Compare a value in this table only with another value in
+this table.
+
+⚠️ **One datum points the other way and is not buried.** `seed7`'s two-part count
+is **244**, outside the five same-config runs' 237–242. It is inside the band on
+every other figure, and the pairwise rates above show seed-varied disagreement
+indistinguishable from same-seed disagreement, so the reading defended here is
+that five runs underestimate the range rather than that the seed matters. It is
+the one observation inconsistent with that and it is recorded rather than dropped.
+
+⚠️ **The two-part count's variance is population churn, not Rooms changing
+shape.** Only 2–3 Rooms per pair change part count, but the *decided population*
+moves by up to 28 Rooms as marginal dwellings flip in and out at the cap and take
+their Rooms with them. ADR 0041's 8-Room gap was read as a defect in the fit; it
+is mostly a defect in which dwellings got an answer.
+
+**So ADR 0041's 1 535 against 1 543 needs no population filter.** The two-part
+count's sd is **2,2 Rooms on ~239**, a relative **0,91 %**; the gap is 8 on 1 543,
+a relative **0,52 %**. It is roughly **0,6 sd** — an ordinary draw, and a smaller
+one than typical, from a distribution nobody knew this rig had.
+
+### 16.6 The cap is a separate mechanism, and it is a bias rather than noise
+
+`cap30` — 30 s, everything else shipped — against `rep1`:
+
+| | 10 s | 30 s |
+|---|---:|---:|
+| OPTIMAL | 308 | **349** |
+| FEASIBLE | 56 | 20 |
+| **UNKNOWN** | 6 | **0** |
+| mean wall | 3,33 s | 5,15 s (**1,55×**) |
+| cap-limited | 15,5 % | 5,0 % |
+| pooled not-L | 47,7 % | 46,4 % |
+
+The cap moves the headline by **1,3 points** where the race moves it by 0,4 — and
+it moves it *directionally*, so it is a bias and not a band. It also returns
+**zero UNKNOWN**, which matters beyond this section: the Corpus-conversion row's
+own ⚠️ records ADR 0008's *"decidable, not a timeout"* as **dead** at 1,27 %
+UNKNOWN. Thirty seconds revives it.
+
+**And it falsifies a bound this note published.** §8.6 argued that cap-hit
+dwellings are T/Z-richer, so a longer cap drifts not-L down, *"bounded at 43,1 %"*
+— the proved-optimal rate. The mechanism is right; the bound is backwards,
+because *"proved optimal at 10 s"* is not a fixed population, it is the **easy**
+dwellings:
+
+| population | dwellings | two-part Rooms | not-L |
+|---|---:|---:|---:|
+| OPTIMAL at 10 s too | 308 | 141 | 41,8 % |
+| OPTIMAL **only** at 30 s | 41 | 68 | 51,5 % |
+| still FEASIBLE at 30 s | — | 41 | 53,7 % |
+
+Raising the cap moves T/Z-rich dwellings **into** the proved-optimal plane, so the
+two planes converge instead of the pooled falling to the optimal-only one:
+47,7 / 41,1 % at 10 s becomes 46,4 / **45,0 %** at 30 s, a 6,6-point gap closing
+to 1,4. The convergent value is **~45–46 %**, *above* the struck bound and at
+least as high as the published 44,8 %, so §8's conclusions are unaffected and
+mildly strengthened. ⚠️ The 41,8-vs-51,5 contrast **alone** is ~1,3 sd at these
+n and is not significant on its own; the convergence of the two planes is the
+robust part and does not rest on it.
+
+### 16.7 Why this is not a line in `salt_check.py`
+
+`salt_check.py` catches a defect that is **static and unconditional**: a PRNG
+seeded from `hash()` of a `str` is wrong in every rig and every context, a regex
+can say so, and the repair is mechanical. `num_search_workers = 4` is not that
+shape. It is **correct** in `solver.py`, defended by II.6 and accepted by ADR 0043
+decision 4, which states plainly that the shipped projection is not reproducible
+and that this is entailed by a 15 s product cap rather than broken.
+
+A pattern that fires on both the defect and the defended decision cannot separate
+them. It would land in the OWED table beside `solver.py` and go quiet — and
+`salt_check.py`'s own docstring names what it would become: *"a checker whose
+first two findings are its own prose is a checker nobody will keep."*
+
+What is checkable is not the parameter but the **behaviour**, and only on a rig
+that claims reproducibility. `repeat_check.py` asserts the claim where it is made:
+solve, solve again, compare the published plane. It deliberately does **not**
+assert the cover, because #3948 is upstream and a check that is red on a defect
+nobody here can repair is a check that gets switched off.
+
+### 16.8 What this section does not establish
+
+- **That the conversion is reproducible cross-machine.** Not claimed. Per ADR 0043
+  decision 3 and issue #3948 the publishable form is *"reproducible on this
+  machine, verified by repeat"*, which is why every arm ran on one machine,
+  serially.
+- **That the cover could be made reproducible.** Tied optima returning different
+  rectangles between two runs of one binary is #3948, upstream, and not this
+  repo's to repair. What is established is that **no published quantity is
+  computed from a cover**.
+- **That 400 dwellings bound the drift on a figure computed over 2 600.** The
+  per-record rates are measured and the aggregate band is four realisations on a
+  400-dwelling sample. The relative sd is quoted; an absolute count for the full
+  corpus is not.
+- **Anything about ResPlan.** `resplan_fit_k2.json` carries the same configuration
+  and was not re-run. The argument transfers; the numbers do not.
+- **That either worker count finds the "right" shape distribution.** Neither is
+  more correct: both return optimal covers of the same objective, and the
+  objective does not determine the shape. §16.4's 3,8-point gap says the corpus's
+  L/T/Z split is partly a property of the configuration it was read with.
+- **That the worker count has a *systematic* shape preference.** Tested per Room
+  by sign test on the discordant pairs. Within a configuration the changes
+  cancel — 4 workers at 10 s, 8 L→not-L against 6 the other way, **p = 0,79**;
+  1 worker at 10 s, zero changes at all. Between configurations the result does
+  **not** replicate: at 30 s it is 13 against 3, **p = 0,021**, but at 10 s it is
+  8 against 12 — the opposite sign, **p = 0,50**. One p = 0,021 among the many
+  comparisons made here, contradicted by its own companion, is not an effect.
+  Settling it needs arms that were not run.

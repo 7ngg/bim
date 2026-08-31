@@ -562,8 +562,31 @@ population filter reconciles.
 
 **The distribution is stable where the records are not.** Not-L is **44,8 %**
 pooled and **43,1 %** over the 907 proved-optimal Rooms alone; cap-hit dwellings
-are T/Z-richer at 47,3 %, so a longer cap drifts the headline **down**, bounded at
-43,1 %. Every conclusion in §8 survives at that floor. Ticket 85 owns the defect.
+are T/Z-richer at 47,3 %, so a longer cap drifts the headline **down**, ~~bounded at
+43,1 %~~. Every conclusion in §8 survives at that floor. Ticket 85 owns the defect.
+
+⚠️ **Amended by ADR 0046** — [The conversion is a time-capped, unseeded
+solve](../wayfinder/tickets/85-the-conversion-is-a-time-capped-unseeded-solve.md),
+`rectangularisation.md` §16. The first sentence is **confirmed** and the bound is
+**struck**.
+
+*Confirmed*: the distribution is stable where the records are not, now measured
+rather than inferred. Two runs of this rig over one 400-dwelling key list disagree
+on **27 %** of covers and **7 %** of per-Room shape classes, while the pooled
+not-L moves **0,4 points** and the two-part count is unchanged. The 1 535-vs-1 543
+gap needs no population filter: it is **0,5 %** against a measured run-to-run range
+of **2,9 %**, so it is a smaller-than-typical draw from noise this rig always had.
+
+*Struck*: **43,1 % is not a floor.** "Proved optimal at 10 s" is not a fixed
+population — it is the *easy* dwellings. Raising the cap to 30 s moves T/Z-rich
+dwellings **into** it: the 41 dwellings that become OPTIMAL only at 30 s carry
+**51,5 %** not-L against **41,8 %** for those already proved at 10 s. So the two
+planes converge rather than the pooled figure falling to the optimal-only one —
+pooled/optimal goes 47,7 / 41,1 % at 10 s to 46,4 / **45,0 %** at 30 s, a 6,6-point
+gap closing to 1,4. The convergent value is **~45–46 %**, *above* the struck bound
+and at least as high as the published 44,8 %, so §8's conclusions are unaffected
+and mildly strengthened. (The 41,8-vs-51,5 contrast alone is ~1,3 sd at these n;
+the convergence of the two planes is the robust part and does not rest on it.)
 
 ⚠️ **`experiments/rectangularise/` is not touched by this ticket** — §8 reads the
 existing output and adds no probe. The shape classifier is `arms_parts.shape_of`,

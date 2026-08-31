@@ -60,6 +60,9 @@ from pathlib import Path
 
 import numpy as np
 from ortools.sat.python import cp_model
+
+import ortools as _ort
+_ORTOOLS = _ort.__version__
 from shapely import contains_xy
 from shapely.affinity import rotate
 from shapely.ops import unary_union
@@ -77,11 +80,39 @@ GRID = GRID_MM / 1000.0
 WALL_REACH = 0.35        # a cell further than this from every room is outside
 DOOR_CELLS = 4           # 1.0 m of contact: ~900 structural + t_int (ADR 0001 c3)
 AREA_TOL = 0.10          # per-room area band, as a fraction of the watershed area
-TIME_LIMIT = 10.0
+TIME_LIMIT = 30.0        # ADR 0046 decision 2. Was 10.0, which left 1,27 % of
+                         # dwellings UNKNOWN and killed ADR 0008's "decidable,
+                         # not a timeout". 30 s returns ZERO UNKNOWN on 400
+                         # dwellings for 1,73x the wall time, on an offline rig
+                         # where nothing user-facing waits on it. This is also
+                         # ResPlan's own escalation, sec.11.0.
 SOFT_WEIGHT = 100_000   # solver.py soft_weight: coverage degrades, never fails
 MAX_NOTCHES = 2         # ADR 0003: v1 Envelope is bbox minus at most two notches
 MIN_NOTCH_CELLS = 4     # 0.25 m2: below this a 'notch' is a rasterisation sliver
-WORKERS = 4              # ticket 15: two workers is a floor for correctness
+WORKERS = 1              # ADR 0046 decision 1. Was 4, citing "ticket 15: two
+                         # workers is a floor for correctness" -- measured on the
+                         # SHIPPED PROJECTION at 24 rooms, a regime this rig
+                         # cannot enter: the conversion corpus is filtered to the
+                         # 3-10 engine-room band and tops out at 10. Four racing
+                         # workers under a wall cap made the fit non-reproducible
+                         # (26,5 % of covers differed between two runs); one
+                         # worker is byte-identical at 30 s and costs nothing --
+                         # 3,31 s/dwelling against 3,28-3,33.
+SEED = 1                 # ADR 0046 decision 1. CP-SAT's OWN default is already
+                         # 1, so this changes nothing today. It is stated because
+                         # a default is not a decision: ADR 0043 decision 6
+                         # requires the seed be RECORDED, and an implicit one
+                         # becomes false the day the library changes it.
+DET_TIME = 0.0           # > 0 swaps the WALL-CLOCK cap for CP-SAT's deterministic
+                         # time and turns on `interleave_search`. Kept as a flag
+                         # for re-measurement and NOT shipped: ADR 0046 decision
+                         # 3 measured it costing 1,85x the wall time at four
+                         # workers -- and it STILL returned different covers,
+                         # three of them on records both runs proved OPTIMAL at
+                         # an identical objective (or-tools #3948). At one worker
+                         # it is 2,6x at budget 10 and 8,4x at 30. It is not the
+                         # combination that makes this rig reproducible; one
+                         # worker is.
 
 # ADR 0014: a Room is one or two axis-aligned rectangles. A rectangle beyond the
 # first carries a universal leg floor of 900 mm CLEAR, and the two must share at
@@ -398,7 +429,8 @@ def contact_opts(m, a, b, L, X1, X2, Y1, Y2, nx, ny, pres, tag):
 def fit(env, n, areas, boxes, edges, truth=None, rel_true=None,
         time_limit=TIME_LIMIT, area_tol=AREA_TOL, k_max=1,
         leg_cells=LEG_CELLS, join_cells=JOIN_CELLS, hint_parts=None,
-        k_of=None, force_second=False):
+        k_of=None, force_second=False, seed=SEED, workers=WORKERS,
+        det_time=DET_TIME):
     """Fit n Rooms of 1..k_max rectangles each into a v1-expressible Envelope.
 
     Constraint structure copies the shipped formulation exactly (C10, amended):
@@ -619,8 +651,18 @@ def fit(env, n, areas, boxes, edges, truth=None, rel_true=None,
     m.Minimize(uncovered + (covered - agreement))
 
     s = cp_model.CpSolver()
-    s.parameters.max_time_in_seconds = time_limit
-    s.parameters.num_search_workers = WORKERS
+    s.parameters.random_seed = seed
+    s.parameters.num_search_workers = workers
+    if det_time > 0:
+        # Reproducible mode. A wall-clock cap over racing workers returns
+        # whatever the machine happened to reach, so two runs of one input
+        # disagree even at a fixed seed. Deterministic time plus
+        # `interleave_search` removes the race; the budget is then in
+        # CP-SAT's own units, not seconds.
+        s.parameters.interleave_search = True
+        s.parameters.max_deterministic_time = det_time
+    else:
+        s.parameters.max_time_in_seconds = time_limit
     t = time.time()
     st = s.Solve(m)
     dt = time.time() - t
@@ -694,7 +736,8 @@ def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
                  max_notches=MAX_NOTCHES, rel_scope="all", k_max=1,
                  leg_cells=LEG_CELLS, join_cells=JOIN_CELLS,
                  time_limit=TIME_LIMIT, hint="truth", k_select="shape",
-                 force_second=False):
+                 force_second=False, seed=SEED, workers=WORKERS,
+                 det_time=DET_TIME):
     lab, x0, y0 = watershed(geoms)
     if lab is None:
         return {"status": "NO_RASTER"}
@@ -781,7 +824,8 @@ def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
     res = fit(env, n, areas_e, boxes_e, edges if use_adj else set(),
               truth=sub, rel_true=rt_post, area_tol=area_tol, k_max=k_max,
               leg_cells=leg_cells, join_cells=join_cells, time_limit=time_limit,
-              hint_parts=hint_parts, k_of=k_of, force_second=force_second)
+              hint_parts=hint_parts, k_of=k_of, force_second=force_second,
+              seed=seed, workers=workers, det_time=det_time)
     res["truth_boxes"] = boxes_e
     res.update(envinfo)
     res["n"] = n
@@ -789,6 +833,14 @@ def run_dwelling(geoms, use_rel=True, use_adj=True, area_tol=AREA_TOL,
     res["cells"] = int(env.sum())
     res["hint"] = hint if k_max > 1 else "truth"
     res["k_select"] = k_select if k_max > 1 else "-"
+    # ADR 0043 decision 6: a solver figure carries its provenance -- version,
+    # workers, interleave, seed, and the cap BY TYPE. `det_time > 0` means the
+    # cap is deterministic and publishable; otherwise it is wall clock and
+    # machine-local.
+    res["solver"] = {"ortools": _ORTOOLS, "seed": seed, "workers": workers,
+                     "interleave": det_time > 0,
+                     "cap_kind": "deterministic" if det_time > 0 else "wall",
+                     "cap": det_time if det_time > 0 else time_limit}
     if "parts" not in res:
         return res
 
@@ -941,7 +993,9 @@ def main_resplan(n_target, opts):
         r = run_dwelling(geoms, k_max=opts["k_max"], hint=opts["hint"],
                          leg_cells=opts["leg"], join_cells=opts["join"],
                          time_limit=opts["time_limit"],
-                         k_select=opts["k_select"], force_second=opts["force"])
+                         k_select=opts["k_select"], force_second=opts["force"],
+                         seed=opts["seed"], workers=opts["workers"],
+                         det_time=opts["det_time"])
         r["k"] = str(p.get("id"))
         status[r["status"]] += 1
         recs.append(r)
@@ -1002,6 +1056,9 @@ def parse_opts(argv):
         "leg": flag("--leg", int, LEG_CELLS),
         "join": flag("--join", int, JOIN_CELLS),
         "time_limit": flag("--time", float, TIME_LIMIT),
+        "seed": flag("--seed", int, SEED),
+        "workers": flag("--workers", int, WORKERS),
+        "det_time": flag("--dettime", float, DET_TIME),
         "out": flag("--out", str, default_out),
         "only": flag("--only", str, ""),
         "every": flag("--every", int, 200),
@@ -1064,7 +1121,8 @@ def main():
     print(f"dwellings: {len(dw)}; fitting {n_target}  k_max={opts['k_max']} "
           f"select={opts['k_select']} force={opts['force']} hint={opts['hint']} "
           f"leg={opts['leg']} join={opts['join']} "
-          f"time={opts['time_limit']}", flush=True)
+          f"time={opts['time_limit']} seed={opts['seed']} "
+          f"workers={opts['workers']} dettime={opts['det_time']}", flush=True)
 
     recs, status = [], Counter()
     done = set()
@@ -1095,7 +1153,9 @@ def main():
         r = run_dwelling(geoms, k_max=opts["k_max"], hint=opts["hint"],
                          leg_cells=opts["leg"], join_cells=opts["join"],
                          time_limit=opts["time_limit"],
-                         k_select=opts["k_select"], force_second=opts["force"])
+                         k_select=opts["k_select"], force_second=opts["force"],
+                         seed=opts["seed"], workers=opts["workers"],
+                         det_time=opts["det_time"])
         r["k"] = kk
         r["types"] = types
         status[r["status"]] += 1
