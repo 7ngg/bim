@@ -1,8 +1,14 @@
 """The aspect-ratio question on the second corpus.
 
-Ticket 20. `dim.aspect_ratio_hard` is the one rule in the spec with no
-precedent anywhere, so it is the one threshold that must not rest on a single
-corpus. This measures the same quantity -- bbox aspect in the plan's own frame,
+Ticket 20. `dim.aspect_ratio_hard` was BELIEVED to be the one rule in the spec
+with no precedent anywhere, so it is the one threshold that must not rest on a
+single corpus.
+
+CORRECTED by ticket 72 / ADR 0048: precedent exists -- [1/3, 3] is the modal hard
+aspect bound in VLSI floorplanning, and regulators bound an ORIENTED depth ratio
+which is a different predicate from the one measured here. The reason to run this
+script is UNCHANGED and if anything stronger: the second corpus is still what keeps
+a fitted threshold off a single population. Nothing measured here moves. This measures the same quantity -- bbox aspect in the plan's own frame,
 clear plane -- over ResPlan.
 
 Two limits, stated rather than worked around (`docs/research/rectangularisation.md`

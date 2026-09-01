@@ -1196,6 +1196,27 @@ entry must be an **even number of millimetres**, because a clear dimension is
 on a half-millimetre. It is an engine choice, not a quoted standard — real
 surveyed housing has no module to copy.
 
+**Room proportion** — the ratio of a Space's longer to its shorter clear
+dimension, measured on its bounding box **in the dwelling's own frame** and
+therefore **orientation-free**: it does not know which wall the window is on. It
+is what `dim.aspect_ratio_hard` and `dim.aspect_ratio_soft` measure, and what
+Palladio means by *"two squares"*. Bounded hard at 3.0 and ranked by a gradient
+toward the class's typical proportion. _Avoid_ calling this "aspect ratio" when
+the thing meant is [[Daylight depth]] — one word for the two of them is the
+confusion ADR 0048 exists to end.
+
+**Daylight depth** — how far a habitable room extends **away from its glazed
+wall**. Oriented, unlike [[Room proportion]]: the same rectangle has two different
+daylight depths depending on which side is glazed. This is the quantity every
+regulator surveyed actually bounds — SNiP II-L.1-71\* cl. 3.4 at ≤ 6 m and
+≤ 2× width **under single-sided lighting only**, Portugal's RGEU art. 69.º
+n.º1 d) waiving its 2:1 for openings in opposite walls — and it is the reason a
+deep room is bad, which proportion only proxies. **The engine does not have it
+yet**; `win.habitable_has_window` already identifies the exterior-condition run
+each Room holds, so it is computable rather than blocked. A 6 × 3 m room glazed
+on its long wall has proportion 2.0 and daylight depth 3 m: elongated by one
+measure, exemplary by the other.
+
 ## Relations
 
 - Model **proposes**; solver **projects** that Proposal onto the feasible set.
