@@ -834,9 +834,32 @@ special-casing the rule, so §10 needs no exemption.
 minimum width, and is a bowling alley. Nothing in the seven items catches it, and
 it is the most likely way a passing Plan still reads as generated.
 
-Habitable and wet Spaces: hard reject above **3.0**, soft prefer at or below
-**2.2**. `corridor`, `hall` and `storage` exempt — legitimately high-aspect. Both
-`ENGINE_CHOICE`; no surveyed source states an aspect rule.
+Habitable and wet Spaces: hard reject above **3.0**. `corridor`, `hall` and
+`storage` exempt — legitimately high-aspect. The soft term is a **gradient**, not a
+threshold: `soft_w[class] × max(0, aspect − target[class])`, targets the corpus p50
+(1.37–1.45), weights `rules.json` `aspect_bands`.
+
+⚠️ **Two claims that stood here were false and are struck** — *A regulator states an
+aspect rule and the engine says none does*, ADR 0048. **(a)** *"Both `ENGINE_CHOICE`"*
+was stale: ADR 0023 made both `fitted` and this sentence was not updated. **(b)** *"no
+surveyed source states an aspect rule"* was **false in four places in this repo**, and
+this was one of them. Sources exist — but they state a **different predicate**, which is
+the finding rather than the correction: SNiP II-L.1-71\* cl. 3.4 and Portugal's RGEU
+art. 69.1(d) bound a habitable room's **depth from its glazed wall**, single-sided only,
+while this rule measures **orientation-free bbox aspect**. A 6 × 3 m room with its window
+on the long wall is 2:1 here and *ideal* to both norms. AzDTN 2.7-3 cl. 5.1's
+recommended 2:1 is the most degraded rendering of that clause and is **declined**, on
+measurement: a 2:1 hard cap costs a derived **41 %** of real dwellings (18.3 % at the
+norm's own habitable-only scope) against ADR 0023's ~3 % tolerance. The oriented rule
+is ticketed: *A daylight rule the engine has only a proxy for*.
+
+✅ **3.0 is unmoved and now doubly defended** — the Swiss p99.5, and `[1/3, 3]` as the
+modal hard aspect bound in VLSI floorplanning, a literature with no contact with housing.
+✅ **The gradient's form is Palladio's** (I.XXI: *"not to exceed two squares … the nearer
+they come to a square, the more commendable"*), the only source found whose predicate is
+this rule's own quantity. ⚠️ **The step it replaces fired on 1.5 % of bedrooms and 9.5 %
+of kitchens** — least on the population this rule is *for*. `docs/research/room-area-bands.md`
+§13.
 
 **Measured per part** (§9.1), with the same exemptions. A bowling-alley *leg* is
 a bowling alley, and a Room's bounding box would exempt exactly the shape this

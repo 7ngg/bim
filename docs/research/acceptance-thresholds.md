@@ -20,7 +20,7 @@ useful half** — a guess that survives measurement stops being a guess.
 |---|---|
 | `wet.plumbing_group_count` ≤ 2 | **WRONG, as the ticket predicted.** The tail reaches three: 14.14 % of real dwellings have three plumbing groups. **Moves to 3**, which costs 0.20 % |
 | `area.invented_envelope_soft` = 2 % | **WRONG for a reason nothing had checked.** The 250 mm grid alone moves Σ Space area by more than 2 % in **13.71 %** of dwellings, so the soft target is unreachable for reasons that have nothing to do with design. **Moves to 3 %** |
-| `dim.aspect_ratio_hard` = 3.0 | **RIGHT, and right to three decimal places.** The p99.5 of real room aspect is **3.02**. Chosen by judgement, landed on the percentile *What a room's area is allowed to be* chose independently, at the same 3 % cost |
+| `dim.aspect_ratio_hard` = 3.0 | **RIGHT, and right to three decimal places.** ⚠️ *"no precedent"* is false — see §2. The p99.5 of real room aspect is **3.02**. Chosen by judgement, landed on the percentile *What a room's area is allowed to be* chose independently, at the same 3 % cost |
 | `circ.fraction_hard` = 0.30 | **RIGHT.** p99 is 0.284, p99.5 is 0.322. It sits inside the tail exactly where its own note claims, and costs 0.69 % |
 | `open.fits_segment` = 100 mm | **RIGHT twice over.** As a fit test, 100 mm is below the p1 of the slack real construction leaves. And the same 100 mm, used by `openings.md` §3.2 to *place* the door, sits at roughly the **p40** of real door returns — so an engine door is never tighter to its corner than a median real one |
 | `efficiency` ≈ 0.85 | **RIGHT.** Fitted p50 **0.8423**. Publishes at 0.84 |
@@ -85,10 +85,23 @@ is reported as the loosest sensitivity and moves nothing (§11.2).
 
 ---
 
-## 2. `dim.aspect_ratio_hard` — the one rule with no precedent, and it survives
+## 2. `dim.aspect_ratio_hard` — the rule believed to have no precedent, and it survives
 
-The ticket said to check this first, because it is the only rule in the spec with
-no precedent anywhere and its failure mode is rejecting good plans.
+The ticket said to check this first, because it was believed to be the only rule in
+the spec with no precedent anywhere and its failure mode is rejecting good plans.
+
+⚠️ **The premise was false and the conclusion survives it** — *A regulator states an
+aspect rule and the engine says none does* (ADR 0048). Precedent exists in three
+literatures: `[1/3, 3]` is the **modal** hard aspect bound in VLSI floorplanning, an
+architectural generator (Magnetizing FPG) hard-bounds at `[1/2, 2]`, and Michalek et al.
+(2002) state this rule's rationale verbatim. Regulators state a bound too — but an
+**oriented depth** one, not this orientation-free quantity. Nothing measured below
+moves; what changes is that 3.0 no longer rests on one corpus. `docs/research/room-proportion-constraints.md`,
+`docs/research/room-proportion-standards.md`, `docs/research/room-area-bands.md` §13.
+
+⚠️ **§2.1's approval of `dim.aspect_ratio_soft` at p95 does not survive**, and ADR 0023's
+own decision 5 is why: *a band that holds most of the population is inert on most of it.*
+That term is now a **gradient**. See §13.2 of `room-area-bands.md`.
 
 ### 2.1 It is exactly the p99.5 of a real room
 

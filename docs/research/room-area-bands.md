@@ -780,3 +780,144 @@ produced it.
 ⚠️ Neither file is edited here. Ticket 71 holds `rules.json` and this document,
 declares `room-constraints.json` on resolution, and hands the rigs on as prose —
 the same discipline 69, 73 and 74 used.
+
+---
+
+## 13. Aspect: the cost of the regulator's number, and why the form was the defect
+
+Written by *A regulator states an aspect rule and the engine says none does*
+(ticket 72), ADR 0048. It lives here because §6.5 is where this file keeps a
+threshold's provenance and §5 is where it keeps a cap's cost, and the aspect rule
+is the second rule on this map to be priced the way §5 prices `dim.max_area`.
+
+### 13.1 What a 2:1 hard cap would cost, and it is derived rather than measured
+
+⚠️ **`data/corpora/` is gitignored and is not on disk.** `census.py` cannot be
+run, so the table below is **derived from published percentiles**, not measured,
+and it is marked `derived` wherever it travels. What makes it usable is that the
+room→dwelling amplification is recoverable from §5's own measured table:
+
+| §5 measured | rooms rejected | dwellings rejected | implied `n_eff` |
+|---|---:|---:|---:|
+| `dim.max_area` p95 | 4.78 % | 26.63 % | 6.32 |
+| `dim.max_area` p99 | 0.97 % | 6.02 % | 6.37 |
+| `dim.max_area` p99.5 | 0.49 % | 3.10 % | 6.41 |
+
+Three independent points agreeing to ±0.05 on `(1 − r)^n`, and the model then
+reproduces the one aspect figure that *was* measured: at 3.0 it predicts **3.1 %**
+of dwellings against ADR 0023's measured **2.85 %**, over-predicting by 8.8 %.
+
+| aspect cap | rooms above | **dwellings rejected** (derived) |
+|---:|---:|---:|
+| 3.0 — shipped | 0.50 % | 3.1 % *(measured 2.85 %)* |
+| 2.2 — the retired soft threshold | 4.30 % | 24.3 % |
+| **2.0 — AzDTN 2.7-3 cl. 5.1** | 8.00 % | **41.0 %** |
+| 2.0, at the norm's own habitable-only scope | 6.02 % | 18.3 % |
+
+**A 2:1 hard cap is refused at either scope**, against ADR 0023 decision 3's
+standing tolerance of ~3 % and against §5's own verdict that a 26.63 % cap is
+*"unusable"*. ⚠️ The independence assumption is the weak limb — aspect failures
+plausibly cluster within a dwelling, which would lower the true rate — so the
+honest statement is a **bound**: perfect correlation floors it at the room rate
+itself, **8.0 %**, still 2.7× the tolerance. The decision holds across the entire
+plausible range, which is why re-acquiring the corpus was not made a blocker.
+
+### 13.2 The defect was the form, not the number
+
+`dim.aspect_ratio_soft` shipped as a **step** at 2.2 (the p95). Per class, that
+step fired on:
+
+| class | fires at 2.2 | fires at 2.0 | p75 | p95 |
+|---|---:|---:|---:|---:|
+| `room*` | **1.5 %** | 4.2 % | 1.59 | 1.94 |
+| `bathroom` | 4.0 % | 7.0 % | 1.62 | 2.09 |
+| `living_dining` | 8.0 % | 13.7 % | 1.66 | 2.34 |
+| `kitchen` | **9.5 %** | 16.2 % | 1.76 | 2.50 |
+
+It ranked **least** on bedrooms and **most** on kitchens — backwards for a rule
+whose stated job is to catch *"a compliant, unliveable bedroom"*, and backwards
+against AzDTN's own scope, where `yaşayış otağı` is habitable and a kitchen is
+`yardımçı sahə`. **Moving the number could not fix it**: at 1.6 (p75) a step is
+still inert on 75 % of the population.
+
+ADR 0023 decision 5 already contains the argument — *"a soft band is fitted to
+the interquartile range, not to coverage … a band that holds most of the
+population is inert on most of the population, and a soft rule exists to rank"* —
+stated for bands, and never applied to the one-sided soft cap that the same ADR's
+§2.1 had approved at p95 on coverage grounds four sections earlier.
+
+Note what the two rows above show about a per-class split: the classes **converge
+at the body and diverge only in the tail** — p75 spread **1.59–1.76 (11 %)**
+against p95 spread **1.94–2.50 (29 %)**. A coverage-fitted threshold *needs* a
+per-class split; a gradient anchored at the body does not, because the class
+difference moves into the weight.
+
+### 13.3 The replacement, and where each number comes from
+
+`soft_w[class] × max(0, aspect − target[class])` — `dim.market_default_area`'s
+exact form, which is `soft_w[type] × |area − target_area|`.
+
+| class | `target` = corpus p50 | `soft_w` | provenance |
+|---|---:|---:|---|
+| `room*` | 1.37 | **1.00** | target `fitted`, weight `derived` |
+| `bathroom` | 1.39 | 0.94 | ″ |
+| `living_dining` | 1.37 | 0.83 | ″ |
+| `kitchen` | 1.45 | 0.82 | ″ |
+
+**The weight law is not invented.** `area_bands` obeys
+`soft_w = min(1, cv_min / cv)`, verified against **all eleven** area classes with
+residuals ≤ 0.008, fully explained by `cv` being published to two decimals. The
+aspect census publishes percentiles and no `cv`, so `p95/p50` stands in as the
+dispersion proxy under the same normalisation. ⚠️ **The ordering is robust to the
+proxy; the spacing is not.** `soft_w` may become `fitted` only after a `cv`
+refit — added to `rules.json`'s `owed`.
+
+**The target is the corpus p50 and deliberately not 1.0.** A square room is not
+the ideal for every class: a galley kitchen at 2.5 is a good kitchen because
+worktop runs are linear, which is why `kitchen` p95 is 2.50 against `room*`'s
+1.94. The four p50s sit at 1.37–1.45, a 6 % spread, so the target is nearly
+class-free and the whole class difference lives in the weight.
+
+⚠️ **Five classes, not eleven.** The aspect census published four binding classes
+plus exempt `corridor`; `area_bands` carries eleven. Unmatched classes take the
+pooled figures. Left as fog rather than ticketed — §13.2's p75 spread says the
+split buys little at the body, and it becomes worth doing only if someone
+re-acquires the corpus for another reason.
+
+### 13.4 Two external corroborations, and one that is not what it looks like
+
+`docs/research/room-proportion-standards.md` and
+`docs/research/room-proportion-constraints.md`.
+
+- **The hard 3.0 gains a second, independent defence.** `[1/3, 3]` is the modal
+  hard aspect bound in VLSI floorplanning (PeF, Per-RMAP, Intel PARSAC) — a
+  literature with no contact with housing. It was resting on one Swiss
+  percentile; it now rests on two unconnected fields.
+- **Palladio I.XXI supplies the *form*** — *"I use not to exceed two squares …
+  the nearer they come to a square, the more commendable"* — a cap plus a
+  monotone preference, this rule's exact two-term shape, and the **only** source
+  found whose predicate is orientation-free length:breadth, i.e. the quantity
+  this engine measures.
+- ⚠️ **AzDTN's 2.0 is not a proportion rule and must not be read as one.** The
+  Soviet original is *depth* ≤ 6 m **and** ≤ 2× width, mandatory, **single-sided
+  lighting only**; Portugal's RGEU art. 69.1(d) posts the same 2:1 and **waives**
+  it for dual-aspect rooms. Two traditions with no contact, restricting and
+  waiving on the same condition: **it is a daylight rule.** A 6 × 3 m room with
+  its window on the long wall is 2:1 to this engine and *ideal* to all three
+  norms. The oriented rule is ticketed, not adopted.
+- **Neufert and the Metric Handbook state no habitable-room ratio** — Neufert's
+  1:1.5 is the **office** chapter, the Metric Handbook's is **broadcast
+  studios**. Clean verified negatives, which is why §13.3's target is a corpus
+  statistic and not a design-grade number: C8's Neufert-*grade* bar supplies none
+  here.
+
+⚠️ **Carry the reliability caveats.** That research caught its own sub-agent
+fabricating cited findings for six countries; the most dangerous was a claimed
+Galician *"P < 2.2 A"* — and **2.2 was this engine's fitted soft threshold**, so
+it was one quoting error from being published as an independent regulator
+converging on our p95. A fabrication that confirms the prior is the hardest to
+catch. Separately, a "verified negative" on Belarus was false because that copy
+of СНБ 3.02.04-03 **silently omits cl. 4.11** (numbering runs 4.10 → 4.12) — the
+abridged-document failure this repo already records for SP 54, recurring. Belarus
+ТКП 45-3.02-230-2010 is **reported, not read**; Spain, Ireland, the Netherlands,
+France, Italy, Switzerland and Ukraine are unresearched.

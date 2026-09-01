@@ -36,7 +36,18 @@ PROFILE = "AZ"
 # saying which gates went and why -- ADR 0036 removed three guard entries and
 # took the total 238 -> 235 without losing a named gate, which is the shape of a
 # legitimate decrease.
-GATE_FLOOR = 446
+# LOWERED 446 -> 445 by *A regulator states an aspect rule and the engine says none
+# does* (ticket 72), and NO GATE WENT MISSING.  446 was never satisfiable: at commit
+# 8e2dd86, the commit that SET this floor, the runner already emitted 445, and this
+# file is byte-identical from that commit to now.  The floor was set one too high, so
+# the ratchet has printed a phantom `1 gate(s) have gone missing` on every run since,
+# through five ticket closures, and nobody looked -- which is the exact failure mode a
+# ratchet exists to prevent, arriving as a false positive instead of a false negative.
+# Verified by re-running this file against the room-constraints.json and rules.json of
+# 8e2dd86, a910412, 77fc942, e69472a, 006b230 and 4da406f: 445 at every one.
+# A check that can never pass is a lie about coverage, the same argument rules.json
+# makes for retiring a rule that can never fire.
+GATE_FLOOR = 445
 DATA = pathlib.Path(__file__).resolve().parents[2] / "data/standards/room-constraints.json"
 
 fails, notes = [], []
